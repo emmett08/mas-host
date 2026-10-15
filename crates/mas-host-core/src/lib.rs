@@ -131,6 +131,72 @@ struct Agent {
     executable: PathBuf,
     sha256: String,
     handler: String,
+    operation: String,
+    arguments: Vec<String>,
+    configuration: Value,
+    environment_names: BTreeSet<String>,
+}
+
+fn declared_environment(configuration: &Value) -> Result<BTreeSet<String>> {
+    let mut names = BTreeSet::new();
+    if configuration["kind"] != "llm" {
+        return Ok(names);
+    }
+    let connection = configuration["connection"]
+        .as_object()
+        .ok_or("LLM configuration requires a connection object")?;
+    if let Some(value) = connection.get("api_key_env") {
+        names.insert(
+            value
+                .as_str()
+                .ok_or("api_key_env must be a name")?
+                .to_owned(),
+        );
+    }
+    if let Some(value) = connection.get("env") {
+        for name in value
+            .as_array()
+            .ok_or("connection env must be an array of names")?
+        {
+            names.insert(
+                name.as_str()
+                    .ok_or("connection env must contain names")?
+                    .to_owned(),
+            );
+        }
+    }
+    for name in &names {
+        if name.is_empty()
+            || name.len() > 128
+            || !name
+                .bytes()
+                .enumerate()
+                .all(|(i, b)| b.is_ascii_alphabetic() || b == b'_' || (i > 0 && b.is_ascii_digit()))
+            || name == "MAS_WORKER_CHANNEL_FD"
+            || name == "PATH"
+        {
+            return Err("invalid or reserved connection environment name".into());
+        }
+    }
+    Ok(names)
+}
+
+impl Agent {
+    fn environment(&self) -> Result<BTreeMap<String, String>> {
+        let mut environment = BTreeMap::new();
+        for name in &self.environment_names {
+            match std::env::var(name) {
+                Ok(value) => {
+                    environment.insert(name.clone(), value);
+                }
+                Err(std::env::VarError::NotPresent) => {}
+                Err(std::env::VarError::NotUnicode(_)) => {
+                    return Err("declared connection environment must be Unicode".into())
+                }
+            }
+        }
+        Ok(environment)
+    }
 }
 
 struct Inner {
@@ -155,7 +221,7 @@ impl Engine {
     pub fn open(bundle: &Value, state_dir: &Path, run_id: &str) -> Result<Self> {
         checked_object(bundle, "bundle")?;
         fields(bundle, &["version", "agents", "topology"], &[])?;
-        if bundle["version"] != "mas-bundle/1" {
+        if bundle["version"] != "mas-bundle/1" && bundle["version"] != "mas-bundle/2" {
             return Err("unsupported bundle version".into());
         }
         let mut agents = BTreeMap::new();
@@ -165,21 +231,72 @@ impl Engine {
         if registrations.is_empty() || registrations.len() > 31 {
             return Err("register 1..31 application agents".into());
         }
+        let mut verified_executables = BTreeSet::new();
         for value in registrations {
-            fields(value, &["name", "executable", "sha256", "handler"], &[])?;
+            fields(
+                value,
+                &["name", "executable", "sha256", "handler"],
+                if bundle["version"] == "mas-bundle/2" {
+                    &["configuration", "arguments", "operation"]
+                } else {
+                    &[]
+                },
+            )?;
             let name = text(value, "name")?;
             if name == "client" {
                 return Err("client is reserved for host ingress".into());
             }
+            let configuration = value
+                .get("configuration")
+                .cloned()
+                .unwrap_or_else(|| json!({}));
+            checked_object(&configuration, "agent configuration")?;
+            let arguments = match value.get("arguments") {
+                None => Vec::new(),
+                Some(values) => values
+                    .as_array()
+                    .ok_or("worker arguments must be an array")?
+                    .iter()
+                    .map(|value| {
+                        value
+                            .as_str()
+                            .map(str::to_owned)
+                            .ok_or_else(|| "worker arguments must be strings".to_owned())
+                    })
+                    .collect::<Result<Vec<_>>>()?,
+            };
+            if arguments.len() > 32
+                || arguments
+                    .iter()
+                    .any(|argument| argument.len() > 4096 || argument.contains('\0'))
+            {
+                return Err("worker arguments exceed supported bounds".into());
+            }
+            let environment_names = declared_environment(&configuration)?;
             let agent = Agent {
                 executable: PathBuf::from(text(value, "executable")?),
                 sha256: text(value, "sha256")?.to_owned(),
                 handler: text(value, "handler")?.to_owned(),
+                operation: match value.get("operation") {
+                    Some(_) => text(value, "operation")?,
+                    None => text(value, "handler")?,
+                }
+                .to_owned(),
+                configuration,
+                arguments,
+                environment_names,
             };
-            if !agent.executable.is_absolute() || agent.handler.is_empty() {
+            if !agent.executable.is_absolute()
+                || agent.handler.is_empty()
+                || agent.operation.is_empty()
+            {
                 return Err("worker executable must be absolute and handler non-empty".into());
             }
-            verify_executable(&agent)?;
+            // Built-in actors share one host executable. Hash each identical
+            // path/digest binding once during open; dispatch still rechecks it.
+            if verified_executables.insert((agent.executable.clone(), agent.sha256.clone())) {
+                verify_executable(&agent)?;
+            }
             if agents.insert(name.to_owned(), agent).is_some() {
                 return Err("duplicate agent name".into());
             }
@@ -299,6 +416,7 @@ impl Engine {
             return Err("unsettled effect prevents successful completion".into());
         }
         self.inner.reconcile_completed_effects()?;
+        self.inner.check_live()?;
         Ok(output)
     }
 
@@ -472,6 +590,34 @@ impl Inner {
             )
             .map_err(error)?;
         Ok(())
+    }
+
+    // Serialise completion with cancellation intent in the same journal. A
+    // cancellation committed before this transaction prevents durable success.
+    fn commit_completed(&self, id: &str, output: &Value) -> Result<()> {
+        let mut db = lock(&self.journal)?;
+        let tx = db
+            .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
+            .map_err(error)?;
+        let cancelled: i64 = tx
+            .query_row(
+                "SELECT cancelled FROM metadata WHERE singleton=1",
+                [],
+                |r| r.get(0),
+            )
+            .map_err(error)?;
+        if cancelled != 0 {
+            return Err("run cancelled; effect uncertainty is retained".into());
+        }
+        if now_ms()? >= self.deadline_ms {
+            return Err("original run deadline expired".into());
+        }
+        tx.execute(
+            "UPDATE steps SET state='completed',output=?,evidence=NULL WHERE id=?",
+            params![output.to_string(), id],
+        )
+        .map_err(error)?;
+        tx.commit().map_err(error)
     }
 }
 

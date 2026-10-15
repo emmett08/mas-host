@@ -8,3 +8,4 @@ description = "Native application SDK for the MAS host"
 [dependencies]
 serde_json.workspace = true
 mas-protocol-codec.workspace = true
+libc.workspace = true

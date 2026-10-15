@@ -8,8 +8,8 @@ use std::{
 };
 
 const HELP: &str = "mas-host: native applications on the MAS protocol\n\n\
-  build   --project DIR [--sdk-root DIR]\n\
-  run     --project DIR --agent NAME --input FILE --state DIR --run ID [--sdk-root DIR]\n\
+  build   --project DIR [--sdk-root DIR] [--agents FILE] [--connections FILE]\n\
+  run     --project DIR --agent NAME --input FILE --state DIR --run ID [--sdk-root DIR] [--agents FILE] [--connections FILE]\n\
   run     --bundle FILE --agent NAME --input FILE --state DIR --run ID\n\
   inspect --state DIR --run ID\n\
   cancel  --state DIR --run ID\n\
@@ -50,8 +50,16 @@ fn execute(args: &[String]) -> Result<Value, String> {
     let command = args.first().ok_or("missing command (try --help)")?;
     match command.as_str() {
         "build" => {
-            let args = options(&args[1..], &["--project", "--sdk-root"])?;
-            let file = build::build(Path::new(require(&args, "--project")?), &sdk_root(&args))?;
+            let args = options(
+                &args[1..],
+                &["--project", "--sdk-root", "--agents", "--connections"],
+            )?;
+            let file = build::build_configured(
+                Path::new(require(&args, "--project")?),
+                &sdk_root(&args),
+                args.get("--agents").map(Path::new),
+                args.get("--connections").map(Path::new),
+            )?;
             Ok(json!({"status":"built","bundle":file}))
         }
         "run" => {
@@ -65,6 +73,8 @@ fn execute(args: &[String]) -> Result<Value, String> {
                     "--input",
                     "--state",
                     "--run",
+                    "--agents",
+                    "--connections",
                 ],
             )?;
             let input = config::read_json(Path::new(require(&args, "--input")?))?;
@@ -75,8 +85,17 @@ fn execute(args: &[String]) -> Result<Value, String> {
             let run = require(&args, "--run")?;
             let state = Path::new(require(&args, "--state")?);
             let bundle_path = match (args.get("--bundle"), args.get("--project")) {
-                (Some(file), None) => PathBuf::from(file),
-                (None, Some(project)) => build::build(Path::new(project), &sdk_root(&args))?,
+                (Some(file), None)
+                    if !args.contains_key("--agents") && !args.contains_key("--connections") =>
+                {
+                    PathBuf::from(file)
+                }
+                (None, Some(project)) => build::build_configured(
+                    Path::new(project),
+                    &sdk_root(&args),
+                    args.get("--agents").map(Path::new),
+                    args.get("--connections").map(Path::new),
+                )?,
                 _ => return Err("provide exactly one of --project and --bundle".into()),
             };
             let bundle = config::read_json(&bundle_path)?;
@@ -121,6 +140,12 @@ fn main() {
     let args: Vec<_> = std::env::args().skip(1).collect();
     if args.first().is_some_and(|s| s == "__supervise") {
         if mas_protocol_codec::worker_supervisor::supervise(&args[1..]).is_err() {
+            std::process::exit(1);
+        }
+        return;
+    }
+    if args == ["__builtin"] {
+        if mas_host_runtime::serve().is_err() {
             std::process::exit(1);
         }
         return;

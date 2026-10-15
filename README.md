@@ -1,16 +1,24 @@
 # MAS Host
 
-A shared Rust host for applications written in Go, Rust and C++. Application
+A shared Rust host for native, LLM and composable workflow agents. Application
 repositories supply **application functions, agent configuration and topology
 configuration**, plus their normal build metadata and tests. The host tooling
 generates executable entry points and registration bundles. No Python, handwritten
 transport or application-owned launcher is required.
 
-This is the initial **trusted local Linux profile**, built from source. It
+This is a **trusted local Linux profile**, built from source. It
 implements native execution, bounded parallel requests, durable child results,
 effect admission, inspection and evidence-based recovery. It consumes a pinned
 revision of [`emmett08/mas`](https://github.com/emmett08/mas) through its public
 Rust crate; neither the protocol repository nor existing demos need changes.
+
+[`mas-agents/2`](docs/llm-workflows.md) adds maintained OpenAI Responses,
+OpenAI-compatible, Cursor SDK, command and explicit mock providers. Workflow
+agents recursively compose sequences, parallel groups, branches, bounded loops,
+foreach and named subworkflows. Star, tree and mesh routes can be combined in one
+application. Every cross-agent request still passes through MAS admission.
+The [composable examples](https://github.com/emmett08/mas-host-examples/tree/main/examples/composable-agents)
+exercise these shapes with one actor definition and selectable provider profiles.
 
 ## Run the release example
 
@@ -140,10 +148,11 @@ the unchanged MAS protocol store, and MAS's Linux worker guardian. Workers are
 trusted code with the operator's filesystem permissions. The guardian clears the
 environment, discards worker stdout/stderr and applies fixed local resource
 limits; diagnostics travel in returned errors and evidence. It is not a sandbox.
-Credential injection and retained application logs are not implemented yet.
+LLM workers receive only their declared credential and environment bindings;
+retained application logs are not implemented.
 
-This release does not claim distributed ownership, remote ingress, built-in model
-providers or compatibility with the Python host's state. Those extensions and
+This release does not claim distributed ownership, remote ingress or compatibility
+with the Python host's state. Those extensions and
 their acceptance criteria are set out in [architecture](docs/architecture.md).
 The precise framing, execution and recovery rules are in the
 [native contract](docs/native-contract.md).

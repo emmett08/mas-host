@@ -9,7 +9,13 @@ description = "Native application host for the MAS protocol"
 [dependencies]
 mas-host-core.workspace = true
 mas-host-native-build.workspace = true
+mas-host-runtime.workspace = true
+mas-host-providers.workspace = true
+mas-host-workflow.workspace = true
 mas-protocol-codec.workspace = true
 serde_json.workspace = true
 sha2.workspace = true
 libc.workspace = true
+
+[dev-dependencies]
+rusqlite.workspace = true

@@ -311,6 +311,117 @@ fn cancellation_persists_without_resolving_an_effect() {
 }
 
 #[test]
+fn cancellation_prevents_durable_final_result_and_retains_known_effect_completion() {
+    let fixture = Fixture::new();
+    let engine = fixture.engine();
+    let invocation = fixture.invocation(&engine);
+    engine
+        .inner
+        .begin_effect(&invocation, "inference-0", &json!({"model":"mock"}))
+        .unwrap();
+    cancel(&fixture.path, "test-run").unwrap();
+    // A complete provider response observed by the host is still durable
+    // evidence, even when cancellation prevents the containing task succeeding.
+    engine
+        .inner
+        .complete_effect(
+            &invocation,
+            "inference-0",
+            &json!({"accepted":true}),
+            &json!({"provider_response_id":"response-1"}),
+        )
+        .unwrap();
+    assert!(engine
+        .inner
+        .commit_completed(&invocation.id, &json!({"accepted":true}))
+        .unwrap_err()
+        .contains("cancelled"));
+    let state = engine.status().unwrap();
+    let root = state["steps"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|step| step["id"] == invocation.id)
+        .unwrap();
+    assert_ne!(root["state"], "completed");
+    assert_eq!(state["protocol"]["calls"][0]["state"], "recorded");
+    assert!(!engine.inner.has_unsettled_effects().unwrap());
+}
+
+#[test]
+fn bundle_two_binds_configuration_arguments_and_public_operation() {
+    let mut fixture = Fixture::new();
+    fixture.bundle["version"] = "mas-bundle/2".into();
+    fixture.bundle["agents"][0]["configuration"] = json!({"kind":"llm","model":"mock", "connection":{
+        "provider":"mock","api_key_env":"MAS_HOST_TEST_KEY","env":["MAS_HOST_TEST_EXTRA"]}});
+    fixture.bundle["agents"][0]["arguments"] = json!(["__builtin"]);
+    fixture.bundle["agents"][0]["operation"] = "AssessProposal".into();
+    let engine = fixture.engine();
+    let agent = &engine.inner.agents["worker"];
+    assert_eq!(agent.handler, "Assess");
+    assert_eq!(agent.operation, "AssessProposal");
+    assert_eq!(agent.arguments, ["__builtin"]);
+    assert_eq!(agent.configuration["model"], "mock");
+    assert_eq!(
+        agent.environment_names,
+        BTreeSet::from(["MAS_HOST_TEST_EXTRA".into(), "MAS_HOST_TEST_KEY".into()])
+    );
+    assert!(engine.inner.agents["other"].environment_names.is_empty());
+}
+
+#[test]
+fn executable_verification_cache_does_not_trust_a_different_digest() {
+    let mut fixture = Fixture::new();
+    fixture.bundle["agents"][1]["sha256"] = "0".repeat(64).into();
+    assert!(Engine::open(&fixture.bundle, &fixture.path, "test-run")
+        .err()
+        .unwrap()
+        .contains("digest differs"));
+}
+
+#[test]
+fn environment_scope_requires_explicit_llm_connection_names() {
+    assert!(
+        declared_environment(&json!({"kind":"workflow","connection":{"env":["IGNORED"]}}))
+            .unwrap()
+            .is_empty()
+    );
+    for value in [
+        json!({"kind":"llm"}),
+        json!({"kind":"llm","connection":{"env":"ALL"}}),
+        json!({"kind":"llm","connection":{"env":["PATH"]}}),
+        json!({"kind":"llm","connection":{"env":["MAS_WORKER_CHANNEL_FD"]}}),
+        json!({"kind":"llm","connection":{"api_key_env":"INVALID=NAME"}}),
+    ] {
+        assert!(declared_environment(&value).is_err());
+    }
+    std::env::set_var("MAS_HOST_TEST_SCOPED_KEY", "temporary-test-value");
+    std::env::set_var("MAS_HOST_TEST_UNDECLARED_KEY", "must-not-be-copied");
+    let mut fixture = Fixture::new();
+    fixture.bundle["version"] = "mas-bundle/2".into();
+    fixture.bundle["agents"][0]["configuration"] =
+        json!({"kind":"llm","connection":{"env":["MAS_HOST_TEST_SCOPED_KEY"]}});
+    let engine = fixture.engine();
+    assert_eq!(
+        engine.inner.agents["worker"].environment().unwrap(),
+        BTreeMap::from([(
+            "MAS_HOST_TEST_SCOPED_KEY".into(),
+            "temporary-test-value".into()
+        )])
+    );
+    assert!(engine.inner.agents["other"]
+        .environment()
+        .unwrap()
+        .is_empty());
+    let persisted = std::fs::read(fixture.path.join("test-run").join("execution.sqlite")).unwrap();
+    assert!(!persisted
+        .windows(b"temporary-test-value".len())
+        .any(|bytes| bytes == b"temporary-test-value"));
+    std::env::remove_var("MAS_HOST_TEST_SCOPED_KEY");
+    std::env::remove_var("MAS_HOST_TEST_UNDECLARED_KEY");
+}
+
+#[test]
 fn independent_run_namespaces_have_distinct_effect_identities() {
     let first = Fixture::new();
     let second = Fixture::new();

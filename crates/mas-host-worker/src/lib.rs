@@ -14,6 +14,7 @@
 #![cfg(target_os = "linux")]
 
 use std::{
+    collections::BTreeMap,
     io::{self, Read, Write},
     net::Shutdown,
     os::{
@@ -52,22 +53,65 @@ impl Worker {
         deadline_ms: u64,
         ownership_fd: RawFd,
     ) -> Result<Self, String> {
-        Self::spawn_with_launcher(
+        Self::spawn_scoped(
             executable,
             start,
             deadline_ms,
             ownership_fd,
+            &[],
+            &BTreeMap::new(),
+        )
+    }
+
+    /// Start an explicitly configured worker with only its declared environment.
+    /// Secret values are passed to the process, never into its start frame.
+    pub fn spawn_scoped(
+        executable: &Path,
+        start: &Value,
+        deadline_ms: u64,
+        ownership_fd: RawFd,
+        arguments: &[String],
+        environment: &BTreeMap<String, String>,
+    ) -> Result<Self, String> {
+        Self::spawn_scoped_with_launcher(
+            executable,
+            start,
+            deadline_ms,
+            ownership_fd,
+            arguments,
+            environment,
             |command, args| {
                 command.arg("__supervise").args(args);
             },
         )
     }
 
+    #[cfg(test)]
     fn spawn_with_launcher(
         executable: &Path,
         start: &Value,
         deadline_ms: u64,
         ownership_fd: RawFd,
+        configure: impl FnOnce(&mut Command, &[String]),
+    ) -> Result<Self, String> {
+        Self::spawn_scoped_with_launcher(
+            executable,
+            start,
+            deadline_ms,
+            ownership_fd,
+            &[],
+            &BTreeMap::new(),
+            configure,
+        )
+    }
+
+    fn spawn_scoped_with_launcher(
+        executable: &Path,
+        start: &Value,
+        deadline_ms: u64,
+        ownership_fd: RawFd,
+        arguments: &[String],
+        environment: &BTreeMap<String, String>,
         configure: impl FnOnce(&mut Command, &[String]),
     ) -> Result<Self, String> {
         if !executable.is_absolute() {
@@ -87,7 +131,7 @@ impl Worker {
             ownership.as_raw_fd(),
         ];
         let cpu_seconds = deadline.remaining()?.as_millis().div_ceil(1000).max(1);
-        let args = vec![
+        let mut args = vec![
             inherited[0].to_string(),
             inherited[1].to_string(),
             deadline_ms.to_string(),
@@ -101,9 +145,12 @@ impl Worker {
                 .ok_or("worker executable path is not UTF-8")?
                 .into(),
         ];
+        args.extend_from_slice(arguments);
         let mut command = Command::new(std::env::current_exe().map_err(io_error)?);
         command
             .env_clear()
+            .env("PATH", "/usr/local/bin:/usr/bin:/bin")
+            .envs(environment)
             .stdin(Stdio::null())
             .stdout(Stdio::null())
             .stderr(Stdio::null());
@@ -151,6 +198,17 @@ impl Worker {
     pub fn read(&mut self) -> Result<Value, String> {
         self.ensure_running()?;
         read_frame(&mut self.stream, &self.deadline)
+    }
+
+    /// Read one frame while checking cancellation at most every 50 ms.
+    /// Partial headers and bodies remain in place between checks; all reads
+    /// retain the original monotonic and wall-clock deadline.
+    pub fn read_interruptible(
+        &mut self,
+        mut check: impl FnMut() -> Result<(), String>,
+    ) -> Result<Value, String> {
+        self.ensure_running()?;
+        read_frame_interruptible(&mut self.stream, &self.deadline, &mut check)
     }
 
     /// Write one bounded JSON object, using the same strict MAS JSON rules as
@@ -295,14 +353,22 @@ fn encode_frame(value: &Value) -> Result<Vec<u8>, String> {
 }
 
 fn read_frame(stream: &mut UnixStream, deadline: &Deadline) -> Result<Value, String> {
+    read_frame_interruptible(stream, deadline, &mut || Ok(()))
+}
+
+fn read_frame_interruptible(
+    stream: &mut UnixStream,
+    deadline: &Deadline,
+    check: &mut impl FnMut() -> Result<(), String>,
+) -> Result<Value, String> {
     let mut header = [0; 4];
-    read_bytes(stream, deadline, &mut header)?;
+    read_bytes_interruptible(stream, deadline, &mut header, check)?;
     let length = u32::from_be_bytes(header) as usize;
     if !(1..=MAX_FRAME_BYTES).contains(&length) {
         return Err("invalid worker frame length".into());
     }
     let mut body = vec![0; length];
-    read_bytes(stream, deadline, &mut body)?;
+    read_bytes_interruptible(stream, deadline, &mut body, check)?;
     let source = std::str::from_utf8(&body).map_err(|_| "invalid worker UTF-8")?;
     let value = mas_protocol_codec::parse_json(source)
         .map_err(|e| format!("invalid worker JSON: {}", e.message))?;
@@ -312,19 +378,29 @@ fn read_frame(stream: &mut UnixStream, deadline: &Deadline) -> Result<Value, Str
     Ok(value)
 }
 
-fn read_bytes(
+fn read_bytes_interruptible(
     stream: &mut UnixStream,
     deadline: &Deadline,
     mut bytes: &mut [u8],
+    check: &mut impl FnMut() -> Result<(), String>,
 ) -> Result<(), String> {
     while !bytes.is_empty() {
+        check()?;
         stream
-            .set_read_timeout(Some(deadline.remaining()?))
+            .set_read_timeout(Some(deadline.remaining()?.min(Duration::from_millis(50))))
             .map_err(io_error)?;
         match stream.read(bytes) {
             Ok(0) => return Err(io_error(io::Error::from(io::ErrorKind::UnexpectedEof))),
             Ok(count) => bytes = &mut bytes[count..],
             Err(error) if error.kind() == io::ErrorKind::Interrupted => continue,
+            Err(error)
+                if matches!(
+                    error.kind(),
+                    io::ErrorKind::WouldBlock | io::ErrorKind::TimedOut
+                ) =>
+            {
+                continue
+            }
             Err(error) => return Err(io_error(error)),
         }
     }
@@ -356,8 +432,13 @@ mod tests {
     use std::{
         fs::{self, OpenOptions},
         os::unix::fs::PermissionsExt,
+        sync::Mutex,
         thread,
     };
+    // The descriptor-preservation test deliberately removes CLOEXEC from a
+    // process-global descriptor. Other test launches must not inherit it while
+    // that test is asserting the dedicated guardian's ownership lifetime.
+    static GUARDIAN_TEST_LOCK: Mutex<()> = Mutex::new(());
 
     fn receive(body: &[u8]) -> Result<Value, String> {
         let (mut reader, mut writer) = UnixStream::pair().unwrap();
@@ -423,6 +504,126 @@ mod tests {
         );
     }
 
+    #[test]
+    fn interruptible_read_retains_partial_header_and_body() {
+        let (mut reader, mut writer) = UnixStream::pair().unwrap();
+        let expected = serde_json::json!({"complete":true});
+        let encoded = encode_frame(&expected).unwrap();
+        let writer_thread = thread::spawn(move || {
+            writer.write_all(&encoded[..2]).unwrap();
+            thread::sleep(Duration::from_millis(120));
+            writer.write_all(&encoded[2..7]).unwrap();
+            thread::sleep(Duration::from_millis(120));
+            writer.write_all(&encoded[7..]).unwrap();
+        });
+        let mut checks = 0;
+        let result = read_frame_interruptible(
+            &mut reader,
+            &Deadline::new(unix_ms_now() + 2_000).unwrap(),
+            &mut || {
+                checks += 1;
+                Ok(())
+            },
+        )
+        .unwrap();
+        assert_eq!(result, expected);
+        assert!(checks >= 4, "partial frame did not survive periodic checks");
+        writer_thread.join().unwrap();
+    }
+
+    #[test]
+    fn interruptible_read_cancels_without_waiting_for_deadline() {
+        let (mut reader, mut writer) = UnixStream::pair().unwrap();
+        // Stop in the middle of a header, where starting a fresh frame on every
+        // timeout would either corrupt the stream or postpone cancellation.
+        writer.write_all(&[0, 0]).unwrap();
+        let before = Instant::now();
+        let failure = read_frame_interruptible(
+            &mut reader,
+            &Deadline::new(unix_ms_now() + 5_000).unwrap(),
+            &mut || {
+                if before.elapsed() >= Duration::from_millis(70) {
+                    Err("run cancelled".into())
+                } else {
+                    Ok(())
+                }
+            },
+        )
+        .unwrap_err();
+        assert_eq!(failure, "run cancelled");
+        assert!(before.elapsed() < Duration::from_secs(1));
+    }
+
+    #[test]
+    fn scoped_worker_receives_arguments_and_only_declared_environment() {
+        let _launch_guard = GUARDIAN_TEST_LOCK.lock().unwrap();
+        let directory = std::env::temp_dir().join(format!(
+            "mas-worker-scope-{}-{}",
+            std::process::id(),
+            unix_ms_now()
+        ));
+        fs::create_dir(&directory).unwrap();
+        let lock = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create_new(true)
+            .open(directory.join("owner.lock"))
+            .unwrap();
+        assert_eq!(
+            unsafe { libc::flock(lock.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) },
+            0
+        );
+        let result_path = directory.join("observed");
+        let executable = directory.join("worker");
+        fs::write(&executable, format!(
+            "#!/bin/sh\nprintf '%s\\n%s\\n%s\\n%s\\n' \"$1\" \"$MAS_TEST_DECLARED\" \"${{MAS_TEST_UNDECLARED-unset}}\" \"$PATH\" > '{}'\n/bin/sleep 5\n",
+            result_path.display()
+        )).unwrap();
+        fs::set_permissions(&executable, fs::Permissions::from_mode(0o700)).unwrap();
+        std::env::set_var("MAS_TEST_UNDECLARED", "must-not-inherit");
+        let environment = BTreeMap::from([("MAS_TEST_DECLARED".into(), "declared-value".into())]);
+        let mut worker = Worker::spawn_scoped_with_launcher(
+            &executable,
+            &serde_json::json!({"type":"start"}),
+            unix_ms_now() + 5_000,
+            lock.as_raw_fd(),
+            &["configured-argument".into()],
+            &environment,
+            |command, args| {
+                command
+                    .args([
+                        "--exact",
+                        "tests::guardian_entry",
+                        "--ignored",
+                        "--nocapture",
+                    ])
+                    .env(
+                        "MAS_TEST_GUARDIAN_ARGS",
+                        serde_json::to_string(args).unwrap(),
+                    );
+            },
+        )
+        .unwrap();
+        let observed = (0..200)
+            .find_map(|_| {
+                let value = fs::read_to_string(&result_path).ok();
+                if value.as_ref().is_some_and(|text| text.lines().count() == 4) {
+                    return value;
+                }
+                thread::sleep(Duration::from_millis(5));
+                None
+            })
+            .expect("scoped worker did not report its environment");
+        worker.stop().unwrap();
+        std::env::remove_var("MAS_TEST_UNDECLARED");
+        assert_eq!(
+            observed,
+            "configured-argument\ndeclared-value\nunset\n/usr/local/bin:/usr/bin:/bin\n"
+        );
+        drop(lock);
+        fs::remove_dir_all(directory).unwrap();
+    }
+
     // Test-only command entrypoint: a fresh subprocess runs the real MAS
     // guardian without requiring the application's CLI binary to be built.
     #[test]
@@ -435,6 +636,7 @@ mod tests {
 
     #[test]
     fn guardian_reaps_descendants_retains_lock_and_preserves_parent_fd() {
+        let _launch_guard = GUARDIAN_TEST_LOCK.lock().unwrap();
         let directory = std::env::temp_dir().join(format!(
             "mas-worker-test-{}-{}",
             std::process::id(),

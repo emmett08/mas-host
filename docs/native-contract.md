@@ -95,12 +95,21 @@ this initial profile does not claim a distributed atomic transaction. Workers
 and their process groups are supervised through MAS's existing Linux guardian.
 The guardian retains the ownership lock until descendants are reaped.
 
-The first guardian profile clears the inherited environment, discards worker
+The guardian clears the inherited environment, discards worker
 standard output/error, limits address space to 2 GiB and files to 64 MiB, and
-bounds CPU time by the remaining deadline. Approved secret bindings and retained
-application logs require a subsequent deployment profile. Cancellation records
-durable intent: an active worker observes it at its next host interaction, with
-the original deadline remaining the hard lifetime bound.
+bounds CPU time by the remaining deadline. Configured LLM workers receive only
+declared environment/credential references and a fixed minimal PATH. Retained
+application logs remain a later profile. Cancellation records durable intent,
+interrupts local worker reads and is checked before committing successful task
+completion. Already-observed effect outcomes remain recordable after cancellation.
+The original deadline remains the hard lifetime bound; neither local termination
+nor cancellation establishes that a remote provider stopped work.
+
+Bundle `mas-bundle/2` adds optional worker arguments, configuration and a public
+operation independent of its implementation handler. It uses the same native
+framing. The Rust SDK's configured entry point receives task input and immutable
+configuration separately. Existing bundle and agent configuration version1 remain
+accepted. See [LLM and workflow contracts](llm-workflows.md) for built-in workers.
 
 ## API boundary
 

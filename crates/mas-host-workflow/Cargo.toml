@@ -1,0 +1,12 @@
+[package]
+name = "mas-host-workflow"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Bounded recursive workflow composition for the MAS host"
+
+[dependencies]
+mas-host-sdk = { path = "../../sdk/rust" }
+mas-protocol-codec.workspace = true
+serde_json.workspace = true
+sha2.workspace = true

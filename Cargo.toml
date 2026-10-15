@@ -18,3 +18,6 @@ libc = "=0.2.190"
 mas-host-worker = { path = "crates/mas-host-worker" }
 mas-host-core = { path = "crates/mas-host-core" }
 mas-host-native-build = { path = "crates/mas-host-native-build" }
+mas-host-runtime = { path = "crates/mas-host-runtime" }
+mas-host-providers = { path = "crates/mas-host-providers" }
+mas-host-workflow = { path = "crates/mas-host-workflow" }
