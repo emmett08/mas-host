@@ -1,0 +1,6 @@
+{
+  "version": "mas-agents/1",
+  "agents": [
+    {"name": "invoice", "language": "cpp", "source": "invoice.cpp", "handler": "Assess"}
+  ]
+}

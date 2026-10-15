@@ -1,0 +1,15 @@
+[package]
+name = "mas-host"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Native application host for the MAS protocol"
+
+[dependencies]
+mas-host-core.workspace = true
+mas-host-native-build.workspace = true
+mas-protocol-codec.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+libc.workspace = true

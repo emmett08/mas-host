@@ -1,0 +1,8 @@
+{
+  "release": "2026.10",
+  "replicas": 1,
+  "demand": 250,
+  "per_replica": 100,
+  "critical_vulnerabilities": 0,
+  "max_replicas": 5
+}

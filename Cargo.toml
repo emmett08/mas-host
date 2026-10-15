@@ -1,0 +1,20 @@
+[workspace]
+resolver = "2"
+members = ["crates/*", "sdk/rust"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+license = "GPL-3.0-only"
+repository = "https://github.com/emmett08/mas-host"
+
+[workspace.dependencies]
+mas-protocol-codec = { git = "https://github.com/emmett08/mas", rev = "9d9845990843f5e3464395da7bd60bb50ffb2dda" }
+serde_json = { version = "=1.0.152", features = ["arbitrary_precision"] }
+rusqlite = { version = "=0.40.2", features = ["bundled"] }
+sha2 = "=0.11.0"
+libc = "=0.2.190"
+mas-host-worker = { path = "crates/mas-host-worker" }
+mas-host-core = { path = "crates/mas-host-core" }
+mas-host-native-build = { path = "crates/mas-host-native-build" }
