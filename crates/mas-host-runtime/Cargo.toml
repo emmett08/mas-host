@@ -1,0 +1,15 @@
+[package]
+name = "mas-host-runtime"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Supervised built-in agent execution above the MAS worker contract"
+
+[dependencies]
+mas-host-sdk = { path = "../../sdk/rust" }
+mas-host-providers.workspace = true
+mas-host-workflow.workspace = true
+mas-protocol-codec.workspace = true
+serde_json.workspace = true
+sha2.workspace = true

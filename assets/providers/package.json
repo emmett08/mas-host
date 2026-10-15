@@ -1,0 +1,9 @@
+{
+  "name": "mas-host-cursor-provider",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.13.0" },
+  "scripts": { "test": "node --test cursor.test.mjs" },
+  "dependencies": { "@cursor/sdk": "1.0.37" }
+}

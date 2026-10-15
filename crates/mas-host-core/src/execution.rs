@@ -66,7 +66,7 @@ impl Inner {
             actor,
             target,
             "Request",
-            json!({"task_id":step.id,"operation":agent.handler,"input":input}),
+            json!({"task_id":step.id,"operation":agent.operation,"input":input}),
         );
         {
             let mut protocol = lock(&self.protocol)?;
@@ -112,13 +112,22 @@ impl Inner {
         }
         let _active = Active(&self.active);
         self.set_state(&step.id, "running", None, None)?;
+        let environment = match agent.environment() {
+            Ok(environment) => environment,
+            Err(failure) => {
+                self.known_failure(&step, &failure)?;
+                return Err(failure);
+            }
+        };
         let start = json!({"type":"start","version":"mas-native/1","actor":target,"handler":agent.handler,
-            "input":input,"invocation_id":step.id,"deadline_ms":self.deadline_ms});
-        let mut worker = match Worker::spawn(
+            "input":input,"configuration":agent.configuration,"invocation_id":step.id,"deadline_ms":self.deadline_ms});
+        let mut worker = match Worker::spawn_scoped(
             &agent.executable,
             &start,
             self.deadline_ms,
             self.owner.as_raw_fd(),
+            &agent.arguments,
+            &environment,
         ) {
             Ok(worker) => worker,
             Err(e) => {
@@ -157,7 +166,10 @@ impl Inner {
                     self.known_failure(&step,&failure)?;
                     return Err(failure);
                 }
-                self.set_state(&step.id, "completed", Some(&output), None)?;
+                if let Err(failure) = self.commit_completed(&step.id, &output) {
+                    self.known_failure(&step, &failure)?;
+                    return Err(failure);
+                }
                 self.terminal(&step, Some(&output), None)?;
                 Ok(output)
             }
@@ -178,10 +190,16 @@ impl Inner {
     }
     fn serve(self: &Arc<Self>, worker: &mut Worker, step: &Step, depth: usize) -> Result<Value> {
         loop {
-            self.check_live()?;
-            let frame = worker.read()?;
+            let frame = worker.read_interruptible(|| self.check_live())?;
             checked_object(&frame, "worker frame")?;
-            match text(&frame, "type")? {
+            let command = text(&frame, "type")?;
+            // A fully observed effect completion remains useful evidence after
+            // cancellation. Every command that advances work is checked again
+            // after the blocking read, including the final result.
+            if command != "effect_complete" {
+                self.check_live()?;
+            }
+            match command {
                 "complete" => {
                     fields(&frame, &["type", "output"], &[])?;
                     checked_object(&frame["output"], "output")?;

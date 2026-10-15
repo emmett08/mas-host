@@ -1,12 +1,13 @@
 //! Application functions use `Context` for durable requests and admitted effects.
 //! The build tool supplies the worker entrypoint; applications do not call `serve`.
 use std::io::{Read, Write};
-use std::os::fd::FromRawFd;
+use std::os::fd::{AsRawFd, FromRawFd};
 use std::os::unix::net::UnixStream;
 
 pub use serde_json::{json, Value as Json};
 pub type Result<T> = std::result::Result<T, String>;
 pub type Handler = fn(&mut Context, Json) -> Result<Json>;
+pub type ConfiguredHandler = fn(&mut Context, Json, Json) -> Result<Json>;
 const MAX_FRAME: usize = 65_536;
 
 fn object(value: &Json) -> Result<()> {
@@ -218,15 +219,35 @@ fn successful_response(response: &Json) -> Result<()> {
     }
 }
 
-fn dispatch(mut channel: UnixStream, expected_handler: &str, handler: Handler) -> Result<()> {
+fn dispatch(channel: UnixStream, expected_handler: &str, handler: Handler) -> Result<()> {
+    dispatch_with_configuration(
+        channel,
+        Some(expected_handler),
+        |context, input, _configuration| handler(context, input),
+    )
+}
+
+fn dispatch_with_configuration(
+    mut channel: UnixStream,
+    expected_handler: Option<&str>,
+    handler: impl FnOnce(&mut Context, Json, Json) -> Result<Json>,
+) -> Result<()> {
     let start = read_frame(&mut channel)?;
     if start["type"] != "start"
         || start["version"] != "mas-native/1"
-        || start["handler"] != expected_handler
+        || !start["handler"]
+            .as_str()
+            .is_some_and(|value| !value.is_empty())
+        || expected_handler.is_some_and(|expected| start["handler"] != expected)
     {
         return Err("invalid native start or handler".into());
     }
     object(&start["input"])?;
+    let configuration = start
+        .get("configuration")
+        .cloned()
+        .unwrap_or_else(|| json!({}));
+    object(&configuration)?;
     let mut context = Context {
         channel,
         actor: start["actor"].as_str().ok_or("start omitted actor")?.into(),
@@ -238,7 +259,7 @@ fn dispatch(mut channel: UnixStream, expected_handler: &str, handler: Handler) -
             .as_u64()
             .ok_or("start omitted deadline")?,
     };
-    match handler(&mut context, start["input"].clone()) {
+    match handler(&mut context, start["input"].clone(), configuration) {
         Ok(output) => {
             object(&output)?;
             write_frame(
@@ -255,6 +276,17 @@ fn dispatch(mut channel: UnixStream, expected_handler: &str, handler: Handler) -
 
 /// Called by generated build output, not by application source.
 pub fn serve(expected_handler: &str, handler: Handler) -> Result<()> {
+    dispatch(worker_channel()?, expected_handler, handler)
+}
+
+/// Serve a host-supplied implementation configuration independently of task
+/// input. The host owns the operation name; built-in runners accept its bound
+/// handler identity rather than selecting a user-provided function symbol.
+pub fn serve_configured(handler: ConfiguredHandler) -> Result<()> {
+    dispatch_with_configuration(worker_channel()?, None, handler)
+}
+
+fn worker_channel() -> Result<UnixStream> {
     let fd: i32 = std::env::var("MAS_WORKER_CHANNEL_FD")
         .map_err(|_| "missing private worker channel")?
         .parse()
@@ -262,15 +294,98 @@ pub fn serve(expected_handler: &str, handler: Handler) -> Result<()> {
     if fd < 3 {
         return Err("private worker channel must not use stdin/stdout/stderr".into());
     }
-    // The guardian gives this worker ownership of the inherited private socket.
+    adopt_channel(fd)
+}
+
+fn adopt_channel(fd: i32) -> Result<UnixStream> {
+    // The guardian transfers the socket across exec exactly once. Revoke
+    // inheritance immediately, before handlers can start provider subprocesses.
     let channel = unsafe { UnixStream::from_raw_fd(fd) };
-    dispatch(channel, expected_handler, handler)
+    let flags = unsafe { libc::fcntl(channel.as_raw_fd(), libc::F_GETFD) };
+    if flags < 0
+        || unsafe { libc::fcntl(channel.as_raw_fd(), libc::F_SETFD, flags | libc::FD_CLOEXEC) } < 0
+    {
+        return Err("cannot restrict private worker channel inheritance".into());
+    }
+    Ok(channel)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::thread;
+    #[test]
+    fn configured_worker_channel_does_not_escape_into_exec_children() {
+        let (mut host, inherited) = UnixStream::pair().unwrap();
+        // F_DUPFD models the guardian's deliberately inheritable descriptor.
+        // A high descriptor avoids the shell opening another file at its number.
+        let inherited_fd = unsafe { libc::fcntl(inherited.as_raw_fd(), libc::F_DUPFD, 64) };
+        assert!(inherited_fd >= 64);
+        drop(inherited);
+        let worker = adopt_channel(inherited_fd).unwrap();
+        let task = thread::spawn(move || {
+            dispatch_with_configuration(worker, None, |context, _input, _configuration| {
+                let status = std::process::Command::new("/bin/sh")
+                    .args(["-c", "test ! -e /proc/self/fd/\"$1\"", "fd-check"])
+                    .arg(context.channel.as_raw_fd().to_string())
+                    .status()
+                    .map_err(|e| e.to_string())?;
+                assert!(
+                    status.success(),
+                    "private worker socket reached provider child"
+                );
+                Ok(json!({"child_has_no_channel":true}))
+            })
+        });
+        write_frame(
+            &mut host,
+            &json!({"type":"start","version":"mas-native/1",
+            "handler":"Assess","actor":"assessor","invocation_id":"i","deadline_ms":1,
+            "input":{},"configuration":{}}),
+        )
+        .unwrap();
+        assert_eq!(
+            read_frame(&mut host).unwrap()["output"]["child_has_no_channel"],
+            true
+        );
+        task.join().unwrap().unwrap();
+    }
+    #[test]
+    fn configured_dispatch_keeps_configuration_separate_from_task_input() {
+        let (mut host, worker) = UnixStream::pair().unwrap();
+        let task = thread::spawn(move || {
+            dispatch_with_configuration(worker, None, |context, input, configuration| {
+                assert_eq!(context.actor, "assessor");
+                assert_eq!(input, json!({"proposal":"task-value"}));
+                assert_eq!(
+                    configuration,
+                    json!({"kind":"llm", "model":"configured-model"})
+                );
+                Ok(json!({"accepted":true}))
+            })
+        });
+        write_frame(&mut host, &json!({"type":"start","version":"mas-native/1",
+            "handler":"AssessProposal","actor":"assessor","invocation_id":"i","deadline_ms":1,
+            "input":{"proposal":"task-value"},"configuration":{"kind":"llm","model":"configured-model"}})).unwrap();
+        assert_eq!(
+            read_frame(&mut host).unwrap(),
+            json!({"type":"complete","output":{"accepted":true}})
+        );
+        task.join().unwrap().unwrap();
+    }
+
+    #[test]
+    fn native_dispatch_still_rejects_another_handler() {
+        let (mut host, worker) = UnixStream::pair().unwrap();
+        write_frame(
+            &mut host,
+            &json!({"type":"start","version":"mas-native/1", "handler":"Other"}),
+        )
+        .unwrap();
+        assert!(dispatch(worker, "Assess", |_context, input| Ok(input))
+            .unwrap_err()
+            .contains("handler"));
+    }
     #[test]
     fn framing_rejects_invalid_json_and_preserves_integer_unicode() {
         for source in [

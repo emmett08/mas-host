@@ -27,6 +27,11 @@ jobs:
           cache: false
       - name: Install pinned Rust
         run: rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.14.0'
+      - name: Cursor adapter contract without credentials
+        run: node --test assets/providers/cursor.test.mjs
       - name: Format, analyse and test
         run: make test
       - name: Native applications, mixed routing and effect recovery

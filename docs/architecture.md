@@ -104,9 +104,10 @@ operator's filesystem permissions. Generated binaries and their dependencies
 must be treated as immutable for a retained run. Shared libraries and runtime
 environment need deployment pinning in addition to the executable digest.
 
-There is no built-in model provider, remote service ingress, credential manager,
-human approval queue, distributed scheduler or migration from Python-host state.
-Applications may implement model or service calls through the effect API. The
+Maintained LLM and workflow implementations are described in
+[LLM agents and composition](llm-workflows.md). There is no remote service ingress,
+credential manager, human approval queue, distributed scheduler or migration from
+Python-host state. Model credentials use explicitly scoped environment references. The
 configuration rejects unsupported languages and fields instead of silently
 falling back to Python or unrestricted execution.
 
@@ -136,4 +137,4 @@ Further releases should extend these boundaries in this order:
 
 The repository split is already real: this project builds from a pinned remote
 dependency rather than a sibling MAS checkout. Existing `mas`, `mas-demo` and
-`mas-host-demo` remain independent consumers or references.
+examples remain independent consumers or references.

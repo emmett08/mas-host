@@ -1,7 +1,10 @@
 SHELL := /bin/bash
 .SHELLFLAGS := -euo pipefail -c
 
-.PHONY: build check test acceptance
+.PHONY: build check test acceptance provider-test
+
+provider-test:
+	node --test assets/providers/cursor.test.mjs
 
 build:
 	cargo build --locked -p mas-host
