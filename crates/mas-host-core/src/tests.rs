@@ -14,9 +14,9 @@ impl Fixture {
         std::fs::create_dir_all(&path).unwrap();
         let executable = std::fs::canonicalize("/usr/bin/true").unwrap();
         let hash = digest(&std::fs::read(&executable).unwrap());
-        let bundle = json!({"version":"mas-bundle/1","agents":[
-            {"name":"worker","executable":executable,"sha256":hash,"handler":"Assess"},
-            {"name":"other","executable":executable,"sha256":hash,"handler":"Assess"}],
+        let bundle = json!({"version":"mas-bundle/3","agents":[
+            {"name":"worker","executable":executable,"sha256":hash,"handler":"Assess","operation":"Assess","environment":[],"working_directory":path},
+            {"name":"other","executable":executable,"sha256":hash,"handler":"Assess","operation":"Assess","environment":[],"working_directory":path}],
             "topology":{"agents":["client","worker","other"],"edges":[
                 ["client","worker"],["worker","client"],["worker","other"],["other","worker"]],
                 "application":"agent-task/1","max_calls":5,"wall_seconds":60}});
@@ -36,6 +36,26 @@ impl Drop for Fixture {
     fn drop(&mut self) {
         let _ = std::fs::remove_dir_all(&self.path);
     }
+}
+
+#[test]
+fn rejects_previous_bundle_version_and_missing_public_operation() {
+    let mut fixture = Fixture::new();
+    drop(fixture.engine());
+    fixture.bundle["version"] = json!("mas-bundle/1");
+    assert!(Engine::open(&fixture.bundle, &fixture.path, "test-run")
+        .err()
+        .unwrap()
+        .contains("unsupported bundle version"));
+    fixture.bundle["version"] = json!("mas-bundle/3");
+    fixture.bundle["agents"][0]
+        .as_object_mut()
+        .unwrap()
+        .remove("operation");
+    assert!(Engine::open(&fixture.bundle, &fixture.path, "test-run")
+        .err()
+        .unwrap()
+        .contains("missing or unknown field"));
 }
 
 #[test]
@@ -351,14 +371,15 @@ fn cancellation_prevents_durable_final_result_and_retains_known_effect_completio
 #[test]
 fn bundle_two_binds_configuration_arguments_and_public_operation() {
     let mut fixture = Fixture::new();
-    fixture.bundle["version"] = "mas-bundle/2".into();
     fixture.bundle["agents"][0]["configuration"] = json!({"kind":"llm","model":"mock", "connection":{
         "provider":"mock","api_key_env":"MAS_HOST_TEST_KEY","env":["MAS_HOST_TEST_EXTRA"]}});
+    fixture.bundle["agents"][0]["environment"] =
+        json!(["MAS_HOST_TEST_KEY", "MAS_HOST_TEST_EXTRA"]);
     fixture.bundle["agents"][0]["arguments"] = json!(["__builtin"]);
     fixture.bundle["agents"][0]["operation"] = "AssessProposal".into();
     let engine = fixture.engine();
     let agent = &engine.inner.agents["worker"];
-    assert_eq!(agent.handler, "Assess");
+    assert_eq!(agent.handler.as_deref(), Some("Assess"));
     assert_eq!(agent.operation, "AssessProposal");
     assert_eq!(agent.arguments, ["__builtin"]);
     assert_eq!(agent.configuration["model"], "mock");
@@ -380,27 +401,21 @@ fn executable_verification_cache_does_not_trust_a_different_digest() {
 }
 
 #[test]
-fn environment_scope_requires_explicit_llm_connection_names() {
-    assert!(
-        declared_environment(&json!({"kind":"workflow","connection":{"env":["IGNORED"]}}))
-            .unwrap()
-            .is_empty()
-    );
+fn environment_scope_is_independent_of_implementation_kind() {
+    assert!(declared_environment(&json!([])).unwrap().is_empty());
     for value in [
-        json!({"kind":"llm"}),
-        json!({"kind":"llm","connection":{"env":"ALL"}}),
-        json!({"kind":"llm","connection":{"env":["PATH"]}}),
-        json!({"kind":"llm","connection":{"env":["MAS_WORKER_CHANNEL_FD"]}}),
-        json!({"kind":"llm","connection":{"api_key_env":"INVALID=NAME"}}),
+        json!({}),
+        json!("ALL"),
+        json!(["PATH"]),
+        json!(["MAS_WORKER_CHANNEL_FD"]),
+        json!(["INVALID=NAME"]),
     ] {
         assert!(declared_environment(&value).is_err());
     }
     std::env::set_var("MAS_HOST_TEST_SCOPED_KEY", "temporary-test-value");
     std::env::set_var("MAS_HOST_TEST_UNDECLARED_KEY", "must-not-be-copied");
     let mut fixture = Fixture::new();
-    fixture.bundle["version"] = "mas-bundle/2".into();
-    fixture.bundle["agents"][0]["configuration"] =
-        json!({"kind":"llm","connection":{"env":["MAS_HOST_TEST_SCOPED_KEY"]}});
+    fixture.bundle["agents"][0]["environment"] = json!(["MAS_HOST_TEST_SCOPED_KEY"]);
     let engine = fixture.engine();
     assert_eq!(
         engine.inner.agents["worker"].environment().unwrap(),

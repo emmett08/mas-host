@@ -9,7 +9,7 @@ func Assess(ctx *mas.Context, proposal Proposal) (Assessment, error)
 The two configuration files select functions and permitted communication edges.
 `mas-host build` generates the executable and registration bundle; applications
 do not supply a `main` function, transport implementation or deployment manifest.
-The example in `examples/go-release` includes parallel assessments, bounded
+The [Go application](https://github.com/emmett08/mas-host-examples/tree/main/examples/go-release) includes parallel assessments, bounded
 capacity revisions, independent acceptance and optional audit publication.
 
 ## Application API

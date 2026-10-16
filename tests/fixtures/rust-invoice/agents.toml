@@ -1,0 +1,10 @@
+version = "mas-agents/3"
+
+[[agents]]
+name = "invoice"
+operation = "assess_invoice/1"
+[agents.implementation]
+kind = "native"
+language = "rust"
+source = "invoice.rs"
+handler = "assess"

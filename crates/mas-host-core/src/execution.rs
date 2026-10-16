@@ -33,6 +33,9 @@ impl Inner {
             .get(target)
             .ok_or("unknown application agent")?
             .clone();
+        if let Some(schema) = &agent.input_schema {
+            mas_host_schema::validate(schema, input)?;
+        }
         let step = self.prepare(parent, key, "request", actor, target, input)?;
         if step.state == "completed" {
             self.settle_children(&step.id)?;
@@ -119,8 +122,11 @@ impl Inner {
                 return Err(failure);
             }
         };
-        let start = json!({"type":"start","version":"mas-native/1","actor":target,"handler":agent.handler,
+        let mut start = json!({"type":"start","version":"mas-native/1","actor":target,
             "input":input,"configuration":agent.configuration,"invocation_id":step.id,"deadline_ms":self.deadline_ms});
+        if let Some(handler) = &agent.handler {
+            start["handler"] = json!(handler);
+        }
         let mut worker = match Worker::spawn_scoped(
             &agent.executable,
             &start,
@@ -128,6 +134,7 @@ impl Inner {
             self.owner.as_raw_fd(),
             &agent.arguments,
             &environment,
+            Some(&agent.working_directory),
         ) {
             Ok(worker) => worker,
             Err(e) => {
@@ -149,6 +156,22 @@ impl Inner {
         }
         match outcome {
             Ok(output) => {
+                if let Some(schema) = &agent.output_schema {
+                    if let Err(failure) = mas_host_schema::validate(schema, &output) {
+                        self.mark_uncertain(&step.id)?;
+                        if self.has_unsettled_below(&step.id)? {
+                            self.set_state(
+                                &step.id,
+                                "blocked",
+                                None,
+                                Some(&json!({"error":failure})),
+                            )?;
+                        } else {
+                            self.known_failure(&step, &failure)?;
+                        }
+                        return Err(failure);
+                    }
+                }
                 if self.has_unsettled_below(&step.id)? {
                     self.mark_uncertain(&step.id)?;
                     self.set_state(&step.id, "blocked", None, None)?;

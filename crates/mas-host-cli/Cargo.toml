@@ -11,11 +11,16 @@ mas-host-core.workspace = true
 mas-host-native-build.workspace = true
 mas-host-runtime.workspace = true
 mas-host-providers.workspace = true
+mas-host-process.workspace = true
+mas-host-schema.workspace = true
 mas-host-workflow.workspace = true
 mas-protocol-codec.workspace = true
 serde_json.workspace = true
 sha2.workspace = true
 libc.workspace = true
+toml = { version = "=1.1.8", default-features = false, features = ["std", "parse"] }
+yaml-rust2 = { version = "=0.13.0", default-features = false }
+num-bigint = "=0.4.8"
 
 [dev-dependencies]
 rusqlite.workspace = true

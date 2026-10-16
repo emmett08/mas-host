@@ -40,9 +40,9 @@ type Input struct { Add int64 `+"`json:\"add\"`"+` }
 type Output struct { Value int64 `+"`json:\"value\"`"+` }
 func Calculate(_ *mas.Context,input Input)(Output,error) { return Output{Value:dependency.Value+input.Add},nil }
 `)
-	write(t, filepath.Join(project, "agents.json"), `{"version":"mas-agents/1","agents":[{"name":"calculator","language":"go","source":"internal/worker","handler":"Calculate"}]}`)
+	write(t, filepath.Join(project, "native-agents.json"), `{"version":"mas-native-build/1","agents":[{"name":"calculator","language":"go","source":"internal/worker","handler":"Calculate"}]}`)
 	goBinary := filepath.Join(runtime.GOROOT(), "bin", "go")
-	workers, err := Generate(Options{Project: project, Output: filepath.Join(project, ".mas", "build"), SDKDir: sdk, Go: goBinary})
+	workers, err := Generate(Options{Agents: filepath.Join(project, "native-agents.json"), Project: project, Output: filepath.Join(project, ".mas", "build"), SDKDir: sdk, Go: goBinary})
 	if err != nil {
 		t.Fatal(err)
 	}

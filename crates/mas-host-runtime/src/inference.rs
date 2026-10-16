@@ -35,9 +35,10 @@ pub fn execute(
                 .unwrap_or("")
                 .to_string()
         } else {
-            format!("{}\nReturn a decision object. A request decision asks one permitted peer for work. A complete decision supplies the final output. Peer replies appear in history. Permitted peers: {}.", configuration["instructions"].as_str().unwrap_or(""), delegates.join(", "))
+            format!("{}\nReturn a decision object. A request decision asks one permitted peer for work. A complete decision supplies the final output. Peer replies appear in history. Permitted peers: {}. Operation contracts: {}.", configuration["instructions"].as_str().unwrap_or(""), delegates.join(", "), configuration["delegate_contracts"])
         };
-        let descriptor = json!({"format":"mas-inference/1","configuration":configuration,"input":supplied,"instructions":instructions,"output_schema":schema});
+        let descriptor =
+            super::identity::effect_descriptor("mas-inference/2", configuration, &supplied);
         // Every known provider outcome is checkpointed, including refusal and
         // invalid output. Only lost/unknown observations return an effect error.
         let deadline_ms = ctx.deadline_ms;

@@ -1,7 +1,11 @@
 //! Validate the two application-owned configuration files before running builds.
 use serde_json::{json, Value};
 use std::{collections::BTreeSet, path::Path};
+pub mod authoring;
 mod bindings;
+mod launch;
+pub mod model;
+use model::{Agent, Implementation};
 
 pub fn read_json(path: &Path) -> Result<Value, String> {
     use std::io::Read;
@@ -12,6 +16,31 @@ pub fn read_json(path: &Path) -> Result<Value, String> {
         .map_err(|e| format!("{}: {e}", path.display()))?;
     mas_protocol_codec::parse_json(&text)
         .map_err(|e| format!("{}: {}: {}", path.display(), e.code, e.message))
+}
+
+/// Resolve one explicit file, or require exactly one supported default file.
+pub fn discover(
+    project: &Path,
+    stem: &str,
+    explicit: Option<&Path>,
+) -> Result<std::path::PathBuf, String> {
+    if let Some(path) = explicit {
+        return Ok(if path.is_absolute() {
+            path.to_owned()
+        } else {
+            project.join(path)
+        });
+    }
+    let candidates: Vec<_> = ["toml", "yaml", "yml", "json"]
+        .into_iter()
+        .map(|extension| project.join(format!("{stem}.{extension}")))
+        .filter(|path| path.exists())
+        .collect();
+    match candidates.as_slice() {
+        [path] => Ok(path.to_owned()),
+        [] => Err(format!("missing {stem} configuration: expected {stem}.toml, {stem}.yaml, {stem}.yml or {stem}.json")),
+        _ => Err(format!("ambiguous {stem} configuration; select one with --{stem}")),
+    }
 }
 
 pub fn fields(
@@ -46,19 +75,20 @@ fn identifier(text: &str) -> bool {
 pub fn load_profile(
     project: &Path,
     agents_path: &Path,
+    topology_path: &Path,
     profile: Option<&Path>,
-) -> Result<(Value, Value), String> {
-    let mut agents = read_json(agents_path)?;
+) -> Result<(Vec<Agent>, Value), String> {
+    let mut agents = authoring::read(agents_path)?;
     if let Some(profile) = profile {
-        let profile = read_json(profile)?;
+        let profile = authoring::read(profile)?;
         fields(
             &profile,
             &["version", "connections"],
             &[],
             "connection profile",
         )?;
-        if profile["version"] != "mas-connections/1" || agents["version"] != "mas-agents/2" {
-            return Err("connection profiles require mas-agents/2 and mas-connections/1".into());
+        if profile["version"] != "mas-connections/1" || agents["version"] != "mas-agents/3" {
+            return Err("connection profiles require mas-agents/3 and mas-connections/1".into());
         }
         let replacements = profile["connections"]
             .as_object()
@@ -75,7 +105,7 @@ pub fn load_profile(
             connections.insert(name.clone(), connection.clone());
         }
     }
-    let topology = read_json(&project.join("topology.json"))?;
+    let topology = authoring::read(topology_path)?;
     validate(project, &agents, &topology)
 }
 
@@ -83,18 +113,20 @@ pub fn validate(
     project: &Path,
     config: &Value,
     topology: &Value,
-) -> Result<(Value, Value), String> {
-    let version = config["version"].as_str().unwrap_or("");
-    let optional = if version == "mas-agents/2" {
-        vec!["limits", "connections"]
-    } else {
-        vec!["limits"]
-    };
-    fields(config, &["version", "agents"], &optional, "agents.json")?;
-    fields(topology, &["version", "edges"], &[], "topology.json")?;
-    if !matches!(version, "mas-agents/1" | "mas-agents/2")
-        || topology["version"] != "mas-topology/1"
-    {
+) -> Result<(Vec<Agent>, Value), String> {
+    fields(
+        config,
+        &["version", "agents"],
+        &["limits", "connections"],
+        "agents configuration",
+    )?;
+    fields(
+        topology,
+        &["version", "edges"],
+        &[],
+        "topology configuration",
+    )?;
+    if config["version"] != "mas-agents/3" || topology["version"] != "mas-topology/1" {
         return Err("unsupported agents/topology version".into());
     }
     let agents = config["agents"]
@@ -113,48 +145,26 @@ pub fn validate(
         if !identifier(name) || !names.insert(name.to_string()) {
             return Err(format!("invalid, duplicate or reserved agent name: {name}"));
         }
-        if version == "mas-agents/2" && agent.get("implementation").is_some() {
-            let binding = bindings::resolve(&root, agent, config.get("connections"))?;
-            if binding.get("configuration").is_none() {
-                bindings::validate_native(&root, &binding)?;
-            }
-            resolved.push(binding);
-            continue;
-        }
-        fields(
-            agent,
-            &["name", "language", "source", "handler"],
-            &[],
-            "agent",
-        )?;
-        bindings::validate_native(&root, agent)?;
-        // Keep the original native shape for existing language generators.
-        // Each implementation kind is selected and built in its own module.
+        let binding = bindings::resolve(&root, agent, config.get("connections"))?;
+        resolved.push(binding);
     }
-    // Native records retain their exact v1 fields; built-in records have already
-    // resolved prompt/schema/plan contents into immutable configuration.
-    let mut builtin = resolved.into_iter();
-    let agents: Vec<Value> = agents
-        .iter()
-        .map(|a| {
-            if version == "mas-agents/2" && a.get("implementation").is_some() {
-                builtin.next().unwrap()
-            } else {
-                a.clone()
-            }
-        })
-        .collect();
+    let agents = resolved;
+    // Ingress participates in topology but has no executable implementation.
+    let executable_names: BTreeSet<_> = agents.iter().map(|agent| agent.name.clone()).collect();
     for agent in &agents {
-        if agent["configuration"]["kind"] == "workflow" {
-            mas_host_workflow::validate(&agent["configuration"]["plan"], &names)?;
-        }
-        if let Some(delegates) = agent["configuration"]["delegates"].as_array() {
-            for delegate in delegates {
-                let target = delegate.as_str().ok_or("delegate must be an actor name")?;
-                if target == agent["name"].as_str().unwrap() || !names.contains(target) {
-                    return Err("invalid LLM delegate".into());
+        match &agent.implementation {
+            Implementation::Workflow(configuration) => {
+                mas_host_workflow::validate(&configuration["plan"], &executable_names)?
+            }
+            Implementation::Llm(configuration) => {
+                for delegate in configuration["delegates"].as_array().unwrap() {
+                    let target = delegate.as_str().unwrap();
+                    if target == agent.name || !executable_names.contains(target) {
+                        return Err("invalid LLM delegate".into());
+                    }
                 }
             }
+            _ => {}
         }
     }
     let edges = topology["edges"]
@@ -203,14 +213,14 @@ pub fn validate(
         }
         native[key] = json!(value);
     }
-    Ok((json!(agents), native))
+    Ok((agents, native))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     fn config() -> Value {
-        json!({"version":"mas-agents/1","agents":[{"name":"worker","language":"go","source":".","handler":"Assess"}]})
+        json!({"version":"mas-agents/3","agents":[{"name":"worker","implementation":{"kind":"native","language":"go","source":".","handler":"Assess"}}]})
     }
     fn routes() -> Value {
         json!({"version":"mas-topology/1","edges":[["client","worker"],["worker","client"]]})
@@ -235,10 +245,39 @@ mod tests {
             .unwrap_err()
             .contains("reply edge"));
         let mut c = config();
-        c["agents"][0]["source"] = json!("../..");
+        c["agents"][0]["implementation"]["source"] = json!("../..");
         assert!(validate(root, &c, &routes())
             .unwrap_err()
             .contains("escapes"));
+    }
+
+    #[test]
+    fn requires_current_version_and_explicit_implementation_kind() {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+        let mut previous_version = config();
+        previous_version["version"] = json!("mas-agents/1");
+        assert!(validate(root, &previous_version, &routes())
+            .unwrap_err()
+            .contains("unsupported"));
+
+        let mut flat_native = config();
+        flat_native["agents"][0] =
+            json!({"name":"worker","language":"go","source":".","handler":"Assess"});
+        assert!(validate(root, &flat_native, &routes())
+            .unwrap_err()
+            .contains("missing implementation"));
+
+        let mut missing_kind = config();
+        missing_kind["agents"][0]["implementation"]
+            .as_object_mut()
+            .unwrap()
+            .remove("kind");
+        assert!(validate(root, &missing_kind, &routes())
+            .unwrap_err()
+            .contains("implementation kind"));
+
+        let (resolved, _) = validate(root, &config(), &routes()).unwrap();
+        assert_eq!(resolved[0].operation, "worker");
     }
 
     #[test]
@@ -252,7 +291,9 @@ mod tests {
         }
         let agent = json!({"name":"worker","operation":"assess/1","implementation":{"kind":"native","language":"go","source":".","handler":"Assess"}});
         let resolved = bindings::resolve(root, &agent, None).unwrap();
-        assert_eq!(resolved["operation"], "assess/1");
-        assert_eq!(resolved["handler"], "Assess");
+        assert_eq!(resolved.operation, "assess/1");
+        assert!(
+            matches!(resolved.implementation, Implementation::Native(native) if native.handler == "Assess")
+        );
     }
 }

@@ -1,6 +1,0 @@
-{
-  "version": "mas-agents/1",
-  "agents": [
-    {"name": "invoice", "language": "rust", "source": "invoice.rs", "handler": "assess"}
-  ]
-}

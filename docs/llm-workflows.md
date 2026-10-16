@@ -7,29 +7,35 @@ the model does not generate MAS wire envelopes or select its authenticated sende
 
 ## Configuration and provider selection
 
-Existing `mas-agents/1` applications continue to build. A `mas-agents/2` document
-contains `agents`, named `connections` and optional protocol `limits`. An actor
-declares `name`, optional `operation` (defaults to its name), and `implementation`:
+A `mas-agents/3` document contains `agents`, optional named `connections` and
+optional protocol `limits`. An actor declares `name`, optional `operation`
+(defaults to its name), and `implementation`:
 
-```json
-{
-  "name": "reviewer",
-  "operation": "review/1",
-  "implementation": {
-    "kind": "llm",
-    "connection": "review_provider",
-    "model": "<explicit-model-id>",
-    "instructions": "prompts/review.md",
-    "input_schema": "schemas/input.json",
-    "output_schema": "schemas/output.json",
-    "max_output_tokens": 4096
-  }
-}
+```toml
+version = "mas-agents/3"
+
+[connections.review_provider]
+kind = "openai"
+api_key_env = "OPENAI_API_KEY"
+
+[[agents]]
+name = "reviewer"
+operation = "review/1"
+input_schema = "schemas/input.json"
+output_schema = "schemas/output.json"
+[agents.implementation]
+kind = "llm"
+connection = "review_provider"
+model = "<explicit-model-id>"
+instructions = "prompts/review.md"
+max_output_tokens = 4096
 ```
 
-`kind: native` instead selects `language`, `source` and `handler`, using the
-existing language build profiles. `kind: workflow` selects a relative `plan`
-file. Instructions, schemas and plans must remain inside the application project;
+`kind = "native"` selects `language`, `source` and `handler`, using the supported
+language build profiles. `kind = "workflow"` selects a relative `plan`
+file. `kind = "command"` adapts an ordinary CLI through the [command contract](commands.md).
+Input/output schemas belong to the agent operation for every implementation kind.
+Instructions, schemas and plans must remain inside the application project;
 their contents are embedded in the immutable generated bundle. Each actor exposes
 one public operation in this profile. Separate actors can expose separate operations.
 
@@ -79,7 +85,12 @@ or `{kind: request, target: peer, input_json: "{...}"}`. The executor validates 
 action, parses `input_json` through MAS's exact JSON codec and requests the peer
 through the host. The string carries arbitrary task JSON while preserving exact
 integers and a strict provider response schema. Subsequent turns receive the
-original `task` and prior request/result `history`.
+original `task` and prior request/result `history`. Each permitted peer's public
+operation and available schemas are included in the instructions. Command actors
+use the same delegation and topology permissions as native or LLM actors.
+`client` is reserved for ingress and cannot be a workflow request target or an
+LLM delegate. The builder checks targets against executable application agents;
+the protocol checks communication permissions when each request is admitted.
 
 ## Outcomes, recovery and validation
 
@@ -90,6 +101,14 @@ repetition. A completed response survives cleanup failure, but that invocation
 does not report task success. Replaying uses the retained provider response and
 peer results. Cancellation interrupts local reads and prevents further dispatch
 or durable task success; it does not prove remote inference stopped.
+
+Internal effect descriptors use `mas-inference/2` and `mas-command/2`. They retain
+the per-turn input and a SHA-256 digest of the compact JSON resolved worker
+configuration. The execution journal retains that full configuration in its
+immutable bundle; schemas and prompts therefore need not be repeated in each
+effect frame. Adapter evidence formats retain their separate `/1` versions.
+Complete native frames, including input, history and framing fields, still have
+the 65536-byte bound. Hashing configuration does not enlarge that limit.
 
 The schema validator supports `type`, object properties/required/additionalProperties,
 array items/length, string length, exact integer minimum/maximum, enum and anyOf,

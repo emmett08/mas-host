@@ -3,6 +3,7 @@
 //! or application-language compiler required.
 use rusqlite::{Connection, OpenFlags};
 use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -34,18 +35,18 @@ impl Project {
     }
 
     fn build(&self) -> PathBuf {
+        PathBuf::from(completed(self.build_output())["bundle"].as_str().unwrap())
+    }
+
+    fn build_output(&self) -> Output {
         let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-        PathBuf::from(
-            success(&[
-                "build",
-                "--project",
-                path(&self.0),
-                "--sdk-root",
-                path(&root),
-            ])["bundle"]
-                .as_str()
-                .unwrap(),
-        )
+        host(&[
+            "build",
+            "--project",
+            path(&self.0),
+            "--sdk-root",
+            path(&root),
+        ])
     }
 
     fn run(&self, bundle: &Path, run: &str, actor: &str) -> Output {
@@ -147,9 +148,9 @@ fn assessment_schema() -> Value {
 }
 
 fn llm(name: &str, connection: &str) -> Value {
-    json!({"name":name,"operation":format!("{name}/1"),"implementation":{
+    json!({"name":name,"operation":format!("{name}/1"),"output_schema":"output.json","implementation":{
         "kind":"llm","connection":connection,"model":"explicit-fixture-model",
-        "instructions":"instructions.md","output_schema":"output.json","max_output_tokens":256
+        "instructions":"instructions.md","max_output_tokens":256
     }})
 }
 
@@ -184,7 +185,7 @@ fn configure_delegation(project: &Project, permitted: bool) {
     );
     write(
         &project.0.join("agents.json"),
-        &json!({"version":"mas-agents/2",
+        &json!({"version":"mas-agents/3",
             "connections":{"reasoning":command(project,&body),"peer_model":{"kind":"mock","output":{"approved":true}}},
             "agents":[
                 {"name":"workflow","operation":"release/1","implementation":{"kind":"workflow","plan":"plan.json"}},
@@ -204,6 +205,123 @@ fn configure_delegation(project: &Project, permitted: bool) {
     write(
         &project.0.join("topology.json"),
         &json!({"version":"mas-topology/1","edges":edges}),
+    );
+}
+
+#[test]
+fn reserved_ingress_cannot_be_a_workflow_or_model_delegate() {
+    let project = Project::new("ingress-target");
+    configure_delegation(&project, true);
+    let agents_path = project.0.join("agents.json");
+    let mut agents: Value = serde_json::from_slice(&fs::read(&agents_path).unwrap()).unwrap();
+    agents["agents"][1]["implementation"]["delegates"] = json!(["client"]);
+    write(&agents_path, &agents);
+    rejected(project.build_output(), "invalid LLM delegate");
+
+    configure_delegation(&project, true);
+    write(
+        &project.0.join("plan.json"),
+        &json!({"type":"request","key":"ingress","target":"client","input":{}}),
+    );
+    rejected(project.build_output(), "unknown workflow target client");
+    assert_eq!(project.calls(), 0);
+    assert!(!project.0.join(".mas/build/bundle.json").exists());
+}
+
+fn configure_single_llm(project: &Project) {
+    write(
+        &project.0.join("agents.json"),
+        &json!({"version":"mas-agents/3","connections":{"fixture":{"kind":"mock","output":{"approved":true}}},"agents":[llm("assessor","fixture")]}),
+    );
+    write(
+        &project.0.join("topology.json"),
+        &json!({"version":"mas-topology/1","edges":[["client","assessor"],["assessor","client"]]}),
+    );
+}
+
+#[test]
+fn oversized_rebuild_preserves_the_previous_published_bundle() {
+    let project = Project::new("bundle-bound");
+    configure_single_llm(&project);
+    // This document fits as compact JSON but exceeds the bound when indented.
+    let properties: serde_json::Map<_, _> = (0..300)
+        .map(|n| {
+            (
+                format!("field_{n}"),
+                json!({"type":"string","description":"ordinary field value"}),
+            )
+        })
+        .collect();
+    write(
+        &project.0.join("output.json"),
+        &json!({"type":"object","properties":properties}),
+    );
+    let original = project.build();
+    let published = project.0.join(".mas/build/bundle.json");
+    let bytes = fs::read(&published).unwrap();
+    let bundle: Value = serde_json::from_slice(&bytes).unwrap();
+    assert!(bytes.len() <= 65_536);
+    assert!(serde_json::to_vec_pretty(&bundle).unwrap().len() > 65_536);
+
+    // Each source document remains in bounds; embedding the schema twice does not.
+    write(
+        &project.0.join("output.json"),
+        &json!({"type":"object","description":"x".repeat(33_000)}),
+    );
+    rejected(project.build_output(), "generated bundle: SIZE");
+    assert_eq!(fs::read(&published).unwrap(), bytes);
+    assert_eq!(fs::read(&original).unwrap(), bytes);
+    assert_eq!(
+        fs::read_dir(project.0.join(".mas/build/bundles"))
+            .unwrap()
+            .count(),
+        1
+    );
+    assert_eq!(
+        completed(project.run(&original, "retained", "assessor"))["output"],
+        json!({"approved":true})
+    );
+}
+
+#[test]
+fn inference_keeps_large_task_input_without_repeating_immutable_configuration() {
+    let project = Project::new("descriptor-bound");
+    configure_single_llm(&project);
+    let mut schema = assessment_schema();
+    schema["description"] = json!("schema documentation ".repeat(1_000));
+    write(&project.0.join("output.json"), &schema);
+    let input = json!({"payload":"x".repeat(28_000)});
+    write(&project.0.join("input.json"), &input);
+    let bundle_path = project.build();
+    let first = completed(project.run(&bundle_path, "large", "assessor"));
+    assert_eq!(first["output"], json!({"approved":true}));
+    let before = project.inspect("large");
+    assert_eq!(before["protocol"]["calls"].as_array().unwrap().len(), 1);
+    assert_eq!(
+        completed(project.run(&bundle_path, "large", "assessor")),
+        first
+    );
+    assert_eq!(project.inspect("large"), before);
+
+    let connection = Connection::open_with_flags(
+        project.0.join("state/large/execution.sqlite"),
+        OpenFlags::SQLITE_OPEN_READ_ONLY,
+    )
+    .unwrap();
+    let descriptor: String = connection
+        .query_row("SELECT input FROM steps WHERE kind='effect'", [], |row| {
+            row.get(0)
+        })
+        .unwrap();
+    let descriptor: Value = serde_json::from_str(&descriptor).unwrap();
+    let bundle: Value = serde_json::from_slice(&fs::read(bundle_path).unwrap()).unwrap();
+    let hash: String = Sha256::digest(bundle["agents"][0]["configuration"].to_string().as_bytes())
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect();
+    assert_eq!(
+        descriptor,
+        json!({"format":"mas-inference/2","configuration_sha256":hash,"input":input})
     );
 }
 
@@ -264,6 +382,39 @@ fn configured_workflow_runs_llm_peer_requests_through_mas_and_replays_without_ca
 }
 
 #[test]
+fn llm_delegates_to_an_ordinary_cli_with_the_same_admission_and_replay() {
+    let project = Project::new("cli-delegation");
+    configure_delegation(&project, true);
+    let agents_path = project.0.join("agents.json");
+    let mut agents: Value = serde_json::from_slice(&fs::read(&agents_path).unwrap()).unwrap();
+    agents["agents"][2] = json!({"name":"peer","operation":"check_policy/1","output_schema":"output.json",
+        "implementation":{"kind":"command","executable":"/usr/bin/printf",
+            "arguments":[{"literal":"%s"},{"literal":"{\"approved\":true}"}]}});
+    write(&agents_path, &agents);
+    let bundle = project.build();
+    let first = completed(project.run(&bundle, "cli", "workflow"));
+    assert_eq!(
+        first["output"],
+        json!({"approved":true,"source":"workflow"})
+    );
+    let before = project.inspect("cli");
+    assert_eq!(before["protocol"]["calls"].as_array().unwrap().len(), 3);
+    assert_eq!(completed(project.run(&bundle, "cli", "workflow")), first);
+    assert_eq!(project.inspect("cli"), before);
+    let retained: Value = serde_json::from_slice(&fs::read(bundle).unwrap()).unwrap();
+    let planner = retained["agents"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|a| a["name"] == "planner")
+        .unwrap();
+    assert_eq!(
+        planner["configuration"]["delegate_contracts"][0]["operation"],
+        "check_policy/1"
+    );
+}
+
+#[test]
 fn known_refusal_and_invalid_output_are_recorded_while_unknown_execution_blocks_replay() {
     let refused = json!({"version":"mas-provider/1","status":"unusable","evidence":{"output_status":"refused"}}).to_string();
     let invalid = envelope(json!({"approved":"incorrect type"}));
@@ -283,7 +434,7 @@ fn known_refusal_and_invalid_output_are_recorded_while_unknown_execution_blocks_
         let project = Project::new(label);
         write(
             &project.0.join("agents.json"),
-            &json!({"version":"mas-agents/2","connections":{"fixture":command(&project,&body)},"agents":[llm("assessor","fixture")]}),
+            &json!({"version":"mas-agents/3","connections":{"fixture":command(&project,&body)},"agents":[llm("assessor","fixture")]}),
         );
         write(
             &project.0.join("topology.json"),
@@ -331,7 +482,7 @@ fn prompt_and_schema_drift_cannot_resume_the_original_configured_run() {
     let project = Project::new("identity");
     write(
         &project.0.join("agents.json"),
-        &json!({"version":"mas-agents/2","connections":{"fixture":{"kind":"mock","output":{"approved":true}}},"agents":[llm("assessor","fixture")]}),
+        &json!({"version":"mas-agents/3","connections":{"fixture":{"kind":"mock","output":{"approved":true}}},"agents":[llm("assessor","fixture")]}),
     );
     write(
         &project.0.join("topology.json"),

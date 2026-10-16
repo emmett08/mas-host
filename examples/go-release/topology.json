@@ -1,9 +1,0 @@
-{
-  "version": "mas-topology/1",
-  "edges": [
-    ["client", "planner"], ["planner", "client"],
-    ["planner", "capacity"], ["capacity", "planner"],
-    ["planner", "security"], ["security", "planner"],
-    ["planner", "checker"], ["checker", "planner"]
-  ]
-}

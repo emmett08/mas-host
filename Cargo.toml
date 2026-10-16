@@ -21,3 +21,5 @@ mas-host-native-build = { path = "crates/mas-host-native-build" }
 mas-host-runtime = { path = "crates/mas-host-runtime" }
 mas-host-providers = { path = "crates/mas-host-providers" }
 mas-host-workflow = { path = "crates/mas-host-workflow" }
+mas-host-process = { path = "crates/mas-host-process" }
+mas-host-schema = { path = "crates/mas-host-schema" }

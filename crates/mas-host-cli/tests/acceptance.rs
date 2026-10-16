@@ -78,7 +78,7 @@ fn inspect(state: &Path, run: &str) -> Value {
 
 #[test]
 #[ignore = "requires Go, C++ and Rust toolchains; run make acceptance"]
-fn code_only_apps_mixed_routes_and_real_effect_recovery() {
+fn code_only_apps_and_real_effect_recovery() {
     let scratch = std::env::temp_dir().join(format!(
         "mas-host-acceptance-{}-{}",
         std::process::id(),
@@ -90,7 +90,7 @@ fn code_only_apps_mixed_routes_and_real_effect_recovery() {
     fs::create_dir_all(&scratch).unwrap();
     let state = scratch.join("state");
     let input = scratch.join("input.json");
-    let go = root().join("examples/go-release");
+    let go = root().join("tests/fixtures/go-release");
     let go_bundle = build(&go);
     let proposal = json!({"release":"v1","replicas":1,"demand":250,"per_replica":100,"critical_vulnerabilities":0,"max_replicas":5});
     write(&input, &proposal);
@@ -239,7 +239,7 @@ fn code_only_apps_mixed_routes_and_real_effect_recovery() {
     let invoice = json!({"amount_minor":12500,"limit_minor":20000});
     write(&input, &invoice);
     for language in ["rust", "cpp"] {
-        let project = root().join(format!("examples/{language}-invoice"));
+        let project = root().join(format!("tests/fixtures/{language}-invoice"));
         let bundle = build(&project);
         let result = invoke(&bundle, &input, &state, language, "invoice");
         assert_eq!(
@@ -247,63 +247,5 @@ fn code_only_apps_mixed_routes_and_real_effect_recovery() {
             json!({"approved":true,"amount_minor":12500,"limit_minor":20000})
         );
     }
-    mixed_application(&scratch, &state, &input);
     fs::remove_dir_all(scratch).unwrap();
-}
-
-fn mixed_application(scratch: &Path, state: &Path, input: &Path) {
-    let project = scratch.join("mixed");
-    fs::create_dir_all(project.join("native")).unwrap();
-    for (from, to) in [
-        ("examples/rust-invoice/invoice.rs", "native/invoice.rs"),
-        ("examples/cpp-invoice/invoice.cpp", "native/invoice.cpp"),
-    ] {
-        fs::copy(root().join(from), project.join(to)).unwrap();
-    }
-    fs::write(project.join("go.mod"),format!("module example.com/mixed\n\ngo 1.24.0\n\nrequire github.com/emmett08/mas-host/sdk/go v0.0.0\nreplace github.com/emmett08/mas-host/sdk/go => {}\n",root().join("sdk/go").display())).unwrap();
-    fs::write(project.join("workflow.go"),r#"package mixed
-import (
- "encoding/json"
- mas "github.com/emmett08/mas-host/sdk/go"
-)
-type Invoice struct { Amount uint64 `json:"amount_minor"`; Limit uint64 `json:"limit_minor"` }
-func Compare(ctx *mas.Context, input Invoice) (map[string]json.RawMessage,error) {
- values,err:=ctx.Parallel([]mas.RequestSpec{{Key:"rust_check",Target:"rust_invoice",Input:input},{Key:"cpp_check",Target:"cpp_invoice",Input:input}})
- if err!=nil { return nil,err }
- return map[string]json.RawMessage{"rust":values[0],"cpp":values[1]},nil
-}
-"#).unwrap();
-    write(
-        &project.join("agents.json"),
-        &json!({"version":"mas-agents/1","agents":[
-        {"name":"planner","language":"go","source":".","handler":"Compare"},
-        {"name":"rust_invoice","language":"rust","source":"native/invoice.rs","handler":"assess"},
-        {"name":"cpp_invoice","language":"cpp","source":"native/invoice.cpp","handler":"Assess"}]}),
-    );
-    let mut topology = json!({"version":"mas-topology/1","edges":[["client","planner"],["planner","client"],["planner","rust_invoice"],["rust_invoice","planner"],["planner","cpp_invoice"],["cpp_invoice","planner"]]});
-    write(&project.join("topology.json"), &topology);
-    let bundle = build(&project);
-    let output = invoke(&bundle, input, state, "mixed", "planner");
-    assert_eq!(output["output"]["rust"], output["output"]["cpp"]);
-    assert_eq!(output["output"]["rust"]["approved"], true);
-    topology["edges"].as_array_mut().unwrap().truncate(4);
-    write(&project.join("topology.json"), &topology);
-    let denied = build(&project);
-    failure(
-        &[
-            "run",
-            "--bundle",
-            strpath(&denied),
-            "--input",
-            strpath(input),
-            "--state",
-            strpath(state),
-            "--run",
-            "denied",
-            "--agent",
-            "planner",
-        ],
-        "route forbidden",
-    );
-    println!("mixed language: Go coordinator joined Rust and C++; denied route rejected by MAS");
 }

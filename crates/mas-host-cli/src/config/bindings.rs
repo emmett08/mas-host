@@ -1,5 +1,9 @@
 //! Resolve maintained implementation bindings without application-owned launchers.
-use super::{fields, read_json};
+use super::{
+    authoring, fields,
+    model::{Agent, Implementation, Native},
+    read_json,
+};
 use serde_json::{json, Value};
 use std::{
     io::Read,
@@ -29,8 +33,19 @@ pub(super) fn resolve(
     root: &Path,
     agent: &Value,
     connections: Option<&Value>,
-) -> Result<Value, String> {
-    fields(agent, &["name", "implementation"], &["operation"], "agent")?;
+) -> Result<Agent, String> {
+    fields(
+        agent,
+        &["name", "implementation"],
+        &[
+            "operation",
+            "input_schema",
+            "output_schema",
+            "environment",
+            "working_directory",
+        ],
+        "agent",
+    )?;
     let name = agent["name"].as_str().ok_or("agent name required")?;
     let operation = match agent.get("operation") {
         Some(value) => value.as_str().ok_or("agent operation must be a string")?,
@@ -46,7 +61,7 @@ pub(super) fn resolve(
         return Err("invalid agent operation".into());
     }
     let implementation = &agent["implementation"];
-    let configuration = match implementation["kind"].as_str() {
+    let selected = match implementation["kind"].as_str() {
         Some("native") => {
             fields(
                 implementation,
@@ -54,9 +69,12 @@ pub(super) fn resolve(
                 &[],
                 "native implementation",
             )?;
-            return Ok(
-                json!({"name":name,"language":implementation["language"],"source":implementation["source"],"handler":implementation["handler"],"operation":operation}),
-            );
+            validate_native(root, implementation)?;
+            Implementation::Native(Native {
+                language: implementation["language"].as_str().unwrap().into(),
+                source: implementation["source"].as_str().unwrap().into(),
+                handler: implementation["handler"].as_str().unwrap().into(),
+            })
         }
         Some("workflow") => {
             fields(
@@ -65,12 +83,50 @@ pub(super) fn resolve(
                 &[],
                 "workflow implementation",
             )?;
-            json!({"kind":"workflow","plan":read_json(&file(root,&implementation["plan"],"workflow plan")?)?})
+            Implementation::Workflow(
+                json!({"kind":"workflow","plan":authoring::read(&file(root,&implementation["plan"],"workflow plan")?)?}),
+            )
         }
-        Some("llm") => llm(root, implementation, connections)?,
-        _ => return Err("implementation kind must be native, llm or workflow".into()),
+        Some("llm") => Implementation::Llm(llm(root, implementation, connections)?),
+        Some("command") => {
+            fields(
+                implementation,
+                &["kind", "executable"],
+                &[
+                    "arguments",
+                    "stdin",
+                    "stdout",
+                    "success_exit_codes",
+                    "timeout_seconds",
+                    "max_output_bytes",
+                ],
+                "command implementation",
+            )?;
+            Implementation::Command(mas_host_runtime::command::Specification::parse(
+                implementation,
+            )?)
+        }
+        _ => return Err("implementation kind must be native, llm, workflow or command".into()),
     };
-    Ok(json!({"name":name,"handler":operation,"configuration":configuration}))
+    let input_schema = schema(root, agent.get("input_schema"))?;
+    let output_schema = schema(root, agent.get("output_schema"))?;
+    if matches!(
+        selected,
+        Implementation::Llm(_) | Implementation::Command(_)
+    ) && output_schema.is_none()
+    {
+        return Err("LLM and command operations require an output_schema".into());
+    }
+    let (environment, directory) = super::launch::resolve(root, agent, &selected)?;
+    Ok(Agent {
+        name: name.into(),
+        operation: operation.into(),
+        implementation: selected,
+        input_schema,
+        output_schema,
+        environment,
+        working_directory: directory,
+    })
 }
 
 pub(super) fn validate_native(root: &Path, binding: &Value) -> Result<(), String> {
@@ -95,7 +151,7 @@ pub(super) fn validate_native(root: &Path, binding: &Value) -> Result<(), String
     }
     match binding["language"].as_str() {
         Some("go") if source.is_dir() => Ok(()),
-        Some("rust" | "cpp") if source.is_file() => Ok(()),
+        Some("rust" | "cpp" | "python") if source.is_file() => Ok(()),
         _ => Err("unsupported native language/source profile".into()),
     }
 }
@@ -103,19 +159,8 @@ pub(super) fn validate_native(root: &Path, binding: &Value) -> Result<(), String
 fn llm(root: &Path, implementation: &Value, connections: Option<&Value>) -> Result<Value, String> {
     fields(
         implementation,
-        &[
-            "kind",
-            "connection",
-            "model",
-            "instructions",
-            "output_schema",
-        ],
-        &[
-            "input_schema",
-            "max_output_tokens",
-            "max_turns",
-            "delegates",
-        ],
+        &["kind", "connection", "model", "instructions"],
+        &["max_output_tokens", "max_turns", "delegates"],
         "LLM implementation",
     )?;
     let connection_name = implementation["connection"]
@@ -153,21 +198,8 @@ fn llm(root: &Path, implementation: &Value, connections: Option<&Value>) -> Resu
     if instructions.is_empty() || instructions.len() > 16384 {
         return Err("instructions require 1..16384 bytes".into());
     }
-    let output_schema = read_json(&file(
-        root,
-        &implementation["output_schema"],
-        "output schema",
-    )?)?;
-    mas_host_runtime::schema::check(&output_schema)?;
-    if output_schema["type"] != "object" {
-        return Err("operation output schema must have object type".into());
-    }
-    let mut config = json!({"kind":"llm","connection":connection,"model":model,"instructions":instructions,"output_schema":output_schema});
-    if let Some(schema) = implementation.get("input_schema") {
-        let schema = read_json(&file(root, schema, "input schema")?)?;
-        mas_host_runtime::schema::check(&schema)?;
-        config["input_schema"] = schema;
-    }
+    let mut config =
+        json!({"kind":"llm","connection":connection,"model":model,"instructions":instructions});
     for (name, default, max) in [("max_output_tokens", 4096, 131072), ("max_turns", 1, 1024)] {
         let value = implementation
             .get(name)
@@ -192,4 +224,16 @@ fn llm(root: &Path, implementation: &Value, connections: Option<&Value>) -> Resu
     }
     config["delegates"] = delegates;
     Ok(config)
+}
+
+fn schema(root: &Path, path: Option<&Value>) -> Result<Option<Value>, String> {
+    let Some(path) = path else {
+        return Ok(None);
+    };
+    let schema = read_json(&file(root, path, "operation schema")?)?;
+    mas_host_schema::check(&schema)?;
+    if schema["type"] != "object" {
+        return Err("operation schemas must have object type".into());
+    }
+    Ok(Some(schema))
 }

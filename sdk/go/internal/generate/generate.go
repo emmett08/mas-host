@@ -81,27 +81,26 @@ func Generate(options Options) ([]Worker, error) {
 	}
 	agentsPath := options.Agents
 	if agentsPath == "" {
-		agentsPath = filepath.Join(project, "agents.json")
+		return nil, fmt.Errorf("--agents must identify the generated native build manifest")
 	}
 	raw, err := os.ReadFile(agentsPath)
 	if err != nil {
 		return nil, err
 	}
 	if err := mas.ValidateObject(raw); err != nil {
-		return nil, fmt.Errorf("agents.json: %w", err)
+		return nil, fmt.Errorf("native build manifest: %w", err)
 	}
 	var configuration struct {
-		Version string          `json:"version"`
-		Agents  []Agent         `json:"agents"`
-		Limits  json.RawMessage `json:"limits"`
+		Version string  `json:"version"`
+		Agents  []Agent `json:"agents"`
 	}
 	decoder := json.NewDecoder(bytes.NewReader(raw))
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(&configuration); err != nil {
 		return nil, err
 	}
-	if configuration.Version != "mas-agents/1" {
-		return nil, fmt.Errorf("unsupported agents version %q", configuration.Version)
+	if configuration.Version != "mas-native-build/1" {
+		return nil, fmt.Errorf("unsupported native build manifest version %q", configuration.Version)
 	}
 	if err := os.MkdirAll(output, 0755); err != nil {
 		return nil, err

@@ -48,4 +48,4 @@ SDK/build internals; application code does not manage them. The application is
 trusted code, not a sandboxed process.
 
 From this repository, run `cargo test -p mas-host-sdk` for protocol and effect
-tests. `examples/rust-invoice` is a complete generated-entrypoint application.
+tests. The [Rust application](https://github.com/emmett08/mas-host-examples/tree/main/examples/rust-order) demonstrates a complete generated-entrypoint application.
