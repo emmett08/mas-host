@@ -4,16 +4,16 @@ Status: initial local Linux profile. The worker is trusted application code, not
 sandbox. This contract is independent of the MAS message protocol. MAS remains
 the authority for routing, task transitions and call reservations.
 
-Application repositories supply `agents.json`, `topology.json`, application
+Application repositories supply agent and topology configuration, application
 functions and their normal build metadata. The CLI generates worker launchers
 and an immutable bundle in `.mas/build/`. Configuration never comes from task
 input. Generated files are disposable build outputs.
 
 ## Application configuration
 
-`agents.json` has exactly `version` (`mas-agents/1`), `agents` and optional `limits`.
-Each agent has `name`, `language` (`go`, `rust`, or `cpp`), `source` (a project-relative
-directory for Go; a source file for Rust/C++), and `handler` (an exported function
+The version 1 agent document has exactly `version` (`mas-agents/1`), `agents` and optional `limits`.
+Each agent has `name`, `language` (`go`, `rust`, `cpp` or `python`), `source` (a project-relative
+directory for Go; a source file for Rust/C++/Python), and `handler` (a function
 name). `client` is reserved for host ingress. Unknown fields are errors.
 
 `limits` may set `wall_seconds` (default 60, maximum 3600), `max_calls` (default
@@ -22,9 +22,14 @@ name). `client` is reserved for host ingress. Unknown fields are errors.
 operator's authority, not grants for a multi-tenant service. The CLI enforces
 bounded maxima. Remote deployment policy is a later profile.
 
-`topology.json` has exactly `version` (`mas-topology/1`) and `edges`: explicit
+The topology document has exactly `version` (`mas-topology/1`) and `edges`: explicit
 directed pairs of actor names. Both request and reply edges are required.
 Topology permits communication; application code supplies order and decisions.
+
+JSON, TOML and restricted YAML are alternative authoring syntaxes for these
+same versioned documents. The [authoring contract](authoring.md) defines
+discovery, conversion and format-independent validation. Bundles and native
+frames retain their strict JSON contract.
 
 ## Generated bundle and implementation identity
 
@@ -38,6 +43,10 @@ are part of this initial local identity. A changed bundle cannot resume an
 existing run. Contract versions and compiled SDK code are part of the binding.
 Native runtime/library dependencies must be pinned by
 the deployment; an executable digest alone does not identify shared libraries.
+Python workers retain application Python sources and SDK modules in a generated
+executable archive. Changes to those sources change the executable digest.
+The selected interpreter and installed third-party dependencies must remain
+pinned for the lifetime of retained runs, just like native runtime libraries.
 
 ## Framing
 

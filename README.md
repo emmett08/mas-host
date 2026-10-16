@@ -3,8 +3,8 @@
 A shared Rust host for native, LLM and composable workflow agents. Application
 repositories supply **application functions, agent configuration and topology
 configuration**, plus their normal build metadata and tests. The host tooling
-generates executable entry points and registration bundles. No Python, handwritten
-transport or application-owned launcher is required.
+generates executable entry points and registration bundles. Go, Rust, C++ and
+Python handlers share the same routing, admission and recovery rules.
 
 This is a **trusted local Linux profile**, built from source. It
 implements native execution, bounded parallel requests, durable child results,
@@ -25,7 +25,8 @@ exercise these shapes with one actor definition and selectable provider profiles
 Prerequisites: Linux, Git, Rust **1.99.0**, Go **1.24.0 or later**, a C/C++ compiler
 supporting C++17, and Make. Rust is pinned in `rust-toolchain.toml`; C++ is needed
 for the C++ example and full verification. The protocol's bundled SQLite build
-also requires a C compiler.
+also requires a C compiler. Python agents and the full test suite require
+Python **3.11 or later**; other agent implementations have no Python dependency.
 
 ```sh
 git clone https://github.com/emmett08/mas-host.git
@@ -61,30 +62,31 @@ For Go, an exported handler has a typed signature:
 func Assess(ctx *mas.Context, proposal Proposal) (Assessment, error)
 ```
 
-Its `agents.json` selects the function:
+Its `agents.toml` selects the function:
 
-```json
-{
-  "version": "mas-agents/1",
-  "agents": [
-    {"name": "assessor", "language": "go", "source": ".", "handler": "Assess"}
-  ]
-}
+```toml
+version = "mas-agents/1"
+
+[[agents]]
+name = "assessor"
+language = "go"
+source = "."
+handler = "Assess"
 ```
 
-Its `topology.json` permits requests and replies:
+Its `topology.yaml` permits requests and replies:
 
-```json
-{
-  "version": "mas-topology/1",
-  "edges": [["client", "assessor"], ["assessor", "client"]]
-}
+```yaml
+version: mas-topology/1
+edges:
+  - [client, assessor]
+  - [assessor, client]
 ```
 
 The application also has its ordinary `go.mod`, SDK dependency, source and tests.
 It does not contain a worker `main`, registration factory or protocol codec.
 The CLI writes generated files under `.mas/build/`; add `.mas/` to the application's
-`.gitignore`. A mixed-language configuration selects `rust` or `cpp` for other
+`.gitignore`. A mixed-language configuration selects `rust`, `cpp` or `python` for other
 actors without changing routing or admission rules.
 
 | Language | Supported application signature/build profile |
@@ -92,6 +94,34 @@ actors without changing routing or admission rules.
 | [Go](sdk/go/README.md) | Typed exported functions in an ordinary module; requirements, replacements and checksums preserved |
 | [Rust](sdk/rust/README.md) | Standalone source functions using SDK `Context` and `Json`; generated Cargo entry point |
 | [C++](sdk/cpp/README.md) | Standalone source functions using SDK `Context` and `Json`; generated C++17 entry point |
+| [Python](sdk/python/README.md) | Typed functions using dataclasses or dictionaries; generated archive containing application modules and the SDK |
+
+Python handlers receive ordinary application types:
+
+```python
+from dataclasses import dataclass
+from mas_host import Context
+
+@dataclass
+class Proposal:
+    units: int
+
+@dataclass
+class Assessment:
+    accepted: bool
+
+def assess(ctx: Context, proposal: Proposal) -> Assessment:
+    return Assessment(accepted=proposal.units <= 100)
+```
+
+Bind this function with `language = "python"`, `source = "application.py"`,
+and `handler = "assess"`. The [Python examples](https://github.com/emmett08/mas-host-examples/tree/main/examples/python-review)
+include peer requests, durable effects and a typed caller that supplies input
+without creating an input file.
+
+JSON, TOML and YAML authoring share one validation path. Existing JSON projects
+continue to work. See [authoring formats](docs/authoring.md) for discovery,
+stdin, conversion rules and recovery identity.
 
 Full Cargo/CMake project discovery and arbitrary native type-to-schema generation
 are future profiles. JSON values use exact integers; decimal quantities should
@@ -139,8 +169,8 @@ and environment pinning remain deployment responsibilities.
 ## Verify
 
 ```sh
-make test        # Rust/Go checks, unit tests and C++ conformance
-make acceptance  # all three languages, mixed-language routing and real recovery
+make test        # Rust/Go checks, Python unit tests and C++ conformance
+make acceptance  # native applications, mixed-language routing and real recovery
 ```
 
 The implementation uses one process owner per run, a separate execution journal,

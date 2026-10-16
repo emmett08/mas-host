@@ -1,6 +1,7 @@
 //! Validate the two application-owned configuration files before running builds.
 use serde_json::{json, Value};
 use std::{collections::BTreeSet, path::Path};
+pub mod authoring;
 mod bindings;
 
 pub fn read_json(path: &Path) -> Result<Value, String> {
@@ -12,6 +13,31 @@ pub fn read_json(path: &Path) -> Result<Value, String> {
         .map_err(|e| format!("{}: {e}", path.display()))?;
     mas_protocol_codec::parse_json(&text)
         .map_err(|e| format!("{}: {}: {}", path.display(), e.code, e.message))
+}
+
+/// Resolve one explicit file, or require exactly one supported default file.
+pub fn discover(
+    project: &Path,
+    stem: &str,
+    explicit: Option<&Path>,
+) -> Result<std::path::PathBuf, String> {
+    if let Some(path) = explicit {
+        return Ok(if path.is_absolute() {
+            path.to_owned()
+        } else {
+            project.join(path)
+        });
+    }
+    let candidates: Vec<_> = ["toml", "yaml", "yml", "json"]
+        .into_iter()
+        .map(|extension| project.join(format!("{stem}.{extension}")))
+        .filter(|path| path.exists())
+        .collect();
+    match candidates.as_slice() {
+        [path] => Ok(path.to_owned()),
+        [] => Err(format!("missing {stem} configuration: expected {stem}.toml, {stem}.yaml, {stem}.yml or {stem}.json")),
+        _ => Err(format!("ambiguous {stem} configuration; select one with --{stem}")),
+    }
 }
 
 pub fn fields(
@@ -46,11 +72,12 @@ fn identifier(text: &str) -> bool {
 pub fn load_profile(
     project: &Path,
     agents_path: &Path,
+    topology_path: &Path,
     profile: Option<&Path>,
 ) -> Result<(Value, Value), String> {
-    let mut agents = read_json(agents_path)?;
+    let mut agents = authoring::read(agents_path)?;
     if let Some(profile) = profile {
-        let profile = read_json(profile)?;
+        let profile = authoring::read(profile)?;
         fields(
             &profile,
             &["version", "connections"],
@@ -75,7 +102,7 @@ pub fn load_profile(
             connections.insert(name.clone(), connection.clone());
         }
     }
-    let topology = read_json(&project.join("topology.json"))?;
+    let topology = authoring::read(topology_path)?;
     validate(project, &agents, &topology)
 }
 
@@ -90,8 +117,18 @@ pub fn validate(
     } else {
         vec!["limits"]
     };
-    fields(config, &["version", "agents"], &optional, "agents.json")?;
-    fields(topology, &["version", "edges"], &[], "topology.json")?;
+    fields(
+        config,
+        &["version", "agents"],
+        &optional,
+        "agents configuration",
+    )?;
+    fields(
+        topology,
+        &["version", "edges"],
+        &[],
+        "topology configuration",
+    )?;
     if !matches!(version, "mas-agents/1" | "mas-agents/2")
         || topology["version"] != "mas-topology/1"
     {

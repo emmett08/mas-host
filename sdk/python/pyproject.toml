@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mas-host-sdk"
+version = "0.1.0"
+description = "Typed Python workers and clients for the MAS host"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "GPL-3.0-only"
+dependencies = []
+
+[tool.setuptools]
+packages = ["mas_host"]
+
+[tool.setuptools.package-data]
+mas_host = ["py.typed"]

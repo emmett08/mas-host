@@ -34,15 +34,12 @@ pub fn build_configured(
     sdk_root: &Path,
     agents_path: Option<&Path>,
     connections_path: Option<&Path>,
+    topology_path: Option<&Path>,
 ) -> Result<PathBuf, String> {
     let project = project.canonicalize().map_err(|e| e.to_string())?;
     let sdk_root = sdk_root.canonicalize().map_err(|e| e.to_string())?;
-    let path = agents_path.unwrap_or_else(|| Path::new("agents.json"));
-    let agents_path = if path.is_absolute() {
-        path.to_owned()
-    } else {
-        project.join(path)
-    };
+    let agents_path = config::discover(&project, "agents", agents_path)?;
+    let topology_path = config::discover(&project, "topology", topology_path)?;
     let profile = connections_path.map(|path| {
         if path.is_absolute() {
             path.to_owned()
@@ -50,7 +47,8 @@ pub fn build_configured(
             project.join(path)
         }
     });
-    let (agents, topology) = config::load_profile(&project, &agents_path, profile.as_deref())?;
+    let (agents, topology) =
+        config::load_profile(&project, &agents_path, &topology_path, profile.as_deref())?;
     let out = project.join(".mas/build");
     std::fs::create_dir_all(&out).map_err(|e| e.to_string())?;
     let owner = std::fs::OpenOptions::new()

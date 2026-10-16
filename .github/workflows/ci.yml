@@ -32,6 +32,8 @@ jobs:
           node-version: '22.14.0'
       - name: Cursor adapter contract without credentials
         run: node --test assets/providers/cursor.test.mjs
+      - name: Check Python runtime for SDK and generated workers
+        run: python3 -c 'import sys; assert sys.version_info >= (3, 11), sys.version'
       - name: Format, analyse and test
         run: make test
       - name: Native applications, mixed routing and effect recovery

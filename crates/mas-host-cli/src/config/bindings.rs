@@ -1,5 +1,5 @@
 //! Resolve maintained implementation bindings without application-owned launchers.
-use super::{fields, read_json};
+use super::{authoring, fields, read_json};
 use serde_json::{json, Value};
 use std::{
     io::Read,
@@ -65,7 +65,7 @@ pub(super) fn resolve(
                 &[],
                 "workflow implementation",
             )?;
-            json!({"kind":"workflow","plan":read_json(&file(root,&implementation["plan"],"workflow plan")?)?})
+            json!({"kind":"workflow","plan":authoring::read(&file(root,&implementation["plan"],"workflow plan")?)?})
         }
         Some("llm") => llm(root, implementation, connections)?,
         _ => return Err("implementation kind must be native, llm or workflow".into()),
@@ -95,7 +95,7 @@ pub(super) fn validate_native(root: &Path, binding: &Value) -> Result<(), String
     }
     match binding["language"].as_str() {
         Some("go") if source.is_dir() => Ok(()),
-        Some("rust" | "cpp") if source.is_file() => Ok(()),
+        Some("rust" | "cpp" | "python") if source.is_file() => Ok(()),
         _ => Err("unsupported native language/source profile".into()),
     }
 }

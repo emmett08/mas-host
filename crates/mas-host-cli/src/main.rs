@@ -8,14 +8,15 @@ use std::{
 };
 
 const HELP: &str = "mas-host: native applications on the MAS protocol\n\n\
-  build   --project DIR [--sdk-root DIR] [--agents FILE] [--connections FILE]\n\
-  run     --project DIR --agent NAME --input FILE --state DIR --run ID [--sdk-root DIR] [--agents FILE] [--connections FILE]\n\
-  run     --bundle FILE --agent NAME --input FILE --state DIR --run ID\n\
+  build   --project DIR [--sdk-root DIR] [--agents FILE] [--topology FILE] [--connections FILE]\n\
+  run     --project DIR --agent NAME --input FILE|- [--input-format json|toml|yaml] --state DIR --run ID [--sdk-root DIR] [--agents FILE] [--topology FILE] [--connections FILE]\n\
+  run     --bundle FILE --agent NAME --input FILE|- [--input-format json|toml|yaml] --state DIR --run ID\n\
   inspect --state DIR --run ID\n\
   cancel  --state DIR --run ID\n\
   resolve --state DIR --run ID --effect ID --output FILE --evidence FILE\n\n\
 Run builds automatically when --project is supplied. Reuse --run to resume.\n\
-The state directory belongs to one local operator. No Python runtime is required.\n";
+Input format follows the file extension; stdin defaults to JSON.\n\
+The state directory belongs to one local operator. Python agents require Python 3.11+.\n";
 
 fn options(args: &[String], allowed: &[&str]) -> Result<BTreeMap<String, String>, String> {
     if args.len() % 2 != 0 {
@@ -52,13 +53,20 @@ fn execute(args: &[String]) -> Result<Value, String> {
         "build" => {
             let args = options(
                 &args[1..],
-                &["--project", "--sdk-root", "--agents", "--connections"],
+                &[
+                    "--project",
+                    "--sdk-root",
+                    "--agents",
+                    "--topology",
+                    "--connections",
+                ],
             )?;
             let file = build::build_configured(
                 Path::new(require(&args, "--project")?),
                 &sdk_root(&args),
                 args.get("--agents").map(Path::new),
                 args.get("--connections").map(Path::new),
+                args.get("--topology").map(Path::new),
             )?;
             Ok(json!({"status":"built","bundle":file}))
         }
@@ -75,18 +83,25 @@ fn execute(args: &[String]) -> Result<Value, String> {
                     "--run",
                     "--agents",
                     "--connections",
+                    "--topology",
+                    "--input-format",
                 ],
             )?;
-            let input = config::read_json(Path::new(require(&args, "--input")?))?;
+            let input = config::authoring::read_input(
+                Path::new(require(&args, "--input")?),
+                args.get("--input-format").map(String::as_str),
+            )?;
             if !input.is_object() {
-                return Err("application input must be a JSON object".into());
+                return Err("application input must be an object".into());
             }
             let agent = require(&args, "--agent")?;
             let run = require(&args, "--run")?;
             let state = Path::new(require(&args, "--state")?);
             let bundle_path = match (args.get("--bundle"), args.get("--project")) {
                 (Some(file), None)
-                    if !args.contains_key("--agents") && !args.contains_key("--connections") =>
+                    if !args.contains_key("--agents")
+                        && !args.contains_key("--connections")
+                        && !args.contains_key("--topology") =>
                 {
                     PathBuf::from(file)
                 }
@@ -95,6 +110,7 @@ fn execute(args: &[String]) -> Result<Value, String> {
                     &sdk_root(&args),
                     args.get("--agents").map(Path::new),
                     args.get("--connections").map(Path::new),
+                    args.get("--topology").map(Path::new),
                 )?,
                 _ => return Err("provide exactly one of --project and --bundle".into()),
             };
