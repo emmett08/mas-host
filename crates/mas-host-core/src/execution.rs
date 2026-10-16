@@ -4,6 +4,7 @@ use super::{
     Inner, Result, Step, MAX_ACTIVE, MAX_DEPTH,
 };
 use mas_host_worker::Worker;
+use mas_protocol_codec::{admission::AdmissionDisposition, Message};
 use serde_json::{json, Value};
 use std::{
     collections::BTreeSet,
@@ -12,9 +13,50 @@ use std::{
         atomic::{AtomicUsize, Ordering},
         Arc,
     },
+    time::Duration,
 };
 
+// A bounded dispatch attempt may be resumed explicitly under the same durable
+// identity and original deadline. No external effect is retried by this loop.
+const ADMISSION_ATTEMPTS: usize = 8;
+
 impl Inner {
+    pub(crate) fn admit_request(&self, step: &Step, request: &Message) -> Result<()> {
+        for attempt in 1..=ADMISSION_ATTEMPTS {
+            self.check_live()?;
+            let outcome = lock(&self.protocol)?.send_checked(request, &step.actor);
+            let Err(failure) = outcome else {
+                return Ok(());
+            };
+            let state = match failure.disposition {
+                AdmissionDisposition::Rejected => "rejected",
+                AdmissionDisposition::Retryable => "prepared",
+                AdmissionDisposition::Unknown => "blocked",
+            };
+            self.set_state(
+                &step.id,
+                state,
+                None,
+                Some(&json!({"error":bounded_error(&failure.message),
+                    "admission":failure.to_value(),"admission_attempts":attempt})),
+            )?;
+            if failure.disposition != AdmissionDisposition::Retryable
+                || attempt == ADMISSION_ATTEMPTS
+            {
+                // An absent message in a later observation does not turn an
+                // uncertain commit into permission to retry automatically.
+                return Err(failure.message);
+            }
+            self.check_live()?;
+            let delay_ms = (25u64 << (attempt - 1)).min(250);
+            let remaining_ms = self.deadline_ms.saturating_sub(super::now_ms()?);
+            // Neither database lock is held here. Other workers must be able
+            // to finish and acknowledge messages while admission is waiting.
+            std::thread::sleep(Duration::from_millis(delay_ms.min(remaining_ms)));
+        }
+        unreachable!("bounded admission loop always returns")
+    }
+
     pub(crate) fn request(
         self: &Arc<Self>,
         parent: &str,
@@ -71,25 +113,9 @@ impl Inner {
             "Request",
             json!({"task_id":step.id,"operation":agent.operation,"input":input}),
         );
+        self.admit_request(&step, &request)?;
         {
             let mut protocol = lock(&self.protocol)?;
-            if let Err(failure) = protocol.send(&request, actor) {
-                // A lost commit reply must not be mistaken for non-admission.
-                let snapshot = protocol.inspect(&self.run_id)?;
-                let admitted = snapshot["messages"].as_array().is_some_and(|messages| {
-                    messages
-                        .iter()
-                        .any(|message| message["id"] == request.message_id)
-                });
-                drop(protocol);
-                self.set_state(
-                    &step.id,
-                    if admitted { "blocked" } else { "rejected" },
-                    None,
-                    Some(&json!({"error":bounded_error(&failure)})),
-                )?;
-                return Err(failure);
-            }
             let deliveries = protocol.receive(&self.run_id, target, 100)?;
             let delivery = deliveries
                 .as_array()

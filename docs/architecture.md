@@ -10,7 +10,7 @@ the shared host remains Rust, and other language profiles require no Python runt
 
 `mas` and `mas-host` have independent responsibilities and release histories.
 This host consumes the public Rust `mas-protocol-codec` crate at commit
-`9d9845990843f5e3464395da7bd60bb50ffb2dda`. It does not copy or modify the protocol
+`718e206614888a1d96c876cdcc9ac6eed8622113`. It does not copy or modify the protocol
 implementation. The dependency is pinned source while independently published
 protocol releases are unavailable. `Cargo.lock` records the complete Rust graph.
 
@@ -70,12 +70,11 @@ single-owner process protocol, not a distributed transaction or high-availabilit
 service. A later shared-storage implementation must preserve atomic admission,
 ownership fencing and original deadlines before claiming distributed support.
 
-The optional [live observer](observation.md) reads the pinned protocol's native
-SQLite v2 schema and execution journal through separate read-only connections.
-It rejects unsupported versions and performs no protocol transition. This narrow
-compatibility adapter is necessary because the protocol's administrative
-`inspect` operation reconciles expiry and its `open` operation can migrate state.
-Execution continues to use the public protocol store API as its authority.
+The optional [live observer](observation.md) combines the protocol's public
+read-only `Observer` snapshot with the host's execution journal. The protocol
+owns storage compatibility and payload filtering; the host owns its checkpoints.
+Neither read performs expiry reconciliation or another protocol transition.
+The two databases retain separate commit and observation boundaries.
 
 ## Application execution
 
@@ -95,6 +94,23 @@ incomplete orchestration code may restart. Recorded child results are reused.
 This requires deterministic orchestration outside effect boundaries. Arbitrary
 threads, goroutines, file writes or network calls do not become durable merely
 because their containing function is hosted.
+
+Request admission uses the protocol's typed outcome. A known mailbox-capacity
+refusal permits up to eight attempts per dispatch, with the same message and
+step identities, under the original run deadline. Delays start at 25 ms and
+double to a 250 ms ceiling; cancellation interrupts further attempts. No database
+lock is held during delay. Exhaustion retains the request as prepared and keeps
+its ancestors replayable. An explicit resume starts another bounded dispatch;
+it does not reset the run deadline or create another durable request.
+
+Permanent refusal is retained as rejected. An uncertain admission result blocks
+that dispatch even if a later observation finds no message. Explicit resume may
+resubmit the identical message: protocol duplicate detection establishes whether
+that request was admitted before any worker starts. This permission applies to
+message admission only. An admitted external effect with an uncertain outcome
+continues to require evidence-backed resolution before execution can resume.
+Structured admission code, disposition and attempt count are retained in step
+evidence; worker IPC keeps its existing error string contract.
 
 Authoring readers are format adapters selected by extension or an explicit CLI
 option. They produce the same MAS value domain before schema, topology and

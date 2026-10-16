@@ -78,6 +78,15 @@ reconciles the deadline. Observation alone never changes it.
 Unknown runs, partially initialised runs and busy databases return the ordinary
 CLI error object on stderr and a nonzero exit code. A polling server may retry
 these transient conditions while its run process remains active. This adapter
-accepts execution journal version 1 and the native SQLite version 2 schema of
-the pinned MAS dependency. It rejects unsupported versions without migration.
+accepts execution journal version 1. Protocol storage compatibility is checked
+by the dependency's public `observation::Observer` API; the host does not query
+protocol tables or reproduce their schema. Unsupported versions are rejected without migration.
 No wire message, payload rule or protocol transition is added by observation.
+
+Request admission failures retain `evidence.admission` with stable protocol
+`code`, `disposition` and diagnostic `message` fields. `admission_attempts`
+records attempts within the latest dispatch. A `prepared` request following
+`retryable` admission exhausted that bounded dispatch without admission; a
+`blocked` request with `unknown` admission needs explicit resume or investigation.
+These fields require payload opt-in because they are retained execution evidence.
+They describe message admission, not the outcome of an external effect.
