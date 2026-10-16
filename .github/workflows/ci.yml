@@ -36,5 +36,5 @@ jobs:
         run: python3 -c 'import sys; assert sys.version_info >= (3, 11), sys.version'
       - name: Format, analyse and test
         run: make test
-      - name: Native applications, mixed routing and effect recovery
+      - name: Native applications and effect recovery
         run: make acceptance

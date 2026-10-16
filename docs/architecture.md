@@ -55,6 +55,11 @@ databases. Protocol, host IPC, application configuration and generated bundle
 formats are independently versioned. A changed executable, bundle or root input
 cannot silently resume retained work.
 
+Application bindings use `mas-agents/2`; generated worker records use
+`mas-bundle/2` and always carry a public operation. TOML/YAML authoring and typed
+SDK builders feed the same resolved configuration. Strict JSON remains the
+generated bundle and worker-frame representation.
+
 The first profile deliberately uses the existing public protocol store API.
 The protocol database rejects unrelated tables, so the host maintains a separate
 execution journal. Durable intent precedes call reservation; durable admission
@@ -128,8 +133,8 @@ falling back to Python or unrestricted execution.
 ## Qualification and extension sequence
 
 The acceptance suite must exercise an application repository without handwritten
-transport or registration code, in each supported language. Mixed-language calls
-must use the same route rules. It must also verify result reuse, changed identity
+transport or registration code in each supported language. It must also verify
+route admission, result reuse, changed identity
 rejection, a lost effect response, evidence-based resolution, call-budget
 enforcement, expiry and descendant cleanup. Successful sample output alone is
 insufficient evidence for recovery behaviour.

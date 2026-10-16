@@ -17,7 +17,7 @@ func main() {
 	var options generate.Options
 	flag.StringVar(&options.Project, "project", ".", "application project directory")
 	flag.StringVar(&options.Output, "output", "", "generated build directory")
-	flag.StringVar(&options.Agents, "agents", "", "agent configuration (default: PROJECT/agents.json)")
+	flag.StringVar(&options.Agents, "agents", "", "generated native build manifest (required)")
 	flag.StringVar(&options.SDKDir, "sdk-dir", filepath.Clean(filepath.Join(filepath.Dir(current), "../..")), "installed MAS Go SDK directory")
 	flag.StringVar(&options.Go, "go", "go", "Go compiler executable")
 	flag.Parse()

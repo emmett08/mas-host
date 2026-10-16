@@ -78,7 +78,7 @@ pub fn build_configured(
     let native_config = out.join("native-agents.json");
     std::fs::write(
         &native_config,
-        serde_json::to_vec(&json!({"version":"mas-agents/1","agents":native}))
+        serde_json::to_vec(&json!({"version":"mas-native-build/1","agents":native}))
             .map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;
@@ -122,11 +122,11 @@ pub fn build_configured(
             bind_assets(&mut configuration, &sdk_root)?;
             workers.push(json!({"name":agent["name"],"executable":std::env::current_exe().map_err(|e|e.to_string())?,"handler":agent["handler"],"arguments":["__builtin"],"configuration":configuration}));
         }
-        if let Some(operation) = agent.get("operation") {
-            if let Some(worker) = workers.iter_mut().find(|w| w["name"] == agent["name"]) {
-                worker["operation"] = operation.clone();
-            }
-        }
+        let worker = workers
+            .iter_mut()
+            .find(|w| w["name"] == agent["name"])
+            .ok_or("resolved agent has no generated worker")?;
+        worker["operation"] = agent["operation"].clone();
     }
     workers.sort_by(|a, b| a["name"].as_str().cmp(&b["name"].as_str()));
     let mut retained: std::collections::BTreeMap<PathBuf, (PathBuf, String)> =
@@ -147,15 +147,7 @@ pub fn build_configured(
         worker["sha256"] = json!(digest);
         worker["executable"] = json!(path.to_str().ok_or("executable path is not UTF-8")?);
     }
-    let version = if workers
-        .iter()
-        .any(|w| w.get("configuration").is_some() || w.get("operation").is_some())
-    {
-        "mas-bundle/2"
-    } else {
-        "mas-bundle/1"
-    };
-    let bundle = json!({"version":version,"agents":workers,"topology":topology});
+    let bundle = json!({"version":"mas-bundle/2","agents":workers,"topology":topology});
     let destination = out.join("bundle.json");
     let snapshots = out.join("bundles");
     std::fs::create_dir_all(&snapshots).map_err(|e| e.to_string())?;

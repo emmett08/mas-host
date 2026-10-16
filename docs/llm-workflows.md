@@ -7,28 +7,32 @@ the model does not generate MAS wire envelopes or select its authenticated sende
 
 ## Configuration and provider selection
 
-Existing `mas-agents/1` applications continue to build. A `mas-agents/2` document
-contains `agents`, named `connections` and optional protocol `limits`. An actor
-declares `name`, optional `operation` (defaults to its name), and `implementation`:
+A `mas-agents/2` document contains `agents`, optional named `connections` and
+optional protocol `limits`. An actor declares `name`, optional `operation`
+(defaults to its name), and `implementation`:
 
-```json
-{
-  "name": "reviewer",
-  "operation": "review/1",
-  "implementation": {
-    "kind": "llm",
-    "connection": "review_provider",
-    "model": "<explicit-model-id>",
-    "instructions": "prompts/review.md",
-    "input_schema": "schemas/input.json",
-    "output_schema": "schemas/output.json",
-    "max_output_tokens": 4096
-  }
-}
+```toml
+version = "mas-agents/2"
+
+[connections.review_provider]
+kind = "openai"
+api_key_env = "OPENAI_API_KEY"
+
+[[agents]]
+name = "reviewer"
+operation = "review/1"
+[agents.implementation]
+kind = "llm"
+connection = "review_provider"
+model = "<explicit-model-id>"
+instructions = "prompts/review.md"
+input_schema = "schemas/input.json"
+output_schema = "schemas/output.json"
+max_output_tokens = 4096
 ```
 
-`kind: native` instead selects `language`, `source` and `handler`, using the
-existing language build profiles. `kind: workflow` selects a relative `plan`
+`kind = "native"` selects `language`, `source` and `handler`, using the supported
+language build profiles. `kind = "workflow"` selects a relative `plan`
 file. Instructions, schemas and plans must remain inside the application project;
 their contents are embedded in the immutable generated bundle. Each actor exposes
 one public operation in this profile. Separate actors can expose separate operations.

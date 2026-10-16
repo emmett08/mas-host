@@ -12,7 +12,7 @@ effect admission, inspection and evidence-based recovery. It consumes a pinned
 revision of [`emmett08/mas`](https://github.com/emmett08/mas) through its public
 Rust crate; neither the protocol repository nor existing demos need changes.
 
-[`mas-agents/2`](docs/llm-workflows.md) adds maintained OpenAI Responses,
+[`mas-agents/2`](docs/llm-workflows.md) configures maintained OpenAI Responses,
 OpenAI-compatible, Cursor SDK, command and explicit mock providers. Workflow
 agents recursively compose sequences, parallel groups, branches, bounded loops,
 foreach and named subworkflows. Star, tree and mesh routes can be combined in one
@@ -35,7 +35,7 @@ make build
 
 target/debug/mas-host run \
   --project examples/go-release --agent planner \
-  --input examples/go-release/input.json \
+  --input examples/go-release/input.yaml \
   --state .state --run release-001
 ```
 
@@ -49,9 +49,9 @@ The native examples use the same host:
 
 ```sh
 target/debug/mas-host run --project examples/rust-invoice --agent invoice \
-  --input examples/rust-invoice/input.json --state .state --run rust-001
+  --input examples/rust-invoice/input.yaml --state .state --run rust-001
 target/debug/mas-host run --project examples/cpp-invoice --agent invoice \
-  --input examples/cpp-invoice/input.json --state .state --run cpp-001
+  --input examples/cpp-invoice/input.yaml --state .state --run cpp-001
 ```
 
 ## An application repository
@@ -65,10 +65,13 @@ func Assess(ctx *mas.Context, proposal Proposal) (Assessment, error)
 Its `agents.toml` selects the function:
 
 ```toml
-version = "mas-agents/1"
+version = "mas-agents/2"
 
 [[agents]]
 name = "assessor"
+operation = "assess/1"
+[agents.implementation]
+kind = "native"
 language = "go"
 source = "."
 handler = "Assess"
@@ -86,8 +89,8 @@ edges:
 The application also has its ordinary `go.mod`, SDK dependency, source and tests.
 It does not contain a worker `main`, registration factory or protocol codec.
 The CLI writes generated files under `.mas/build/`; add `.mas/` to the application's
-`.gitignore`. A mixed-language configuration selects `rust`, `cpp` or `python` for other
-actors without changing routing or admission rules.
+`.gitignore`. Select `go`, `rust`, `cpp` or `python` in each native implementation
+binding; routing and admission follow the shared host contract.
 
 | Language | Supported application signature/build profile |
 |---|---|
@@ -119,9 +122,10 @@ and `handler = "assess"`. The [Python examples](https://github.com/emmett08/mas-
 include peer requests, durable effects and a typed caller that supplies input
 without creating an input file.
 
-JSON, TOML and YAML authoring share one validation path. Existing JSON projects
-continue to work. See [authoring formats](docs/authoring.md) for discovery,
-stdin, conversion rules and recovery identity.
+TOML settings, YAML topology/workflows and typed SDK inputs share one validation
+path. JSON remains available for generated configuration, schemas, stdin and
+interchange. See [authoring formats](docs/authoring.md) for discovery, conversion
+rules and recovery identity.
 
 Full Cargo/CMake project discovery and arbitrary native type-to-schema generation
 are future profiles. JSON values use exact integers; decimal quantities should
@@ -170,7 +174,7 @@ and environment pinning remain deployment responsibilities.
 
 ```sh
 make test        # Rust/Go checks, Python unit tests and C++ conformance
-make acceptance  # native applications, mixed-language routing and real recovery
+make acceptance  # native applications and real effect recovery
 ```
 
 The implementation uses one process owner per run, a separate execution journal,

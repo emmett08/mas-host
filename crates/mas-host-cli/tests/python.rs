@@ -71,14 +71,18 @@ def plan(ctx: Context, value: Payload) -> Checked:
     .unwrap();
     fs::write(
         root.join("agents.toml"),
-        r#"version = "mas-agents/1"
+        r#"version = "mas-agents/2"
 [[agents]]
 name = "planner"
+[agents.implementation]
+kind = "native"
 language = "python"
 source = "application.py"
 handler = "plan"
 [[agents]]
 name = "checker"
+[agents.implementation]
+kind = "native"
 language = "python"
 source = "application.py"
 handler = "check"

@@ -1,4 +1,4 @@
-# Native execution contract (version 1)
+# Native execution contract
 
 Status: initial local Linux profile. The worker is trusted application code, not a
 sandbox. This contract is independent of the MAS message protocol. MAS remains
@@ -11,10 +11,15 @@ input. Generated files are disposable build outputs.
 
 ## Application configuration
 
-The version 1 agent document has exactly `version` (`mas-agents/1`), `agents` and optional `limits`.
-Each agent has `name`, `language` (`go`, `rust`, `cpp` or `python`), `source` (a project-relative
-directory for Go; a source file for Rust/C++/Python), and `handler` (a function
-name). `client` is reserved for host ingress. Unknown fields are errors.
+The agent document contains `version: mas-agents/2`, `agents`, and optional
+`connections` and `limits`. Each agent has `name`, an `implementation` object,
+and an optional public `operation` that defaults to its name. `client` is
+reserved for host ingress. Unknown fields are errors.
+
+A native implementation has `kind: native`, `language` (`go`, `rust`, `cpp` or
+`python`), `source` (a project-relative directory for Go; a source file for
+Rust/C++/Python), and `handler` (a function name). Workflow and LLM implementations
+have their own bindings in the [LLM and workflow contract](llm-workflows.md).
 
 `limits` may set `wall_seconds` (default 60, maximum 3600), `max_calls` (default
 32), `max_messages` (default 1000), `max_bytes` (default 16777216), and
@@ -33,9 +38,11 @@ frames retain their strict JSON contract.
 
 ## Generated bundle and implementation identity
 
-The bundle contains `version: mas-bundle/1`, an `agents` array of
-`{name, executable, sha256, handler}`, and `topology` in MAS's native run format
-(including `agents`, `edges`, `application: agent-task/1` and the above limits).
+The bundle contains `version: mas-bundle/2`, an `agents` array of
+`{name, executable, sha256, handler, operation}`, and `topology` in MAS's native
+run format (including `agents`, `edges`, `application: agent-task/1` and the
+above limits). Every generated worker record includes its public operation;
+optional `arguments` and `configuration` bind maintained LLM and workflow workers.
 The build retains executables under their content digests and a bundle snapshot
 for each build. The host hashes its own executable and the canonical bundle,
 and rechecks each worker digest before dispatch. Absolute executable locations
@@ -61,7 +68,7 @@ rounding is permitted.
 The host sends:
 
 ```json
-{"type":"start","version":"mas-native/1","actor":"planner","handler":"Plan","input":{},"invocation_id":"stable-id","deadline_ms":0}
+{"type":"start","version":"mas-native/1","actor":"planner","handler":"Plan","input":{},"configuration":{},"invocation_id":"stable-id","deadline_ms":1792112400000}
 ```
 
 Only one request may be outstanding on a worker channel. The SDK serialises
@@ -114,11 +121,10 @@ completion. Already-observed effect outcomes remain recordable after cancellatio
 The original deadline remains the hard lifetime bound; neither local termination
 nor cancellation establishes that a remote provider stopped work.
 
-Bundle `mas-bundle/2` adds optional worker arguments, configuration and a public
-operation independent of its implementation handler. It uses the same native
-framing. The Rust SDK's configured entry point receives task input and immutable
-configuration separately. Existing bundle and agent configuration version1 remain
-accepted. See [LLM and workflow contracts](llm-workflows.md) for built-in workers.
+The worker frame version is `mas-native/1`; application configuration and bundle
+versions describe separate contracts. The Rust SDK's configured entry point
+receives task input and immutable configuration separately. The public operation
+remains independent of the implementation handler.
 
 ## API boundary
 

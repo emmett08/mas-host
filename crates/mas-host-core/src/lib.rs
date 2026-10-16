@@ -221,7 +221,7 @@ impl Engine {
     pub fn open(bundle: &Value, state_dir: &Path, run_id: &str) -> Result<Self> {
         checked_object(bundle, "bundle")?;
         fields(bundle, &["version", "agents", "topology"], &[])?;
-        if bundle["version"] != "mas-bundle/1" && bundle["version"] != "mas-bundle/2" {
+        if bundle["version"] != "mas-bundle/2" {
             return Err("unsupported bundle version".into());
         }
         let mut agents = BTreeMap::new();
@@ -235,12 +235,8 @@ impl Engine {
         for value in registrations {
             fields(
                 value,
-                &["name", "executable", "sha256", "handler"],
-                if bundle["version"] == "mas-bundle/2" {
-                    &["configuration", "arguments", "operation"]
-                } else {
-                    &[]
-                },
+                &["name", "executable", "sha256", "handler", "operation"],
+                &["configuration", "arguments"],
             )?;
             let name = text(value, "name")?;
             if name == "client" {
@@ -277,11 +273,7 @@ impl Engine {
                 executable: PathBuf::from(text(value, "executable")?),
                 sha256: text(value, "sha256")?.to_owned(),
                 handler: text(value, "handler")?.to_owned(),
-                operation: match value.get("operation") {
-                    Some(_) => text(value, "operation")?,
-                    None => text(value, "handler")?,
-                }
-                .to_owned(),
+                operation: text(value, "operation")?.to_owned(),
                 configuration,
                 arguments,
                 environment_names,
@@ -290,7 +282,10 @@ impl Engine {
                 || agent.handler.is_empty()
                 || agent.operation.is_empty()
             {
-                return Err("worker executable must be absolute and handler non-empty".into());
+                return Err(
+                    "worker executable must be absolute; handler and operation must be non-empty"
+                        .into(),
+                );
             }
             // Built-in actors share one host executable. Hash each identical
             // path/digest binding once during open; dispatch still rechecks it.

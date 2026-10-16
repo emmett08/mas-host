@@ -70,7 +70,7 @@ pub(super) fn resolve(
         Some("llm") => llm(root, implementation, connections)?,
         _ => return Err("implementation kind must be native, llm or workflow".into()),
     };
-    Ok(json!({"name":name,"handler":operation,"configuration":configuration}))
+    Ok(json!({"name":name,"handler":operation,"operation":operation,"configuration":configuration}))
 }
 
 pub(super) fn validate_native(root: &Path, binding: &Value) -> Result<(), String> {
