@@ -171,6 +171,7 @@ impl Provider for Http {
         if !(200..300).contains(&status) {
             ev["output_status"] = json!("rejected");
             ev["execution"] = json!("rejected");
+            crate::http_error::retain(&mut ev, &result.stdout[..split]);
             return Outcome::Unusable {
                 error: "provider rejected the request".into(),
                 evidence: ev,
@@ -358,13 +359,143 @@ mod tests {
     }
     #[test]
     fn loopback_transport_uses_responses_contract_and_records_usage() {
+        let body=json!({"id":"response-1","model":"resolved-model","status":"completed","usage":{"input_tokens":8,"output_tokens":5},"output":[{"type":"message","content":[{"type":"output_text","text":"{\"answer\":13}"}]}]}).to_string();
+        let (outcome, request) = infer_loopback(Api::Responses, 200, body);
+        assert_eq!(request["tools"], json!([]));
+        assert_eq!(request["store"], false);
+        assert_eq!(request["text"]["format"]["type"], "json_schema");
+        assert!(
+            matches!(outcome,Outcome::Completed{output,evidence} if output==json!({"answer":13}) && evidence["usage"]["input_tokens"]==8 && evidence["model"]=="resolved-model")
+        );
+    }
+    #[test]
+    fn loopback_rejections_retain_safe_schema_authentication_and_quota_identifiers() {
+        for (api, status, code, kind, param) in [
+            (
+                Api::Responses,
+                400,
+                "invalid_json_schema",
+                "invalid_request_error",
+                Some("text.format.schema"),
+            ),
+            (
+                Api::Chat,
+                400,
+                "invalid_json_schema",
+                "invalid_request_error",
+                Some("response_format.json_schema.schema"),
+            ),
+            (
+                Api::Responses,
+                401,
+                "invalid_api_key",
+                "invalid_request_error",
+                None,
+            ),
+            (
+                Api::Responses,
+                403,
+                "permission_denied",
+                "permission_error",
+                None,
+            ),
+            (
+                Api::Responses,
+                404,
+                "model_not_found",
+                "invalid_request_error",
+                Some("model"),
+            ),
+            (
+                Api::Responses,
+                429,
+                "insufficient_quota",
+                "insufficient_quota",
+                None,
+            ),
+            (
+                Api::Responses,
+                429,
+                "rate_limit_exceeded",
+                "rate_limit_error",
+                None,
+            ),
+        ] {
+            let body = json!({"error": {
+                "code": code, "type": kind, "param": param,
+                "message": "sk-secret-key: private prompt; rejected schema contents"
+            }})
+            .to_string();
+            let (outcome, _) = infer_loopback(api, status, body);
+            let Outcome::Unusable { error, evidence } = outcome else {
+                panic!("HTTP rejection classification changed: {outcome:?}");
+            };
+            assert_eq!(error, "provider rejected the request");
+            assert_eq!(evidence["http_status"], status);
+            assert_eq!(evidence["execution"], "rejected");
+            assert_eq!(evidence["output_status"], "rejected");
+            assert_eq!(evidence["hidden_retries"], false);
+            assert_eq!(evidence["error_code"], code);
+            assert_eq!(evidence["error_type"], kind);
+            assert_eq!(evidence.get("error_param").and_then(Value::as_str), param);
+            let retained = evidence.to_string();
+            assert!(!retained.contains("sk-secret-key"));
+            assert!(!retained.contains("private prompt"));
+            assert!(!retained.contains("schema contents"));
+        }
+    }
+    #[test]
+    fn loopback_rejections_omit_arbitrary_strings_even_in_diagnostic_fields() {
+        for secret in [
+            "sk-secret-key",
+            "private prompt",
+            "text.format.schema.properties.secret",
+        ] {
+            let body = json!({
+                "id": secret, "model": secret, "headers": {"authorization": secret},
+                "error": {"code": secret, "type": secret, "param": secret, "message": secret}
+            })
+            .to_string();
+            let (outcome, _) = infer_loopback(Api::Responses, 400, body);
+            let Outcome::Unusable { evidence, .. } = outcome else {
+                panic!("HTTP rejection classification changed: {outcome:?}");
+            };
+            for field in [
+                "error_code",
+                "error_type",
+                "error_param",
+                "id",
+                "model",
+                "headers",
+            ] {
+                assert!(evidence.get(field).is_none());
+            }
+            assert!(!evidence.to_string().contains(secret));
+        }
+    }
+    #[test]
+    fn loopback_server_failure_remains_unknown() {
+        let body = json!({"error": {
+            "code": "invalid_api_key", "type": "authentication_error", "param": "model"
+        }})
+        .to_string();
+        let (outcome, _) = infer_loopback(Api::Responses, 503, body);
+        assert!(matches!(outcome, Outcome::Unknown { evidence, .. }
+            if evidence["http_status"] == 503
+                && evidence.get("execution").is_none()
+                && evidence.get("error_code").is_none()));
+    }
+
+    fn infer_loopback(api: Api, status: u16, body: String) -> (Outcome, Value) {
         use std::{
             io::{Read, Write},
             net::TcpListener,
+            sync::mpsc,
             thread,
         };
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let endpoint = format!("http://{}/v1/responses", listener.local_addr().unwrap());
+        let (completed, wait_for_completion) = mpsc::channel();
         let server = thread::spawn(move || {
             let (mut stream, _) = listener.accept().unwrap();
             stream
@@ -372,7 +503,7 @@ mod tests {
                 .unwrap();
             let mut bytes = Vec::new();
             let mut buffer = [0u8; 4096];
-            loop {
+            let request = loop {
                 let n = stream.read(&mut buffer).unwrap();
                 assert!(n > 0);
                 bytes.extend_from_slice(&buffer[..n]);
@@ -389,36 +520,39 @@ mod tests {
                     })
                     .unwrap();
                 if bytes.len() >= split + 4 + length {
-                    let body: Value =
+                    let request: Value =
                         serde_json::from_slice(&bytes[split + 4..split + 4 + length]).unwrap();
-                    assert_eq!(body["tools"], json!([]));
-                    assert_eq!(body["store"], false);
-                    assert_eq!(body["text"]["format"]["type"], "json_schema");
-                    break;
+                    break request;
                 }
-            }
-            let body=json!({"id":"response-1","model":"resolved-model","status":"completed","usage":{"input_tokens":8,"output_tokens":5},"output":[{"type":"message","content":[{"type":"output_text","text":"{\"answer\":13}"}]}]}).to_string();
+            };
             write!(
                 stream,
-                "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
+                "HTTP/1.1 {status} Test\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
                 body.len(),
                 body
             )
             .unwrap();
+            drop(stream);
+            wait_for_completion.recv().unwrap();
+            listener.set_nonblocking(true).unwrap();
+            assert_eq!(
+                listener.accept().unwrap_err().kind(),
+                std::io::ErrorKind::WouldBlock,
+                "provider issued an additional HTTP request"
+            );
+            request
         });
         // No key is required for compatible local servers. Exercise Responses
         // through the same transport with the private test configuration.
         let provider = Http {
-            api: Api::Responses,
+            api,
             endpoint,
             key_env: None,
             env: Vec::new(),
             structured: true,
         };
         let outcome = provider.infer(&crate::tests::request());
-        server.join().unwrap();
-        assert!(
-            matches!(outcome,Outcome::Completed{output,evidence} if output==json!({"answer":13}) && evidence["usage"]["input_tokens"]==8 && evidence["model"]=="resolved-model")
-        );
+        completed.send(()).unwrap();
+        (outcome, server.join().unwrap())
     }
 }
