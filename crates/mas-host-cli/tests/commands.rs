@@ -136,6 +136,32 @@ fn argv_stdin_environment_and_directory_are_explicit_and_replay_is_cached() {
     assert_eq!(success(project.run(&bundle, "exact", &input)), first);
     assert_eq!(project.inspect("exact"), before);
     assert_eq!(before["protocol"]["calls"].as_array().unwrap().len(), 1);
+    let observed = success(project.command(&["observe", "--state", "state", "--run", "exact"]));
+    assert_eq!(observed["version"], "mas-host-observation/1");
+    assert_eq!(observed["calls"][0]["state"], "recorded");
+    assert!(observed["steps"][0].get("output").is_none());
+    let full = success(project.command(&[
+        "observe",
+        "--state",
+        "state",
+        "--run",
+        "exact",
+        "--include-payloads",
+        "true",
+    ]));
+    assert_eq!(full["steps"][0]["output"], first["output"]);
+    failure(
+        project.command(&[
+            "observe",
+            "--state",
+            "state",
+            "--run",
+            "exact",
+            "--include-payloads",
+            "yes",
+        ]),
+        "must be true or false",
+    );
 }
 
 #[test]

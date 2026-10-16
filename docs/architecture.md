@@ -70,6 +70,13 @@ single-owner process protocol, not a distributed transaction or high-availabilit
 service. A later shared-storage implementation must preserve atomic admission,
 ownership fencing and original deadlines before claiming distributed support.
 
+The optional [live observer](observation.md) reads the pinned protocol's native
+SQLite v2 schema and execution journal through separate read-only connections.
+It rejects unsupported versions and performs no protocol transition. This narrow
+compatibility adapter is necessary because the protocol's administrative
+`inspect` operation reconciles expiry and its `open` operation can migrate state.
+Execution continues to use the public protocol store API as its authority.
+
 ## Application execution
 
 A typed Go or Python function, or a supported Rust/C++ JSON-object function, becomes an
