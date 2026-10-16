@@ -16,7 +16,7 @@ pub fn execute(ctx: &mut Context, input: Json, configuration: &Json) -> Result<J
         Vec::new()
     };
     let original_deadline = ctx.deadline_ms;
-    let descriptor = json!({"format":"mas-command/1","configuration":configuration,"input":input});
+    let descriptor = super::identity::effect_descriptor("mas-command/2", configuration, &input);
     let outcome = ctx.effect("command", descriptor, |invocation_id| {
         let mut command = Command::new(&spec.executable);
         command.args(spec.render(&input, invocation_id)?);

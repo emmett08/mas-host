@@ -217,6 +217,43 @@ mod tests {
         }
     }
 
+    #[cfg(unix)]
+    #[test]
+    fn revokes_channel_inheritance_before_sdk_imports_application_named_json() {
+        let mut fixture = Fixture::new();
+        fixture.sdk = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../..")
+            .canonicalize()
+            .unwrap();
+        fixture.write("agent.py", "def run(ctx, value): return value\n");
+        let marker = fixture.root.join("inheritable");
+        fixture.write(
+            "json.py",
+            &format!(
+                "import os\nwith open({}, 'w') as stream:\n    stream.write(str(os.get_inheritable(int(os.environ['MAS_WORKER_CHANNEL_FD']))))\nraise RuntimeError('application json module imported during SDK startup')\n",
+                serde_json::to_string(&marker).unwrap()
+            ),
+        );
+        let worker = fixture.build("agent.py").unwrap();
+        // pass_fds supplies an inheritable socket exactly as the host launcher
+        // does. Loading the real SDK imports this bundled json module before
+        // serve_module is called, so a mocked application import misses the bug.
+        let output = Command::new("python3")
+            .args(["-I", "-c"])
+            .arg(
+                "import os, socket, subprocess, sys\na, b = socket.socketpair()\nresult = subprocess.run([sys.argv[1]], env={**os.environ, 'MAS_WORKER_CHANNEL_FD': str(b.fileno())}, pass_fds=(b.fileno(),), capture_output=True)\nassert result.returncode != 0\nassert b'application json module imported during SDK startup' in result.stderr, result.stderr\n",
+            )
+            .arg(&worker)
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        assert_eq!(fs::read_to_string(marker).unwrap(), "False");
+    }
+
     #[test]
     fn rejects_oversized_snapshots_before_compiling_or_publishing() {
         let fixture = Fixture::new();

@@ -4,8 +4,16 @@
 `command` implementation, independent of the LLM provider `command` connection.
 The host runs a maintained adapter on its private worker channel; that adapter
 launches the ordinary tool with argv and stdin, then translates stdout into an
-operation result. The tool imports no MAS SDK. All descendants remain under the
-existing Linux guardian; there is one supervision implementation.
+operation result. The tool imports no MAS SDK. The existing Linux guardian
+supervises foreground tools and descendants that keep the inherited process
+group; there is one supervision implementation.
+
+Tools must run in the foreground and must not detach themselves or their
+descendants into another session or process group. The guardian terminates the
+inherited process group and waits to reap adopted descendants. A detached
+descendant can therefore delay cleanup and ownership-lock release beyond the
+configured deadline. Use a tool's foreground option where available; daemonising
+tools require a separate service integration.
 
 ```toml
 version = "mas-agents/3"
@@ -70,7 +78,12 @@ it a known completed outcome, such as a scanner reporting findings.
 
 ## Identity and environment
 
-A project-relative executable is copied into the retained artefact store.
+A project-relative executable is copied into the retained artefact store under
+its configured basename, preserving filename-based dispatch. File arguments
+likewise preserve their basename and suffix. Content digests isolate different
+versions. Executables are owner-readable/executable and file arguments are
+owner-readable; copied assets inherit no writable or set-id permission bits.
+The published snapshot contains exactly the bytes that were hashed.
 An absolute executable is digest-bound in place, preserving interpreter and
 virtual-environment invocation paths. Every `file` argument is a project-relative
 regular file retained by content digest. These digests are checked before tool

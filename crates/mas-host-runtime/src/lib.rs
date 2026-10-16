@@ -1,5 +1,6 @@
 //! A small facade selecting maintained worker implementations.
 pub mod command;
+mod identity;
 pub mod inference;
 pub use mas_host_schema as schema;
 use mas_host_sdk::{Context, Json, Result};

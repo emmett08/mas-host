@@ -2,14 +2,18 @@
 use mas_host_runtime::command::{Argument, Specification};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
-use std::path::{Path, PathBuf};
+use std::{
+    ffi::OsStr,
+    io::Write,
+    os::unix::fs::{OpenOptionsExt, PermissionsExt},
+    path::{Path, PathBuf},
+};
 
 pub(super) fn command(
     project: &Path,
     out: &Path,
     mut spec: Specification,
 ) -> Result<Value, String> {
-    use std::os::unix::fs::PermissionsExt;
     let original = Path::new(&spec.executable);
     let path = if original.is_absolute() {
         original.to_owned()
@@ -34,14 +38,15 @@ pub(super) fn command(
             .collect();
         (path, digest)
     } else {
-        retain_binary(&path, out)?
+        retain(&path, out, "commands", original.file_name(), 0o500)?
     };
     spec.executable = path.to_str().ok_or("command path must be UTF-8")?.into();
     let mut assets = vec![json!({"path":path,"sha256":hash})];
     for argument in &mut spec.arguments {
         if let Argument::File(name) = argument {
-            let source = project_file(project, Path::new(name))?;
-            let (path, hash) = retain(&source, out, "files")?;
+            let original = Path::new(name);
+            let source = project_file(project, original)?;
+            let (path, hash) = retain(&source, out, "resources", original.file_name(), 0o400)?;
             *name = path
                 .to_str()
                 .ok_or("command file path must be UTF-8")?
@@ -69,26 +74,53 @@ fn project_file(project: &Path, relative: &Path) -> Result<PathBuf, String> {
 }
 
 pub(super) fn retain_binary(source: &Path, out: &Path) -> Result<(PathBuf, String), String> {
-    retain(source, out, "artifacts")
+    retain(source, out, "artifacts", None, 0o500)
 }
 
-fn retain(source: &Path, out: &Path, category: &str) -> Result<(PathBuf, String), String> {
+fn retain(
+    source: &Path,
+    out: &Path,
+    category: &str,
+    basename: Option<&OsStr>,
+    mode: u32,
+) -> Result<(PathBuf, String), String> {
     let bytes = std::fs::read(source).map_err(|e| e.to_string())?;
     let digest: String = Sha256::digest(&bytes)
         .iter()
         .map(|b| format!("{b:02x}"))
         .collect();
-    let artifacts = out.join(category);
+    let artifacts = match basename {
+        Some(_) => out.join(category).join(&digest),
+        None => out.join(category),
+    };
     std::fs::create_dir_all(&artifacts).map_err(|e| e.to_string())?;
-    let destination = artifacts.join(&digest);
+    let destination = artifacts.join(basename.unwrap_or_else(|| OsStr::new(&digest)));
     if destination.exists() {
         if std::fs::read(&destination).map_err(|e| e.to_string())? != bytes {
-            return Err("retained executable digest conflict".into());
+            return Err("retained asset digest conflict".into());
         }
+        std::fs::set_permissions(&destination, std::fs::Permissions::from_mode(mode))
+            .map_err(|e| e.to_string())?;
     } else {
         let temporary = artifacts.join(format!("{}.tmp", std::process::id()));
-        std::fs::copy(source, &temporary).map_err(|e| e.to_string())?;
-        std::fs::rename(temporary, &destination).map_err(|e| e.to_string())?;
+        let mut file = std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .mode(0o600)
+            .open(&temporary)
+            .map_err(|e| e.to_string())?;
+        // Publish the snapshot that was hashed, even if the source is replaced
+        // during this build. Retained modes never inherit writable/set-id bits.
+        let published = (|| -> std::io::Result<()> {
+            file.write_all(&bytes)?;
+            file.set_permissions(std::fs::Permissions::from_mode(mode))?;
+            file.sync_all()?;
+            std::fs::rename(&temporary, &destination)
+        })();
+        if let Err(error) = published {
+            let _ = std::fs::remove_file(temporary);
+            return Err(error.to_string());
+        }
     }
     Ok((destination, digest))
 }

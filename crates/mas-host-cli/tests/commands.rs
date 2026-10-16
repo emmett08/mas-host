@@ -165,6 +165,79 @@ fn retained_script_survives_source_change_and_new_bundle_cannot_resume() {
 }
 
 #[test]
+fn retained_commands_preserve_configured_names_and_normalise_permissions() {
+    use sha2::{Digest, Sha256};
+    use std::os::unix::fs::{symlink, PermissionsExt};
+    let project = Project::new();
+    project.write(
+        "implementation.py",
+        "#!/usr/bin/python3\nimport json, pathlib, sys\nassert pathlib.Path(sys.argv[0]).name == 'policy-check'\nresource = pathlib.Path(sys.argv[1])\nassert resource.suffix == '.json'\nprint(json.dumps({'name': pathlib.Path(sys.argv[0]).name, 'resource': resource.name, 'document': json.loads(resource.read_text())}))\n",
+    );
+    fs::set_permissions(
+        project.0.join("implementation.py"),
+        fs::Permissions::from_mode(0o6755),
+    )
+    .unwrap();
+    symlink("implementation.py", project.0.join("policy-check")).unwrap();
+    project.json("policy.json", &json!({"revision":1}));
+    fs::set_permissions(
+        project.0.join("policy.json"),
+        fs::Permissions::from_mode(0o666),
+    )
+    .unwrap();
+    project.configure(
+        json!({"executable":"policy-check","arguments":[{"file":"policy.json"}],"stdin":"none"}),
+    );
+    let old = project.build();
+    let bundle: Value = serde_json::from_slice(&fs::read(&old).unwrap()).unwrap();
+    let assets = bundle["agents"][0]["configuration"]["assets"]
+        .as_array()
+        .unwrap();
+    for (asset, name, mode) in [
+        (&assets[0], "policy-check", 0o500),
+        (&assets[1], "policy.json", 0o400),
+    ] {
+        let path = Path::new(asset["path"].as_str().unwrap());
+        assert_eq!(path.file_name().unwrap(), name);
+        assert_eq!(
+            fs::metadata(path).unwrap().permissions().mode() & 0o7777,
+            mode
+        );
+        let digest: String = Sha256::digest(fs::read(path).unwrap())
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect();
+        assert_eq!(asset["sha256"], digest);
+    }
+    // Reused artefacts also lose permissions inherited from an earlier build.
+    let retained_executable = Path::new(assets[0]["path"].as_str().unwrap());
+    fs::set_permissions(retained_executable, fs::Permissions::from_mode(0o6755)).unwrap();
+    assert_eq!(project.build(), old);
+    assert_eq!(
+        fs::metadata(retained_executable)
+            .unwrap()
+            .permissions()
+            .mode()
+            & 0o7777,
+        0o500
+    );
+    // An independently changed resource leaves the original snapshot available.
+    project.json("policy.json", &json!({"revision":2}));
+    let new = project.build();
+    assert_ne!(old, new);
+    fs::remove_file(project.0.join("implementation.py")).unwrap();
+    fs::remove_file(project.0.join("policy.json")).unwrap();
+    assert_eq!(
+        success(project.run(&old, "old_named_files", &json!({})))["output"],
+        json!({"name":"policy-check","resource":"policy.json","document":{"revision":1}})
+    );
+    assert_eq!(
+        success(project.run(&new, "new_named_files", &json!({})))["output"]["document"],
+        json!({"revision":2})
+    );
+}
+
+#[test]
 fn interrupted_external_write_requires_resolution_and_is_never_repeated() {
     let project = Project::new();
     let bundle = project.build();

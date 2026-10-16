@@ -125,6 +125,13 @@ operator's filesystem permissions. Generated binaries and their dependencies
 must be treated as immutable for a retained run. Shared libraries and runtime
 environment need deployment pinning in addition to the executable digest.
 
+This supervision profile requires foreground workers and tools whose descendants
+remain in the inherited process group. The pinned guardian terminates that group
+and waits for adopted children. A child that creates another session or process
+group can therefore delay cleanup and ownership-lock release beyond the deadline.
+Supporting daemonising tools requires a stronger upstream guardian contract; a
+second cleanup implementation in this host would divide lifetime ownership.
+
 Maintained LLM and workflow implementations are described in
 [LLM agents and composition](llm-workflows.md). There is no remote service ingress,
 credential manager, human approval queue, distributed scheduler or migration from
@@ -167,6 +174,13 @@ variants. Native builders own source/function binding; the command builder owns
 retained tool files and executable identity. Every variant resolves to the same
 supervised worker contract. The core reads launch properties without inspecting
 provider-specific configuration.
+
+Function wrappers remain useful when application code needs requests, parallel
+work or domain-specific effect handling. Ordinary CLI tools instead use the
+maintained command adapter, which supplies those transport and admission duties.
+A generic plugin system would require a wider lifecycle and compatibility
+contract than these four supported implementations need. The explicit variants
+keep selection inspectable while each implementation owns its boundary behaviour.
 
 A maintained command adapter owns argument binding, stdin/stdout conversion and
 external-outcome classification. Provider adapters and the command adapter share

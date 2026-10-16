@@ -28,7 +28,7 @@ def assess(ctx: Context, proposal: Proposal) -> Assessment:
     return Assessment(approved=proposal.amount_minor <= 20_000)
 ```
 
-Bind the function with a version 2 agent implementation:
+Bind the function with a version 3 agent implementation:
 
 ```toml
 version = "mas-agents/3"
@@ -45,9 +45,12 @@ handler = "assess"
 ```
 
 The host builds the importable module without importing application code at
-build time. The generated entry point calls
-`serve_module("assess", "assessment")`, which claims the private socket and
-revokes descriptor inheritance before importing the application. Applications
+build time. The generated entry point revokes private-socket inheritance before
+importing the SDK, including any application modules reached through those
+imports. It then calls `serve_module("assess", "assessment")`, which claims the
+socket and validates the start message before importing the handler module.
+The interpreter's earlier site initialisation, including installed `.pth` and
+`sitecustomize` code, belongs to the trusted deployment environment. Applications
 do not supply launchers or protocol codecs. `serve(name, function)` is also
 available for an already imported function.
 

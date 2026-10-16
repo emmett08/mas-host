@@ -43,6 +43,10 @@ codec checks the resulting representation before configuration validation or
 execution. Documents remain bounded to 65536 bytes and the protocol's nesting
 and integer limits. TOML has no null literal; omission and explicit null remain
 different values where a schema distinguishes them.
+The assembled bundle has the same total limit, including embedded files and
+delegate contracts. The builder validates its compact JSON representation before
+publishing it and preserves the previous published bundle if the new one is too
+large or structurally invalid.
 
 Floating-point values and native TOML date/time values are rejected. Use a
 schema-defined string or scaled integer for quantities requiring those types.

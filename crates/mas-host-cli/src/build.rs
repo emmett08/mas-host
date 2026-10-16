@@ -102,11 +102,19 @@ pub fn build_configured(
                 configuration["output_schema"] = schema.clone();
             }
             if let Implementation::Llm(_) = &agent.implementation {
-                let contracts: Vec<_> = configuration["delegates"].as_array().unwrap().iter().filter_map(|name| {
-                    agents.iter().find(|peer| peer.name == name.as_str().unwrap()).map(|peer| json!({
-                        "name":peer.name,"operation":peer.operation,"input_schema":peer.input_schema,"output_schema":peer.output_schema
-                    }))
-                }).collect();
+                let contracts = configuration["delegates"]
+                    .as_array()
+                    .ok_or("resolved delegates must be an array")?
+                    .iter()
+                    .map(|name| {
+                        let peer = agents
+                            .iter()
+                            .find(|peer| Some(peer.name.as_str()) == name.as_str())
+                            .ok_or("resolved delegate has no application operation")?;
+                        Ok(json!({"name":peer.name,"operation":peer.operation,
+                            "input_schema":peer.input_schema,"output_schema":peer.output_schema}))
+                    })
+                    .collect::<Result<Vec<_>, String>>()?;
                 configuration["delegate_contracts"] = json!(contracts);
             }
             assets::bind_provider_assets(&mut configuration, &sdk_root)?;
@@ -146,10 +154,16 @@ pub fn build_configured(
         worker["executable"] = json!(path.to_str().ok_or("executable path is not UTF-8")?);
     }
     let bundle = json!({"version":"mas-bundle/3","agents":workers,"topology":topology});
+    // The assembled document must obey the same strict bound as its reader.
+    // Compact encoding leaves the budget for configuration rather than layout.
+    // Validate before publishing either the snapshot or current bundle pointer.
+    let content = serde_json::to_string(&bundle).map_err(|e| e.to_string())?;
+    mas_protocol_codec::parse_json(&content)
+        .map_err(|e| format!("generated bundle: {}: {}", e.code, e.message))?;
+    let content = content.into_bytes();
     let destination = out.join("bundle.json");
     let snapshots = out.join("bundles");
     std::fs::create_dir_all(&snapshots).map_err(|e| e.to_string())?;
-    let content = serde_json::to_vec_pretty(&bundle).map_err(|e| e.to_string())?;
     let bundle_digest: String = Sha256::digest(&content)
         .iter()
         .map(|b| format!("{b:02x}"))

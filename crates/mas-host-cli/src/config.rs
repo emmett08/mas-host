@@ -149,15 +149,17 @@ pub fn validate(
         resolved.push(binding);
     }
     let agents = resolved;
+    // Ingress participates in topology but has no executable implementation.
+    let executable_names: BTreeSet<_> = agents.iter().map(|agent| agent.name.clone()).collect();
     for agent in &agents {
         match &agent.implementation {
             Implementation::Workflow(configuration) => {
-                mas_host_workflow::validate(&configuration["plan"], &names)?
+                mas_host_workflow::validate(&configuration["plan"], &executable_names)?
             }
             Implementation::Llm(configuration) => {
                 for delegate in configuration["delegates"].as_array().unwrap() {
                     let target = delegate.as_str().unwrap();
-                    if target == agent.name || !names.contains(target) {
+                    if target == agent.name || !executable_names.contains(target) {
                         return Err("invalid LLM delegate".into());
                     }
                 }

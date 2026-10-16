@@ -182,6 +182,9 @@ the unchanged MAS protocol store, and MAS's Linux worker guardian. Workers are
 trusted code with the operator's filesystem permissions. The guardian clears the
 environment, discards worker stdout/stderr and applies fixed local resource
 limits; diagnostics travel in returned errors and evidence. It is not a sandbox.
+Workers and tools must remain in the foreground and keep descendants in the
+inherited process group. Daemonising children can delay guardian cleanup and
+ownership-lock release beyond the deadline; they are outside this profile.
 All workers receive only their declared environment bindings; LLM connections add
 their explicitly named credentials. CLI tool I/O is captured by its adapter;
 retained application logs are not implemented.

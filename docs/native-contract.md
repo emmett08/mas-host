@@ -49,6 +49,12 @@ above limits). Every generated worker record includes its public operation;
 optional `arguments` and `configuration` bind maintained command, LLM and workflow
 workers. A `handler` is present only for function workers. Optional operation
 schemas are embedded and validated by the host before dispatch and completion.
+The complete generated bundle, including embedded schemas, prompts, plans and
+delegate contracts, must fit the strict JSON limit of 65536 UTF-8 bytes and its
+nesting bounds. The builder uses compact JSON and validates the assembled bundle
+before publishing it. A rejected rebuild preserves the previous bundle and its
+snapshot. Individual source files fitting the limit does not establish that
+their combined bundle will fit.
 The build retains executables under their content digests and a bundle snapshot
 for each build. The host hashes its own executable and the canonical bundle,
 and rechecks each worker digest before dispatch. Absolute executable locations
@@ -119,6 +125,9 @@ sent only after durable admission. Crash windows are resolved conservatively;
 this initial profile does not claim a distributed atomic transaction. Workers
 and their process groups are supervised through MAS's existing Linux guardian.
 The guardian retains the ownership lock until descendants are reaped.
+Supported workers and tools run in the foreground and preserve the inherited
+process group. The guardian terminates that group and waits for adopted children;
+descendants that detach into another session can delay cleanup beyond the deadline.
 
 The guardian clears the inherited environment, discards worker
 standard output/error, limits address space to 2 GiB and files to 64 MiB, and
@@ -127,8 +136,9 @@ and their declared environment references; LLM connections contribute their
 credential names. Retained application logs remain a later profile. Cancellation records durable intent,
 interrupts local worker reads and is checked before committing successful task
 completion. Already-observed effect outcomes remain recordable after cancellation.
-The original deadline remains the hard lifetime bound; neither local termination
-nor cancellation establishes that a remote provider stopped work.
+The original deadline prevents further admission and durable task success;
+neither local termination nor cancellation establishes that a remote provider
+stopped work.
 
 The worker frame version is `mas-native/1`; application configuration and bundle
 versions describe separate contracts. The Rust SDK's configured entry point

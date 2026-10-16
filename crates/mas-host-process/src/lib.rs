@@ -1,5 +1,6 @@
-//! Bounded process transport. The enclosing host guardian owns descendant
-//! cleanup; adapters never create a new session or escape its process group.
+//! Bounded process transport. The enclosing host guardian owns cleanup for
+//! foreground tools whose descendants retain the inherited process group.
+//! Adapters never create a new session or escape that group.
 use std::{
     io::{Read, Write},
     process::{Command, ExitStatus, Stdio},
@@ -38,7 +39,8 @@ pub fn run(command: Command, input: Vec<u8>, deadline_ms: u64) -> Result<Output,
 }
 
 /// Both output streams are drained concurrently and limited independently.
-/// The host guardian owns all descendant cleanup, including inherited pipes.
+/// The host guardian owns cleanup of descendants in the inherited process group,
+/// including inherited pipes. Daemonising tools are outside this profile.
 pub fn run_bounded(
     mut command: Command,
     input: Vec<u8>,

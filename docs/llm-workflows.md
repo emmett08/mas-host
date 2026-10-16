@@ -88,6 +88,9 @@ integers and a strict provider response schema. Subsequent turns receive the
 original `task` and prior request/result `history`. Each permitted peer's public
 operation and available schemas are included in the instructions. Command actors
 use the same delegation and topology permissions as native or LLM actors.
+`client` is reserved for ingress and cannot be a workflow request target or an
+LLM delegate. The builder checks targets against executable application agents;
+the protocol checks communication permissions when each request is admitted.
 
 ## Outcomes, recovery and validation
 
@@ -98,6 +101,14 @@ repetition. A completed response survives cleanup failure, but that invocation
 does not report task success. Replaying uses the retained provider response and
 peer results. Cancellation interrupts local reads and prevents further dispatch
 or durable task success; it does not prove remote inference stopped.
+
+Internal effect descriptors use `mas-inference/2` and `mas-command/2`. They retain
+the per-turn input and a SHA-256 digest of the compact JSON resolved worker
+configuration. The execution journal retains that full configuration in its
+immutable bundle; schemas and prompts therefore need not be repeated in each
+effect frame. Adapter evidence formats retain their separate `/1` versions.
+Complete native frames, including input, history and framing fields, still have
+the 65536-byte bound. Hashing configuration does not enlarge that limit.
 
 The schema validator supports `type`, object properties/required/additionalProperties,
 array items/length, string length, exact integer minimum/maximum, enum and anyOf,
