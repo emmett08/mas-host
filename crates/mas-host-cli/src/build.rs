@@ -8,26 +8,9 @@ use std::{
     process::Command,
 };
 
-fn retain_binary(source: &Path, out: &Path) -> Result<(PathBuf, String), String> {
-    let bytes = std::fs::read(source).map_err(|e| e.to_string())?;
-    let digest: String = Sha256::digest(&bytes)
-        .iter()
-        .map(|b| format!("{b:02x}"))
-        .collect();
-    let artifacts = out.join("artifacts");
-    std::fs::create_dir_all(&artifacts).map_err(|e| e.to_string())?;
-    let destination = artifacts.join(&digest);
-    if destination.exists() {
-        if std::fs::read(&destination).map_err(|e| e.to_string())? != bytes {
-            return Err("retained executable digest conflict".into());
-        }
-    } else {
-        let temporary = artifacts.join(format!("{}.tmp", std::process::id()));
-        std::fs::copy(source, &temporary).map_err(|e| e.to_string())?;
-        std::fs::rename(temporary, &destination).map_err(|e| e.to_string())?;
-    }
-    Ok((destination, digest))
-}
+mod assets;
+use assets::retain_binary;
+use config::model::{Agent, Implementation};
 
 pub fn build_configured(
     project: &Path,
@@ -63,17 +46,7 @@ pub fn build_configured(
         return Err("another build owns this application directory".into());
     }
     let mut workers = Vec::new();
-    let native: Vec<_> = agents
-        .as_array()
-        .unwrap()
-        .iter()
-        .filter(|a| a.get("configuration").is_none())
-        .map(|a| {
-            let mut native = a.clone();
-            native.as_object_mut().unwrap().remove("operation");
-            native
-        })
-        .collect();
+    let native: Vec<_> = agents.iter().filter_map(Agent::native).collect();
     let native = json!(native);
     let native_config = out.join("native-agents.json");
     std::fs::write(
@@ -82,12 +55,7 @@ pub fn build_configured(
             .map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;
-    if agents
-        .as_array()
-        .unwrap()
-        .iter()
-        .any(|a| a["language"] == "go")
-    {
+    if agents.iter().any(|agent| matches!(&agent.implementation, Implementation::Native(native) if native.language == "go")) {
         let status = Command::new("go")
             .current_dir(sdk_root.join("sdk/go"))
             .args(["run", "./cmd/mas-go-gen", "--project"])
@@ -116,17 +84,47 @@ pub fn build_configured(
     workers.extend(mas_host_native_build::build(
         &project, &out, &sdk_root, &native,
     )?);
-    for agent in agents.as_array().unwrap() {
-        if let Some(configuration) = agent.get("configuration") {
-            let mut configuration = configuration.clone();
-            bind_assets(&mut configuration, &sdk_root)?;
-            workers.push(json!({"name":agent["name"],"executable":std::env::current_exe().map_err(|e|e.to_string())?,"handler":agent["handler"],"arguments":["__builtin"],"configuration":configuration}));
+    for agent in &agents {
+        let configuration = match &agent.implementation {
+            Implementation::Native(_) => None,
+            Implementation::Llm(configuration) | Implementation::Workflow(configuration) => {
+                Some(configuration.clone())
+            }
+            Implementation::Command(specification) => {
+                Some(assets::command(&project, &out, specification.clone())?)
+            }
+        };
+        if let Some(mut configuration) = configuration {
+            if let Some(schema) = &agent.input_schema {
+                configuration["input_schema"] = schema.clone();
+            }
+            if let Some(schema) = &agent.output_schema {
+                configuration["output_schema"] = schema.clone();
+            }
+            if let Implementation::Llm(_) = &agent.implementation {
+                let contracts: Vec<_> = configuration["delegates"].as_array().unwrap().iter().filter_map(|name| {
+                    agents.iter().find(|peer| peer.name == name.as_str().unwrap()).map(|peer| json!({
+                        "name":peer.name,"operation":peer.operation,"input_schema":peer.input_schema,"output_schema":peer.output_schema
+                    }))
+                }).collect();
+                configuration["delegate_contracts"] = json!(contracts);
+            }
+            assets::bind_provider_assets(&mut configuration, &sdk_root)?;
+            workers.push(json!({"name":agent.name,"executable":std::env::current_exe().map_err(|e|e.to_string())?,"arguments":["__builtin"],"configuration":configuration}));
         }
         let worker = workers
             .iter_mut()
-            .find(|w| w["name"] == agent["name"])
+            .find(|w| w["name"] == agent.name)
             .ok_or("resolved agent has no generated worker")?;
-        worker["operation"] = agent["operation"].clone();
+        worker["operation"] = json!(agent.operation);
+        worker["environment"] = json!(agent.environment);
+        worker["working_directory"] = json!(agent.working_directory);
+        if let Some(schema) = &agent.input_schema {
+            worker["input_schema"] = schema.clone();
+        }
+        if let Some(schema) = &agent.output_schema {
+            worker["output_schema"] = schema.clone();
+        }
     }
     workers.sort_by(|a, b| a["name"].as_str().cmp(&b["name"].as_str()));
     let mut retained: std::collections::BTreeMap<PathBuf, (PathBuf, String)> =
@@ -147,7 +145,7 @@ pub fn build_configured(
         worker["sha256"] = json!(digest);
         worker["executable"] = json!(path.to_str().ok_or("executable path is not UTF-8")?);
     }
-    let bundle = json!({"version":"mas-bundle/2","agents":workers,"topology":topology});
+    let bundle = json!({"version":"mas-bundle/3","agents":workers,"topology":topology});
     let destination = out.join("bundle.json");
     let snapshots = out.join("bundles");
     std::fs::create_dir_all(&snapshots).map_err(|e| e.to_string())?;
@@ -164,36 +162,4 @@ pub fn build_configured(
     std::fs::write(&temporary, content).map_err(|e| e.to_string())?;
     std::fs::rename(temporary, &destination).map_err(|e| e.to_string())?;
     Ok(snapshot)
-}
-
-fn bind_assets(configuration: &mut serde_json::Value, sdk_root: &Path) -> Result<(), String> {
-    let Some(command) = configuration["connection"]
-        .get_mut("command")
-        .and_then(serde_json::Value::as_array_mut)
-    else {
-        return Ok(());
-    };
-    let mut assets = Vec::new();
-    for argument in command {
-        if let Some(relative) = argument.as_str().and_then(|s| s.strip_prefix("@sdk/")) {
-            let file = sdk_root
-                .join(relative)
-                .canonicalize()
-                .map_err(|e| format!("provider asset: {e}"))?;
-            if !file.starts_with(sdk_root) || !file.is_file() {
-                return Err("provider asset escapes distribution".into());
-            }
-            let bytes = std::fs::read(&file).map_err(|e| e.to_string())?;
-            let hash: String = Sha256::digest(&bytes)
-                .iter()
-                .map(|b| format!("{b:02x}"))
-                .collect();
-            assets.push(json!({"path":file,"sha256":hash}));
-            *argument = json!(file);
-        }
-    }
-    if !assets.is_empty() {
-        configuration["assets"] = json!(assets);
-    }
-    Ok(())
 }

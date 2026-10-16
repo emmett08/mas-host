@@ -8,17 +8,17 @@ use std::{
     time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
 
-pub(crate) const MAX_BYTES: usize = 1_048_576;
-pub(crate) struct Output {
+pub const MAX_BYTES: usize = 1_048_576;
+pub struct Output {
     pub status: ExitStatus,
     pub stdout: Vec<u8>,
 }
-pub(crate) enum Failure {
+pub enum Failure {
     NotStarted,
     Incomplete,
 }
 
-pub(crate) fn unix_ms() -> u64 {
+pub fn unix_ms() -> u64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap_or_default()
@@ -26,17 +26,24 @@ pub(crate) fn unix_ms() -> u64 {
         .try_into()
         .unwrap_or(u64::MAX)
 }
-pub(crate) fn remaining(deadline_ms: u64) -> Option<Duration> {
+pub fn remaining(deadline_ms: u64) -> Option<Duration> {
     deadline_ms
         .checked_sub(unix_ms())
         .filter(|n| *n > 0 && *n <= 86_400_000)
         .map(Duration::from_millis)
 }
 
-pub(crate) fn run(
+pub fn run(command: Command, input: Vec<u8>, deadline_ms: u64) -> Result<Output, Failure> {
+    run_bounded(command, input, deadline_ms, MAX_BYTES)
+}
+
+/// Both output streams are drained concurrently and limited independently.
+/// The host guardian owns all descendant cleanup, including inherited pipes.
+pub fn run_bounded(
     mut command: Command,
     input: Vec<u8>,
     deadline_ms: u64,
+    max_bytes: usize,
 ) -> Result<Output, Failure> {
     let duration = remaining(deadline_ms).ok_or(Failure::NotStarted)?;
     let at = Instant::now() + duration;
@@ -57,14 +64,27 @@ pub(crate) fn run(
     });
     let reader = sender.clone();
     thread::spawn(move || {
-        let (ok, bytes) = read_bounded(stdout, true);
+        let (ok, bytes) = read_bounded(stdout, true, max_bytes);
         let _ = reader.send((1, ok, bytes));
     });
     thread::spawn(move || {
-        let (ok, _) = read_bounded(stderr, false);
+        let (ok, _) = read_bounded(stderr, false, max_bytes);
         let _ = sender.send((2, ok, Vec::new()));
     });
+    let mut pending = 3;
+    let mut output = None;
     let status = loop {
+        while let Ok((kind, ok, bytes)) = receiver.try_recv() {
+            pending -= 1;
+            if !ok {
+                let _ = child.kill();
+                let _ = child.wait();
+                return Err(Failure::Incomplete);
+            }
+            if kind == 1 {
+                output = Some(bytes);
+            }
+        }
         match child.try_wait() {
             Ok(Some(status)) => break status,
             Ok(None) if Instant::now() < at && unix_ms() < deadline_ms => {
@@ -77,8 +97,7 @@ pub(crate) fn run(
             }
         }
     };
-    let mut output = None;
-    for _ in 0..3 {
+    for _ in 0..pending {
         let wait = at
             .checked_duration_since(Instant::now())
             .ok_or(Failure::Incomplete)?;
@@ -97,18 +116,21 @@ pub(crate) fn run(
     })
 }
 
-fn read_bounded(mut stream: impl Read, retain: bool) -> (bool, Vec<u8>) {
+fn read_bounded(mut stream: impl Read, retain: bool, max_bytes: usize) -> (bool, Vec<u8>) {
     let mut bytes = Vec::new();
     let mut total = 0usize;
     let mut buffer = [0; 8192];
     loop {
         match stream.read(&mut buffer) {
-            Ok(0) => return (total <= MAX_BYTES, bytes),
+            Ok(0) => return (total <= max_bytes, bytes),
             Ok(n) => {
                 total = total.saturating_add(n);
+                if total > max_bytes {
+                    return (false, bytes);
+                }
                 if retain {
                     bytes
-                        .extend_from_slice(&buffer[..n.min(MAX_BYTES.saturating_sub(bytes.len()))]);
+                        .extend_from_slice(&buffer[..n.min(max_bytes.saturating_sub(bytes.len()))]);
                 }
             }
             Err(_) => return (false, bytes),
@@ -116,7 +138,7 @@ fn read_bounded(mut stream: impl Read, retain: bool) -> (bool, Vec<u8>) {
     }
 }
 
-pub(crate) fn scoped_environment(command: &mut Command, names: &[String]) {
+pub fn scoped_environment(command: &mut Command, names: &[String]) {
     command.env_clear();
     if let Some(path) = std::env::var_os("PATH") {
         command.env("PATH", path);
@@ -126,6 +148,28 @@ pub(crate) fn scoped_environment(command: &mut Command, names: &[String]) {
             command.env(name, value);
         }
     }
+}
+
+/// Launch environment names are independent of the implementation kind.
+/// Reserved names belong to the worker transport and fixed executable search path.
+pub fn environment_names<'a>(
+    names: impl IntoIterator<Item = &'a str>,
+) -> Result<Vec<String>, String> {
+    let mut result = std::collections::BTreeSet::new();
+    for name in names {
+        if name.is_empty()
+            || name.len() > 128
+            || !name
+                .bytes()
+                .enumerate()
+                .all(|(i, b)| b.is_ascii_alphabetic() || b == b'_' || (i > 0 && b.is_ascii_digit()))
+            || matches!(name, "PATH" | "MAS_WORKER_CHANNEL_FD")
+        {
+            return Err("invalid or reserved environment name".into());
+        }
+        result.insert(name.to_owned());
+    }
+    Ok(result.into_iter().collect())
 }
 
 #[cfg(test)]
@@ -151,5 +195,17 @@ mod tests {
             run(command, Vec::new(), unix_ms() + 5000),
             Err(Failure::Incomplete)
         ));
+    }
+
+    #[test]
+    fn output_overflow_stops_a_running_process_before_its_deadline() {
+        let mut command = Command::new("/usr/bin/yes");
+        command.arg("bounded");
+        let before = Instant::now();
+        assert!(matches!(
+            run_bounded(command, Vec::new(), unix_ms() + 5000, 128),
+            Err(Failure::Incomplete)
+        ));
+        assert!(before.elapsed() < Duration::from_secs(1));
     }
 }

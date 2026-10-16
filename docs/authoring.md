@@ -6,8 +6,8 @@ documents and pass through the same semantic validators. TOML is convenient for
 settings; YAML is convenient for nested workflows; JSON serves generated
 documents, schemas, stdin and interchange.
 
-Agent documents use `mas-agents/2` with nested implementation bindings. The build
-emits `mas-bundle/2`, including an explicit public operation for every worker.
+Agent documents use `mas-agents/3` with nested implementation bindings. The build
+emits `mas-bundle/3`, including an explicit public operation for every worker.
 Choosing a file format changes syntax; it does not select a contract version.
 
 ## Discovery and explicit selection

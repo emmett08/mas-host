@@ -202,8 +202,10 @@ dependencies = [
  "libc",
  "mas-host-core",
  "mas-host-native-build",
+ "mas-host-process",
  "mas-host-providers",
  "mas-host-runtime",
+ "mas-host-schema",
  "mas-host-workflow",
  "mas-protocol-codec",
  "num-bigint",
@@ -219,6 +221,8 @@ name = "mas-host-core"
 version = "0.1.0"
 dependencies = [
  "libc",
+ "mas-host-process",
+ "mas-host-schema",
  "mas-host-worker",
  "mas-protocol-codec",
  "rusqlite",
@@ -234,9 +238,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "mas-host-process"
+version = "0.1.0"
+
+[[package]]
 name = "mas-host-providers"
 version = "0.1.0"
 dependencies = [
+ "mas-host-process",
  "mas-protocol-codec",
  "serde_json",
  "sha2",
@@ -246,12 +255,21 @@ dependencies = [
 name = "mas-host-runtime"
 version = "0.1.0"
 dependencies = [
+ "mas-host-process",
  "mas-host-providers",
+ "mas-host-schema",
  "mas-host-sdk",
  "mas-host-workflow",
  "mas-protocol-codec",
  "serde_json",
  "sha2",
+]
+
+[[package]]
+name = "mas-host-schema"
+version = "0.1.0"
+dependencies = [
+ "serde_json",
 ]
 
 [[package]]

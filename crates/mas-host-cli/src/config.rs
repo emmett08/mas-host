@@ -3,6 +3,9 @@ use serde_json::{json, Value};
 use std::{collections::BTreeSet, path::Path};
 pub mod authoring;
 mod bindings;
+mod launch;
+pub mod model;
+use model::{Agent, Implementation};
 
 pub fn read_json(path: &Path) -> Result<Value, String> {
     use std::io::Read;
@@ -74,7 +77,7 @@ pub fn load_profile(
     agents_path: &Path,
     topology_path: &Path,
     profile: Option<&Path>,
-) -> Result<(Value, Value), String> {
+) -> Result<(Vec<Agent>, Value), String> {
     let mut agents = authoring::read(agents_path)?;
     if let Some(profile) = profile {
         let profile = authoring::read(profile)?;
@@ -84,8 +87,8 @@ pub fn load_profile(
             &[],
             "connection profile",
         )?;
-        if profile["version"] != "mas-connections/1" || agents["version"] != "mas-agents/2" {
-            return Err("connection profiles require mas-agents/2 and mas-connections/1".into());
+        if profile["version"] != "mas-connections/1" || agents["version"] != "mas-agents/3" {
+            return Err("connection profiles require mas-agents/3 and mas-connections/1".into());
         }
         let replacements = profile["connections"]
             .as_object()
@@ -110,7 +113,7 @@ pub fn validate(
     project: &Path,
     config: &Value,
     topology: &Value,
-) -> Result<(Value, Value), String> {
+) -> Result<(Vec<Agent>, Value), String> {
     fields(
         config,
         &["version", "agents"],
@@ -123,7 +126,7 @@ pub fn validate(
         &[],
         "topology configuration",
     )?;
-    if config["version"] != "mas-agents/2" || topology["version"] != "mas-topology/1" {
+    if config["version"] != "mas-agents/3" || topology["version"] != "mas-topology/1" {
         return Err("unsupported agents/topology version".into());
     }
     let agents = config["agents"]
@@ -143,23 +146,23 @@ pub fn validate(
             return Err(format!("invalid, duplicate or reserved agent name: {name}"));
         }
         let binding = bindings::resolve(&root, agent, config.get("connections"))?;
-        if binding.get("configuration").is_none() {
-            bindings::validate_native(&root, &binding)?;
-        }
         resolved.push(binding);
     }
     let agents = resolved;
     for agent in &agents {
-        if agent["configuration"]["kind"] == "workflow" {
-            mas_host_workflow::validate(&agent["configuration"]["plan"], &names)?;
-        }
-        if let Some(delegates) = agent["configuration"]["delegates"].as_array() {
-            for delegate in delegates {
-                let target = delegate.as_str().ok_or("delegate must be an actor name")?;
-                if target == agent["name"].as_str().unwrap() || !names.contains(target) {
-                    return Err("invalid LLM delegate".into());
+        match &agent.implementation {
+            Implementation::Workflow(configuration) => {
+                mas_host_workflow::validate(&configuration["plan"], &names)?
+            }
+            Implementation::Llm(configuration) => {
+                for delegate in configuration["delegates"].as_array().unwrap() {
+                    let target = delegate.as_str().unwrap();
+                    if target == agent.name || !names.contains(target) {
+                        return Err("invalid LLM delegate".into());
+                    }
                 }
             }
+            _ => {}
         }
     }
     let edges = topology["edges"]
@@ -208,14 +211,14 @@ pub fn validate(
         }
         native[key] = json!(value);
     }
-    Ok((json!(agents), native))
+    Ok((agents, native))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     fn config() -> Value {
-        json!({"version":"mas-agents/2","agents":[{"name":"worker","implementation":{"kind":"native","language":"go","source":".","handler":"Assess"}}]})
+        json!({"version":"mas-agents/3","agents":[{"name":"worker","implementation":{"kind":"native","language":"go","source":".","handler":"Assess"}}]})
     }
     fn routes() -> Value {
         json!({"version":"mas-topology/1","edges":[["client","worker"],["worker","client"]]})
@@ -272,7 +275,7 @@ mod tests {
             .contains("implementation kind"));
 
         let (resolved, _) = validate(root, &config(), &routes()).unwrap();
-        assert_eq!(resolved[0]["operation"], "worker");
+        assert_eq!(resolved[0].operation, "worker");
     }
 
     #[test]
@@ -286,7 +289,9 @@ mod tests {
         }
         let agent = json!({"name":"worker","operation":"assess/1","implementation":{"kind":"native","language":"go","source":".","handler":"Assess"}});
         let resolved = bindings::resolve(root, &agent, None).unwrap();
-        assert_eq!(resolved["operation"], "assess/1");
-        assert_eq!(resolved["handler"], "Assess");
+        assert_eq!(resolved.operation, "assess/1");
+        assert!(
+            matches!(resolved.implementation, Implementation::Native(native) if native.handler == "Assess")
+        );
     }
 }

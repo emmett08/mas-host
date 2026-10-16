@@ -130,55 +130,40 @@ fn ownership(directory: &Path) -> Result<File> {
 struct Agent {
     executable: PathBuf,
     sha256: String,
-    handler: String,
+    handler: Option<String>,
+    working_directory: PathBuf,
+    input_schema: Option<Value>,
+    output_schema: Option<Value>,
     operation: String,
     arguments: Vec<String>,
     configuration: Value,
     environment_names: BTreeSet<String>,
 }
 
-fn declared_environment(configuration: &Value) -> Result<BTreeSet<String>> {
-    let mut names = BTreeSet::new();
-    if configuration["kind"] != "llm" {
-        return Ok(names);
+fn declared_environment(value: &Value) -> Result<BTreeSet<String>> {
+    let names = value
+        .as_array()
+        .ok_or("environment must be an array of names")?
+        .iter()
+        .map(|v| {
+            v.as_str()
+                .ok_or_else(|| "environment names must be strings".to_string())
+        })
+        .collect::<Result<Vec<_>>>()?;
+    Ok(mas_host_process::environment_names(names)?
+        .into_iter()
+        .collect())
+}
+
+fn operation_schema(value: &Value, name: &str) -> Result<Option<Value>> {
+    let Some(schema) = value.get(name) else {
+        return Ok(None);
+    };
+    mas_host_schema::check(schema)?;
+    if schema["type"] != "object" {
+        return Err("operation schemas must have object type".into());
     }
-    let connection = configuration["connection"]
-        .as_object()
-        .ok_or("LLM configuration requires a connection object")?;
-    if let Some(value) = connection.get("api_key_env") {
-        names.insert(
-            value
-                .as_str()
-                .ok_or("api_key_env must be a name")?
-                .to_owned(),
-        );
-    }
-    if let Some(value) = connection.get("env") {
-        for name in value
-            .as_array()
-            .ok_or("connection env must be an array of names")?
-        {
-            names.insert(
-                name.as_str()
-                    .ok_or("connection env must contain names")?
-                    .to_owned(),
-            );
-        }
-    }
-    for name in &names {
-        if name.is_empty()
-            || name.len() > 128
-            || !name
-                .bytes()
-                .enumerate()
-                .all(|(i, b)| b.is_ascii_alphabetic() || b == b'_' || (i > 0 && b.is_ascii_digit()))
-            || name == "MAS_WORKER_CHANNEL_FD"
-            || name == "PATH"
-        {
-            return Err("invalid or reserved connection environment name".into());
-        }
-    }
-    Ok(names)
+    Ok(Some(schema.clone()))
 }
 
 impl Agent {
@@ -191,7 +176,7 @@ impl Agent {
                 }
                 Err(std::env::VarError::NotPresent) => {}
                 Err(std::env::VarError::NotUnicode(_)) => {
-                    return Err("declared connection environment must be Unicode".into())
+                    return Err("declared environment must be Unicode".into())
                 }
             }
         }
@@ -221,7 +206,7 @@ impl Engine {
     pub fn open(bundle: &Value, state_dir: &Path, run_id: &str) -> Result<Self> {
         checked_object(bundle, "bundle")?;
         fields(bundle, &["version", "agents", "topology"], &[])?;
-        if bundle["version"] != "mas-bundle/2" {
+        if bundle["version"] != "mas-bundle/3" {
             return Err("unsupported bundle version".into());
         }
         let mut agents = BTreeMap::new();
@@ -235,8 +220,21 @@ impl Engine {
         for value in registrations {
             fields(
                 value,
-                &["name", "executable", "sha256", "handler", "operation"],
-                &["configuration", "arguments"],
+                &[
+                    "name",
+                    "executable",
+                    "sha256",
+                    "operation",
+                    "environment",
+                    "working_directory",
+                ],
+                &[
+                    "handler",
+                    "configuration",
+                    "arguments",
+                    "input_schema",
+                    "output_schema",
+                ],
             )?;
             let name = text(value, "name")?;
             if name == "client" {
@@ -268,22 +266,34 @@ impl Engine {
             {
                 return Err("worker arguments exceed supported bounds".into());
             }
-            let environment_names = declared_environment(&configuration)?;
+            let environment_names = declared_environment(&value["environment"])?;
             let agent = Agent {
                 executable: PathBuf::from(text(value, "executable")?),
                 sha256: text(value, "sha256")?.to_owned(),
-                handler: text(value, "handler")?.to_owned(),
+                handler: value
+                    .get("handler")
+                    .map(|v| {
+                        v.as_str()
+                            .filter(|s| !s.is_empty())
+                            .map(str::to_owned)
+                            .ok_or_else(|| "handler must be a nonempty string".to_string())
+                    })
+                    .transpose()?,
+                working_directory: PathBuf::from(text(value, "working_directory")?),
+                input_schema: operation_schema(value, "input_schema")?,
+                output_schema: operation_schema(value, "output_schema")?,
                 operation: text(value, "operation")?.to_owned(),
                 configuration,
                 arguments,
                 environment_names,
             };
             if !agent.executable.is_absolute()
-                || agent.handler.is_empty()
+                || !agent.working_directory.is_absolute()
+                || !agent.working_directory.is_dir()
                 || agent.operation.is_empty()
             {
                 return Err(
-                    "worker executable must be absolute; handler and operation must be non-empty"
+                    "worker executable and working_directory must be absolute; directory must exist and operation must be nonempty"
                         .into(),
                 );
             }

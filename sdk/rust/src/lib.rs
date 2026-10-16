@@ -235,9 +235,6 @@ fn dispatch_with_configuration(
     let start = read_frame(&mut channel)?;
     if start["type"] != "start"
         || start["version"] != "mas-native/1"
-        || !start["handler"]
-            .as_str()
-            .is_some_and(|value| !value.is_empty())
         || expected_handler.is_some_and(|expected| start["handler"] != expected)
     {
         return Err("invalid native start or handler".into());

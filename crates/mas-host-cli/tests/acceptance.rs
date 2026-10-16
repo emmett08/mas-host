@@ -90,7 +90,7 @@ fn code_only_apps_and_real_effect_recovery() {
     fs::create_dir_all(&scratch).unwrap();
     let state = scratch.join("state");
     let input = scratch.join("input.json");
-    let go = root().join("examples/go-release");
+    let go = root().join("tests/fixtures/go-release");
     let go_bundle = build(&go);
     let proposal = json!({"release":"v1","replicas":1,"demand":250,"per_replica":100,"critical_vulnerabilities":0,"max_replicas":5});
     write(&input, &proposal);
@@ -239,7 +239,7 @@ fn code_only_apps_and_real_effect_recovery() {
     let invoice = json!({"amount_minor":12500,"limit_minor":20000});
     write(&input, &invoice);
     for language in ["rust", "cpp"] {
-        let project = root().join(format!("examples/{language}-invoice"));
+        let project = root().join(format!("tests/fixtures/{language}-invoice"));
         let bundle = build(&project);
         let result = invoke(&bundle, &input, &state, language, "invoice");
         assert_eq!(

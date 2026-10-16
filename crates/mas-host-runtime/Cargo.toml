@@ -9,6 +9,8 @@ description = "Supervised built-in agent execution above the MAS worker contract
 [dependencies]
 mas-host-sdk = { path = "../../sdk/rust" }
 mas-host-providers.workspace = true
+mas-host-process.workspace = true
+mas-host-schema.workspace = true
 mas-host-workflow.workspace = true
 mas-protocol-codec.workspace = true
 serde_json.workspace = true

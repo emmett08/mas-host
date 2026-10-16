@@ -31,7 +31,7 @@ def assess(ctx: Context, proposal: Proposal) -> Assessment:
 Bind the function with a version 2 agent implementation:
 
 ```toml
-version = "mas-agents/2"
+version = "mas-agents/3"
 
 [[agents]]
 name = "assessor"
@@ -140,7 +140,7 @@ of rebuilding a project. `host`, `sdk_root` and `connections` accept explicit
 host executable, SDK distribution and connection-profile paths.
 
 The typed authoring API also supplies `Workflow(plan)` and
-`Llm(connection, model, instructions, output_schema, ...)`. Export is an explicit
+`Llm(connection, model, instructions, ...)` with schemas on `Agent`. Export is an explicit
 application action that produces ordinary configuration documents. The host
 validates operation identities, paths, schemas, provider settings and topology.
 It never imports Python configuration code while inspecting or resuming a run.
@@ -153,3 +153,24 @@ PYTHONPATH=sdk/python python3 -m unittest discover -s sdk/python/tests -v
 
 Tests exercise exact JSON boundaries, nested typed data, actual socket framing,
 durable effect outcomes, descriptor inheritance and the CLI client contract.
+
+## CLI configuration
+
+`Command` adapts an ordinary executable without requiring a Python handler:
+
+```python
+from mas_host import Agent, Command, FromInput
+
+policy = Agent(
+    "policy_check",
+    Command("tools/policy-check", arguments=("--service", FromInput("/service"))),
+    "check_policy/1",
+    input_schema="schemas/input.json", output_schema="schemas/output.json",
+    environment=("POLICY_TOKEN",), working_directory=".",
+)
+```
+
+`FileArgument("tool.py")` retains a project file and supplies its frozen path.
+`InvocationId()` supplies the admitted effect ID to tools that produce receipts.
+Schemas, environment references and working directory are properties of `Agent`
+for all implementation kinds. See the [command contract](../../docs/commands.md).

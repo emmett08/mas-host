@@ -60,6 +60,7 @@ impl Worker {
             ownership_fd,
             &[],
             &BTreeMap::new(),
+            None,
         )
     }
 
@@ -72,6 +73,7 @@ impl Worker {
         ownership_fd: RawFd,
         arguments: &[String],
         environment: &BTreeMap<String, String>,
+        working_directory: Option<&Path>,
     ) -> Result<Self, String> {
         Self::spawn_scoped_with_launcher(
             executable,
@@ -81,6 +83,9 @@ impl Worker {
             arguments,
             environment,
             |command, args| {
+                if let Some(directory) = working_directory {
+                    command.current_dir(directory);
+                }
                 command.arg("__supervise").args(args);
             },
         )

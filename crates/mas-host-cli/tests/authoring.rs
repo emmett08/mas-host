@@ -86,9 +86,9 @@ fn rejected(output: Output, expected: &str) {
 }
 
 fn configure_json(project: &Project) {
-    project.write("agents.json", &json!({"version":"mas-agents/2","connections":{"model":{"kind":"mock","output":{"approved":true}}},"agents":[
+    project.write("agents.json", &json!({"version":"mas-agents/3","connections":{"model":{"kind":"mock","output":{"approved":true}}},"agents":[
         {"name":"echo","implementation":{"kind":"workflow","plan":"plan.json"}},
-        {"name":"assessor","implementation":{"kind":"llm","connection":"model","model":"test-model","instructions":"instructions.md","output_schema":"schema.json"}}
+        {"name":"assessor","output_schema":"schema.json","implementation":{"kind":"llm","connection":"model","model":"test-model","instructions":"instructions.md"}}
     ]}).to_string());
     project.write("topology.json", r#"{"version":"mas-topology/1","edges":[["client","echo"],["echo","client"],["client","assessor"],["assessor","client"]]}"#);
     project.write("plan.json", r#"{"type":"value","output":{"$input":""}}"#);
@@ -122,7 +122,7 @@ fn toml_yaml_and_json_preserve_bundle_digest_and_resume_input() {
     project.write(
         "agents.toml",
         r#"
-version = 'mas-agents/2'
+version = 'mas-agents/3'
 [connections.model]
 kind = 'mock'
 output = { approved = true }
@@ -133,12 +133,12 @@ kind = 'workflow'
 plan = 'plan.yaml'
 [[agents]]
 name = 'assessor'
+output_schema = 'schema.json'
 [agents.implementation]
 kind = 'llm'
 connection = 'model'
 model = 'test-model'
 instructions = 'instructions.md'
-output_schema = 'schema.json'
 "#,
     );
     project.write("topology.yaml", "version: mas-topology/1\nedges:\n  - [client, echo]\n  - [echo, client]\n  - [client, assessor]\n  - [assessor, client]\n");
@@ -204,7 +204,7 @@ fn invalid_authoring_fails_before_build_or_state_creation() {
     configure_json(&project);
     project.write(
         "agents.json",
-        "{\"version\":\"mas-agents/2\",\"version\":\"mas-agents/1\"}",
+        "{\"version\":\"mas-agents/3\",\"version\":\"mas-agents/1\"}",
     );
     rejected(project.build(&[]), "DUPLICATE");
     assert!(!project.0.join(".mas").exists());

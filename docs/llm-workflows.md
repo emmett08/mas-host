@@ -7,12 +7,12 @@ the model does not generate MAS wire envelopes or select its authenticated sende
 
 ## Configuration and provider selection
 
-A `mas-agents/2` document contains `agents`, optional named `connections` and
+A `mas-agents/3` document contains `agents`, optional named `connections` and
 optional protocol `limits`. An actor declares `name`, optional `operation`
 (defaults to its name), and `implementation`:
 
 ```toml
-version = "mas-agents/2"
+version = "mas-agents/3"
 
 [connections.review_provider]
 kind = "openai"
@@ -21,19 +21,21 @@ api_key_env = "OPENAI_API_KEY"
 [[agents]]
 name = "reviewer"
 operation = "review/1"
+input_schema = "schemas/input.json"
+output_schema = "schemas/output.json"
 [agents.implementation]
 kind = "llm"
 connection = "review_provider"
 model = "<explicit-model-id>"
 instructions = "prompts/review.md"
-input_schema = "schemas/input.json"
-output_schema = "schemas/output.json"
 max_output_tokens = 4096
 ```
 
 `kind = "native"` selects `language`, `source` and `handler`, using the supported
 language build profiles. `kind = "workflow"` selects a relative `plan`
-file. Instructions, schemas and plans must remain inside the application project;
+file. `kind = "command"` adapts an ordinary CLI through the [command contract](commands.md).
+Input/output schemas belong to the agent operation for every implementation kind.
+Instructions, schemas and plans must remain inside the application project;
 their contents are embedded in the immutable generated bundle. Each actor exposes
 one public operation in this profile. Separate actors can expose separate operations.
 
@@ -83,7 +85,9 @@ or `{kind: request, target: peer, input_json: "{...}"}`. The executor validates 
 action, parses `input_json` through MAS's exact JSON codec and requests the peer
 through the host. The string carries arbitrary task JSON while preserving exact
 integers and a strict provider response schema. Subsequent turns receive the
-original `task` and prior request/result `history`.
+original `task` and prior request/result `history`. Each permitted peer's public
+operation and available schemas are included in the instructions. Command actors
+use the same delegation and topology permissions as native or LLM actors.
 
 ## Outcomes, recovery and validation
 

@@ -5,10 +5,28 @@ import tempfile
 import unittest
 
 from mas_host.codec import loads_object
-from mas_host.configuration import Agent, Configuration, ExportedConfiguration, Llm, Native, Workflow
+from mas_host.configuration import Agent, Command, Configuration, ExportedConfiguration, FileArgument, FromInput, InvocationId, Llm, Native, Workflow
 
 
 class ConfigurationTests(unittest.TestCase):
+    def test_command_builder_preserves_explicit_bindings_and_operation_contract(self):
+        agent = Agent("check", Command("/usr/bin/python3", arguments=(FileArgument("check.py"),
+                      "--service", FromInput("/service"), InvocationId()), stdin="json"),
+                      "check/1", input_schema="in.json", output_schema="out.json",
+                      environment=("TOKEN",), working_directory="work")
+        value = agent.to_dict()
+        self.assertEqual(value["implementation"]["arguments"], [
+            {"file": "check.py"}, {"literal": "--service"}, {"input": "/service"}, {"invocation_id": True},
+        ])
+        self.assertEqual(value["input_schema"], "in.json")
+        self.assertEqual(value["output_schema"], "out.json")
+        self.assertEqual(value["environment"], ["TOKEN"])
+        self.assertEqual(value["working_directory"], "work")
+        for command in (Command("tool", arguments="split me"), Command("tool", arguments=(1,)),
+                        Command("tool", timeout_seconds=True), Command("tool", success_exit_codes=(True,))):
+            with self.subTest(command=command), self.assertRaises(TypeError):
+                command.to_dict()
+
     def test_export_preserves_exact_host_bindings_and_topology(self):
         config = Configuration(
             agents=[
@@ -16,10 +34,9 @@ class ConfigurationTests(unittest.TestCase):
                 Agent("orchestrator", Workflow(Path("plans/release.json"))),
                 Agent("reviewer", Llm(
                     connection="review_provider", model="chosen-model",
-                    instructions=Path("prompts/review.md"), output_schema="schemas/result.json",
-                    input_schema="schemas/task.json", max_output_tokens=2048,
+                    instructions=Path("prompts/review.md"), max_output_tokens=2048,
                     max_turns=3, delegates=("python_worker",),
-                )),
+                ), input_schema="schemas/task.json", output_schema="schemas/result.json"),
             ],
             edges=[("client", "orchestrator"), ("orchestrator", "client")],
             connections={"review_provider": {"kind": "openai", "api_key_env": "REVIEW_API_KEY"}},
@@ -32,16 +49,15 @@ class ConfigurationTests(unittest.TestCase):
             self.assertEqual(files.topology, Path(root) / "generated" / "topology.json")
             agents = loads_object(files.agents.read_bytes())
             self.assertEqual(agents, {
-                "version": "mas-agents/2",
+                "version": "mas-agents/3",
                 "agents": [
                     {"name": "python_worker", "operation": "assess/1", "implementation": {
                         "kind": "native", "language": "python", "source": "workers.py", "handler": "assess",
                     }},
                     {"name": "orchestrator", "implementation": {"kind": "workflow", "plan": "plans/release.json"}},
-                    {"name": "reviewer", "implementation": {
+                    {"name": "reviewer", "input_schema": "schemas/task.json", "output_schema": "schemas/result.json", "implementation": {
                         "kind": "llm", "connection": "review_provider", "model": "chosen-model",
-                        "instructions": "prompts/review.md", "output_schema": "schemas/result.json",
-                        "input_schema": "schemas/task.json", "max_output_tokens": 2048,
+                        "instructions": "prompts/review.md", "max_output_tokens": 2048,
                         "max_turns": 3, "delegates": ["python_worker"],
                     }},
                 ],
@@ -55,13 +71,13 @@ class ConfigurationTests(unittest.TestCase):
 
     def test_optional_fields_remain_omitted_and_paths_are_not_read(self):
         document = Configuration(
-            [Agent("reviewer", Llm("provider", "model", "missing.md", "missing.json"))],
+            [Agent("reviewer", Llm("provider", "model", "missing.md"))],
             [],
         ).to_dict()
         self.assertEqual(set(document), {"version", "agents"})
         self.assertEqual(set(document["agents"][0]), {"name", "implementation"})
         self.assertEqual(set(document["agents"][0]["implementation"]), {
-            "kind", "connection", "model", "instructions", "output_schema",
+            "kind", "connection", "model", "instructions",
         })
 
     def test_exports_are_deterministic_independent_documents(self):
@@ -89,8 +105,8 @@ class ConfigurationTests(unittest.TestCase):
             Configuration([worker], "client-worker"),
             Configuration([{"name": "worker"}], []),
             Configuration([Agent("worker", {"kind": "native"})], []),
-            Configuration([Agent("worker", Llm("local", "m", "p", "s", max_turns=True))], []),
-            Configuration([Agent("worker", Llm("local", "m", "p", "s", delegates="peer"))], []),
+            Configuration([Agent("worker", Llm("local", "m", "p", max_turns=True))], []),
+            Configuration([Agent("worker", Llm("local", "m", "p", delegates="peer"))], []),
         ]
         with tempfile.TemporaryDirectory() as root:
             for index, config in enumerate(invalid):

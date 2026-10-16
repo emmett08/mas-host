@@ -1,6 +1,7 @@
 //! A small facade selecting maintained worker implementations.
+pub mod command;
 pub mod inference;
-pub mod schema;
+pub use mas_host_schema as schema;
 use mas_host_sdk::{Context, Json, Result};
 use sha2::{Digest, Sha256};
 
@@ -12,18 +13,14 @@ pub fn serve() -> Result<()> {
 fn execute(ctx: &mut Context, input: Json, configuration: Json) -> Result<Json> {
     if let Some(assets) = configuration["assets"].as_array() {
         for asset in assets {
-            let bytes = std::fs::read(
-                asset["path"]
-                    .as_str()
-                    .ok_or("invalid provider asset path")?,
-            )
-            .map_err(|_| "provider asset unavailable")?;
+            let bytes = std::fs::read(asset["path"].as_str().ok_or("invalid worker asset path")?)
+                .map_err(|_| "worker asset unavailable")?;
             let digest: String = Sha256::digest(bytes)
                 .iter()
                 .map(|b| format!("{b:02x}"))
                 .collect();
             if asset["sha256"] != digest {
-                return Err("provider asset digest differs from retained binding".into());
+                return Err("worker asset digest differs from retained binding".into());
             }
         }
     }
@@ -33,6 +30,7 @@ fn execute(ctx: &mut Context, input: Json, configuration: Json) -> Result<Json> 
             inference::execute(ctx, input, &configuration, provider.as_ref())
         }
         Some("workflow") => mas_host_workflow::execute(ctx, &configuration["plan"], input),
+        Some("command") => command::execute(ctx, input, &configuration),
         _ => Err("unsupported built-in implementation".into()),
     }
 }

@@ -75,8 +75,6 @@ class Llm:
     connection: str
     model: str
     instructions: PathValue
-    output_schema: PathValue
-    input_schema: PathValue | None = None
     max_output_tokens: int | None = None
     max_turns: int | None = None
     delegates: Sequence[str] | None = None
@@ -87,10 +85,7 @@ class Llm:
             "connection": _text(self.connection, "connection"),
             "model": _text(self.model, "model"),
             "instructions": _path(self.instructions, "instructions"),
-            "output_schema": _path(self.output_schema, "output_schema"),
         }
-        if self.input_schema is not None:
-            document["input_schema"] = _path(self.input_schema, "input_schema")
         for name in ("max_output_tokens", "max_turns"):
             value = getattr(self, name)
             if value is not None:
@@ -106,22 +101,90 @@ class Llm:
 
 
 @dataclass(frozen=True, slots=True)
+class FromInput:
+    """One string, integer or boolean selected by JSON Pointer."""
+    pointer: str
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"input": _text(self.pointer, "input pointer")}
+
+
+@dataclass(frozen=True, slots=True)
+class FileArgument:
+    """A project file retained by content digest and passed as one argument."""
+    path: PathValue
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"file": _path(self.path, "argument file")}
+
+
+@dataclass(frozen=True, slots=True)
+class InvocationId:
+    """The admitted effect identity, available to a tool's receipt mechanism."""
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"invocation_id": True}
+
+
+@dataclass(frozen=True, slots=True)
+class Command:
+    """An ordinary executable, invoked directly under the host's effect contract."""
+    executable: PathValue
+    arguments: Sequence[str | FromInput | FileArgument | InvocationId] = ()
+    stdin: Literal["none", "json"] = "none"
+    stdout: Literal["json-object", "text"] = "json-object"
+    success_exit_codes: Sequence[int] = (0,)
+    timeout_seconds: int = 60
+    max_output_bytes: int = 32768
+
+    def to_dict(self) -> dict[str, Any]:
+        arguments = []
+        for argument in _sequence(self.arguments, "arguments"):
+            if type(argument) is str:
+                arguments.append({"literal": argument})
+            elif isinstance(argument, (FromInput, FileArgument, InvocationId)):
+                arguments.append(argument.to_dict())
+            else:
+                raise TypeError("command argument must be a string or explicit binding")
+        codes = list(_sequence(self.success_exit_codes, "success_exit_codes"))
+        if any(type(code) is not int for code in codes):
+            raise TypeError("success_exit_codes must contain exact integers")
+        if type(self.timeout_seconds) is not int or type(self.max_output_bytes) is not int:
+            raise TypeError("command limits must be exact integers")
+        return _object({"kind": "command", "executable": _path(self.executable, "executable"),
+                        "arguments": arguments, "stdin": _text(self.stdin, "stdin"),
+                        "stdout": _text(self.stdout, "stdout"), "success_exit_codes": codes,
+                        "timeout_seconds": self.timeout_seconds, "max_output_bytes": self.max_output_bytes})
+
+
+@dataclass(frozen=True, slots=True)
 class Agent:
     """An actor identity, its implementation and optional public operation."""
 
     name: str
-    implementation: Native | Workflow | Llm
+    implementation: Native | Workflow | Llm | Command
     operation: str | None = None
+    input_schema: PathValue | None = None
+    output_schema: PathValue | None = None
+    environment: Sequence[str] | None = None
+    working_directory: PathValue | None = None
 
     def to_dict(self) -> dict[str, Any]:
-        if not isinstance(self.implementation, (Native, Workflow, Llm)):
-            raise TypeError("implementation must be Native, Workflow or Llm")
+        if not isinstance(self.implementation, (Native, Workflow, Llm, Command)):
+            raise TypeError("implementation must be Native, Workflow, Llm or Command")
         document = {
             "name": _text(self.name, "agent name"),
             "implementation": self.implementation.to_dict(),
         }
         if self.operation is not None:
             document["operation"] = _text(self.operation, "operation")
+        for name in ("input_schema", "output_schema", "working_directory"):
+            value = getattr(self, name)
+            if value is not None:
+                document[name] = _path(value, name)
+        if self.environment is not None:
+            document["environment"] = [_text(name, "environment name")
+                                       for name in _sequence(self.environment, "environment")]
         return _object(document)
 
 
@@ -154,7 +217,7 @@ class Configuration:
             if not isinstance(agent, Agent):
                 raise TypeError("agents must contain Agent instances")
             records.append(agent.to_dict())
-        document: dict[str, Any] = {"version": "mas-agents/2", "agents": records}
+        document: dict[str, Any] = {"version": "mas-agents/3", "agents": records}
         if self.connections is not None:
             if type(self.connections) is not dict:
                 raise TypeError("connections must be an object")

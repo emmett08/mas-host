@@ -1,4 +1,4 @@
-version = "mas-agents/2"
+version = "mas-agents/3"
 
 [[agents]]
 name = "planner"

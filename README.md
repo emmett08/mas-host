@@ -1,7 +1,7 @@
 # MAS Host
 
-A shared Rust host for native, LLM and composable workflow agents. Application
-repositories supply **application functions, agent configuration and topology
+A shared Rust host for native functions, CLI tools, LLMs and composable workflows. Application
+repositories supply **functions or executable tools, agent configuration and topology
 configuration**, plus their normal build metadata and tests. The host tooling
 generates executable entry points and registration bundles. Go, Rust, C++ and
 Python handlers share the same routing, admission and recovery rules.
@@ -12,7 +12,7 @@ effect admission, inspection and evidence-based recovery. It consumes a pinned
 revision of [`emmett08/mas`](https://github.com/emmett08/mas) through its public
 Rust crate; neither the protocol repository nor existing demos need changes.
 
-[`mas-agents/2`](docs/llm-workflows.md) configures maintained OpenAI Responses,
+[`mas-agents/3`](docs/llm-workflows.md) configures maintained OpenAI Responses,
 OpenAI-compatible, Cursor SDK, command and explicit mock providers. Workflow
 agents recursively compose sequences, parallel groups, branches, bounded loops,
 foreach and named subworkflows. Star, tree and mesh routes can be combined in one
@@ -20,39 +20,28 @@ application. Every cross-agent request still passes through MAS admission.
 The [composable examples](https://github.com/emmett08/mas-host-examples/tree/main/examples/composable-agents)
 exercise these shapes with one actor definition and selectable provider profiles.
 
-## Run the release example
+## Build and try an application
 
-Prerequisites: Linux, Git, Rust **1.99.0**, Go **1.24.0 or later**, a C/C++ compiler
-supporting C++17, and Make. Rust is pinned in `rust-toolchain.toml`; C++ is needed
-for the C++ example and full verification. The protocol's bundled SQLite build
-also requires a C compiler. Python agents and the full test suite require
-Python **3.11 or later**; other agent implementations have no Python dependency.
+Prerequisites: Linux, Git, Rust **1.99.0**, a C compiler and Make. Rust is pinned
+in `rust-toolchain.toml`; the protocol dependency builds bundled SQLite. Native
+Go applications require Go **1.24.0 or later**, C++ applications require C++17,
+and Python applications require Python **3.11 or later**. Full verification uses
+all four language toolchains.
 
 ```sh
 git clone https://github.com/emmett08/mas-host.git
 cd mas-host
 make build
-
-target/debug/mas-host run \
-  --project examples/go-release --agent planner \
-  --input examples/go-release/input.yaml \
-  --state .state --run release-001
 ```
 
-The Go example checks capacity and security concurrently, adjusts capacity within
-a bounded loop, and obtains an independent acceptance check. Its optional audit
-receipt demonstrates an external effect. `make acceptance` exercises an actual
-worker exit after the receipt is durable, resolves the uncertain result from the
-receipt, and resumes with one admitted call and no second write.
+Maintained runnable applications live in
+[`mas-host-examples`](https://github.com/emmett08/mas-host-examples): Go, Rust,
+C++, Python, ordinary CLI tools and composed LLM workflows. That repository pins
+its host revision and documents setup, execution and recovery.
 
-The native examples use the same host:
-
-```sh
-target/debug/mas-host run --project examples/rust-invoice --agent invoice \
-  --input examples/rust-invoice/input.yaml --state .state --run rust-001
-target/debug/mas-host run --project examples/cpp-invoice --agent invoice \
-  --input examples/cpp-invoice/input.yaml --state .state --run cpp-001
-```
+This repository keeps small compiler and recovery inputs under `tests/fixtures`.
+They are exercised by host CI and are not a second application catalogue.
+SDK documentation retains concise API snippets beside the implementation.
 
 ## An application repository
 
@@ -65,7 +54,7 @@ func Assess(ctx *mas.Context, proposal Proposal) (Assessment, error)
 Its `agents.toml` selects the function:
 
 ```toml
-version = "mas-agents/2"
+version = "mas-agents/3"
 
 [[agents]]
 name = "assessor"
@@ -137,6 +126,17 @@ outside this checkout, set `MAS_HOST_SDK_ROOT` to this repository's absolute pat
 or supply `--sdk-root`. Copying only the host executable does not install those
 build assets. A future packaged release should install them together.
 
+## Ordinary command-line tools
+
+A `command` implementation declares an executable, separate argument bindings,
+stdin and stdout formats, accepted exit codes and bounded execution limits.
+Its operation declares input/output schemas independently of the implementation.
+The host adapts that tool to MAS and journals each invocation as an admitted effect.
+The tool needs no SDK or protocol implementation.
+
+See the [command contract](docs/commands.md) and the
+[CLI example](https://github.com/emmett08/mas-host-examples/tree/main/examples/command-policy).
+
 ## Execution and recovery
 
 Application code expresses sequencing, joins, bounded loops and acceptance.
@@ -182,7 +182,8 @@ the unchanged MAS protocol store, and MAS's Linux worker guardian. Workers are
 trusted code with the operator's filesystem permissions. The guardian clears the
 environment, discards worker stdout/stderr and applies fixed local resource
 limits; diagnostics travel in returned errors and evidence. It is not a sandbox.
-LLM workers receive only their declared credential and environment bindings;
+All workers receive only their declared environment bindings; LLM connections add
+their explicitly named credentials. CLI tool I/O is captured by its adapter;
 retained application logs are not implemented.
 
 This release does not claim distributed ownership, remote ingress or compatibility

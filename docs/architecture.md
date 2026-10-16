@@ -55,8 +55,10 @@ databases. Protocol, host IPC, application configuration and generated bundle
 formats are independently versioned. A changed executable, bundle or root input
 cannot silently resume retained work.
 
-Application bindings use `mas-agents/2`; generated worker records use
-`mas-bundle/2` and always carry a public operation. TOML/YAML authoring and typed
+Application bindings use `mas-agents/3`; generated worker records use
+`mas-bundle/3` and always carry a public operation, environment scope and working
+directory. Input/output schemas belong to operations and are enforced for every
+implementation kind. Only source-function workers carry a handler binding. TOML/YAML authoring and typed
 SDK builders feed the same resolved configuration. Strict JSON remains the
 generated bundle and worker-frame representation.
 
@@ -157,3 +159,23 @@ Further releases should extend these boundaries in this order:
 The repository split is already real: this project builds from a pinned remote
 dependency rather than a sibling MAS checkout. Existing `mas`, `mas-demo` and
 examples remain independent consumers or references.
+
+## Command adapters and repository ownership
+
+The configuration resolver produces typed native, command, LLM and workflow
+variants. Native builders own source/function binding; the command builder owns
+retained tool files and executable identity. Every variant resolves to the same
+supervised worker contract. The core reads launch properties without inspecting
+provider-specific configuration.
+
+A maintained command adapter owns argument binding, stdin/stdout conversion and
+external-outcome classification. Provider adapters and the command adapter share
+bounded process I/O through `mas-host-process`; the existing Linux guardian owns
+all descendant cleanup. Operation schemas share `mas-host-schema` across the
+resolver, core and runtime. These shared components have no protocol-store or
+workflow dependencies.
+
+Application demonstrations belong in `mas-host-examples`. Local `tests/fixtures`
+retain only inputs required to verify this host's compiler integration and recovery.
+Changes to the current authoring and bundle contracts migrate those fixtures and
+the examples together; prior schemas are rejected rather than maintained in parallel.
