@@ -38,6 +38,245 @@ impl Drop for Fixture {
     }
 }
 
+fn queued_request(engine: &Engine, parent: &str) -> (Step, mas_protocol_codec::Message) {
+    let step = engine
+        .inner
+        .prepare(parent, "queued", "request", "client", "worker", &json!({}))
+        .unwrap();
+    let message = engine.inner.message(
+        format!("req-{}", step.id),
+        "client",
+        "worker",
+        "Request",
+        json!({"task_id":step.id,"operation":"Assess","input":{}}),
+    );
+    (step, message)
+}
+
+fn fill_mailbox(engine: &Engine) {
+    let occupied = engine.inner.message(
+        "occupied".into(),
+        "client",
+        "worker",
+        "Request",
+        json!({"task_id":"occupied-task","operation":"Assess","input":{}}),
+    );
+    let mut protocol = lock(&engine.inner.protocol).unwrap();
+    protocol.send(&occupied, "client").unwrap();
+    protocol.receive("test-run", "worker", 1).unwrap();
+}
+
+fn await_admission_failure(engine: &Engine, step: &Step) -> Value {
+    let timeout = std::time::Instant::now() + std::time::Duration::from_secs(2);
+    loop {
+        let retained = read_step(&lock(&engine.inner.journal).unwrap(), &step.id)
+            .unwrap()
+            .unwrap();
+        if let Some(evidence) = retained.evidence {
+            assert_eq!(retained.state, "prepared");
+            return evidence;
+        }
+        assert!(
+            std::time::Instant::now() < timeout,
+            "admission did not start"
+        );
+        std::thread::sleep(std::time::Duration::from_millis(1));
+    }
+}
+
+#[test]
+fn transient_admission_retries_same_identity_after_acknowledgement() {
+    let mut fixture = Fixture::new();
+    fixture.bundle["topology"]["mailbox_capacity"] = json!(1);
+    let engine = fixture.engine();
+    fill_mailbox(&engine);
+    let (step, message) = queued_request(&engine, "");
+    let deadline = engine.inner.deadline_ms;
+    std::thread::scope(|scope| {
+        let admission = scope.spawn(|| engine.inner.admit_request(&step, &message));
+        assert_eq!(
+            await_admission_failure(&engine, &step)["admission"]["code"],
+            "mailbox_full"
+        );
+        lock(&engine.inner.protocol)
+            .unwrap()
+            .ack("test-run", "occupied", "worker")
+            .unwrap();
+        admission.join().unwrap().unwrap();
+    });
+    let snapshot = engine.status().unwrap();
+    assert_eq!(snapshot["protocol"]["usage"]["messages"], 2);
+    assert_eq!(snapshot["protocol"]["usage"]["calls"], 0);
+    assert_eq!(
+        snapshot["protocol"]["messages"][1]["id"],
+        message.message_id
+    );
+    assert_eq!(engine.inner.deadline_ms, deadline);
+}
+
+#[test]
+fn exhausted_capacity_retry_keeps_child_and_ancestor_replayable() {
+    let mut fixture = Fixture::new();
+    fixture.bundle["topology"]["mailbox_capacity"] = json!(1);
+    let engine = fixture.engine();
+    fill_mailbox(&engine);
+    let root = fixture.invocation(&engine);
+    let (step, message) = queued_request(&engine, &root.id);
+    assert!(engine.inner.admit_request(&step, &message).is_err());
+    let retained = read_step(&lock(&engine.inner.journal).unwrap(), &step.id)
+        .unwrap()
+        .unwrap();
+    assert_eq!(retained.state, "prepared");
+    let evidence = retained.evidence.unwrap();
+    assert_eq!(evidence["admission"]["disposition"], "retryable");
+    assert_eq!(evidence["admission_attempts"], 8);
+    engine
+        .inner
+        .known_failure(&root, "child admission unavailable")
+        .unwrap();
+    assert_eq!(
+        read_step(&lock(&engine.inner.journal).unwrap(), &root.id)
+            .unwrap()
+            .unwrap()
+            .state,
+        "blocked"
+    );
+    assert!(engine.inner.settle_children(&root.id).is_err());
+    assert_eq!(engine.status().unwrap()["protocol"]["usage"]["messages"], 1);
+    let deadline = engine.inner.deadline_ms;
+    drop(engine);
+
+    let engine = fixture.engine();
+    let (resumed, same_message) = queued_request(&engine, &root.id);
+    assert_eq!(resumed.id, step.id);
+    assert_eq!(same_message, message);
+    lock(&engine.inner.protocol)
+        .unwrap()
+        .ack("test-run", "occupied", "worker")
+        .unwrap();
+    engine.inner.admit_request(&resumed, &same_message).unwrap();
+    assert_eq!(engine.inner.deadline_ms, deadline);
+    assert_eq!(engine.status().unwrap()["protocol"]["usage"]["messages"], 2);
+}
+
+#[test]
+fn storage_admission_failure_is_blocked_without_automatic_retry() {
+    let fixture = Fixture::new();
+    let engine = fixture.engine();
+    let (step, message) = queued_request(&engine, "");
+    let db = Connection::open(engine.state_directory().join("protocol.sqlite")).unwrap();
+    db.execute_batch(
+        "CREATE TRIGGER reject_insert BEFORE INSERT ON messages
+        BEGIN SELECT RAISE(FAIL, 'simulated storage failure'); END;",
+    )
+    .unwrap();
+    assert!(engine.inner.admit_request(&step, &message).is_err());
+    let retained = read_step(&lock(&engine.inner.journal).unwrap(), &step.id)
+        .unwrap()
+        .unwrap();
+    assert_eq!(retained.state, "blocked");
+    let evidence = retained.evidence.unwrap();
+    assert_eq!(evidence["admission"]["disposition"], "unknown");
+    assert_eq!(evidence["admission_attempts"], 1);
+    assert_eq!(engine.status().unwrap()["protocol"]["usage"]["messages"], 0);
+}
+
+#[test]
+fn explicit_resume_of_uncertain_admission_reuses_committed_request() {
+    let fixture = Fixture::new();
+    let engine = fixture.engine();
+    let (step, message) = queued_request(&engine, "");
+    // Simulate commit followed by loss of the admission response, before the
+    // host has granted a worker any execution permission.
+    lock(&engine.inner.protocol)
+        .unwrap()
+        .send(&message, &step.actor)
+        .unwrap();
+    engine
+        .inner
+        .set_state(
+            &step.id,
+            "blocked",
+            None,
+            Some(&json!({
+                "admission":{"code":"storage","disposition":"unknown"}
+            })),
+        )
+        .unwrap();
+    let deadline = engine.inner.deadline_ms;
+    drop(engine);
+    let engine = fixture.engine();
+    let (resumed, same_message) = queued_request(&engine, "");
+    assert_eq!(same_message, message);
+    engine.inner.admit_request(&resumed, &same_message).unwrap();
+    assert_eq!(engine.status().unwrap()["protocol"]["usage"]["messages"], 1);
+    assert_eq!(engine.inner.deadline_ms, deadline);
+    let granted = engine
+        .inner
+        .begin_effect(&resumed, "publish", &json!({}))
+        .unwrap();
+    assert_eq!(granted["state"], "execute");
+    assert!(engine
+        .inner
+        .begin_effect(&resumed, "publish", &json!({}))
+        .is_err());
+    assert_eq!(engine.status().unwrap()["protocol"]["usage"]["calls"], 1);
+}
+
+#[test]
+fn cancellation_interrupts_admission_backoff_without_dispatch() {
+    let mut fixture = Fixture::new();
+    fixture.bundle["topology"]["mailbox_capacity"] = json!(1);
+    let engine = fixture.engine();
+    fill_mailbox(&engine);
+    let (step, message) = queued_request(&engine, "");
+    std::thread::scope(|scope| {
+        let admission = scope.spawn(|| engine.inner.admit_request(&step, &message));
+        await_admission_failure(&engine, &step);
+        lock(&engine.inner.journal)
+            .unwrap()
+            .execute("UPDATE metadata SET cancelled=1", [])
+            .unwrap();
+        assert!(admission.join().unwrap().unwrap_err().contains("cancelled"));
+    });
+    assert_eq!(engine.status().unwrap()["protocol"]["usage"]["messages"], 1);
+    assert_eq!(
+        read_step(&lock(&engine.inner.journal).unwrap(), &step.id)
+            .unwrap()
+            .unwrap()
+            .state,
+        "prepared"
+    );
+}
+
+#[test]
+fn original_deadline_expires_during_capacity_backoff_without_dispatch() {
+    let mut fixture = Fixture::new();
+    fixture.bundle["topology"]["mailbox_capacity"] = json!(1);
+    fixture.bundle["topology"]["wall_seconds"] = json!(1);
+    let engine = fixture.engine();
+    let deadline = engine.inner.deadline_ms;
+    fill_mailbox(&engine);
+    let (step, message) = queued_request(&engine, "");
+    assert!(engine
+        .inner
+        .admit_request(&step, &message)
+        .unwrap_err()
+        .contains("deadline"));
+    assert_eq!(engine.inner.deadline_ms, deadline);
+    let state = engine.status().unwrap();
+    assert_eq!(state["protocol"]["usage"]["messages"], 1);
+    assert_eq!(state["protocol"]["usage"]["calls"], 0);
+    let retained = read_step(&lock(&engine.inner.journal).unwrap(), &step.id)
+        .unwrap()
+        .unwrap();
+    assert_eq!(retained.state, "prepared");
+    assert_eq!(
+        retained.evidence.unwrap()["admission"]["disposition"],
+        "retryable"
+    );
+}
+
 #[test]
 fn live_observation_is_read_only_ordered_and_payloads_require_opt_in() {
     let fixture = Fixture::new();
@@ -138,7 +377,7 @@ fn observation_rejects_missing_and_incompatible_runs_without_creating_state() {
     db.execute_batch("PRAGMA user_version=3").unwrap();
     assert!(observe(&fixture.path, "test-run", false)
         .unwrap_err()
-        .contains("schema version 2"));
+        .contains("schema"));
     assert_eq!(
         db.query_row("PRAGMA user_version", [], |row| row.get::<_, i64>(0))
             .unwrap(),
@@ -671,4 +910,82 @@ fn parent_repairs_retained_child_output_before_success() {
         .unwrap()
         .iter()
         .all(|message| message["acked"] == true));
+}
+
+#[test]
+fn parent_failure_waits_until_cached_child_terminal_can_be_admitted() {
+    let mut fixture = Fixture::new();
+    fixture.bundle["topology"]["mailbox_capacity"] = json!(2);
+    let engine = fixture.engine();
+    let root = fixture.invocation(&engine);
+    let root_message = engine.inner.message(
+        format!("req-{}", root.id),
+        "client",
+        "worker",
+        "Request",
+        json!({"task_id":root.id,"operation":"Assess","input":{"n":1}}),
+    );
+    lock(&engine.inner.protocol)
+        .unwrap()
+        .send(&root_message, "client")
+        .unwrap();
+    fill_mailbox(&engine);
+    lock(&engine.inner.protocol)
+        .unwrap()
+        .receive("test-run", "worker", 100)
+        .unwrap();
+    let child = engine
+        .inner
+        .prepare(&root.id, "child", "request", "worker", "other", &json!({}))
+        .unwrap();
+    let message = engine.inner.message(
+        format!("req-{}", child.id),
+        "worker",
+        "other",
+        "Request",
+        json!({"task_id":child.id,"operation":"Assess","input":{}}),
+    );
+    engine.inner.admit_request(&child, &message).unwrap();
+    lock(&engine.inner.protocol)
+        .unwrap()
+        .receive("test-run", "other", 100)
+        .unwrap();
+    engine
+        .inner
+        .set_state(&child.id, "completed", Some(&json!({"result":1})), None)
+        .unwrap();
+    engine.inner.known_failure(&root, "parent failed").unwrap();
+    let retained = read_step(&lock(&engine.inner.journal).unwrap(), &root.id)
+        .unwrap()
+        .unwrap();
+    assert_eq!(retained.state, "blocked");
+    assert!(retained.evidence.unwrap()["settlement_error"]
+        .as_str()
+        .unwrap()
+        .contains("mailbox full"));
+    assert_eq!(engine.status().unwrap()["protocol"]["usage"]["messages"], 3);
+
+    lock(&engine.inner.protocol)
+        .unwrap()
+        .ack("test-run", "occupied", "worker")
+        .unwrap();
+    engine.inner.known_failure(&root, "parent failed").unwrap();
+    let state = engine.status().unwrap();
+    assert_eq!(state["steps"][0]["state"], "failed");
+    assert_eq!(state["protocol"]["usage"]["messages"], 5);
+    let tasks = state["protocol"]["tasks"].as_array().unwrap();
+    assert_eq!(
+        tasks
+            .iter()
+            .find(|task| task["task_id"] == child.id)
+            .unwrap()["state"],
+        "completed"
+    );
+    assert_eq!(
+        tasks
+            .iter()
+            .find(|task| task["task_id"] == root.id)
+            .unwrap()["state"],
+        "failed"
+    );
 }

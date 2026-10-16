@@ -103,6 +103,22 @@ impl Inner {
     }
     pub(crate) fn known_failure(&self, step: &Step, failure: &str) -> Result<()> {
         let failure = bounded_error(failure);
+        // A temporary child admission failure must remain replayable. Likewise,
+        // a blocked admitted child cannot be hidden behind a terminal parent.
+        if self.has_unsettled_below(&step.id)? {
+            return self.set_state(&step.id, "blocked", None, Some(&json!({"error":failure})));
+        }
+        // A cached child output is not settled until its protocol terminal
+        // message is retained. Preserve replay if capacity or storage prevents
+        // that repair, just as for a never-admitted prepared child.
+        if let Err(settlement) = self.settle_children(&step.id) {
+            return self.set_state(
+                &step.id,
+                "blocked",
+                None,
+                Some(&json!({"error":failure,"settlement_error":bounded_error(&settlement)})),
+            );
+        }
         self.set_state(&step.id, "failed", None, Some(&json!({"error":failure})))?;
         self.terminal(step, None, Some(&failure))
     }

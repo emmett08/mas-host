@@ -303,7 +303,7 @@ dependencies = [
 [[package]]
 name = "mas-protocol-codec"
 version = "0.1.0"
-source = "git+https://github.com/emmett08/mas?rev=9d9845990843f5e3464395da7bd60bb50ffb2dda#9d9845990843f5e3464395da7bd60bb50ffb2dda"
+source = "git+https://github.com/emmett08/mas?rev=718e206614888a1d96c876cdcc9ac6eed8622113#718e206614888a1d96c876cdcc9ac6eed8622113"
 dependencies = [
  "libc",
  "nom",
