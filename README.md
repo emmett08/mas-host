@@ -154,6 +154,7 @@ response, the host retains uncertainty and refuses automatic repetition.
 
 ```sh
 target/debug/mas-host inspect --state .state --run release-001
+target/debug/mas-host observe --state .state --run release-001
 target/debug/mas-host resolve --state .state --run release-001 \
   --effect EFFECT_ID --output confirmed-output.json --evidence evidence.json
 ```
@@ -163,6 +164,12 @@ the host does not establish that assertion's truth. Empty evidence is rejected.
 Run the original command again to resume. The original deadline remains in force.
 `cancel --state DIR --run ID` records cancellation intent; a worker observes it
 at its next host interaction or is stopped at the original deadline.
+
+`observe` exposes committed message envelopes, task states and effect checkpoints
+while a run is active. It opens both databases read-only, takes no execution-owner
+lock and performs no protocol action. Payloads, inputs, outputs and evidence are
+omitted by default; `--include-payloads true` explicitly includes them. See the
+[observation contract](docs/observation.md) for live displays and polling limits.
 
 The host binds a run to its host binary, generated bundle, worker digests and
 input. Rebuilding changed code cannot silently resume it. Old generated bundles

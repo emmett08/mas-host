@@ -39,6 +39,114 @@ impl Drop for Fixture {
 }
 
 #[test]
+fn live_observation_is_read_only_ordered_and_payloads_require_opt_in() {
+    let fixture = Fixture::new();
+    let engine = fixture.engine();
+    let secret = "sensitive-application-content";
+    let request = engine
+        .inner
+        .prepare(
+            "",
+            "root",
+            "request",
+            "client",
+            "worker",
+            &json!({"text":secret}),
+        )
+        .unwrap();
+    let message = engine.inner.message(
+        format!("req-{}", request.id),
+        "client",
+        "worker",
+        "Request",
+        json!({"task_id":request.id,"operation":"Assess","input":{"text":secret}}),
+    );
+    {
+        let mut protocol = lock(&engine.inner.protocol).unwrap();
+        protocol.send(&message, "client").unwrap();
+        protocol.receive("test-run", "worker", 1).unwrap();
+    }
+    let effect = engine
+        .inner
+        .begin_effect(&request, "inference", &json!({"prompt":secret}))
+        .unwrap();
+    let state = observe(&fixture.path, "test-run", false).unwrap();
+    assert_eq!(state["version"], "mas-host-observation/1");
+    assert_eq!(state["messages"][0]["message_id"], message.message_id);
+    assert_eq!(state["messages"][0]["sequence"], 1);
+    assert_eq!(state["messages"][0]["task_id"], request.id);
+    assert_eq!(state["messages"][0]["operation"], "Assess");
+    assert_eq!(state["messages"][0]["received"], true);
+    assert_eq!(state["calls"][0]["id"], effect["invocation_id"]);
+    assert_eq!(state["calls"][0]["state"], "reserved");
+    assert_eq!(state["steps"][1]["state"], "executing");
+    assert!(!state.to_string().contains(secret));
+    assert!(state["messages"][0].get("payload").is_none());
+    assert!(state["steps"][0].get("output").is_none());
+    assert!(state["calls"][0].get("evidence").is_none());
+    let full = observe(&fixture.path, "test-run", true).unwrap();
+    assert_eq!(full["messages"][0]["payload"]["input"]["text"], secret);
+    assert_eq!(full["steps"][1]["input"]["prompt"], secret);
+    engine
+        .inner
+        .set_state(
+            &request.id,
+            "completed",
+            Some(&json!({"text":secret})),
+            None,
+        )
+        .unwrap();
+    engine
+        .inner
+        .terminal(&request, Some(&json!({"text":secret})), None)
+        .unwrap();
+    let full = observe(&fixture.path, "test-run", true).unwrap();
+    assert_eq!(full["steps"][0]["output"]["text"], secret);
+    assert_eq!(full["messages"][1]["kind"], "Result");
+    assert_eq!(full["messages"][1]["sequence"], 2);
+    assert_eq!(full["messages"][1]["reply_to"], message.message_id);
+    assert_eq!(full["messages"][0]["acked"], true);
+    assert_eq!(full["tasks"][0]["state"], "completed");
+
+    // Expired wall time must not make the visualisation an authority that
+    // reconciles tasks. Database bytes remain identical across both modes.
+    let directory = engine.state_directory();
+    let protocol = Connection::open(directory.join("protocol.sqlite")).unwrap();
+    protocol.execute("UPDATE runs SET deadline=0", []).unwrap();
+    drop(protocol);
+    let before = ["execution.sqlite", "protocol.sqlite"]
+        .map(|file| std::fs::read(directory.join(file)).unwrap());
+    let expired = observe(&fixture.path, "test-run", false).unwrap();
+    assert_eq!(expired["run"]["expired"], false);
+    observe(&fixture.path, "test-run", true).unwrap();
+    for (file, bytes) in ["execution.sqlite", "protocol.sqlite"]
+        .into_iter()
+        .zip(before)
+    {
+        assert_eq!(std::fs::read(directory.join(file)).unwrap(), bytes);
+    }
+}
+
+#[test]
+fn observation_rejects_missing_and_incompatible_runs_without_creating_state() {
+    let fixture = Fixture::new();
+    assert!(observe(&fixture.path, "missing", false).is_err());
+    assert!(!fixture.path.join("missing").exists());
+    assert!(observe(&fixture.path, "../escape", false).is_err());
+    let engine = fixture.engine();
+    let db = Connection::open(engine.state_directory().join("protocol.sqlite")).unwrap();
+    db.execute_batch("PRAGMA user_version=3").unwrap();
+    assert!(observe(&fixture.path, "test-run", false)
+        .unwrap_err()
+        .contains("schema version 2"));
+    assert_eq!(
+        db.query_row("PRAGMA user_version", [], |row| row.get::<_, i64>(0))
+            .unwrap(),
+        3
+    );
+}
+
+#[test]
 fn rejects_previous_bundle_version_and_missing_public_operation() {
     let mut fixture = Fixture::new();
     drop(fixture.engine());

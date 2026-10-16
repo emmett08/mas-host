@@ -26,8 +26,10 @@ use std::{
 mod effects;
 mod execution;
 mod journal;
+mod observation;
 mod protocol;
 use journal::{journal, read_step, Step};
+pub use observation::observe;
 use protocol::{effect_evidence, finish_effect};
 
 type Result<T> = std::result::Result<T, String>;

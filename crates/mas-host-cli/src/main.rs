@@ -12,6 +12,7 @@ const HELP: &str = "mas-host: native applications on the MAS protocol\n\n\
   run     --project DIR --agent NAME --input FILE|- [--input-format json|toml|yaml] --state DIR --run ID [--sdk-root DIR] [--agents FILE] [--topology FILE] [--connections FILE]\n\
   run     --bundle FILE --agent NAME --input FILE|- [--input-format json|toml|yaml] --state DIR --run ID\n\
   inspect --state DIR --run ID\n\
+  observe --state DIR --run ID [--include-payloads true|false]\n\
   cancel  --state DIR --run ID\n\
   resolve --state DIR --run ID --effect ID --output FILE --evidence FILE\n\n\
 Run builds automatically when --project is supplied. Reuse --run to resume.\n\
@@ -124,6 +125,19 @@ fn execute(args: &[String]) -> Result<Value, String> {
             mas_host_core::inspect(
                 Path::new(require(&args, "--state")?),
                 require(&args, "--run")?,
+            )
+        }
+        "observe" => {
+            let args = options(&args[1..], &["--state", "--run", "--include-payloads"])?;
+            let include_payloads = match args.get("--include-payloads").map(String::as_str) {
+                None | Some("false") => false,
+                Some("true") => true,
+                _ => return Err("--include-payloads must be true or false".into()),
+            };
+            mas_host_core::observe(
+                Path::new(require(&args, "--state")?),
+                require(&args, "--run")?,
+                include_payloads,
             )
         }
         "cancel" => {
