@@ -28,6 +28,7 @@ mod execution;
 mod journal;
 mod observation;
 mod protocol;
+mod revision;
 use journal::{journal, read_step, Step};
 pub use observation::observe;
 use protocol::{effect_evidence, finish_effect};
@@ -414,6 +415,9 @@ impl Engine {
         }
         let _running = Running(&self.inner.running);
         self.inner.check_live()?;
+        if self.inner.revision_mode()? {
+            return Err("revision run must resume with its original revision plan".into());
+        }
         self.inner.reconcile_completed_effects()?;
         if self.inner.has_unknown()? {
             return Err("uncertain effect requires evidence-backed resolution".into());
@@ -517,6 +521,17 @@ impl Inner {
         }
         Ok(())
     }
+    fn step_id(&self, parent: &str, key: &str, kind: &str) -> String {
+        format!(
+            "{}-{}",
+            if kind == "effect" { "eff" } else { "task" },
+            digest(
+                json!([self.nonce, self.run_id, parent, key])
+                    .to_string()
+                    .as_bytes()
+            )
+        )
+    }
     fn prepare(
         &self,
         parent: &str,
@@ -534,15 +549,7 @@ impl Inner {
                 "input"
             },
         )?;
-        let id = format!(
-            "{}-{}",
-            if kind == "effect" { "eff" } else { "task" },
-            digest(
-                json!([self.nonce, self.run_id, parent, key])
-                    .to_string()
-                    .as_bytes()
-            )
-        );
+        let id = self.step_id(parent, key, kind);
         let mut db = lock(&self.journal)?;
         let tx = db.transaction().map_err(error)?;
         if let Some(step) = read_step(&tx, &id)? {
@@ -668,6 +675,7 @@ fn snapshot(journal: &Mutex<Connection>, protocol: &Mutex<Store>, run_id: &str) 
             |r| r.get(0),
         )
         .map_err(error)?;
+    let revision = revision::audit(&db)?;
     drop(statement);
     drop(db);
     let steps=steps.into_iter().map(|r|Ok(json!({"id":r.0,"parent":r.1,"key":r.2,"kind":r.3,"actor":r.4,"target":r.5,"state":r.6,
@@ -675,7 +683,7 @@ fn snapshot(journal: &Mutex<Connection>, protocol: &Mutex<Store>, run_id: &str) 
         "evidence":r.8.map(|v|serde_json::from_str::<Value>(&v)).transpose().map_err(error)?}))).collect::<Result<Vec<_>>>()?;
     Ok(
         json!({"version":"mas-host-inspection/1","run_id":run_id,"cancelled":cancelled!=0,
-        "steps":steps,"protocol":lock(protocol)?.inspect(run_id)?}),
+        "steps":steps,"protocol":lock(protocol)?.inspect(run_id)?,"revision":revision}),
     )
 }
 

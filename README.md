@@ -206,3 +206,6 @@ The precise framing, execution and recovery rules are in the
 
 GPL-3.0-only, matching the linked MAS protocol crate. The vendored nlohmann JSON
 header retains its upstream MIT licence and provenance in `sdk/cpp/include/nlohmann/`.
+
+For auditable evaluator findings, controlled feedback and bounded draft–assess–revise
+execution, see [assessment and revision](docs/assessment-revision.md).

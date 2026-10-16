@@ -38,3 +38,16 @@ jobs:
         run: make test
       - name: Native applications and effect recovery
         run: make acceptance
+      - name: Check bounded revision and disclosure with SPIN
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y spin
+          python3 formal/verify.py
+      - name: Retain formal verification evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: host-revision-verification
+          path: formal/evidence
+          if-no-files-found: warn
+          retention-days: 14

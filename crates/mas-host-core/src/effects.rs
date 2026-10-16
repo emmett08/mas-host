@@ -12,6 +12,7 @@ impl Inner {
         descriptor: &Value,
     ) -> Result<Value> {
         self.check_live()?;
+        self.check_effect_policy(&invocation.id, descriptor)?;
         let step = self.prepare(
             &invocation.id,
             key,
@@ -42,7 +43,25 @@ impl Inner {
                 return Err("prepared effect reservation differs".into());
             }
         } else {
-            protocol.reserve_call(&self.run_id, &step.actor, &step.id)?;
+            if let Err(failure) = protocol.reserve_call(&self.run_id, &step.actor, &step.id) {
+                // The public call API returns strings. Bind exhaustion to the
+                // authoritative counters, never to worker-supplied wording.
+                if snapshot["usage"]["calls"]
+                    .as_i64()
+                    .zip(snapshot["config"]["max_calls"].as_i64())
+                    .is_some_and(|(used, limit)| used >= limit)
+                {
+                    self.set_state(
+                        &step.id,
+                        "rejected",
+                        None,
+                        Some(
+                            &json!({"error":failure,"host_budget":{"code":"call_budget_exceeded"}}),
+                        ),
+                    )?;
+                }
+                return Err(failure);
+            }
         }
         drop(protocol);
         self.set_state(&step.id, "executing", None, None)?;

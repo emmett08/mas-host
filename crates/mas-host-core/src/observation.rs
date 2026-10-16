@@ -67,7 +67,9 @@ pub fn observe(state_dir: &Path, run_id: &str, include_payloads: bool) -> Result
         let mut steps = Vec::new();
         for row in rows {
             let (mut step, input, output, evidence) = row.map_err(error)?;
-            if include_payloads {
+            if include_payloads
+                && super::revision::step_public(&journal, step["id"].as_str().unwrap())?
+            {
                 step["input"] = serde_json::from_str(&input).map_err(error)?;
                 step["output"] = optional_json(output)?;
                 step["evidence"] = optional_json(evidence)?;
@@ -76,12 +78,55 @@ pub fn observe(state_dir: &Path, run_id: &str, include_payloads: bool) -> Result
         }
         steps
     };
+    let mut revision = super::revision::audit(&journal)?;
+    if !revision.is_null() && cancelled && revision["status"] == "in_progress" {
+        revision["status"] = json!("cancelled");
+    }
     journal.commit().map_err(error)?;
 
-    let protocol =
+    let mut protocol =
         Observer::open(directory.join("protocol.sqlite"))?.snapshot(run_id, include_payloads)?;
+    if !revision.is_null() {
+        let db = reader(&directory.join("execution.sqlite"))?;
+        if let Some(messages) = protocol["messages"].as_array_mut() {
+            for delivery in messages {
+                let task = delivery["task_id"].as_str().unwrap_or("");
+                if !super::revision::step_public(&db, task)? {
+                    delivery.as_object_mut().unwrap().remove("payload");
+                    delivery["payload_withheld"] = json!(true);
+                }
+            }
+        }
+        if let Some(calls) = protocol["calls"].as_array_mut() {
+            for call in calls {
+                if !super::revision::step_public(&db, call["id"].as_str().unwrap_or(""))? {
+                    call.as_object_mut().unwrap().remove("evidence");
+                    call["payload_withheld"] = json!(true);
+                }
+            }
+        }
+        let uncertain: bool = db
+            .query_row(
+                "SELECT EXISTS(SELECT 1 FROM steps WHERE kind='effect' AND state='unknown')",
+                [],
+                |r| r.get(0),
+            )
+            .map_err(error)?;
+        if !cancelled && uncertain && revision["status"] == "in_progress" {
+            revision["status"] = json!("blocked");
+        }
+        if !cancelled
+            && revision["status"] == "in_progress"
+            && (protocol["run"]["expired"] == true
+                || protocol["run"]["deadline"]
+                    .as_f64()
+                    .is_some_and(|v| v * 1000.0 <= now_ms().unwrap_or(u64::MAX) as f64))
+        {
+            revision["status"] = json!("expired");
+        }
+    }
     Ok(json!({"version":"mas-host-observation/1","run_id":run_id,
         "observed_at_ms":now_ms()?,"payloads_included":include_payloads,"cancelled":cancelled,
         "run":protocol["run"],"messages":protocol["messages"],"steps":steps,
-        "calls":protocol["calls"],"tasks":protocol["tasks"]}))
+        "calls":protocol["calls"],"tasks":protocol["tasks"],"revision":super::revision::public_audit(revision,include_payloads)}))
 }
