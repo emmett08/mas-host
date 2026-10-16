@@ -6,6 +6,7 @@
 //! schema validation before treating model output as an operation result.
 mod command;
 mod http;
+mod http_error;
 use mas_host_process as process;
 
 use serde_json::{json, Value};

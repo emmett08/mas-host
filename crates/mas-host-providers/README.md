@@ -26,7 +26,14 @@ the provider further scopes the child process to PATH and its explicit allowlist
 schema validation. `Unusable` preserves a known refusal, incomplete/invalid output
 or HTTP rejection. `NotSent` proves a local pre-dispatch failure; `Unknown` requires
 reconciliation. HTTP rejection is recorded as `evidence.execution:"rejected"`.
-Provider error messages and stderr are excluded from evidence. Evidence retains
+Rejected HTTP responses also retain `http_status` and recognised `error_code`,
+`error_type` and `error_param` identifiers. These three fields use fixed allowlists:
+for example, `invalid_json_schema` with `text.format.schema`, `invalid_api_key`,
+`model_not_found` and `insufficient_quota`. Unknown identifiers, arbitrary schema
+property paths, error messages, response headers and stderr are excluded. A 429
+status alone does not distinguish quota exhaustion from a rate limit; the retained
+code can make that distinction. These diagnostics introduce no retries and do not
+change rejection or uncertain-outcome classification. Evidence retains
 the selected adapter, requested model, request identity/hash, bounded provider
 identifiers and integer token counts. It does not infer monetary cost from tokens.
 Cursor exposes no enforceable output-token limit; its evidence states that limit.
