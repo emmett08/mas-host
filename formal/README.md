@@ -131,49 +131,61 @@ Execution follows the official SPIN documentation:
 
 ## Required delegation policy
 
-`delegation.pml` checks the optional `min_delegate_calls` host policy independently
-of the assessment models. The bounded service has one configured LLM invocation,
-one permitted peer, three inference turns, a minimum of zero, one or two successful
-peer replies, and at most one replay. A provider can return a complete decision,
-request a peer, return invalid/unavailable output, or leave execution unknown.
-A peer either returns successfully or fails. Cancellation/expiry is abstracted
-as a terminal stop. External work must return or reach its existing deadline;
-the model does not establish elapsed-time bounds or change that deadline.
+`delegation.pml` checks the optional `min_delegate_calls` and
+`required_delegates` host policies independently of the assessment models. The
+bounded service has one configured LLM invocation, two permitted peers, every
+subset of those peers as the required set, three inference turns, a minimum of
+zero, one or two successful peer replies, and at most one replay. A provider can
+complete, request either peer, return invalid/unavailable output, or leave
+execution unknown. A peer either returns successfully or fails. A successful
+response may report unavailable observations: coverage concerns completed
+acquisition attempts, not the usefulness of their contents.
 
-The properties are:
+Cancellation/expiry is abstracted as a terminal stop. External work must return
+or reach its existing deadline; the model does not establish elapsed-time bounds
+or change that deadline. The empty required set preserves the earlier schema
+and minimum-call behaviour. For a nonempty required set, the last inference
+turn excludes requests. Before coverage is complete, the advertised request
+targets are exactly the outstanding required peers. Once covered, all configured
+peers are available again on earlier turns. Completion additionally requires the
+configured minimum successful reply count.
 
 | Property | Required behaviour | Check |
 | --- | --- | --- |
 | Completion threshold | A successful final result has at least the configured number of successful peer replies | `terminal == Completed` implies `successful >= minimum` |
-| Advertised schema | Completion is available precisely when the threshold has been reached | `complete_allowed == (successful >= minimum)` |
-| Replay preservation | Reconstructing completed history counts each retained result once and dispatches no new provider or peer work | Counter equality assertions in `replay_history` |
+| Distinct required coverage | Every required peer has returned before successful completion; repeated calls cannot replace another peer | Completion implies `(covered & required) == required` |
+| Advertised schema | Completion is available exactly when both policies hold; outstanding required peers restrict targets; a configured required set excludes final-turn requests | Assertions for `complete_allowed`, `permitted_requests` and `request_allowed` |
+| Replay preservation | Reconstructing completed history preserves the reply count and identity union and dispatches no new provider or peer work | Counter and bitset equality assertions in `replay_history` |
 | Bounded terminal outcome | Every execution reaches a terminal outcome under the returning-work premise | `delegation_finishes`, checked separately from safety |
-| Success is possible | Two successful delegations can be followed by completion within three turns | `WITNESS_COMPLETE` |
-| Default compatibility | A zero minimum permits completion without a peer call | `WITNESS_ZERO` |
-| Failure remains terminal | An early complete decision can fail on the first turn without retry | `WITNESS_EARLY_INVALID` and finite-loop control |
+| Success is possible | Two distinct successful delegations can be followed by completion within three turns, in either order | `WITNESS_COMPLETE` and `WITNESS_REVERSE_ORDER` |
+| Default compatibility | An empty required set and zero minimum permit completion without a peer call | `WITNESS_ZERO` |
+| Failure remains terminal | Early completion, partial coverage or a repeated target while another is required fails without another dispatch or retry | `WITNESS_EARLY_INVALID`, `WITNESS_PARTIAL_INVALID` and `WITNESS_DUPLICATE_INVALID` |
 
 The runner checks safety and progress with and without partial-order reduction.
-Four deliberate defects exercise early completion admission, an over-permissive
-schema, duplicate replay counting and dispatch during replay. A separate stalled
-inference mutation exercises the LTL failure path. Inverted assertions witness
-successful completion, the zero-minimum path, completed-history replay and early
-invalid output. Every expected counterexample is replayed and retained by the
-existing runner.
+Nine deliberate defects exercise early completion admission, partial-coverage
+admission, an over-permissive completion schema, an over-permissive target set,
+repeated-target schema admission, final-turn request admission, duplicate replay counting, changed replay coverage
+and dispatch during replay. A stalled inference mutation exercises the LTL
+failure path. Inverted assertions witness successful coverage, reverse ordering,
+the default completion path, completed-history replay and invalid early,
+partial or repeated-target decisions. Every expected counterexample is replayed
+and retained by the runner.
 
 The implementation mapping is `config::bindings` for admission of a valid
-minimum and delegate list, `runtime::inference::action_schema` for the advertised
-decision variants, and `runtime::inference::execute` for successful history,
+minimum, distinct required subset and sufficient turn limit;
+`runtime::inference::action_schema` for the advertised decision variants and
+targets; and `runtime::inference::execute` for successful history, coverage,
 completion admission and the existing turn limit. `Context::effect` and
 `Context::request` retain inference and peer outcomes. The replay model abstracts
-their traversal to rebuilding the same history before the next active turn;
-it does not model a new retry after an invalid or unknown effect. Rust tests
-provide the separate evidence for schema generation, runtime admission, retained
-outcomes and actual redispatch counts.
+their traversal to rebuilding the same count and identity union before the next
+active turn; it does not model a new retry after an invalid or unknown effect.
+Rust tests provide the separate evidence for schema generation, runtime
+admission, retained outcomes and actual redispatch counts.
 
 This model checks host policy, with no changes to the Nehemiah wire protocol.
-It does not prove that a returned peer result is useful, that different requests
-select different tools, that an LLM follows a prompt, or that a live investigation
-succeeds. It assumes the existing identity, journal and delegation mechanisms;
-their storage/interleaving behaviour remains covered by implementation tests and
-the other relevant models. This is finite model checking and implementation
+It does not prove that a returned peer result contains useful observations,
+that an LLM follows a prompt, or that a live investigation succeeds. It assumes
+the existing identity, journal and delegation mechanisms; their storage and
+interleaving behaviour remains covered by implementation tests and the other
+relevant models. These are finite control checks and implementation
 correspondence, rather than a refinement proof of the Rust runtime.

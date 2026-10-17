@@ -36,6 +36,7 @@ class ConfigurationTests(unittest.TestCase):
                     connection="review_provider", model="chosen-model",
                     instructions=Path("prompts/review.md"), max_output_tokens=2048,
                     max_turns=3, delegates=("python_worker",), min_delegate_calls=1,
+                    required_delegates=("python_worker",),
                 ), input_schema="schemas/task.json", output_schema="schemas/result.json"),
             ],
             edges=[("client", "orchestrator"), ("orchestrator", "client")],
@@ -59,6 +60,7 @@ class ConfigurationTests(unittest.TestCase):
                         "kind": "llm", "connection": "review_provider", "model": "chosen-model",
                         "instructions": "prompts/review.md", "max_output_tokens": 2048,
                         "max_turns": 3, "delegates": ["python_worker"], "min_delegate_calls": 1,
+                        "required_delegates": ["python_worker"],
                     }},
                 ],
                 "connections": {"review_provider": {"kind": "openai", "api_key_env": "REVIEW_API_KEY"}},
@@ -108,6 +110,8 @@ class ConfigurationTests(unittest.TestCase):
             Configuration([Agent("worker", Llm("local", "m", "p", max_turns=True))], []),
             Configuration([Agent("worker", Llm("local", "m", "p", min_delegate_calls=True))], []),
             Configuration([Agent("worker", Llm("local", "m", "p", delegates="peer"))], []),
+            Configuration([Agent("worker", Llm("local", "m", "p", required_delegates="peer"))], []),
+            Configuration([Agent("worker", Llm("local", "m", "p", required_delegates=(1,)))], []),
         ]
         with tempfile.TemporaryDirectory() as root:
             for index, config in enumerate(invalid):
