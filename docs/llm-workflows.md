@@ -59,27 +59,7 @@ OpenAI Responses and compatible HTTP adapters require `curl`. Cursor uses the
 official SDK pinned in `assets/providers/package-lock.json`; install it with
 `npm ci --prefix assets/providers` and Node 22.13 or later. A Cursor command can
 refer to `@sdk/assets/providers/cursor.mjs`; the builder resolves this distribution
-asset and binds its digest. The worker checks that digest before execution.
-Cursor disables tools, MCP, subagents, ambient settings and hidden retries in a
-fresh workspace. Its SDK supplies no documented output-token cap; evidence records
-that limitation rather than claiming enforcement. Live calls require credentials
-and provider-available model identifiers.
-
-## Composition and model-directed requests
-
-The [workflow contract](../crates/mas-host-workflow/README.md) defines recursive
-sequence/parallel groups, branches, repeat, foreach, named definitions and exact
-JSON Pointer bindings. Nested parallel groups submit ready leaves in deterministic
-batches of eight. All actor requests enter the existing MAS authority.
-
-Star, tree and mesh describe the permitted edges in `mas-topology/1`. Plans and
-native code determine execution order and joins. A reciprocal reply edge remains
-an initiation permission too in this topology profile. Deployment is one local
-owner, with at most 31 application actors, 32 concurrent workers, request depth16
-and 1024 journal steps, plus configured protocol budgets. Arbitrary combinations
-of the supported control structures work within these explicit resource bounds.
-
-The opt-in `mas-candidate-quorum/1` parallel join counts approvals from distinct
+asset and binds …314 tokens truncated…lel join counts approvals from distinct
 requested actors only when they identify the same caller-bound candidate and
 frozen review context. It retains conflicting reviews and a deterministic
 selection receipt. Ordinary parallel plans retain every result without an
@@ -101,6 +81,8 @@ integers and a strict provider response schema. Subsequent turns receive the
 original `task` and prior request/result `history`. Each permitted peer's public
 operation and available schemas are included in the instructions. Command actors
 use the same delegation and topology permissions as native or LLM actors.
+An application can expose a custom MCP tool through such a delegate; see the
+[MCP adapter integration](mcp-tools.md) for ownership, effect and recovery rules.
 `client` is reserved for ingress and cannot be a workflow request target or an
 LLM delegate. The builder checks targets against executable application agents;
 the protocol checks communication permissions when each request is admitted.

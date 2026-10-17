@@ -136,6 +136,10 @@ The tool needs no SDK or protocol implementation.
 
 See the [command contract](docs/commands.md) and the
 [CLI example](https://github.com/emmett08/mas-host-examples/tree/main/examples/command-policy).
+An LLM can select these operations through its declared delegates. An application
+MCP client adapter exposes custom MCP tools through the same path; see
+[MCP tool integration](docs/mcp-tools.md). Domain-specific MCP servers belong with
+the application that owns their tool policy and deployment.
 
 ## Execution and recovery
 
