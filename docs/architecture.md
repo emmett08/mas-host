@@ -10,7 +10,7 @@ the shared host remains Rust, and other language profiles require no Python runt
 
 `mas` and `mas-host` have independent responsibilities and release histories.
 This host consumes the public Rust `mas-protocol-codec` crate at commit
-`239e85c5ad1ab4f25df958365c50019c8b91fe15`. It does not copy or modify the protocol
+`d130a48543e791b57f692e97e13f756b831d7833`. It does not copy or modify the protocol
 implementation. The dependency is pinned source while independently published
 protocol releases are unavailable. `Cargo.lock` records the complete Rust graph.
 
@@ -39,6 +39,9 @@ flowchart TD
 Workers receive neither protocol database handles nor authority to choose a
 sender identity. The host derives the sender from the invocation that owns the
 private channel. MAS performs route admission on actual Request/Result exchanges.
+The host also rejects a permitted task request whose frozen topology forbids
+its reply, before preparing or dispatching that request. This preflight protects
+the host's reply-requiring execution contract without changing MAS wire rules.
 
 ## Design choices
 

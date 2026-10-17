@@ -1,5 +1,6 @@
 //! Durable, bounded assessment and revision above existing request/effect execution.
 mod context;
+mod evaluation;
 mod plan;
 mod projection;
 use plan::Plan;
@@ -8,10 +9,11 @@ mod store;
 #[cfg(test)]
 mod tests;
 
-use super::{checked_object, error, fields, lock, Engine, Inner, Result};
+use super::{checked_object, error, lock, Engine, Inner, Result};
+use evaluation::bind_assessment;
 use mas_protocol_codec::assessment::{
-    canonical_digest, validate_assessment, validate_candidate_revision, Assessment,
-    AssessmentStatus, Candidate, Evaluator, Evidence, Rubric, Verdict,
+    canonical_digest, validate_candidate_revision, Assessment, AssessmentStatus, Candidate,
+    Evidence, Verdict,
 };
 use serde_json::{json, Value};
 use std::sync::{atomic::Ordering, Arc};
@@ -125,33 +127,45 @@ impl Engine {
                     .map(|e| e.reference().to_value())
                     .collect::<Vec<_>>());
                 for item in &evidence {
-                    let source_readers = input["sources"]
-                        .as_array()
-                        .unwrap()
-                        .iter()
-                        .find(|s| s["id"] == item.id)
-                        .map(|s| &s["readers"])
-                        .unwrap_or(&audience);
+                    let source_readers = if item.id == candidate_evidence.id {
+                        &audience
+                    } else {
+                        &input["sources"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .find(|s| s["id"] == item.id)
+                            .ok_or("evidence has no frozen source")?["readers"]
+                    };
                     self.inner
                         .record("evidence", &item.to_value(), source_readers)?;
                 }
                 let id = format!("assessment-{index}-{number}");
-                let result = self.inner.invoke_revision(&id, actor, &context);
-                if self.inner.has_unknown()? {
-                    let content = json!({"evaluation_attempt":id,"status":"unknown","candidate":candidate.reference().to_value(),"evaluator":evaluator.to_value()});
-                    let attempt=Evidence::from_value(&json!({"schema_version":1,"id":format!("attempt-{id}"),"content_sha256":canonical_digest(&content),"content":content})).map_err(error)?;
+                let assessment = if let Some(assessment) = self
+                    .inner
+                    .retained_assessment(&id, &context, &candidate, rubric, evaluator, &evidence)?
+                {
+                    assessment
+                } else {
+                    let result = self.inner.invoke_revision(&id, actor, &context);
+                    if self.inner.has_unknown()? {
+                        let content = json!({"evaluation_attempt":id,"status":"unknown","candidate":candidate.reference().to_value(),"evaluator":evaluator.to_value()});
+                        let attempt=Evidence::from_value(&json!({"schema_version":1,"id":format!("attempt-{id}"),"content_sha256":canonical_digest(&content),"content":content})).map_err(error)?;
+                        self.inner
+                            .record("evidence", &attempt.to_value(), &context["readers"])?;
+                        return Err(
+                            "evaluator effect outcome unknown; resolve with evidence before resuming"
+                                .into(),
+                        );
+                    }
+                    let assessment =
+                        bind_assessment(&id, result, &candidate, rubric, evaluator, &evidence);
                     self.inner
-                        .record("evidence", &attempt.to_value(), &context["readers"])?;
-                    return Err(
-                        "evaluator effect outcome unknown; resolve with evidence before resuming"
-                            .into(),
-                    );
-                }
-                let exhausted = result.is_err() && self.inner.revision_exhausted(&id)?;
-                let assessment =
-                    bind_assessment(&id, result, &candidate, rubric, evaluator, &evidence);
-                self.inner
-                    .record("assessment", &assessment.to_value(), &context["readers"])?;
+                        .record("assessment", &assessment.to_value(), &context["readers"])?;
+                    assessment
+                };
+                let exhausted = assessment.status == AssessmentStatus::Error
+                    && self.inner.revision_exhausted(&id)?;
                 if exhausted {
                     self.inner.terminal_revision(
                         &json!({"status":"exhausted","selected":candidate.reference().to_value()}),
@@ -243,30 +257,4 @@ impl Inner {
         self.bind_context(&self.step_id("", key, "request"), context)?;
         self.request("", key, "client", target, input, 0)
     }
-}
-
-fn bind_assessment(
-    id: &str,
-    result: Result<Value>,
-    candidate: &Candidate,
-    rubric: &Rubric,
-    evaluator: &Evaluator,
-    evidence: &[Evidence],
-) -> Assessment {
-    let valid=result.and_then(|v|{
-        fields(&v,&["status","findings"],&[])?;
-        let assessment=Assessment::from_value(&json!({"schema_version":1,"id":id,"candidate":candidate.reference().to_value(),"rubric":rubric.reference().to_value(),"evaluator":evaluator.to_value(),"status":v["status"],"findings":v["findings"],"error":null})).map_err(error)?;
-        validate_assessment(&assessment,candidate,rubric,evidence,evaluator).map_err(error)?;
-        Ok(assessment)
-    });
-    valid.unwrap_or_else(|failure| Assessment {
-        schema_version: 1,
-        id: id.into(),
-        candidate: candidate.reference(),
-        evaluator: evaluator.clone(),
-        rubric: rubric.reference(),
-        status: AssessmentStatus::Error,
-        findings: Vec::new(),
-        error: Some(super::bounded_error(&failure)),
-    })
 }

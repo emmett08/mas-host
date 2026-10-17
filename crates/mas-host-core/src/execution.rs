@@ -78,6 +78,7 @@ impl Inner {
         if let Some(schema) = &agent.input_schema {
             mas_host_schema::validate(schema, input)?;
         }
+        self.check_reply_route(actor, target)?;
         self.inherit_context(parent, &self.step_id(parent, key, "request"), target, input)?;
         let step = self.prepare(parent, key, "request", actor, target, input)?;
         if step.state == "completed" {

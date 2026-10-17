@@ -28,6 +28,7 @@ mod execution;
 mod journal;
 mod observation;
 mod protocol;
+mod request_routes;
 mod revision;
 use journal::{journal, read_step, Step};
 pub use observation::observe;
@@ -192,6 +193,7 @@ struct Inner {
     nonce: String,
     directory: PathBuf,
     agents: BTreeMap<String, Agent>,
+    request_routes: BTreeSet<(String, String)>,
     deadline_ms: u64,
     journal: Mutex<Connection>,
     protocol: Mutex<Store>,
@@ -393,6 +395,17 @@ impl Engine {
                 nonce,
                 directory,
                 agents,
+                request_routes: topology["edges"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .map(|edge| {
+                        (
+                            edge[0].as_str().unwrap().to_owned(),
+                            edge[1].as_str().unwrap().to_owned(),
+                        )
+                    })
+                    .collect(),
                 deadline_ms,
                 journal: Mutex::new(db),
                 protocol: Mutex::new(protocol),

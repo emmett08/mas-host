@@ -24,6 +24,9 @@ bool delegate_permitted;
 bool delegated;
 bool inherited_reader;
 bool parent_viewer;
+bool source_collision;
+bool draft_dispatched;
+bool candidate_evidence_reader;
 
 init {
     /* Trusted configuration makes either policy choice; payload cannot do so. */
@@ -91,6 +94,21 @@ init {
     :: else -> inherited_reader = false
     fi;
     assert(!inherited_reader || parent_viewer);
+    /* Source and host-generated evidence identities have separate namespaces.
+     * An unused public source must not relabel private candidate evidence. */
+    if :: source_collision = false :: source_collision = true fi;
+#ifdef BUG_EVIDENCE_NAMESPACE
+    draft_dispatched = true
+#else
+    draft_dispatched = !source_collision
+#endif
+    assert(!draft_dispatched || !source_collision);
+#ifdef BUG_EVIDENCE_READERS
+    candidate_evidence_reader = evidence_reader
+#else
+    candidate_evidence_reader = parent_viewer
+#endif
+    assert(!candidate_evidence_reader || parent_viewer);
     completed = true;
 #ifdef WITNESS_RESTRICTED
     assert(!supplied_feedback || feedback_reader || output_reader)

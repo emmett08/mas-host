@@ -14,6 +14,10 @@ pub(crate) enum Node {
     },
     Sequence(Vec<Arc<Node>>),
     Parallel(Vec<Arc<Node>>),
+    CandidateQuorum {
+        nodes: Vec<Arc<Node>>,
+        policy: crate::quorum::Quorum,
+    },
     Branch {
         condition: Value,
         yes: Arc<Node>,
@@ -183,7 +187,11 @@ fn parse_node(
             }
         }
         "sequence" | "parallel" => {
-            fields_allowed(f, &["type", "steps"], root)?;
+            if kind == "parallel" {
+                fields_allowed(f, &["type", "steps", "join"], root)?;
+            } else {
+                fields_allowed(f, &["type", "steps"], root)?;
+            }
             let steps = required(f, "steps")?
                 .as_array()
                 .filter(|a| !a.is_empty())
@@ -194,6 +202,58 @@ fn parse_node(
                 .collect::<Result<Vec<_>>>()?;
             if kind == "sequence" {
                 Node::Sequence(children)
+            } else if let Some(join) = f.get("join") {
+                let j = object(join, "parallel join")?;
+                fields_allowed(j, &["version", "minimum", "candidate", "context"], false)?;
+                if field_text(j, "version")? != crate::quorum::VERSION {
+                    return Err("unsupported parallel join version".into());
+                }
+                let minimum = required(j, "minimum")?
+                    .as_u64()
+                    .filter(|n| *n > 0 && *n <= children.len() as u64)
+                    .ok_or("quorum minimum must be between one and the branch count")?
+                    as usize;
+                let candidate = required(j, "candidate")?.clone();
+                let context = required(j, "context")?.clone();
+                object(&candidate, "quorum candidate template")?;
+                object(&context, "quorum context template")?;
+                template_valid(&candidate)?;
+                template_valid(&context)?;
+                if !binding(&candidate) {
+                    let reference = object(&candidate, "quorum candidate template")?;
+                    if reference.len() != 2
+                        || !reference.contains_key("id")
+                        || !reference.contains_key("sha256")
+                    {
+                        return Err("quorum candidate requires an exact id/sha256 reference".into());
+                    }
+                    if reference.values().all(Value::is_string) {
+                        mas_protocol_codec::assessment::DigestRef::from_value(&candidate)
+                            .map_err(|e| format!("invalid quorum candidate: {e}"))?;
+                    } else if reference.values().any(|v| !v.is_string() && !binding(v)) {
+                        return Err("quorum candidate fields must be strings or bindings".into());
+                    }
+                }
+                if context.as_object().unwrap().is_empty() {
+                    return Err("quorum context must be a non-empty frozen object".into());
+                }
+                let mut targets = BTreeSet::new();
+                for node in &children {
+                    let Node::Request { target, .. } = node.as_ref() else {
+                        return Err("candidate quorum requires direct request branches".into());
+                    };
+                    if !targets.insert(target.clone()) {
+                        return Err("candidate quorum requires distinct target actors".into());
+                    }
+                }
+                Node::CandidateQuorum {
+                    nodes: children,
+                    policy: crate::quorum::Quorum {
+                        minimum,
+                        candidate,
+                        context,
+                    },
+                }
             } else {
                 Node::Parallel(children)
             }
@@ -262,7 +322,7 @@ fn references(node: &Node, names: &mut BTreeSet<String>) {
         Node::Call(name) => {
             names.insert(name.clone());
         }
-        Node::Sequence(nodes) | Node::Parallel(nodes) => {
+        Node::Sequence(nodes) | Node::Parallel(nodes) | Node::CandidateQuorum { nodes, .. } => {
             for n in nodes {
                 references(n, names);
             }
@@ -327,7 +387,7 @@ fn expanded_height(
                 height
             }
         }
-        Node::Sequence(nodes) | Node::Parallel(nodes) => {
+        Node::Sequence(nodes) | Node::Parallel(nodes) | Node::CandidateQuorum { nodes, .. } => {
             let mut height = 0;
             for child in nodes {
                 height = height.max(expanded_height(child, definitions, heights, depth + 1)?);

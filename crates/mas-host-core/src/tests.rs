@@ -417,6 +417,23 @@ fn forbidden_route_uses_protocol_authority() {
 }
 
 #[test]
+fn permitted_request_without_reply_route_is_rejected_before_preparation_or_execution() {
+    let mut fixture = Fixture::new();
+    fixture.bundle["topology"]["edges"] = json!([["client", "worker"]]);
+    let engine = fixture.engine();
+    let failure = engine.run("worker", &json!({})).unwrap_err();
+    assert!(failure.contains("task reply route forbidden"), "{failure}");
+    let state = engine.status().unwrap();
+    assert_eq!(state["protocol"]["usage"]["messages"], 0);
+    assert_eq!(state["protocol"]["usage"]["calls"], 0);
+    let steps: i64 = lock(&engine.inner.journal)
+        .unwrap()
+        .query_row("SELECT count(*) FROM steps", [], |r| r.get(0))
+        .unwrap();
+    assert_eq!(steps, 0);
+}
+
+#[test]
 fn execution_permission_is_uncertain_after_restart_and_requires_resolution() {
     let fixture = Fixture::new();
     let engine = fixture.engine();

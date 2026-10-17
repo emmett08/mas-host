@@ -8,6 +8,10 @@ pub(super) fn create(db: &Connection) -> Result<()> {
         CREATE TABLE IF NOT EXISTS revision_records (kind TEXT NOT NULL,id TEXT NOT NULL,body TEXT NOT NULL,readers TEXT NOT NULL,PRIMARY KEY(kind,id));
         CREATE TABLE IF NOT EXISTS revision_contexts (id TEXT PRIMARY KEY,body TEXT NOT NULL);
         CREATE TABLE IF NOT EXISTS revision_terminal (singleton INTEGER PRIMARY KEY CHECK(singleton=1),body TEXT NOT NULL);
+        CREATE TRIGGER IF NOT EXISTS immutable_revision_plan_update BEFORE UPDATE ON revision_plan BEGIN SELECT RAISE(ABORT,'immutable revision plan'); END;
+        CREATE TRIGGER IF NOT EXISTS immutable_revision_plan_delete BEFORE DELETE ON revision_plan BEGIN SELECT RAISE(ABORT,'immutable revision plan'); END;
+        CREATE TRIGGER IF NOT EXISTS immutable_revision_terminal_update BEFORE UPDATE ON revision_terminal BEGIN SELECT RAISE(ABORT,'immutable terminal selection'); END;
+        CREATE TRIGGER IF NOT EXISTS immutable_revision_terminal_delete BEFORE DELETE ON revision_terminal BEGIN SELECT RAISE(ABORT,'immutable terminal selection'); END;
         CREATE TRIGGER IF NOT EXISTS immutable_revision_records_update BEFORE UPDATE ON revision_records BEGIN SELECT RAISE(ABORT,'immutable audit record'); END;
         CREATE TRIGGER IF NOT EXISTS immutable_revision_records_delete BEFORE DELETE ON revision_records BEGIN SELECT RAISE(ABORT,'immutable audit record'); END;
         CREATE TRIGGER IF NOT EXISTS immutable_revision_contexts_update BEFORE UPDATE ON revision_contexts BEGIN SELECT RAISE(ABORT,'immutable invocation context'); END;
@@ -64,6 +68,31 @@ impl Inner {
             return Err("revision plan or source input differs from retained run".into());
         }
         Ok(())
+    }
+    pub(super) fn retained_record(
+        &self,
+        kind: &str,
+        id: &str,
+        readers: &Value,
+    ) -> Result<Option<Value>> {
+        let expected_readers = readers.to_string();
+        let db = lock(&self.journal)?;
+        let retained: Option<(String, String)> = db
+            .query_row(
+                "SELECT body,readers FROM revision_records WHERE kind=? AND id=?",
+                params![kind, id],
+                |r| Ok((r.get(0)?, r.get(1)?)),
+            )
+            .optional()
+            .map_err(error)?;
+        retained
+            .map(|(body, previous)| {
+                if previous != expected_readers {
+                    return Err("audit disclosure policy differs from original".into());
+                }
+                serde_json::from_str(&body).map_err(error)
+            })
+            .transpose()
     }
     pub(super) fn record(&self, kind: &str, record: &Value, readers: &Value) -> Result<()> {
         let id = text(record, "id")?;

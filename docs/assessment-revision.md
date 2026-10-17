@@ -37,6 +37,10 @@ Input has one `sources` array. Each source contains `id`, `kind` (`input`,
 `evidence` or `peer_history`), object `content`, and `readers`. Readers are an
 explicit array of actor names, or `["*"]` for public content. Labels are assertions
 by the trusted operator. Empty readers disclose nothing to a worker.
+Source IDs must not start with `candidate-`, `attempt-` or `budget-`: these
+prefixes identify host-generated evidence. This check runs before draft dispatch,
+including for sources that no worker requests. Candidate output evidence always
+inherits the candidate's readers, independently of source lookup.
 
 A worker receives `{sources, evidence, evidence_refs, candidate, feedback}`.
 Sources contain only the permitted named content. Evidence records and precomputed
@@ -89,6 +93,14 @@ An admitted effect with unknown outcome is never automatically repeated. An unkn
 evaluation attempt is retained as evidence and blocks execution; only explicit
 existing evidence-backed effect resolution allows the pending assessment to finish.
 A known error assessment cannot later be replaced with a pass.
+Replay first revalidates a retained assessment against the exact candidate,
+rubric, authorised evaluator, available evidence, invocation context and readers,
+then reuses that assessment without repeating the evaluator request. This also
+applies when terminal delivery failed after a valid worker output was checkpointed:
+recovery preserves the recorded error instead of reclassifying that output.
+Frozen plan/input and terminal selection rows have the same append-only database
+protection as assessment records and invocation contexts. Resuming revision through
+`revise` installs these guards without rewriting existing rows.
 
 ## Selection, termination and observation
 

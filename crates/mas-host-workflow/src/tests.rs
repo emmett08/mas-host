@@ -229,3 +229,181 @@ fn dynamic_wrong_types_fail_before_any_following_request() {
         assert!(fake.batches.is_empty());
     }
 }
+
+fn quorum_plan(minimum: usize, actors: &[&str]) -> Value {
+    json!({"type":"parallel","steps":actors.iter().map(|actor| request(actor)).collect::<Vec<_>>(),
+        "join":{"version":"mas-candidate-quorum/1","minimum":minimum,
+            "candidate":{"$input":"/candidate"},"context":{"$input":"/context"}}})
+}
+
+fn quorum_input() -> Value {
+    json!({"candidate":{"id":"candidate-7","sha256":"a".repeat(64)},
+        "context":{"rubric":{"id":"rubric-1","sha256":"b".repeat(64)},
+            "criterion":"diagnosis","evidence":[{"id":"capture-1","sha256":"c".repeat(64)}]}})
+}
+
+struct Reviews {
+    outputs: std::collections::BTreeMap<String, Value>,
+    requests: Vec<Request>,
+}
+impl Runtime for Reviews {
+    fn requests(&mut self, requests: &[Request]) -> Result<Vec<Value>> {
+        self.requests.extend_from_slice(requests);
+        requests
+            .iter()
+            .map(|r| {
+                self.outputs
+                    .get(&r.target)
+                    .cloned()
+                    .ok_or("missing fixture review".into())
+            })
+            .collect()
+    }
+}
+fn review(input: &Value, accepted: Value) -> Value {
+    json!({"candidate":input["candidate"],"context":input["context"],"accepted":accepted})
+}
+
+#[test]
+fn candidate_quorum_retains_all_reviews_and_selects_distinct_actors_in_plan_order() {
+    let input = quorum_input();
+    let plan = quorum_plan(2, &["model-a", "checker", "model-b", "model-c"]);
+    let outputs = [
+        ("model-a", true),
+        ("checker", false),
+        ("model-b", true),
+        ("model-c", true),
+    ]
+    .into_iter()
+    .map(|(actor, accepted)| (actor.to_string(), review(&input, json!(accepted))))
+    .collect();
+    let mut runtime = Reviews {
+        outputs,
+        requests: vec![],
+    };
+    let first = execute_with(&mut runtime, &plan, input.clone()).unwrap();
+    assert_eq!(first["results"].as_array().unwrap().len(), 4);
+    assert_eq!(first["join"]["accepted"], true);
+    assert_eq!(
+        first["join"]["selected"],
+        json!([{"branch":0,"actor":"model-a"},{"branch":2,"actor":"model-b"}])
+    );
+    assert_eq!(first["join"]["candidate"], input["candidate"]);
+    assert_eq!(first["join"]["context"], input["context"]);
+    assert_eq!(
+        first["join"]["binding_sha256"],
+        mas_protocol_codec::assessment::canonical_digest(
+            &json!({"version":"mas-candidate-quorum/1","minimum":2,"candidate":input["candidate"],"context":input["context"]})
+        )
+    );
+    let keys = runtime
+        .requests
+        .iter()
+        .map(|r| r.key.clone())
+        .collect::<Vec<_>>();
+    runtime.requests.clear();
+    assert_eq!(execute_with(&mut runtime, &plan, input).unwrap(), first);
+    assert_eq!(
+        runtime
+            .requests
+            .iter()
+            .map(|r| r.key.clone())
+            .collect::<Vec<_>>(),
+        keys
+    );
+}
+
+#[test]
+fn conflicting_candidates_and_stale_review_contexts_cannot_form_a_quorum() {
+    let input = quorum_input();
+    let good = review(&input, json!(true));
+    let mut other_candidate = good.clone();
+    other_candidate["candidate"]["sha256"] = json!("d".repeat(64));
+    let mut stale_context = good.clone();
+    stale_context["context"]["evidence"][0]["id"] = json!("capture-old");
+    let mut invalid_vote = good.clone();
+    invalid_vote["accepted"] = json!(1);
+    let mut runtime = Reviews {
+        outputs: [
+            ("good".into(), good),
+            ("conflict".into(), other_candidate),
+            ("stale".into(), stale_context),
+            ("invalid".into(), invalid_vote),
+        ]
+        .into(),
+        requests: vec![],
+    };
+    let result = execute_with(
+        &mut runtime,
+        &quorum_plan(2, &["good", "conflict", "stale", "invalid"]),
+        input,
+    )
+    .unwrap();
+    assert_eq!(result["join"]["accepted"], false);
+    assert_eq!(result["join"]["selected"], json!([]));
+    assert_eq!(
+        result["join"]["observations"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|o| o["status"].as_str().unwrap())
+            .collect::<Vec<_>>(),
+        ["accepted", "mismatched", "mismatched", "invalid"]
+    );
+    assert_eq!(result["results"].as_array().unwrap().len(), 4);
+}
+
+#[test]
+fn quorum_binding_is_validated_before_dispatch_and_actor_aliases_cannot_add_votes() {
+    let agents = BTreeSet::from(["a".to_owned(), "b".to_owned()]);
+    for plan in [
+        quorum_plan(2, &["a", "a"]),
+        quorum_plan(0, &["a"]),
+        quorum_plan(2, &["a"]),
+    ] {
+        assert!(validate(&plan, &agents).is_err());
+    }
+    let mut nested = quorum_plan(1, &["a"]);
+    nested["steps"][0] = json!({"type":"sequence","steps":[request("a")]});
+    assert!(validate(&nested, &agents).is_err());
+    let mut unsupported = quorum_plan(1, &["a"]);
+    unsupported["join"]["version"] = json!("mas-candidate-quorum/2");
+    assert!(validate(&unsupported, &agents).is_err());
+    let mut malformed = quorum_plan(1, &["a"]);
+    malformed["join"]["candidate"] = json!({"id":"candidate-1","sha256":"bad"});
+    assert!(validate(&malformed, &agents).is_err());
+    for input in [
+        json!({"candidate":{"id":"x","sha256":"bad"},"context":{"criterion":"check"}}),
+        json!({"candidate":{"id":"x","sha256":"a".repeat(64),"extra":true},"context":{"criterion":"check"}}),
+        json!({"candidate":{"id":"x","sha256":"a".repeat(64)},"context":{}}),
+    ] {
+        let mut runtime = Reviews {
+            outputs: Default::default(),
+            requests: vec![],
+        };
+        assert!(execute_with(&mut runtime, &quorum_plan(1, &["a"]), input).is_err());
+        assert!(runtime.requests.is_empty());
+    }
+}
+
+#[test]
+fn quorum_context_comparison_preserves_exact_integers_and_json_types() {
+    let mut input = quorum_input();
+    input["context"]["capture"] = json!(9007199254740993u64);
+    input["context"]["independent"] = json!(true);
+    let mut rounded = review(&input, json!(true));
+    rounded["context"]["capture"] = json!(9007199254740992u64);
+    let mut mistyped = review(&input, json!(true));
+    mistyped["context"]["independent"] = json!(1);
+    let mut runtime = Reviews {
+        outputs: [("rounded".into(), rounded), ("mistyped".into(), mistyped)].into(),
+        requests: vec![],
+    };
+    let result = execute_with(
+        &mut runtime,
+        &quorum_plan(1, &["rounded", "mistyped"]),
+        input,
+    )
+    .unwrap();
+    assert_eq!(result["join"]["accepted"], false, "{result}");
+}

@@ -20,6 +20,10 @@ bool complete[4];
 bool effect_complete[4];
 bool inflight[4];
 byte verdict[4]; /* 0 unset, 1 pass, 2 finding, 3 evaluator error */
+byte assessment_verdict[4]; /* immutable retained host assessment */
+byte decision[4];
+bool assessment_retained[4];
+bool assessment_replayed;
 byte candidate;
 byte selected;
 byte revisions;
@@ -44,9 +48,11 @@ inline invariants() {
     assert(remediation_effects == 0);
     assert(effect_dispatches[0] <= 1 && effect_dispatches[1] <= 1 &&
            effect_dispatches[2] <= 1 && effect_dispatches[3] <= 1);
+    assert(!assessment_retained[1] || decision[1] == assessment_verdict[1]);
+    assert(!assessment_retained[3] || decision[3] == assessment_verdict[3]);
     assert(terminal != Completed ||
-           ((selected == 1 && complete[1] && verdict[1] == 1) ||
-            (selected == 2 && complete[3] && verdict[3] == 1)));
+           ((selected == 1 && complete[1] && decision[1] == 1) ||
+            (selected == 2 && complete[3] && decision[3] == 1)));
 }
 
 proctype Disruption() {
@@ -130,11 +136,32 @@ proctype Controller() {
                     :: stage == 0 || stage == 2 -> stage++; pc = 0
                     :: stage == 1 || stage == 3 ->
                         if
-                        :: verdict[stage] == 1 -> selected = candidate; terminal = Completed
-                        :: verdict[stage] != 1 ->
+                        :: assessment_retained[stage] ->
+                            assessment_replayed = true;
+#ifdef BUG_ASSESSMENT_REPLAY
+                            decision[stage] = verdict[stage]
+#else
+                            decision[stage] = assessment_verdict[stage]
+#endif
+                        :: else ->
+                            if
+                            :: decision[stage] = verdict[stage]
+                            /* Terminal delivery can fail after a completed
+                             * worker checkpoint. That known error is final. */
+                            :: decision[stage] = 3; retained_error = true
+                            fi;
+                            assessment_verdict[stage] = decision[stage];
+                            assessment_retained[stage] = true
+                        fi;
+                        pc = 5
+                    fi
+                :: pc == 5 ->
+                        if
+                        :: decision[stage] == 1 -> selected = candidate; terminal = Completed
+                        :: decision[stage] != 1 ->
 #ifdef BUG_ERROR_PASS
                             if
-                            :: verdict[stage] == 3 -> selected = candidate; terminal = Completed
+                            :: decision[stage] == 3 -> selected = candidate; terminal = Completed
                             :: else -> skip
                             fi;
 #endif
@@ -159,7 +186,6 @@ proctype Controller() {
                             :: else -> skip
                             fi
                         fi
-                    fi
                 fi
             fi;
             invariants()
@@ -188,6 +214,9 @@ proctype Controller() {
 #endif
 #ifdef WITNESS_ERROR
     assert(!retained_error)
+#endif
+#ifdef WITNESS_ASSESSMENT_REPLAY
+    assert(!assessment_replayed)
 #endif
 }
 
