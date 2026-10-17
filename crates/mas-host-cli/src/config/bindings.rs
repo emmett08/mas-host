@@ -160,7 +160,12 @@ fn llm(root: &Path, implementation: &Value, connections: Option<&Value>) -> Resu
     fields(
         implementation,
         &["kind", "connection", "model", "instructions"],
-        &["max_output_tokens", "max_turns", "delegates"],
+        &[
+            "max_output_tokens",
+            "max_turns",
+            "delegates",
+            "min_delegate_calls",
+        ],
         "LLM implementation",
     )?;
     let connection_name = implementation["connection"]
@@ -222,6 +227,20 @@ fn llm(root: &Path, implementation: &Value, connections: Option<&Value>) -> Resu
             return Err("duplicate delegate".into());
         }
     }
+    if let Some(value) = implementation.get("min_delegate_calls") {
+        let minimum = value
+            .as_u64()
+            .ok_or("min_delegate_calls must be a non-negative integer")?;
+        if minimum >= config["max_turns"].as_u64().unwrap() {
+            return Err("min_delegate_calls must be less than max_turns".into());
+        }
+        if minimum > 0 && list.is_empty() {
+            return Err("min_delegate_calls requires at least one delegate".into());
+        }
+        // Omission must retain the previous resolved configuration bytes and
+        // therefore its identity in existing bundles and effect descriptors.
+        config["min_delegate_calls"] = json!(minimum);
+    }
     config["delegates"] = delegates;
     Ok(config)
 }
@@ -236,4 +255,55 @@ fn schema(root: &Path, path: Option<&Value>) -> Result<Option<Value>, String> {
         return Err("operation schemas must have object type".into());
     }
     Ok(Some(schema))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn minimum_delegate_calls_is_optional_bounded_and_requires_delegates() {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../..")
+            .canonicalize()
+            .unwrap();
+        let implementation = json!({"kind":"llm","connection":"fixture","model":"fixture",
+            "instructions":"README.md","max_turns":3,"delegates":["peer"]});
+        let connections = json!({"fixture":{"kind":"mock","output":{}}});
+        let resolved = llm(&root, &implementation, Some(&connections)).unwrap();
+        let previous = json!({"kind":"llm","connection":connections["fixture"],"model":"fixture",
+            "instructions":std::fs::read_to_string(root.join("README.md")).unwrap(),
+            "max_output_tokens":4096,"max_turns":3,"delegates":["peer"]});
+        assert_eq!(resolved.to_string(), previous.to_string());
+        for minimum in [json!(0), json!(1), json!(2)] {
+            let mut current = implementation.clone();
+            current["min_delegate_calls"] = minimum.clone();
+            assert_eq!(
+                llm(&root, &current, Some(&connections)).unwrap()["min_delegate_calls"],
+                minimum
+            );
+        }
+        for minimum in [
+            json!(-1),
+            json!(1.5),
+            json!(true),
+            json!("1"),
+            json!(null),
+            json!(3),
+        ] {
+            let mut current = implementation.clone();
+            current["min_delegate_calls"] = minimum;
+            assert!(llm(&root, &current, Some(&connections))
+                .unwrap_err()
+                .contains("min_delegate_calls"));
+        }
+        let mut without_delegates = implementation;
+        without_delegates["delegates"] = json!([]);
+        without_delegates["min_delegate_calls"] = json!(1);
+        assert!(llm(&root, &without_delegates, Some(&connections))
+            .unwrap_err()
+            .contains("at least one delegate"));
+        without_delegates["min_delegate_calls"] = json!(0);
+        assert!(llm(&root, &without_delegates, Some(&connections)).is_ok());
+    }
 }

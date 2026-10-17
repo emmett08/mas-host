@@ -99,6 +99,15 @@ before accounting for later assessment or other application operations. Set the
 application's `max_calls`, message, byte and wall-clock limits for the complete
 workflow. The host rejects a delegate request on the final turn before dispatch.
 
+Use `min_delegate_calls = 1` for an investigation that must request a tool before
+completion. The host excludes `complete` from the response schema until that many
+delegated requests return, and rejects premature completion locally. The setting
+defaults to zero and must be less than `max_turns`. It counts completed delegate
+requests, including returned tool error observations; it does not require distinct
+tools or establish evidence quality. Application acceptance must check the
+recorded results. A model that violates the required decision schema fails with
+a retained invalid outcome rather than an automatic retry.
+
 Command `timeout_seconds` is capped by the original run deadline. The host stops
 the local process group on interruption; neither process termination nor MCP
 cancellation proves that a remote tool stopped. A stdio server and its descendants

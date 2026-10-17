@@ -107,6 +107,18 @@ An application can expose a custom MCP tool through such a delegate; see the
 LLM delegate. The builder checks targets against executable application agents;
 the protocol checks communication permissions when each request is admitted.
 
+Set optional `min_delegate_calls = 1` when an actor must obtain a peer observation
+before completing. The non-negative integer defaults to zero, must be smaller
+than `max_turns`, and requires a non-empty `delegates` list when positive. Until
+that many peer requests have returned successfully through the host, each turn's
+response schema permits only `request`; the runtime also rejects premature
+completion. The count measures completed requests, including schema-valid
+application error observations, rather than distinct tools or useful evidence.
+Applications must still validate which observations satisfy their task. A
+provider that ignores the schema produces a retained invalid outcome; this
+policy introduces no retry and does not increase the existing turn budget.
+Omitting the field preserves the previous resolved configuration and its digest.
+
 ## Outcomes, recovery and validation
 
 Every inference turn is a separate admitted effect. Valid output, refusal,

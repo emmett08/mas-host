@@ -78,6 +78,7 @@ class Llm:
     max_output_tokens: int | None = None
     max_turns: int | None = None
     delegates: Sequence[str] | None = None
+    min_delegate_calls: int | None = None
 
     def to_dict(self) -> dict[str, Any]:
         document: dict[str, Any] = {
@@ -86,7 +87,7 @@ class Llm:
             "model": _text(self.model, "model"),
             "instructions": _path(self.instructions, "instructions"),
         }
-        for name in ("max_output_tokens", "max_turns"):
+        for name in ("max_output_tokens", "max_turns", "min_delegate_calls"):
             value = getattr(self, name)
             if value is not None:
                 if type(value) is not int:

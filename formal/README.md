@@ -1,4 +1,4 @@
-# Assessment and revision control checks
+# Host control checks
 
 Run `python3 formal/verify.py` from the repository root. SPIN and a C compiler
 must be installed. The default output is `formal/evidence`; `--out DIRECTORY`
@@ -7,7 +7,8 @@ exact commands, stdout/stderr, search counts and replayed counterexamples.
 Counterexample sources, generated verifiers and trails are retained together.
 The committed [verification receipt](../evidence/revision/verification.json) and
 [compressed raw evidence](../evidence/revision/spin-checks.tar.xz) retain the checked
-models, generated verifier sources, trails and execution logs from this increment.
+assessment/revision models, generated verifiers, trails and execution logs from
+their original increment. They do not cover the later delegation-policy model.
 Fresh runs write to the ignored output directory and CI retains that directory
 as a workflow artifact.
 
@@ -120,10 +121,59 @@ establishes that the corresponding check detects the injected defect.
 
 A successful finite search establishes only the named properties for these
 bounds and assumptions. `formal/evidence/summary.json` reports the exact checked
-model hashes; it must be regenerated if either model changes. Raw logs retain
+model hashes; it must be regenerated if a model changes. Raw logs retain
 unreached-state reports and compiler warnings for inspection.
 
 Execution follows the official SPIN documentation:
 [verifier options](https://spinroot.com/spin/Man/Pan.html),
 [inline LTL](https://spinroot.com/spin/Man/ltl.html), and
 [atomic sequences](https://spinroot.com/spin/Man/atomic.html).
+
+## Required delegation policy
+
+`delegation.pml` checks the optional `min_delegate_calls` host policy independently
+of the assessment models. The bounded service has one configured LLM invocation,
+one permitted peer, three inference turns, a minimum of zero, one or two successful
+peer replies, and at most one replay. A provider can return a complete decision,
+request a peer, return invalid/unavailable output, or leave execution unknown.
+A peer either returns successfully or fails. Cancellation/expiry is abstracted
+as a terminal stop. External work must return or reach its existing deadline;
+the model does not establish elapsed-time bounds or change that deadline.
+
+The properties are:
+
+| Property | Required behaviour | Check |
+| --- | --- | --- |
+| Completion threshold | A successful final result has at least the configured number of successful peer replies | `terminal == Completed` implies `successful >= minimum` |
+| Advertised schema | Completion is available precisely when the threshold has been reached | `complete_allowed == (successful >= minimum)` |
+| Replay preservation | Reconstructing completed history counts each retained result once and dispatches no new provider or peer work | Counter equality assertions in `replay_history` |
+| Bounded terminal outcome | Every execution reaches a terminal outcome under the returning-work premise | `delegation_finishes`, checked separately from safety |
+| Success is possible | Two successful delegations can be followed by completion within three turns | `WITNESS_COMPLETE` |
+| Default compatibility | A zero minimum permits completion without a peer call | `WITNESS_ZERO` |
+| Failure remains terminal | An early complete decision can fail on the first turn without retry | `WITNESS_EARLY_INVALID` and finite-loop control |
+
+The runner checks safety and progress with and without partial-order reduction.
+Four deliberate defects exercise early completion admission, an over-permissive
+schema, duplicate replay counting and dispatch during replay. A separate stalled
+inference mutation exercises the LTL failure path. Inverted assertions witness
+successful completion, the zero-minimum path, completed-history replay and early
+invalid output. Every expected counterexample is replayed and retained by the
+existing runner.
+
+The implementation mapping is `config::bindings` for admission of a valid
+minimum and delegate list, `runtime::inference::action_schema` for the advertised
+decision variants, and `runtime::inference::execute` for successful history,
+completion admission and the existing turn limit. `Context::effect` and
+`Context::request` retain inference and peer outcomes. The replay model abstracts
+their traversal to rebuilding the same history before the next active turn;
+it does not model a new retry after an invalid or unknown effect. Rust tests
+provide the separate evidence for schema generation, runtime admission, retained
+outcomes and actual redispatch counts.
+
+This model checks host policy, with no changes to the Nehemiah wire protocol.
+It does not prove that a returned peer result is useful, that different requests
+select different tools, that an LLM follows a prompt, or that a live investigation
+succeeds. It assumes the existing identity, journal and delegation mechanisms;
+their storage/interleaving behaviour remains covered by implementation tests and
+the other relevant models. This is finite model checking and implementation
+correspondence, rather than a refinement proof of the Rust runtime.
