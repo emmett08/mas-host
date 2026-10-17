@@ -2,10 +2,10 @@
   "schema": "mas-host-assessment-formal/1",
   "status": "PASS",
   "model_sha256": {
-    "disclosure.pml": "bb113b5c33d9cb2a582f6a9bb5a0415f5be2a42cd3d0dcb151a6a0d6153eee9d",
-    "revision.pml": "3397bfadb7aca24012321cbd0dfe087de868767f65468992382c0319dde0ff2f"
+    "disclosure.pml": "87d129c55d13bd74d5b80bb6bd4edc49457857a7fbe7412c47d4e793dbbc0e16",
+    "revision.pml": "bfe4a224e4484050341b7475faca5cac999af8c0f11f40d4cc0f3a9ab2f46f2a"
   },
-  "runner_sha256": "ab4d106d396ebba582a22d43c71d0d25164c5c61d286a54957c1f0e1e5817687",
+  "runner_sha256": "ebfc496c1e7273208de1e737bf7516edce6d4e018e1c9333892aa6ddc185a961",
   "limits": {
     "seconds_per_command": 30,
     "memory_bytes": 536870912,
@@ -41,9 +41,9 @@
       "expected": "zero_errors",
       "result": "COMPLETE_ZERO_ERRORS",
       "errors": 0,
-      "stored_states": "2352",
-      "transitions": "2945",
-      "depth_reached": "124"
+      "stored_states": "4548",
+      "transitions": "5701",
+      "depth_reached": "140"
     },
     {
       "name": "revision-safety-no-reduction",
@@ -54,9 +54,9 @@
       "expected": "zero_errors",
       "result": "COMPLETE_ZERO_ERRORS",
       "errors": 0,
-      "stored_states": "2352",
-      "transitions": "3001",
-      "depth_reached": "124"
+      "stored_states": "4548",
+      "transitions": "5829",
+      "depth_reached": "140"
     },
     {
       "name": "revision-progress",
@@ -67,9 +67,9 @@
       "expected": "zero_errors",
       "result": "COMPLETE_ZERO_ERRORS",
       "errors": 0,
-      "stored_states": "1286",
-      "transitions": "4682",
-      "depth_reached": "169"
+      "stored_states": "2464",
+      "transitions": "8960",
+      "depth_reached": "191"
     },
     {
       "name": "revision-progress-no-reduction",
@@ -80,9 +80,9 @@
       "expected": "zero_errors",
       "result": "COMPLETE_ZERO_ERRORS",
       "errors": 0,
-      "stored_states": "1286",
-      "transitions": "4682",
-      "depth_reached": "169"
+      "stored_states": "2464",
+      "transitions": "8960",
+      "depth_reached": "191"
     },
     {
       "name": "disclosure-safety",
@@ -93,9 +93,9 @@
       "expected": "zero_errors",
       "result": "COMPLETE_ZERO_ERRORS",
       "errors": 0,
-      "stored_states": "93",
-      "transitions": "93",
-      "depth_reached": "24"
+      "stored_states": "189",
+      "transitions": "189",
+      "depth_reached": "29"
     },
     {
       "name": "disclosure-safety-no-reduction",
@@ -106,9 +106,9 @@
       "expected": "zero_errors",
       "result": "COMPLETE_ZERO_ERRORS",
       "errors": 0,
-      "stored_states": "93",
-      "transitions": "93",
-      "depth_reached": "24"
+      "stored_states": "189",
+      "transitions": "189",
+      "depth_reached": "29"
     },
     {
       "name": "disclosure-progress",
@@ -119,9 +119,9 @@
       "expected": "zero_errors",
       "result": "COMPLETE_ZERO_ERRORS",
       "errors": 0,
-      "stored_states": "173",
-      "transitions": "409",
-      "depth_reached": "49"
+      "stored_states": "357",
+      "transitions": "857",
+      "depth_reached": "59"
     },
     {
       "name": "disclosure-progress-no-reduction",
@@ -132,9 +132,9 @@
       "expected": "zero_errors",
       "result": "COMPLETE_ZERO_ERRORS",
       "errors": 0,
-      "stored_states": "173",
-      "transitions": "409",
-      "depth_reached": "49"
+      "stored_states": "357",
+      "transitions": "857",
+      "depth_reached": "59"
     },
     {
       "name": "revision-unknown-retry",
@@ -163,6 +163,19 @@
       "depth_reached": "43"
     },
     {
+      "name": "revision-assessment-replay",
+      "model": "revision.pml",
+      "macro": "BUG_ASSESSMENT_REPLAY",
+      "claim": null,
+      "partial_order_reduction": true,
+      "expected": "counterexample",
+      "result": "EXPECTED_COUNTEREXAMPLE",
+      "errors": 1,
+      "stored_states": "287",
+      "transitions": "347",
+      "depth_reached": "79"
+    },
+    {
       "name": "revision-error-pass",
       "model": "revision.pml",
       "macro": "BUG_ERROR_PASS",
@@ -171,9 +184,9 @@
       "expected": "counterexample",
       "result": "EXPECTED_COUNTEREXAMPLE",
       "errors": 1,
-      "stored_states": "335",
-      "transitions": "412",
-      "depth_reached": "75"
+      "stored_states": "226",
+      "transitions": "275",
+      "depth_reached": "77"
     },
     {
       "name": "revision-revision-budget",
@@ -184,9 +197,9 @@
       "expected": "counterexample",
       "result": "EXPECTED_COUNTEREXAMPLE",
       "errors": 1,
-      "stored_states": "246",
-      "transitions": "301",
-      "depth_reached": "67"
+      "stored_states": "226",
+      "transitions": "275",
+      "depth_reached": "77"
     },
     {
       "name": "revision-permission-expansion",
@@ -197,9 +210,9 @@
       "expected": "counterexample",
       "result": "EXPECTED_COUNTEREXAMPLE",
       "errors": 1,
-      "stored_states": "246",
-      "transitions": "301",
-      "depth_reached": "67"
+      "stored_states": "226",
+      "transitions": "275",
+      "depth_reached": "77"
     },
     {
       "name": "revision-deadline-expansion",
@@ -210,9 +223,9 @@
       "expected": "counterexample",
       "result": "EXPECTED_COUNTEREXAMPLE",
       "errors": 1,
-      "stored_states": "246",
-      "transitions": "301",
-      "depth_reached": "67"
+      "stored_states": "226",
+      "transitions": "275",
+      "depth_reached": "77"
     },
     {
       "name": "revision-remediation-effect",
@@ -223,9 +236,9 @@
       "expected": "counterexample",
       "result": "EXPECTED_COUNTEREXAMPLE",
       "errors": 1,
-      "stored_states": "246",
-      "transitions": "301",
-      "depth_reached": "67"
+      "stored_states": "226",
+      "transitions": "275",
+      "depth_reached": "77"
     },
     {
       "name": "revision-complete-witness",
@@ -236,9 +249,9 @@
       "expected": "counterexample",
       "result": "EXPECTED_COUNTEREXAMPLE",
       "errors": 1,
-      "stored_states": "197",
-      "transitions": "240",
-      "depth_reached": "60"
+      "stored_states": "199",
+      "transitions": "242",
+      "depth_reached": "66"
     },
     {
       "name": "revision-replay-witness",
@@ -288,9 +301,22 @@
       "expected": "counterexample",
       "result": "EXPECTED_COUNTEREXAMPLE",
       "errors": 1,
-      "stored_states": "377",
-      "transitions": "466",
-      "depth_reached": "74"
+      "stored_states": "255",
+      "transitions": "312",
+      "depth_reached": "77"
+    },
+    {
+      "name": "revision-assessment-replay-witness",
+      "model": "revision.pml",
+      "macro": "WITNESS_ASSESSMENT_REPLAY",
+      "claim": null,
+      "partial_order_reduction": true,
+      "expected": "counterexample",
+      "result": "EXPECTED_COUNTEREXAMPLE",
+      "errors": 1,
+      "stored_states": "249",
+      "transitions": "301",
+      "depth_reached": "83"
     },
     {
       "name": "revision-invocation-budget-witness",
@@ -379,9 +405,9 @@
       "expected": "counterexample",
       "result": "EXPECTED_COUNTEREXAMPLE",
       "errors": 1,
-      "stored_states": "24",
-      "transitions": "24",
-      "depth_reached": "23"
+      "stored_states": "29",
+      "transitions": "29",
+      "depth_reached": "28"
     },
     {
       "name": "disclosure-delegation-disclosure",
@@ -392,9 +418,9 @@
       "expected": "counterexample",
       "result": "EXPECTED_COUNTEREXAMPLE",
       "errors": 1,
-      "stored_states": "34",
-      "transitions": "34",
-      "depth_reached": "24"
+      "stored_states": "58",
+      "transitions": "58",
+      "depth_reached": "29"
     },
     {
       "name": "disclosure-delegation-inheritance",
@@ -405,13 +431,38 @@
       "expected": "counterexample",
       "result": "EXPECTED_COUNTEREXAMPLE",
       "errors": 1,
-      "stored_states": "84",
-      "transitions": "84",
-      "depth_reached": "24"
+      "stored_states": "156",
+      "transitions": "156",
+      "depth_reached": "29"
+    },
+    {
+      "name": "disclosure-evidence-namespace",
+      "model": "disclosure.pml",
+      "macro": "BUG_EVIDENCE_NAMESPACE",
+      "claim": null,
+      "partial_order_reduction": true,
+      "expected": "counterexample",
+      "result": "EXPECTED_COUNTEREXAMPLE",
+      "errors": 1,
+      "stored_states": "32",
+      "transitions": "32",
+      "depth_reached": "29"
+    },
+    {
+      "name": "disclosure-evidence-readers",
+      "model": "disclosure.pml",
+      "macro": "BUG_EVIDENCE_READERS",
+      "claim": null,
+      "partial_order_reduction": true,
+      "expected": "counterexample",
+      "result": "EXPECTED_COUNTEREXAMPLE",
+      "errors": 1,
+      "stored_states": "27",
+      "transitions": "27",
+      "depth_reached": "26"
     }
   ],
   "spin": "Spin Version 6.5.2 -- 6 December 2019",
   "compiler": "cc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
-  "source_changed_during_verification": [],
-  "retained_raw_evidence": "spin-checks.tar.xz"
+  "source_changed_during_verification": []
 }

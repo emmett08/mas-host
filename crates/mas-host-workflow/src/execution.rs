@@ -95,6 +95,11 @@ enum State {
         depth: usize,
     },
     Parallel(Vec<State>),
+    CandidateQuorum {
+        children: Vec<State>,
+        targets: Vec<String>,
+        binding: crate::quorum::Binding,
+    },
     Repeat {
         max: usize,
         body: Arc<Node>,
@@ -178,6 +183,37 @@ impl State {
                                 })
                                 .collect(),
                         ),
+                        Node::CandidateQuorum { nodes, policy } => {
+                            // Freeze and validate the expected binding before any branch can dispatch.
+                            let binding = crate::quorum::Binding::new(
+                                policy.minimum,
+                                resolve(&policy.candidate, &env)?,
+                                resolve(&policy.context, &env)?,
+                            )?;
+                            let targets = nodes
+                                .iter()
+                                .map(|n| match n.as_ref() {
+                                    Node::Request { target, .. } => target.clone(),
+                                    _ => unreachable!("validated quorum branches are requests"),
+                                })
+                                .collect();
+                            Self::CandidateQuorum {
+                                children: nodes
+                                    .iter()
+                                    .enumerate()
+                                    .map(|(i, n)| {
+                                        pending(
+                                            n.clone(),
+                                            env.clone(),
+                                            format!("{path}/p{i}"),
+                                            depth + 1,
+                                        )
+                                    })
+                                    .collect(),
+                                targets,
+                                binding,
+                            }
+                        }
                         Node::Branch { condition, yes, no } => {
                             let condition = resolve(condition, &env)?
                                 .as_bool()
@@ -306,6 +342,27 @@ impl State {
                         return Ok(());
                     }
                 }
+                Self::CandidateQuorum {
+                    children,
+                    targets,
+                    binding,
+                } => {
+                    for child in children.iter_mut() {
+                        child.advance(program, evaluations)?;
+                    }
+                    if children.iter().all(|c| matches!(c, Self::Done(_))) {
+                        let outputs = children
+                            .iter()
+                            .map(|c| match c {
+                                Self::Done(v) => v.clone(),
+                                _ => unreachable!(),
+                            })
+                            .collect();
+                        *self = Self::Done(binding.finish(targets, outputs)?);
+                    } else {
+                        return Ok(());
+                    }
+                }
                 Self::Repeat {
                     max,
                     body,
@@ -381,7 +438,7 @@ impl State {
             Self::Sequence { child, .. }
             | Self::Repeat { child, .. }
             | Self::ForEach { child, .. } => child.requests(requests),
-            Self::Parallel(children) => {
+            Self::Parallel(children) | Self::CandidateQuorum { children, .. } => {
                 for child in children {
                     child.requests(requests);
                 }
@@ -398,7 +455,7 @@ impl State {
             Self::Sequence { child, .. }
             | Self::Repeat { child, .. }
             | Self::ForEach { child, .. } => child.complete(outputs)?,
-            Self::Parallel(children) => {
+            Self::Parallel(children) | Self::CandidateQuorum { children, .. } => {
                 for child in children {
                     child.complete(outputs)?;
                 }

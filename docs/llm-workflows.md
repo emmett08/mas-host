@@ -79,6 +79,19 @@ owner, with at most 31 application actors, 32 concurrent workers, request depth1
 and 1024 journal steps, plus configured protocol budgets. Arbitrary combinations
 of the supported control structures work within these explicit resource bounds.
 
+The opt-in `mas-candidate-quorum/1` parallel join counts approvals from distinct
+requested actors only when they identify the same caller-bound candidate and
+frozen review context. It retains conflicting reviews and a deterministic
+selection receipt. Ordinary parallel plans retain every result without an
+agreement policy. See the [candidate agreement contract](../crates/mas-host-workflow/README.md#agreement-on-one-candidate)
+for configuration, reference validation and the limits of an accepted quorum.
+
+Before preparing an executable request, the host checks that a permitted forward
+route also permits its correlated reply. An impossible reply therefore fails
+before admitting the request, starting the worker or admitting its effects.
+The MAS protocol still owns actual route admission; its generic transport may
+carry one-way messages outside this reply-requiring host task contract.
+
 An LLM actor can optionally declare `delegates: ["peer"]` and `max_turns` greater
 than one. Each inference returns `decision`, either `{kind: complete, output: ...}`
 or `{kind: request, target: peer, input_json: "{...}"}`. The executor validates the

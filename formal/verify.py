@@ -28,6 +28,7 @@ for model, claim in (("revision", "settles"), ("disclosure", "context_finishes")
 for name, macro, assertion in (
     ("unknown-retry", "BUG_UNKNOWN_RETRY", "effect_dispatches"),
     ("completed-replay", "BUG_REPLAY", "effect_dispatches"),
+    ("assessment-replay", "BUG_ASSESSMENT_REPLAY", "decision"),
     ("error-pass", "BUG_ERROR_PASS", "terminal!=Completed"),
     ("revision-budget", "BUG_BUDGET", "revisions<=1"),
     ("permission-expansion", "BUG_PERMISSION", "permitted_effects==1"),
@@ -38,6 +39,7 @@ for name, macro, assertion in (
     ("unknown-witness", "WITNESS_UNKNOWN", "!(unknown_seen)"),
     ("exhausted-witness", "WITNESS_EXHAUSTED", "terminal!=Exhausted"),
     ("error-witness", "WITNESS_ERROR", "!(retained_error)"),
+    ("assessment-replay-witness", "WITNESS_ASSESSMENT_REPLAY", "!(assessment_replayed)"),
     ("invocation-budget-witness", "WITNESS_INVOCATION_BUDGET", "!(budget_exhausted)"),
 ):
     CASES.append(("revision", name, macro, None, False, assertion))
@@ -50,6 +52,8 @@ for name, macro, assertion in (
     ("restricted-witness", "WITNESS_RESTRICTED", "!(supplied_feedback)"),
     ("delegation-disclosure", "BUG_DELEGATION_DISCLOSURE", "!(delegated)"),
     ("delegation-inheritance", "BUG_DELEGATION_INHERITANCE", "!(inherited_reader)"),
+    ("evidence-namespace", "BUG_EVIDENCE_NAMESPACE", "!(draft_dispatched)"),
+    ("evidence-readers", "BUG_EVIDENCE_READERS", "!(candidate_evidence_reader)"),
 ):
     CASES.append(("disclosure", name, macro, None, False, assertion))
 

@@ -63,6 +63,14 @@ pub(super) fn check_sources(input: &Value) -> Result<()> {
         if id.is_empty() || id.len() > 96 || !ids.insert(id) {
             return Err("source ids must be unique and bounded".into());
         }
+        // These names identify host-constructed candidate/attempt/budget
+        // evidence. A source must never substitute its content or readers.
+        if ["candidate-", "attempt-", "budget-"]
+            .iter()
+            .any(|prefix| id.starts_with(prefix))
+        {
+            return Err("source id uses a host-reserved evidence prefix".into());
+        }
         if !matches!(
             source["kind"].as_str(),
             Some("input" | "evidence" | "peer_history")
@@ -101,7 +109,7 @@ pub(super) fn assemble(
         }
         audience = intersection(&audience, &restriction);
         supplied.insert(id.clone(), source["content"].clone());
-        evidence.push(json!({"schema_version":1,"id":id,"content":source["content"],"content_sha256":super::super::digest(source["content"].to_string().as_bytes())}));
+        evidence.push(json!({"schema_version":1,"id":id,"content":source["content"],"content_sha256":super::canonical_digest(&source["content"])}));
     }
     if let Some((_, restriction)) = candidate {
         let restriction = readers(restriction)?;

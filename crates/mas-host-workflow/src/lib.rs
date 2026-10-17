@@ -5,6 +5,7 @@
 //! retains the host as the authority for admission, replay and concurrency.
 mod execution;
 mod plan;
+mod quorum;
 
 pub use execution::{execute, execute_with, Runtime};
 pub use plan::validate;

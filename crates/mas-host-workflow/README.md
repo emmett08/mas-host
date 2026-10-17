@@ -98,3 +98,61 @@ and 100000 node evaluations. The host's own worker, request, deadline and call
 limits still apply. These limits bound execution; finite composition does not
 promise unlimited resources. Any failed request stops the workflow; retry,
 fallback and compensation policies must be explicit application operations.
+
+## Agreement on one candidate
+
+An ordinary `parallel` preserves its all-results contract. An optional `join`
+adds the versioned `mas-candidate-quorum/1` agreement contract:
+
+```json
+{
+  "type":"parallel",
+  "steps":[
+    {"type":"request","key":"model-review","target":"reviewer","input":{"$input":""}},
+    {"type":"request","key":"exact-check","target":"checker","input":{"$input":""}}
+  ],
+  "join":{
+    "version":"mas-candidate-quorum/1",
+    "minimum":2,
+    "candidate":{"$input":"/candidate"},
+    "context":{"$input":"/review_context"}
+  }
+}
+```
+
+The expected `candidate` resolves to an exact `{"id":"…","sha256":"…"}`
+reference with a valid protocol identity and lowercase SHA-256 digest. The
+expected `context` resolves to a non-empty object. The application supplies the
+frozen rubric, criterion, evidence and input identities needed to distinguish
+the judgement being requested. Both bindings are resolved and validated before
+dispatch; worker output cannot select the expected candidate or context.
+Reference shape validation does not resolve the referenced record or establish
+the truth of its contents. The application must supply an integrity-checked
+candidate reference and the complete context for its decision.
+
+Every joined branch must directly request a distinct registered actor. Each
+review result has `candidate`, `context` and a Boolean `accepted` field; other
+output fields remain available. A vote counts only when its candidate and entire
+context equal the expected bindings and `accepted` is `true`. Malformed records,
+different candidates and stale contexts cannot contribute to one quorum. Actor
+identity comes from the declared request target rather than a field returned by
+the worker. Distinct actors do not establish independent models, evidence or
+judgement; those remain application properties.
+
+All branches finish through the existing request path. The result retains every
+output in `results`, including rejected and conflicting reviews. Its `join`
+receipt contains `version`, Boolean `accepted`, `minimum`, the expected
+`candidate` and `context`, `binding_sha256`, `selected` and `observations`.
+`binding_sha256` hashes the canonical JSON object containing `version`, `minimum`,
+`candidate` and `context`. `selected` names the first `minimum` qualifying branches
+in plan order as `{"branch":0,"actor":"reviewer"}` records; it is empty when
+the threshold is unmet. Each observation records that branch and actor with
+`status` equal to `accepted`, `rejected`, `mismatched` or `invalid`. A rejected
+quorum returns this inspectable receipt; a following branch can select behaviour
+using `{"$previous":"/join/accepted"}`. Request failures retain the existing
+workflow failure behaviour. No early cancellation or claim of factual
+correctness is added.
+
+Replaying a retained run reuses the same request identities and results, then
+recomputes the same selection and receipt. The plan, expected bindings and host
+implementation remain part of the existing immutable run identity.

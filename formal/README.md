@@ -27,6 +27,10 @@ occur between these transitions. An incomplete external effect blocks recovery;
 a completed effect can be reused by a restarted native handler, and a completed
 invocation can be replayed without dispatch. The model does not assert that
 native handler computation executes only once.
+The host assessment is retained separately from the worker checkpoint. Terminal
+delivery failure may retain an error after a worker returned a valid result. A
+crash between assessment retention and selection must reuse that exact assessment,
+including its error, rather than recomputing it from the worker checkpoint.
 
 Each represented invocation has at most one external inference effect. Multiple
 inference calls or delegated invocations are outside the revision model's four
@@ -44,6 +48,10 @@ snapshot after live evidence changes. It also checks rejection of a policy
 change under the same invocation identity, intersection of supplied-record
 reader sets, authorisation to disclose derived input to a child, and inheritance
 of the parent's reader set by that child.
+It also represents a collision between source and host-generated evidence identities:
+preflight prevents draft dispatch, and candidate evidence retains the candidate's
+readers independently of source readers. It abstracts identity comparison to one
+collision flag; Rust tests exercise actual reserved strings and hashes.
 
 The disclosure claim covers host-mediated inputs, peer history and feedback
 under the existing trusted-worker boundary. Direct file access, external tools,
@@ -65,6 +73,8 @@ outside the non-disclosure claim.
 | Derived readers and child permission | `revision::context::intersection`, `Inner::inherit_context` | A child must satisfy both allowed-agent and inherited-reader checks; descendants retain restrictions |
 | Revision cannot authorise remediation | `Inner::check_effect_policy` | Only `mas-inference/2` is admitted by the revision context; command/remediation effects reject |
 | Assessment identity, authority and immutable history | `mas` assessment contract plus host append-only `revision_records` | Exact duplicate is retained once; changed body/readers reject; candidate/evaluator binding is validated |
+| Terminal assessment replay | `revision::evaluation::Inner::retained_assessment` | Restart revalidates every exact binding and reuses a known error despite a passing worker checkpoint |
+| Host evidence namespace | `revision::context::check_sources`, candidate evidence retention in `Engine::revise` | Reserved source identities reject before draft; host candidate evidence inherits candidate readers |
 
 The `mas` contract model supplies the separate identity and evaluator-authority
 checks. The existing `mas-host-examples` remediation models and implementation
@@ -89,11 +99,15 @@ unknown-effect retry, completed-effect replay, evaluator error promoted to pass,
 revision-budget expansion, permission expansion, deadline extension, remediation
 authorisation, hidden-peer leakage, replay reassembly, policy rebinding, derived
 reader expansion, unauthorised child disclosure and child reader expansion.
+A terminal-assessment mutation recomputes a retained error from the passing worker
+checkpoint. An evidence-namespace mutation permits draft dispatch with a colliding
+source identity; a separate mutation gives candidate evidence the source's readers.
+Each must produce the intended assertion violation.
 A stalled-controller mutation tests the liveness configuration.
 
 Separate inverted assertions witness reachable successful completion, replay,
 unknown effects, revision exhaustion, invocation-budget exhaustion, evaluator
-error and restricted feedback. A witness counterexample is expected evidence of
+error, restricted feedback and terminal assessment replay. A witness counterexample is expected evidence of
 reachability, not a defect in the positive model. A mutation counterexample
 establishes that the corresponding check detects the injected defect.
 
