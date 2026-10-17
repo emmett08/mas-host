@@ -523,6 +523,227 @@ fn early_completion_is_allowed_by_default_but_required_delegation_failure_is_ret
     }
 }
 
+fn configure_required_coverage(project: &Project, scenario: &str) {
+    configure_delegation(project, true);
+    let agents_path = project.0.join("agents.json");
+    let mut agents: Value = serde_json::from_slice(&fs::read(&agents_path).unwrap()).unwrap();
+    let extra = scenario == "additional-count";
+    let planner = &mut agents["agents"][1]["implementation"];
+    planner["max_turns"] = json!(if extra || scenario == "extra-turn" {
+        4
+    } else {
+        3
+    });
+    planner["delegates"] = json!(["peer", "second", "optional"]);
+    planner["required_delegates"] = json!(["peer", "second"]);
+    planner["min_delegate_calls"] = json!(if extra { 3 } else { 1 });
+    agents["agents"]
+        .as_array_mut()
+        .unwrap()
+        .extend([llm("second", "peer_model"), llm("optional", "peer_model")]);
+    agents["connections"]["reasoning"] = json!({"kind":"command","command":["/usr/bin/python3","-c",r#"
+import json, pathlib, sys
+request = json.load(sys.stdin)
+with pathlib.Path(sys.argv[1]).open('a') as calls:
+    calls.write('x')
+scenario = sys.argv[2]
+history = request['input']['history']
+observed = {entry['request']['target'] for entry in history}
+outstanding = {'peer', 'second'} - observed
+extra = scenario == 'additional-count'
+last = len(history) == (3 if extra or scenario == 'extra-turn' else 2)
+branches = request['output_schema']['properties']['decision']['anyOf']
+kinds = {branch['properties']['kind']['enum'][0] for branch in branches}
+can_complete = not outstanding and len(history) >= (3 if extra else 1)
+assert kinds == (({'complete'} if can_complete else set()) | (set() if last else {'request'})), kinds
+if not last:
+    targets = next(branch['properties']['target']['enum'] for branch in branches if branch['properties']['kind']['enum'] == ['request'])
+    assert set(targets) == (outstanding or {'peer', 'second', 'optional'}), targets
+finish = {'kind':'complete','output':{'approved':True}}
+if scenario.startswith('resolved-') and len(history) == 1:
+    sys.exit(7)
+if scenario == 'early-complete' and len(history) == 1:
+    decision = finish
+elif scenario == 'duplicate' and len(history) == 1:
+    decision = {'kind':'request','target':history[0]['request']['target'],'input_json':'{}'}
+elif scenario == 'optional-too-early' and len(history) == 1:
+    decision = {'kind':'request','target':'optional','input_json':'{}'}
+elif scenario == 'request-final' and last:
+    decision = {'kind':'request','target':'optional','input_json':'{}'}
+elif outstanding:
+    order = ['second', 'peer'] if scenario == 'reverse' else ['peer', 'second']
+    decision = {'kind':'request','target':next(peer for peer in order if peer in outstanding),'input_json':'{}'}
+elif not can_complete:
+    decision = {'kind':'request','target':'optional','input_json':'{}'}
+else:
+    decision = finish
+print(json.dumps({'version':'mas-provider/1','status':'completed','output':{'decision':decision},'evidence':{}}))
+"#,project.0.join("calls"),scenario]});
+    write(&agents_path, &agents);
+    let topology_path = project.0.join("topology.json");
+    let mut topology: Value = serde_json::from_slice(&fs::read(&topology_path).unwrap()).unwrap();
+    topology["edges"].as_array_mut().unwrap().extend([
+        json!(["planner", "second"]),
+        json!(["second", "planner"]),
+        json!(["planner", "optional"]),
+        json!(["optional", "planner"]),
+    ]);
+    write(&topology_path, &topology);
+}
+
+#[test]
+fn required_peer_coverage_allows_model_order_and_additional_count_then_replays() {
+    for (scenario, expected_targets) in [
+        ("forward", vec!["peer", "second"]),
+        ("reverse", vec!["second", "peer"]),
+        ("extra-turn", vec!["peer", "second"]),
+        ("additional-count", vec!["peer", "second", "optional"]),
+    ] {
+        let project = Project::new(scenario);
+        configure_required_coverage(&project, scenario);
+        let bundle = project.build();
+        let first = completed(project.run(&bundle, scenario, "workflow"));
+        assert_eq!(
+            first["output"],
+            json!({"approved":true,"source":"workflow"})
+        );
+        let before = project.inspect(scenario);
+        let messages = project.messages(scenario);
+        let targets: Vec<_> = messages
+            .iter()
+            .filter(|message| message["kind"] == "Request" && message["sender"] == "planner")
+            .map(|message| message["recipient"].as_str().unwrap())
+            .collect();
+        assert_eq!(targets, expected_targets);
+        assert_eq!(project.calls(), expected_targets.len() + 1);
+        assert_eq!(
+            before["protocol"]["calls"].as_array().unwrap().len(),
+            2 * expected_targets.len() + 1
+        );
+        assert_eq!(completed(project.run(&bundle, scenario, "workflow")), first);
+        assert_eq!(project.calls(), expected_targets.len() + 1);
+        assert_eq!(project.inspect(scenario), before);
+        assert_eq!(project.messages(scenario), messages);
+    }
+}
+
+#[test]
+fn partial_or_repeated_coverage_and_final_turn_requests_fail_without_dispatch_or_retry() {
+    for scenario in [
+        "early-complete",
+        "duplicate",
+        "optional-too-early",
+        "request-final",
+    ] {
+        let project = Project::new(scenario);
+        configure_required_coverage(&project, scenario);
+        let bundle = project.build();
+        rejected(
+            project.run(&bundle, scenario, "workflow"),
+            "completed / invalid",
+        );
+        let before = project.inspect(scenario);
+        let messages = project.messages(scenario);
+        let expected_requests = if scenario == "request-final" { 2 } else { 1 };
+        assert_eq!(project.calls(), expected_requests + 1);
+        assert_eq!(
+            messages
+                .iter()
+                .filter(|message| message["kind"] == "Request" && message["sender"] == "planner")
+                .count(),
+            expected_requests
+        );
+        let effects: Vec<_> = before["steps"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|step| step["kind"] == "effect")
+            .collect();
+        assert_eq!(effects.len(), 2 * expected_requests + 1);
+        assert_eq!(
+            effects
+                .iter()
+                .filter(|step| step["output"]["output_status"] == "invalid")
+                .count(),
+            1
+        );
+        assert!(effects.iter().all(|step| step["state"] == "completed"));
+        rejected(
+            project.run(&bundle, scenario, "workflow"),
+            "completed / invalid",
+        );
+        assert_eq!(project.calls(), expected_requests + 1);
+        assert_eq!(project.inspect(scenario), before);
+        assert_eq!(project.messages(scenario), messages);
+    }
+}
+
+#[test]
+fn resolved_provider_outputs_cannot_bypass_required_peer_runtime_checks() {
+    for (scenario, decision, diagnostic) in [
+        (
+            "resolved-complete",
+            json!({"kind":"complete","output":{"approved":true}}),
+            "all required peer observations",
+        ),
+        (
+            "resolved-repeat",
+            json!({"kind":"request","target":"peer","input_json":"{}"}),
+            "outstanding required peer",
+        ),
+    ] {
+        let project = Project::new(scenario);
+        configure_required_coverage(&project, scenario);
+        let bundle = project.build();
+        rejected(project.run(&bundle, scenario, "workflow"), "unknown");
+        let inspection = project.inspect(scenario);
+        let effect = inspection["steps"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|step| step["kind"] == "effect" && step["state"] == "unknown")
+            .unwrap();
+        // Resolution is an administrative assertion, so it must not bypass
+        // runtime coverage even when it claims the provider output was valid.
+        write(
+            &project.0.join("resolved.json"),
+            &json!({"certainty":"completed","output_status":"valid","output":{"decision":decision}}),
+        );
+        write(
+            &project.0.join("evidence.json"),
+            &json!({"fixture":"retained provider response"}),
+        );
+        success(&[
+            "resolve",
+            "--state",
+            path(&project.0.join("state")),
+            "--run",
+            scenario,
+            "--effect",
+            effect["id"].as_str().unwrap(),
+            "--output",
+            path(&project.0.join("resolved.json")),
+            "--evidence",
+            path(&project.0.join("evidence.json")),
+        ]);
+        rejected(project.run(&bundle, scenario, "workflow"), diagnostic);
+        let before = project.inspect(scenario);
+        let messages = project.messages(scenario);
+        assert_eq!(project.calls(), 2);
+        assert_eq!(
+            messages
+                .iter()
+                .filter(|message| message["kind"] == "Request" && message["sender"] == "planner")
+                .count(),
+            1
+        );
+        rejected(project.run(&bundle, scenario, "workflow"), diagnostic);
+        assert_eq!(project.calls(), 2);
+        assert_eq!(project.inspect(scenario), before);
+        assert_eq!(project.messages(scenario), messages);
+    }
+}
+
 #[test]
 fn known_refusal_and_invalid_output_are_recorded_while_unknown_execution_blocks_replay() {
     let refused = json!({"version":"mas-provider/1","status":"unusable","evidence":{"output_status":"refused"}}).to_string();

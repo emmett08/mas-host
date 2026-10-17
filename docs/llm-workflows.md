@@ -119,6 +119,20 @@ provider that ignores the schema produces a retained invalid outcome; this
 policy introduces no retry and does not increase the existing turn budget.
 Omitting the field preserves the previous resolved configuration and its digest.
 
+Set optional `required_delegates = ["pod", "events", "workload", "logs"]` when
+completion requires observations from particular peers. Entries must be unique
+members of `delegates`, and their count must be smaller than `max_turns`, leaving
+one turn for completion. Until every required peer has returned, the response
+schema permits requests only to the remaining required peers, in an order chosen
+by the model. Completion additionally respects `min_delegate_calls` when set.
+After coverage, the model can request any permitted peer within the remaining
+turns. On the final turn, a non-empty required list permits only completion.
+Runtime checks also enforce the selected target and completion conditions when
+using retained outcomes. Omitting the field or supplying an empty list preserves
+the previous decision schemas and behaviour; omission also preserves configuration
+identity. Returned application errors count as observations, so applications must
+still check whether the collected results justify assessment or action.
+
 ## Outcomes, recovery and validation
 
 Every inference turn is a separate admitted effect. Valid output, refusal,

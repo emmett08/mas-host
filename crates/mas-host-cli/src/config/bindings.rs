@@ -165,6 +165,7 @@ fn llm(root: &Path, implementation: &Value, connections: Option<&Value>) -> Resu
             "max_turns",
             "delegates",
             "min_delegate_calls",
+            "required_delegates",
         ],
         "LLM implementation",
     )?;
@@ -241,6 +242,29 @@ fn llm(root: &Path, implementation: &Value, connections: Option<&Value>) -> Resu
         // therefore its identity in existing bundles and effect descriptors.
         config["min_delegate_calls"] = json!(minimum);
     }
+    if let Some(value) = implementation.get("required_delegates") {
+        let required = value
+            .as_array()
+            .ok_or("required_delegates must be an array")?;
+        let mut required_names = std::collections::BTreeSet::new();
+        for name in required {
+            let name = name
+                .as_str()
+                .ok_or("required_delegates entries must be names")?;
+            if !required_names.insert(name) {
+                return Err("duplicate required_delegates entry".into());
+            }
+            if !names.contains(name) {
+                return Err("required_delegates must be a subset of delegates".into());
+            }
+        }
+        if required.len() as u64 >= config["max_turns"].as_u64().unwrap() {
+            return Err("required_delegates count must be less than max_turns".into());
+        }
+        // Like the minimum count, an omitted policy must not change existing
+        // immutable bundle or effect identities.
+        config["required_delegates"] = value.clone();
+    }
     config["delegates"] = delegates;
     Ok(config)
 }
@@ -305,5 +329,55 @@ mod tests {
             .contains("at least one delegate"));
         without_delegates["min_delegate_calls"] = json!(0);
         assert!(llm(&root, &without_delegates, Some(&connections)).is_ok());
+    }
+
+    #[test]
+    fn required_delegates_are_a_unique_subset_with_a_completion_turn() {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../..")
+            .canonicalize()
+            .unwrap();
+        let implementation = json!({"kind":"llm","connection":"fixture","model":"fixture",
+            "instructions":"README.md","max_turns":3,"delegates":["one","two","three"]});
+        let connections = json!({"fixture":{"kind":"mock","output":{}}});
+        let original = llm(&root, &implementation, Some(&connections)).unwrap();
+        assert!(original.get("required_delegates").is_none());
+        for required in [json!([]), json!(["one"]), json!(["two", "one"])] {
+            let mut current = implementation.clone();
+            current["required_delegates"] = required.clone();
+            current["min_delegate_calls"] = json!(2);
+            let mut resolved = llm(&root, &current, Some(&connections)).unwrap();
+            assert_eq!(resolved["required_delegates"], required);
+            assert_eq!(resolved["min_delegate_calls"], 2);
+            resolved
+                .as_object_mut()
+                .unwrap()
+                .remove("required_delegates");
+            resolved
+                .as_object_mut()
+                .unwrap()
+                .remove("min_delegate_calls");
+            assert_eq!(resolved.to_string(), original.to_string());
+        }
+        for required in [
+            json!("one"),
+            json!(null),
+            json!([1]),
+            json!(["one", "one"]),
+            json!(["unknown"]),
+            json!(["one", "two", "three"]),
+        ] {
+            let mut current = implementation.clone();
+            current["required_delegates"] = required;
+            assert!(llm(&root, &current, Some(&connections))
+                .unwrap_err()
+                .contains("required_delegates"));
+        }
+        let mut impossible = implementation;
+        impossible["max_turns"] = json!(1);
+        impossible["required_delegates"] = json!(["one"]);
+        assert!(llm(&root, &impossible, Some(&connections))
+            .unwrap_err()
+            .contains("less than max_turns"));
     }
 }

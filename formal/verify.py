@@ -59,13 +59,21 @@ for name, macro, assertion in (
     CASES.append(("disclosure", name, macro, None, False, assertion))
 for name, macro, assertion in (
     ("early-complete", "BUG_EARLY_COMPLETE", "successful>=minimum"),
-    ("early-complete-schema", "BUG_SCHEMA", "complete_allowed==(successful>=minimum)"),
+    ("early-complete-schema", "BUG_SCHEMA", "complete_allowed=="),
+    ("partial-coverage-complete", "BUG_PARTIAL_COMPLETE", "covered&required"),
+    ("required-target-schema", "BUG_TARGET_SCHEMA", "permitted_requests=="),
+    ("duplicate-target-schema", "BUG_DUPLICATE_TARGET_SCHEMA", "permitted_requests=="),
+    ("final-turn-request", "BUG_FINAL_REQUEST", "request_allowed=="),
     ("replay-count", "BUG_REPLAY_COUNT", "successful==retained_successful"),
+    ("replay-coverage", "BUG_REPLAY_COVERAGE", "covered==retained_covered"),
     ("replay-dispatch", "BUG_REPLAY_DISPATCH", "peer_dispatches==saved_peer_dispatches"),
     ("complete-witness", "WITNESS_COMPLETE", "terminal==Completed"),
     ("zero-minimum-witness", "WITNESS_ZERO", "minimum==0"),
     ("replay-witness", "WITNESS_REPLAY", "replayed"),
     ("early-invalid-witness", "WITNESS_EARLY_INVALID", "terminal==Invalid"),
+    ("partial-coverage-invalid-witness", "WITNESS_PARTIAL_INVALID", "successful==1"),
+    ("duplicate-target-invalid-witness", "WITNESS_DUPLICATE_INVALID", "duplicate_rejected"),
+    ("reverse-order-witness", "WITNESS_REVERSE_ORDER", "first_peer==2"),
 ):
     CASES.append(("delegation", name, macro, None, False, assertion))
 CASES.append(("delegation", "stalled-inference", "BUG_STALL", "delegation_finishes",
@@ -108,7 +116,8 @@ def main() -> int:
                           "search_depth": DEPTH},
                "bounds": {"runs": 1, "candidates": 2, "invocations": 4,
                           "revisions": 1, "disruptions": 1, "disclosure_worlds": 2,
-                          "delegation": {"inference_turns": 3, "permitted_peers": 1,
+                          "delegation": {"inference_turns": 3, "permitted_peers": 2,
+                                         "required_peer_subsets": 4,
                                          "minimum_calls": [0, 1, 2], "replays": 1}},
                "assumptions": [
                    "One host owner serialises this run and immutable journal writes are atomic",

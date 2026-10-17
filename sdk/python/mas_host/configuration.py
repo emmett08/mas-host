@@ -79,6 +79,7 @@ class Llm:
     max_turns: int | None = None
     delegates: Sequence[str] | None = None
     min_delegate_calls: int | None = None
+    required_delegates: Sequence[str] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         document: dict[str, Any] = {
@@ -93,11 +94,13 @@ class Llm:
                 if type(value) is not int:
                     raise TypeError(f"{name} must be an exact integer")
                 document[name] = value
-        if self.delegates is not None:
-            document["delegates"] = [
-                _text(name, "delegate")
-                for name in _sequence(self.delegates, "delegates")
-            ]
+        for field in ("delegates", "required_delegates"):
+            value = getattr(self, field)
+            if value is not None:
+                document[field] = [
+                    _text(name, "delegate")
+                    for name in _sequence(value, field)
+                ]
         return _object(document)
 
 

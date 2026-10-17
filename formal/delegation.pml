@@ -1,28 +1,40 @@
-/* Optional host policy: completion requires min_delegate_calls successful peer
- * replies. One invocation, one permitted peer, three inference turns, minimum
- * 0..2, and at most one replay. Provider/delegate outcomes return or expire.
- * No payload, protocol delivery, wall-clock or provider behaviour is proved.
+/* Optional host delegation policy. One invocation, two permitted peers, three
+ * inference turns, minimum 0..2, every required subset, and at most one replay.
+ * Required coverage counts distinct successful retained peer replies. Provider
+ * and delegate work returns or expires; payload usefulness is outside scope.
  */
 #define MAX_TURNS 3
+#define ALL_PEERS 3
+#define COVERED ((covered & required) == required)
 mtype = { Running, Completed, Invalid, Unavailable, Unknown,
           DelegateFailed, Exhausted, Stopped };
 mtype terminal = Running;
 byte minimum;
+byte required;
 byte turns;
 byte successful;
 byte retained_successful;
+byte covered;
+byte retained_covered;
 byte provider_dispatches;
 byte peer_dispatches;
 byte saved_provider_dispatches;
 byte saved_peer_dispatches;
+byte permitted_requests;
+byte selected;
+byte first_peer;
 bool complete_allowed;
+bool request_allowed;
+bool duplicate_rejected;
+bool partial_completion_rejected;
+bool early_completion_rejected;
 bool replayed;
 bool finished;
 
 inline replay_history() {
     /* Re-entering execute reconstructs history from retained inference/peer
      * results. Each retained successful peer turn contributes exactly once.
-     * This abstracts replay traversal; the active turn does not advance. */
+     * The bitset abstracts identity-based union over those retained turns. */
     saved_provider_dispatches = provider_dispatches;
     saved_peer_dispatches = peer_dispatches;
     successful = 0;
@@ -30,23 +42,29 @@ inline replay_history() {
     :: successful < retained_successful -> successful++
     :: else -> break
     od;
+    covered = retained_covered;
 #ifdef BUG_REPLAY_COUNT
     successful++;
+#endif
+#ifdef BUG_REPLAY_COVERAGE
+    covered = ALL_PEERS;
 #endif
 #ifdef BUG_REPLAY_DISPATCH
     peer_dispatches++;
 #endif
     assert(successful == retained_successful);
+    assert(covered == retained_covered);
     assert(provider_dispatches == saved_provider_dispatches);
     assert(peer_dispatches == saved_peer_dispatches);
     replayed = true
 }
 
 init {
-    /* The configuration validator admits 0 <= minimum < max_turns and
-     * requires a permitted delegate for a positive minimum. All represented
-     * configurations have one delegate, including the backwards-compatible 0. */
+    /* Valid configurations: minimum < max_turns and enough turns for every
+     * distinct required peer plus completion. Both peers are always allowed;
+     * required == 0 preserves the earlier optional-delegation policy. */
     if :: minimum = 0 :: minimum = 1 :: minimum = 2 fi;
+    if :: required = 0 :: required = 1 :: required = 2 :: required = 3 fi;
     do
     :: terminal == Running ->
 #ifdef BUG_STALL
@@ -55,37 +73,85 @@ init {
         if
         :: turns == MAX_TURNS -> terminal = Exhausted
         :: turns < MAX_TURNS ->
-            complete_allowed = successful >= minimum;
+            complete_allowed = successful >= minimum && COVERED;
+            request_allowed = required == 0 || turns + 1 < MAX_TURNS;
+            if
+            :: COVERED -> permitted_requests = ALL_PEERS
+            :: else -> permitted_requests = required & (ALL_PEERS ^ covered)
+            fi;
 #ifdef BUG_SCHEMA
             complete_allowed = true;
 #endif
-            assert(complete_allowed == (successful >= minimum));
+#ifdef BUG_TARGET_SCHEMA
+            permitted_requests = ALL_PEERS;
+#endif
+#ifdef BUG_DUPLICATE_TARGET_SCHEMA
+            if :: !COVERED && covered != 0 -> permitted_requests = ALL_PEERS
+               :: else -> skip fi;
+#endif
+#ifdef BUG_FINAL_REQUEST
+            request_allowed = true;
+#endif
+            assert(complete_allowed == (successful >= minimum && COVERED));
+            assert(COVERED || permitted_requests == (required & (ALL_PEERS ^ covered)));
+            assert(request_allowed == (required == 0 || turns + 1 < MAX_TURNS));
             turns++;
             provider_dispatches++;
-            /* A provider may ignore the advertised schema. Local validation
-             * makes early completion invalid; it does not initiate a retry. */
+            /* The provider may ignore its schema. Local validation rejects
+             * early completion and out-of-schema targets without a retry. */
             if
             :: /* complete decision */
 #ifdef BUG_EARLY_COMPLETE
-                terminal = Completed
+                if :: COVERED -> terminal = Completed
+                   :: else -> terminal = Invalid fi
+#else
+#ifdef BUG_PARTIAL_COMPLETE
+                if :: successful >= minimum -> terminal = Completed
+                   :: else -> terminal = Invalid fi
 #else
                 if
-                :: complete_allowed && successful >= minimum -> terminal = Completed
-                :: else -> terminal = Invalid
+                :: complete_allowed && successful >= minimum && COVERED -> terminal = Completed
+                :: else ->
+                    if :: successful < minimum -> early_completion_rejected = true
+                       :: else -> skip fi;
+                    if
+                    :: successful >= minimum && !COVERED -> partial_completion_rejected = true
+                    :: else -> skip
+                    fi;
+                    terminal = Invalid
                 fi
 #endif
+#endif
             :: /* request decision */
+                if :: selected = 1 :: selected = 2 fi;
                 if
-                :: turns == MAX_TURNS -> terminal = Exhausted
-                :: turns < MAX_TURNS ->
-                    peer_dispatches++;
+                :: !request_allowed -> terminal = Invalid
+                :: request_allowed ->
                     if
-                    :: successful++; retained_successful++;
+                    :: (selected & permitted_requests) == 0 ->
                         if
-                        :: !replayed -> replay_history()
-                        :: skip
+                        :: (selected & covered) != 0 -> duplicate_rejected = true
+                        :: else -> skip
+                        fi;
+                        terminal = Invalid
+                    :: (selected & permitted_requests) != 0 ->
+                        if
+                        :: turns == MAX_TURNS -> terminal = Exhausted
+                        :: turns < MAX_TURNS ->
+                            peer_dispatches++;
+                            if
+                            :: successful++;
+                                retained_successful++;
+                                covered = covered | selected;
+                                retained_covered = retained_covered | selected;
+                                if :: first_peer == 0 -> first_peer = selected :: else -> skip fi;
+                                if
+                                :: !replayed -> replay_history()
+                                :: skip
+                                fi
+                            :: terminal = DelegateFailed
+                            fi
                         fi
-                    :: terminal = DelegateFailed
                     fi
                 fi
             :: terminal = Invalid
@@ -98,22 +164,33 @@ init {
     :: terminal != Running -> break
     od;
     assert(terminal != Completed || successful >= minimum);
+    assert(terminal != Completed || COVERED);
     assert(successful == retained_successful);
+    assert(covered == retained_covered);
     assert(provider_dispatches <= MAX_TURNS);
     assert(peer_dispatches < MAX_TURNS);
     assert(successful <= peer_dispatches);
     finished = true;
 #ifdef WITNESS_COMPLETE
-    assert(!(terminal == Completed && minimum == 2 && successful == 2));
+    assert(!(terminal == Completed && required == ALL_PEERS && successful == 2));
 #endif
 #ifdef WITNESS_ZERO
-    assert(!(terminal == Completed && minimum == 0 && successful == 0));
+    assert(!(terminal == Completed && minimum == 0 && required == 0 && successful == 0));
 #endif
 #ifdef WITNESS_REPLAY
-    assert(!(replayed && terminal == Completed));
+    assert(!(replayed && terminal == Completed && required == ALL_PEERS));
 #endif
 #ifdef WITNESS_EARLY_INVALID
-    assert(!(terminal == Invalid && minimum > 0 && turns == 1));
+    assert(!(terminal == Invalid && early_completion_rejected && minimum > 0 && turns == 1));
+#endif
+#ifdef WITNESS_PARTIAL_INVALID
+    assert(!(terminal == Invalid && partial_completion_rejected && required == ALL_PEERS && successful == 1));
+#endif
+#ifdef WITNESS_DUPLICATE_INVALID
+    assert(!(terminal == Invalid && duplicate_rejected && peer_dispatches == 1));
+#endif
+#ifdef WITNESS_REVERSE_ORDER
+    assert(!(terminal == Completed && required == ALL_PEERS && first_peer == 2));
 #endif
 }
 

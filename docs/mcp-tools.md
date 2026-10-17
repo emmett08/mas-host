@@ -108,6 +108,18 @@ tools or establish evidence quality. Application acceptance must check the
 recorded results. A model that violates the required decision schema fails with
 a retained invalid outcome rather than an automatic retry.
 
+For investigations needing a defined set of evidence sources, use
+`required_delegates = ["pod", "events", "workload", "logs"]` with those names in
+`delegates` and `max_turns = 5`. The host requires one returned observation from
+each peer, lets the model choose their order, and offers only the outstanding
+targets until coverage is complete. The final turn offers only completion.
+Each required name must be unique and permitted; the list length must be less
+than `max_turns`. This policy can coexist with `min_delegate_calls`. It prevents
+partial collection or repeat calls from satisfying coverage, but returned tool
+errors still require application acceptance checks. Replayed results establish
+the same coverage without dispatching the tools again. No protocol change or
+automatic retry is introduced.
+
 Command `timeout_seconds` is capped by the original run deadline. The host stops
 the local process group on interruption; neither process termination nor MCP
 cancellation proves that a remote tool stopped. A stdio server and its descendants
