@@ -78,6 +78,7 @@ impl Inner {
         if let Some(schema) = &agent.input_schema {
             mas_host_schema::validate(schema, input)?;
         }
+        self.inherit_context(parent, &self.step_id(parent, key, "request"), target, input)?;
         let step = self.prepare(parent, key, "request", actor, target, input)?;
         if step.state == "completed" {
             self.settle_children(&step.id)?;

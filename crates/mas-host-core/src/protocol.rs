@@ -90,7 +90,10 @@ impl Inner {
             payload,
         );
         let mut protocol = lock(&self.protocol)?;
-        protocol.send(&message, &step.target)?;
+        if let Err(failure) = protocol.send_checked(&message, &step.target) {
+            self.note_revision_terminal_budget(&step.id, &failure)?;
+            return Err(failure.message);
+        }
         protocol.ack(&self.run_id, &request_id, &step.target)?;
         let received = protocol.receive(&self.run_id, &step.actor, 100)?;
         if received.as_array().is_some_and(|rows| {

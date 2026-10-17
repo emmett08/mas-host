@@ -16,6 +16,7 @@ const HELP: &str = "mas-host: native applications on the MAS protocol\n\n\
   cancel  --state DIR --run ID\n\
   resolve --state DIR --run ID --effect ID --output FILE --evidence FILE\n\n\
 Run builds automatically when --project is supplied. Reuse --run to resume.\n\
+Pass --revision-plan FILE to run a frozen assessment/revision workflow.\n\
 Input format follows the file extension; stdin defaults to JSON.\n\
 The state directory belongs to one local operator. Python agents require Python 3.11+.\n";
 
@@ -86,6 +87,7 @@ fn execute(args: &[String]) -> Result<Value, String> {
                     "--connections",
                     "--topology",
                     "--input-format",
+                    "--revision-plan",
                 ],
             )?;
             let input = config::authoring::read_input(
@@ -117,8 +119,19 @@ fn execute(args: &[String]) -> Result<Value, String> {
             };
             let bundle = config::read_json(&bundle_path)?;
             let engine = mas_host_core::Engine::open(&bundle, state, run)?;
-            let output = engine.run(agent, &input)?;
-            Ok(json!({"status":"completed","run_id":run,"output":output}))
+            if let Some(path) = args.get("--revision-plan") {
+                let plan = config::read_json(Path::new(path))?;
+                if plan["draft_agent"] != agent {
+                    return Err("--agent must equal revision plan draft_agent".into());
+                }
+                let mut result = engine.revise(&plan, &input)?;
+                result["status"] = result["revision"]["status"].clone();
+                result["run_id"] = json!(run);
+                Ok(result)
+            } else {
+                let output = engine.run(agent, &input)?;
+                Ok(json!({"status":"completed","run_id":run,"output":output}))
+            }
         }
         "inspect" => {
             let args = options(&args[1..], &["--state", "--run"])?;

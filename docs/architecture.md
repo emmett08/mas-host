@@ -10,7 +10,7 @@ the shared host remains Rust, and other language profiles require no Python runt
 
 `mas` and `mas-host` have independent responsibilities and release histories.
 This host consumes the public Rust `mas-protocol-codec` crate at commit
-`718e206614888a1d96c876cdcc9ac6eed8622113`. It does not copy or modify the protocol
+`239e85c5ad1ab4f25df958365c50019c8b91fe15`. It does not copy or modify the protocol
 implementation. The dependency is pinned source while independently published
 protocol releases are unavailable. `Cargo.lock` records the complete Rust graph.
 
@@ -216,3 +216,12 @@ Application demonstrations belong in `mas-host-examples`. Local `tests/fixtures`
 retain only inputs required to verify this host's compiler integration and recovery.
 Changes to the current authoring and bundle contracts migrate those fixtures and
 the examples together; prior schemas are rejected rather than maintained in parallel.
+
+## Assessment and revision
+
+The optional [assessment/revision controller](assessment-revision.md) uses existing
+request and effect execution. The core owns immutable invocation contexts, disclosure
+inheritance, evaluator binding and bounded control; the protocol owns the versioned
+assessment payload types and reference validation. The public observer applies
+reader restrictions to derived records, messages and effect evidence. The local
+operator inspection remains an administrative interface.
