@@ -1,0 +1,211 @@
+//! Administrator-owned publication and authority; never supplied by a card.
+use super::{digest, Result, PROFILE};
+use serde_json::{json, Value};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    net::{IpAddr, SocketAddr},
+};
+
+pub(super) struct Configuration {
+    pub listen: SocketAddr,
+    pub public_url: String,
+    pub name: String,
+    pub exports: BTreeMap<String, Value>,
+    pub principals: BTreeMap<String, (String, BTreeSet<String>)>,
+    pub max_active: usize,
+    pub max_tasks: usize,
+}
+fn string(value: &Value, key: &str, max: usize) -> Result<String> {
+    value[key]
+        .as_str()
+        .filter(|s| !s.is_empty() && s.len() <= max && !s.chars().any(char::is_control))
+        .map(str::to_owned)
+        .ok_or_else(|| format!("invalid {key}"))
+}
+fn bound(value: &Value, key: &str, default: u64, maximum: u64) -> Result<usize> {
+    let v = value
+        .get(key)
+        .map(|v| v.as_u64().ok_or_else(|| format!("invalid {key}")))
+        .transpose()?
+        .unwrap_or(default);
+    if v == 0 || v > maximum {
+        return Err(format!("invalid {key}"));
+    }
+    Ok(v as usize)
+}
+impl Configuration {
+    pub fn parse(value: &Value, descriptor: &Value, bundle: &Value) -> Result<Self> {
+        crate::config::fields(
+            value,
+            &[
+                "version",
+                "listen",
+                "public_url",
+                "name",
+                "exports",
+                "principals",
+            ],
+            &["max_active", "max_tasks"],
+            "A2A configuration",
+        )?;
+        if value["version"] != "mas-host-a2a/1" {
+            return Err("unsupported A2A configuration".into());
+        }
+        let listen: SocketAddr = string(value, "listen", 100)?
+            .parse()
+            .map_err(|_| "invalid listen address")?;
+        if !listen.ip().is_loopback() || listen.port() == 0 {
+            return Err("A2A listen must be literal loopback with a nonzero port".into());
+        }
+        let public_url = string(value, "public_url", 2000)?;
+        let uri: hyper::Uri = public_url.parse().map_err(|_| "invalid public_url")?;
+        let authority = uri.authority().ok_or("public_url requires authority")?;
+        if authority.as_str().contains('@')
+            || uri.path() != "/a2a"
+            || uri.query().is_some()
+            || public_url.contains('#')
+        {
+            return Err(
+                "public_url must identify /a2a without user information, query or fragment".into(),
+            );
+        }
+        let loopback_http = uri.scheme_str() == Some("http")
+            && authority
+                .host()
+                .trim_matches(&['[', ']'][..])
+                .parse::<IpAddr>()
+                .is_ok_and(|ip| ip.is_loopback());
+        if uri.scheme_str() != Some("https") && !loopback_http {
+            return Err("public_url requires HTTPS or literal loopback HTTP".into());
+        }
+        let mut exports = BTreeMap::new();
+        for export in value["exports"]
+            .as_array()
+            .filter(|v| !v.is_empty() && v.len() <= 31)
+            .ok_or("expected 1..31 exports")?
+        {
+            crate::config::fields(
+                export,
+                &["agent", "name", "description", "public"],
+                &[],
+                "export",
+            )?;
+            let agent = string(export, "agent", 64)?;
+            string(export, "name", 200)?;
+            string(export, "description", 2000)?;
+            if !export["public"].is_boolean() {
+                return Err("export public must be boolean".into());
+            }
+            let contract = descriptor["agents"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|v| v["name"] == agent)
+                .ok_or("export names unknown agent")?;
+            if contract["input_schema"].is_null() || contract["output_schema"].is_null() {
+                return Err(
+                    "exported operations require explicit input_schema and output_schema".into(),
+                );
+            }
+            let edges = bundle["topology"]["edges"]
+                .as_array()
+                .ok_or("invalid topology")?;
+            if !edges.contains(&json!(["client", agent]))
+                || !edges.contains(&json!([agent, "client"]))
+            {
+                return Err("export requires client request and reply routes".into());
+            }
+            if exports.insert(agent, export.clone()).is_some() {
+                return Err("duplicate export".into());
+            }
+        }
+        let mut principals = BTreeMap::new();
+        let mut tokens = BTreeSet::new();
+        for principal in value["principals"]
+            .as_array()
+            .filter(|v| !v.is_empty() && v.len() <= 128)
+            .ok_or("expected 1..128 principals")?
+        {
+            crate::config::fields(
+                principal,
+                &["name", "token_sha256", "agents"],
+                &[],
+                "principal",
+            )?;
+            let name = string(principal, "name", 128)?;
+            let token = string(principal, "token_sha256", 64)?;
+            if token.len() != 64
+                || !token
+                    .bytes()
+                    .all(|c| c.is_ascii_digit() || (b'a'..=b'f').contains(&c))
+                || !tokens.insert(token.clone())
+            {
+                return Err("principal token hashes must be distinct SHA-256 hex digests".into());
+            }
+            let agents = principal["agents"]
+                .as_array()
+                .filter(|a| !a.is_empty() && a.len() <= 31)
+                .ok_or("invalid principal grants")?;
+            let mut grants = BTreeSet::new();
+            for agent in agents {
+                let agent = agent.as_str().ok_or("invalid principal grant")?;
+                if !exports.contains_key(agent) || !grants.insert(agent.to_owned()) {
+                    return Err("unknown or duplicate principal grant".into());
+                }
+            }
+            if principals.insert(name, (token, grants)).is_some() {
+                return Err("duplicate principal".into());
+            }
+        }
+        Ok(Self {
+            listen,
+            public_url,
+            name: string(value, "name", 200)?,
+            exports,
+            principals,
+            max_active: bound(value, "max_active", 4, 16)?,
+            max_tasks: bound(value, "max_tasks", 1000, 10000)?,
+        })
+    }
+    pub fn authenticate(&self, bearer: &str) -> Option<String> {
+        if !(32..=512).contains(&bearer.len()) || !bearer.bytes().all(|b| b.is_ascii_graphic()) {
+            return None;
+        }
+        let hash = digest(bearer.as_bytes());
+        self.principals
+            .iter()
+            .find(|(_, (expected, _))| {
+                hash.bytes()
+                    .zip(expected.bytes())
+                    .fold(0u8, |d, (a, b)| d | (a ^ b))
+                    == 0
+            })
+            .map(|(name, _)| name.clone())
+    }
+    pub fn card(&self, descriptor: &Value, principal: Option<&str>) -> Value {
+        let allowed: BTreeSet<_> = match principal {
+            Some(p) => self.principals[p].1.clone(),
+            None => self
+                .exports
+                .iter()
+                .filter(|(_, v)| v["public"] == true)
+                .map(|(k, _)| k.clone())
+                .collect(),
+        };
+        let mut projection = descriptor.clone();
+        projection["agents"] = json!(descriptor["agents"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|v| allowed.contains(v["name"].as_str().unwrap()))
+            .collect::<Vec<_>>());
+        let skills:Vec<_>=allowed.iter().map(|agent| {let e=&self.exports[agent];json!({"id":agent,"name":e["name"],"description":e["description"],"tags":["nehemiah","bounded-workflow"],"inputModes":["application/json"],"outputModes":["application/json"]})}).collect();
+        json!({"name":self.name,"description":"Nehemiah bounded durable workflows through the Rust MAS host. Authorised exports only.","version":env!("CARGO_PKG_VERSION"),
+            "supportedInterfaces":[{"url":self.public_url,"protocolBinding":"JSONRPC","protocolVersion":"1.0"}],
+            "capabilities":{"streaming":false,"pushNotifications":false,"extendedAgentCard":true,
+                "extensions":[{"uri":PROFILE,"required":true,"description":"Exact integer JSON, pinned operation contracts, durable request identity and explicit uncertain outcomes.",
+                    "params":{"descriptor":projection,"methods":["SendMessage","GetTask","CancelTask"],"cancellation":"intent-only; pending cancellation returns TaskNotCancelableError","restart":"unfinished accepted work becomes unknown; no automatic redispatch"}}]},
+            "securitySchemes":{"bearer":{"httpAuthSecurityScheme":{"scheme":"Bearer"}}},"securityRequirements":[{"schemes":{"bearer":{"list":[]}}}],
+            "defaultInputModes":["application/json"],"defaultOutputModes":["application/json"],"skills":skills})
+    }
+}

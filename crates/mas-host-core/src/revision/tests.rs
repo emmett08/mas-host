@@ -475,3 +475,72 @@ fn retained_assessment_revalidates_every_binding_and_original_context() {
     drop(engine);
     std::fs::remove_dir_all(path).unwrap();
 }
+
+#[test]
+fn stop_after_assessment_prevents_new_reservation_at_transaction_boundary() {
+    for cancel in [true, false] {
+        let (path, _, mut engine) = engine_fixture();
+        engine
+            .inner
+            .freeze_revision(&json!({"max_invocations":3}), &input())
+            .unwrap();
+        let context =
+            context::assemble("worker", &["incident".into()], &input(), None, &[], &[]).unwrap();
+        engine.inner.bind_context("assessed", &context).unwrap();
+        let retained = json!({"id":"retained-assessment","score":0});
+        engine
+            .inner
+            .record("assessment", &retained, &json!(["*"]))
+            .unwrap();
+        // Deterministically place the stop between the caller's live check and
+        // the next transaction, without relying on a scheduler timing window.
+        engine.inner.check_live().unwrap();
+        if cancel {
+            super::super::cancel(&path, "test").unwrap();
+        } else {
+            std::sync::Arc::get_mut(&mut engine.inner)
+                .unwrap()
+                .deadline_ms = 0;
+        }
+        let error = engine
+            .inner
+            .bind_context("next-revision", &context)
+            .unwrap_err();
+        assert!(error.contains(if cancel { "cancelled" } else { "deadline" }));
+        let terminal = json!({"status":"completed","selected":{"id":"candidate-0"}});
+        let error = engine.inner.terminal_revision(&terminal).unwrap_err();
+        assert!(error.contains(if cancel { "cancelled" } else { "deadline" }));
+        // An exact observation/replay does not create a fresh reservation.
+        engine.inner.bind_context("assessed", &context).unwrap();
+        let db = lock(&engine.inner.journal).unwrap();
+        let count: i64 = db
+            .query_row("SELECT COUNT(*) FROM revision_contexts", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(count, 1);
+        let body:String=db.query_row("SELECT body FROM revision_records WHERE kind='assessment' AND id='retained-assessment'",[],|r|r.get(0)).unwrap();
+        assert_eq!(serde_json::from_str::<Value>(&body).unwrap(), retained);
+        drop(db);
+        drop(engine);
+        std::fs::remove_dir_all(path).unwrap();
+    }
+}
+
+#[test]
+fn retained_terminal_replay_survives_later_stop_without_reclassification() {
+    let (path, _, engine) = engine_fixture();
+    engine
+        .inner
+        .freeze_revision(&json!({"max_invocations":1}), &input())
+        .unwrap();
+    let terminal = json!({"status":"completed","selected":{"id":"candidate-0"}});
+    engine.inner.terminal_revision(&terminal).unwrap();
+    super::super::cancel(&path, "test").unwrap();
+    engine.inner.terminal_revision(&terminal).unwrap();
+    assert!(engine
+        .inner
+        .terminal_revision(&json!({"status":"exhausted","selected":null}))
+        .unwrap_err()
+        .contains("immutable"));
+    drop(engine);
+    std::fs::remove_dir_all(path).unwrap();
+}

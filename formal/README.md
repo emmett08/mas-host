@@ -67,7 +67,7 @@ outside the non-disclosure claim.
 | Reservation before work | `revision_contexts` transaction and `Inner::request` | Unique invocation identity reserves budget before host execution; nested requests share that budget |
 | Reuse of completed invocation/effect | `Inner::request`, `Inner::effect`, persisted `steps` | Restart returns retained output and effect evidence; no duplicate external effect |
 | Unknown effect blocks recovery | `Engine::open` recovery of executing effects, `Inner::has_unknown`, `Inner::has_unsettled_effects` | Crash with unresolved effect cannot authorise a retry |
-| Cancellation and expiry | `Inner::check_live` and worker deadline | Persisted cancellation and original expiry stop further admission; uncertainty remains recorded |
+| Cancellation and expiry | `Inner::check_live`, transactional `Inner::bind_context`/`terminal_revision`, and worker deadline | A stop committed after assessment but before the next reservation or terminal commit prevents that new transition; exact retained receipts remain immutable; uncertainty remains recorded |
 | Evaluator error never selects a passing result | Revision controller assessment handling and fixed selection rule | Invalid output/error remains distinct from a completed passing assessment |
 | Input self-composition and replay | `revision::context::assemble`, `Inner::bind_context` | Changing withheld peer sources produces identical reviewer input; policy/context drift rejects |
 | Derived readers and child permission | `revision::context::intersection`, `Inner::inherit_context` | A child must satisfy both allowed-agent and inherited-reader checks; descendants retain restrictions |
@@ -81,6 +81,13 @@ checks. The existing `mas-host-examples` remediation models and implementation
 tests check actual execution preconditions. The host model's zero-remediation
 effect assertion establishes that the revision wrapper grants no remediation
 authority; it does not reconstruct the Kubernetes admission rules.
+
+The `stop_after_assessment_prevents_new_reservation_at_transaction_boundary`
+regression places cancellation or expiry between the caller's live check and
+the next journal transaction. It checks that no invocation reservation or terminal
+completion is inserted and that the retained assessment remains unchanged.
+`retained_terminal_replay_survives_later_stop_without_reclassification` checks
+the opposite commit order: a previously committed terminal receipt survives.
 
 This table is an implementation correspondence review, not a formal refinement
 proof. Existing per-candidate incident choreography remains inside each request;

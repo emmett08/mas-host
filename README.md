@@ -1,6 +1,6 @@
-# MAS Host
+# MAS Host for Nehemiah
 
-A shared Rust host for native functions, CLI tools, LLMs and composable workflows. Application
+A shared Rust host for native functions, CLI tools, LLMs and composable workflows using the Nehemiah communication protocol (existing `mas-*` identifiers remain stable). Application
 repositories supply **functions or executable tools, agent configuration and topology
 configuration**, plus their normal build metadata and tests. The host tooling
 generates executable entry points and registration bundles. Go, Rust, C++ and
@@ -196,8 +196,10 @@ All workers receive only their declared environment bindings; LLM connections ad
 their explicitly named credentials. CLI tool I/O is captured by its adapter;
 retained application logs are not implemented.
 
-This release does not claim distributed ownership, remote ingress or compatibility
-with the Python host's state. Those extensions and
+The optional [A2A service](docs/a2a.md) publishes explicitly granted operations with durable request identities, scoped Agent Cards and conservative recovery. `describe --bundle FILE` generates operation contracts from the validated bundle.
+
+This release does not claim distributed ownership or compatibility
+with the transitional Python host's state. Those extensions and
 their acceptance criteria are set out in [architecture](docs/architecture.md).
 The precise framing, execution and recovery rules are in the
 [native contract](docs/native-contract.md).

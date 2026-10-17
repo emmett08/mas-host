@@ -150,6 +150,22 @@ impl Inner {
                 return Err("invocation context or policy differs from original".into());
             }
         } else {
+            // A live check before this transaction cannot authorise a new
+            // reservation after a concurrent cancellation or elapsed deadline.
+            // Existing context replay above retains its original identity.
+            let cancelled: bool = tx
+                .query_row(
+                    "SELECT cancelled FROM metadata WHERE singleton=1",
+                    [],
+                    |r| r.get(0),
+                )
+                .map_err(error)?;
+            if cancelled {
+                return Err("run cancelled; no new revision reservation".into());
+            }
+            if super::super::now_ms()? >= self.deadline_ms {
+                return Err("original run deadline expired".into());
+            }
             let frozen: String = tx
                 .query_row(
                     "SELECT body FROM revision_plan WHERE singleton=1",
@@ -280,24 +296,46 @@ impl Inner {
     }
     pub(super) fn terminal_revision(&self, value: &Value) -> Result<()> {
         fields(value, &["status", "selected"], &[])?;
-        let db = lock(&self.journal)?;
+        let mut db = lock(&self.journal)?;
+        let tx = db
+            .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
+            .map_err(error)?;
         let body = value.to_string();
-        db.execute(
-            "INSERT OR IGNORE INTO revision_terminal(singleton,body) VALUES(1,?)",
-            [&body],
-        )
-        .map_err(error)?;
-        let old: String = db
+        let prior: Option<String> = tx
             .query_row(
                 "SELECT body FROM revision_terminal WHERE singleton=1",
                 [],
                 |r| r.get(0),
             )
+            .optional()
             .map_err(error)?;
-        if old != body {
-            return Err("terminal revision result is immutable".into());
+        if let Some(old) = prior {
+            if old != body {
+                return Err("terminal revision result is immutable".into());
+            }
+        } else {
+            // Completion and cancellation share one journal commit order. A
+            // prior live check does not authorise success after a later stop.
+            let cancelled: bool = tx
+                .query_row(
+                    "SELECT cancelled FROM metadata WHERE singleton=1",
+                    [],
+                    |r| r.get(0),
+                )
+                .map_err(error)?;
+            if cancelled {
+                return Err("run cancelled; no new revision completion".into());
+            }
+            if super::super::now_ms()? >= self.deadline_ms {
+                return Err("original run deadline expired".into());
+            }
+            tx.execute(
+                "INSERT INTO revision_terminal(singleton,body) VALUES(1,?)",
+                [&body],
+            )
+            .map_err(error)?;
         }
-        Ok(())
+        tx.commit().map_err(error)
     }
 }
 
