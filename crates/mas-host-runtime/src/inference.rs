@@ -16,20 +16,22 @@ pub fn execute(
         .map(|a| a.iter().filter_map(Json::as_str).collect())
         .unwrap_or_default();
     let final_schema = &configuration["output_schema"];
-    let schema = if delegates.is_empty() {
-        final_schema.clone()
-    } else {
-        action_schema(final_schema, &delegates)
-    };
     let max_turns = configuration["max_turns"].as_u64().unwrap_or(1);
+    let min_delegate_calls = configuration["min_delegate_calls"].as_u64().unwrap_or(0);
     let mut history = Vec::new();
     for turn in 0..max_turns {
+        let can_complete = history.len() as u64 >= min_delegate_calls;
+        let schema = if delegates.is_empty() {
+            final_schema.clone()
+        } else {
+            action_schema(final_schema, &delegates, can_complete)
+        };
         let supplied = if delegates.is_empty() {
             input.clone()
         } else {
             json!({"task":input,"history":history})
         };
-        let instructions = if delegates.is_empty() {
+        let mut instructions = if delegates.is_empty() {
             configuration["instructions"]
                 .as_str()
                 .unwrap_or("")
@@ -37,6 +39,9 @@ pub fn execute(
         } else {
             format!("{}\nReturn a decision object. A request decision asks one permitted peer for work. A complete decision supplies the final output. Peer replies appear in history. Permitted peers: {}. Operation contracts: {}.", configuration["instructions"].as_str().unwrap_or(""), delegates.join(", "), configuration["delegate_contracts"])
         };
+        if !can_complete {
+            instructions.push_str(&format!("\nCompletion requires at least {min_delegate_calls} completed peer requests; {} are recorded. Return a request decision. The response schema excludes completion until this requirement is met.", history.len()));
+        }
         let descriptor =
             super::identity::effect_descriptor("mas-inference/2", configuration, &supplied);
         // Every known provider outcome is checkpointed, including refusal and
@@ -79,6 +84,9 @@ pub fn execute(
         let decision = &output["decision"];
         match decision["kind"].as_str() {
             Some("complete") => {
+                if !can_complete {
+                    return Err("LLM completion requires more completed delegate calls".into());
+                }
                 super::schema::validate(final_schema, &decision["output"])?;
                 return Ok(decision["output"].clone());
             }
@@ -155,11 +163,13 @@ fn classify(outcome: Outcome, schema: &Json) -> Result<(Json, Json)> {
     }
 }
 
-fn action_schema(final_schema: &Json, delegates: &[&str]) -> Json {
-    json!({"type":"object","properties":{"decision":{"anyOf":[
-        {"type":"object","properties":{"kind":{"type":"string","enum":["complete"]},"output":final_schema},"required":["kind","output"],"additionalProperties":false},
-        {"type":"object","properties":{"kind":{"type":"string","enum":["request"]},"target":{"type":"string","enum":delegates},"input_json":{"type":"string"}},"required":["kind","target","input_json"],"additionalProperties":false}
-    ]}},"required":["decision"],"additionalProperties":false})
+fn action_schema(final_schema: &Json, delegates: &[&str], can_complete: bool) -> Json {
+    let mut decisions = Vec::new();
+    if can_complete {
+        decisions.push(json!({"type":"object","properties":{"kind":{"type":"string","enum":["complete"]},"output":final_schema},"required":["kind","output"],"additionalProperties":false}));
+    }
+    decisions.push(json!({"type":"object","properties":{"kind":{"type":"string","enum":["request"]},"target":{"type":"string","enum":delegates},"input_json":{"type":"string"}},"required":["kind","target","input_json"],"additionalProperties":false}));
+    json!({"type":"object","properties":{"decision":{"anyOf":decisions}},"required":["decision"],"additionalProperties":false})
 }
 
 #[cfg(test)]
@@ -186,6 +196,35 @@ mod tests {
             &schema
         )
         .is_err());
-        super::super::schema::check(&action_schema(&schema, &["reviewer"])).unwrap();
+        super::super::schema::check(&action_schema(&schema, &["reviewer"], true)).unwrap();
+    }
+
+    #[test]
+    fn required_delegation_schema_excludes_early_completion() {
+        let final_schema = json!({"type":"object","properties":{"ok":{"type":"boolean"}},"required":["ok"],"additionalProperties":false});
+        let completion = json!({"decision":{"kind":"complete","output":{"ok":true}}});
+        let request = json!({"decision":{"kind":"request","target":"reviewer","input_json":"{}"}});
+        for can_complete in [false, true] {
+            let schema = action_schema(&final_schema, &["reviewer"], can_complete);
+            super::super::schema::check(&schema).unwrap();
+            assert!(super::super::schema::validate(&schema, &request).is_ok());
+            assert_eq!(
+                super::super::schema::validate(&schema, &completion).is_ok(),
+                can_complete
+            );
+            let (result, _) = classify(
+                Outcome::Completed {
+                    output: completion.clone(),
+                    evidence: json!({}),
+                },
+                &schema,
+            )
+            .unwrap();
+            assert_eq!(result["certainty"], "completed");
+            assert_eq!(
+                result["output_status"],
+                if can_complete { "valid" } else { "invalid" }
+            );
+        }
     }
 }

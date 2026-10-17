@@ -415,6 +415,115 @@ fn llm_delegates_to_an_ordinary_cli_with_the_same_admission_and_replay() {
 }
 
 #[test]
+fn required_delegations_gate_provider_schema_until_results_are_recorded_and_replay() {
+    let project = Project::new("required-delegates");
+    configure_delegation(&project, true);
+    let agents_path = project.0.join("agents.json");
+    let mut agents: Value = serde_json::from_slice(&fs::read(&agents_path).unwrap()).unwrap();
+    agents["agents"][1]["implementation"]["max_turns"] = json!(3);
+    agents["agents"][1]["implementation"]["min_delegate_calls"] = json!(2);
+    agents["connections"]["reasoning"] = json!({"kind":"command","command":["/usr/bin/python3","-c",r#"
+import json, pathlib, sys
+request = json.load(sys.stdin)
+with pathlib.Path(sys.argv[1]).open('a') as calls:
+    calls.write('x')
+history = request['input']['history']
+kinds = {branch['properties']['kind']['enum'][0] for branch in request['output_schema']['properties']['decision']['anyOf']}
+assert kinds == ({'request'} if len(history) < 2 else {'request', 'complete'}), kinds
+decision = ({'kind':'request','target':'peer','input_json':'{"question":"approve"}'} if len(history) < 2
+            else {'kind':'complete','output':{'approved':True}})
+print(json.dumps({'version':'mas-provider/1','status':'completed','output':{'decision':decision},'evidence':{}}))
+"#,project.0.join("calls")]});
+    write(&agents_path, &agents);
+    let bundle = project.build();
+    let result = completed(project.run(&bundle, "required", "workflow"));
+    assert_eq!(
+        result["output"],
+        json!({"approved":true,"source":"workflow"})
+    );
+    assert_eq!(project.calls(), 3);
+    let before = project.inspect("required");
+    assert_eq!(before["protocol"]["calls"].as_array().unwrap().len(), 5);
+    let messages = project.messages("required");
+    assert_eq!(
+        messages
+            .iter()
+            .filter(|message| message["kind"] == "Request" && message["recipient"] == "peer")
+            .count(),
+        2
+    );
+    assert_eq!(
+        completed(project.run(&bundle, "required", "workflow")),
+        result
+    );
+    assert_eq!(project.calls(), 3);
+    assert_eq!(project.inspect("required"), before);
+    assert_eq!(project.messages("required"), messages);
+}
+
+#[test]
+fn early_completion_is_allowed_by_default_but_required_delegation_failure_is_retained() {
+    for minimum in [None, Some(0), Some(1)] {
+        let project = Project::new("early-completion");
+        configure_delegation(&project, true);
+        let agents_path = project.0.join("agents.json");
+        let mut agents: Value = serde_json::from_slice(&fs::read(&agents_path).unwrap()).unwrap();
+        if let Some(minimum) = minimum {
+            agents["agents"][1]["implementation"]["min_delegate_calls"] = json!(minimum);
+        }
+        let finish = envelope(json!({"decision":{"kind":"complete","output":{"approved":true}}}));
+        agents["connections"]["reasoning"] = command(&project, &format!("printf '%s' '{finish}'"));
+        write(&agents_path, &agents);
+        let bundle = project.build();
+        let run = || project.run(&bundle, "early", "workflow");
+        if minimum == Some(1) {
+            rejected(run(), "completed / invalid");
+        } else {
+            assert_eq!(
+                completed(run())["output"],
+                json!({"approved":true,"source":"workflow"})
+            );
+        }
+        let before = project.inspect("early");
+        let effects: Vec<_> = before["steps"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|step| step["kind"] == "effect")
+            .collect();
+        assert_eq!(effects.len(), 1);
+        assert_eq!(effects[0]["state"], "completed");
+        assert_eq!(effects[0]["output"]["certainty"], "completed");
+        assert_eq!(
+            effects[0]["output"]["output_status"],
+            if minimum == Some(1) {
+                "invalid"
+            } else {
+                "valid"
+            }
+        );
+        assert_eq!(before["protocol"]["calls"].as_array().unwrap().len(), 1);
+        assert_eq!(before["protocol"]["calls"][0]["state"], "recorded");
+        let messages = project.messages("early");
+        assert!(!messages
+            .iter()
+            .any(|message| message["recipient"] == "peer"));
+        if minimum == Some(1) {
+            rejected(run(), "completed / invalid");
+        } else {
+            completed(run());
+        }
+        assert_eq!(
+            project.calls(),
+            1,
+            "replay must reuse the known provider outcome"
+        );
+        assert_eq!(project.inspect("early"), before);
+        assert_eq!(project.messages("early"), messages);
+    }
+}
+
+#[test]
 fn known_refusal_and_invalid_output_are_recorded_while_unknown_execution_blocks_replay() {
     let refused = json!({"version":"mas-provider/1","status":"unusable","evidence":{"output_status":"refused"}}).to_string();
     let invalid = envelope(json!({"approved":"incorrect type"}));

@@ -20,7 +20,8 @@ DEPTH = 100_000
 SECONDS = 30
 MEMORY_BYTES = 512 * 1024 * 1024
 CASES = []
-for model, claim in (("revision", "settles"), ("disclosure", "context_finishes")):
+for model, claim in (("revision", "settles"), ("disclosure", "context_finishes"),
+                     ("delegation", "delegation_finishes")):
     for ltl in (False, True):
         for no_reduce in (False, True):
             CASES.append((model, f"{'progress' if ltl else 'safety'}{'-no-reduction' if no_reduce else ''}",
@@ -56,6 +57,19 @@ for name, macro, assertion in (
     ("evidence-readers", "BUG_EVIDENCE_READERS", "!(candidate_evidence_reader)"),
 ):
     CASES.append(("disclosure", name, macro, None, False, assertion))
+for name, macro, assertion in (
+    ("early-complete", "BUG_EARLY_COMPLETE", "successful>=minimum"),
+    ("early-complete-schema", "BUG_SCHEMA", "complete_allowed==(successful>=minimum)"),
+    ("replay-count", "BUG_REPLAY_COUNT", "successful==retained_successful"),
+    ("replay-dispatch", "BUG_REPLAY_DISPATCH", "peer_dispatches==saved_peer_dispatches"),
+    ("complete-witness", "WITNESS_COMPLETE", "terminal==Completed"),
+    ("zero-minimum-witness", "WITNESS_ZERO", "minimum==0"),
+    ("replay-witness", "WITNESS_REPLAY", "replayed"),
+    ("early-invalid-witness", "WITNESS_EARLY_INVALID", "terminal==Invalid"),
+):
+    CASES.append(("delegation", name, macro, None, False, assertion))
+CASES.append(("delegation", "stalled-inference", "BUG_STALL", "delegation_finishes",
+              False, "acceptance cycle"))
 
 
 def bounded() -> None:
@@ -93,7 +107,9 @@ def main() -> int:
                "limits": {"seconds_per_command": SECONDS, "memory_bytes": MEMORY_BYTES,
                           "search_depth": DEPTH},
                "bounds": {"runs": 1, "candidates": 2, "invocations": 4,
-                          "revisions": 1, "disruptions": 1, "disclosure_worlds": 2},
+                          "revisions": 1, "disruptions": 1, "disclosure_worlds": 2,
+                          "delegation": {"inference_turns": 3, "permitted_peers": 1,
+                                         "minimum_calls": [0, 1, 2], "replays": 1}},
                "assumptions": [
                    "One host owner serialises this run and immutable journal writes are atomic",
                    "A provider invocation terminates or reaches its fixed external deadline",
