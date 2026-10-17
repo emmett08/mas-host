@@ -10,7 +10,7 @@ the shared host remains Rust, and other language profiles require no Python runt
 
 `mas` and `mas-host` have independent responsibilities and release histories.
 This host consumes the public Rust `mas-protocol-codec` crate at commit
-`bb89b8fa485d35690b3e46ba83d980892ff53443`. It does not copy or modify the protocol
+`fe644bbf3acb3ccc2abaffd54bcc4b367053fe4b`. It does not copy or modify the protocol
 implementation. The dependency is pinned source while independently published
 protocol releases are unavailable. `Cargo.lock` records the complete Rust graph.
 
