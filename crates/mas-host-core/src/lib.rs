@@ -207,128 +207,154 @@ pub struct Engine {
     inner: Arc<Inner>,
 }
 
+fn validated_agents(bundle: &Value) -> Result<BTreeMap<String, Agent>> {
+    checked_object(bundle, "bundle")?;
+    fields(bundle, &["version", "agents", "topology"], &[])?;
+    if bundle["version"] != "mas-bundle/3" {
+        return Err("unsupported bundle version".into());
+    }
+    let mut agents = BTreeMap::new();
+    let registrations = bundle["agents"]
+        .as_array()
+        .ok_or("bundle agents must be an array")?;
+    if registrations.is_empty() || registrations.len() > 31 {
+        return Err("register 1..31 application agents".into());
+    }
+    let mut verified_executables = BTreeSet::new();
+    for value in registrations {
+        fields(
+            value,
+            &[
+                "name",
+                "executable",
+                "sha256",
+                "operation",
+                "environment",
+                "working_directory",
+            ],
+            &[
+                "handler",
+                "configuration",
+                "arguments",
+                "input_schema",
+                "output_schema",
+            ],
+        )?;
+        let name = text(value, "name")?;
+        if name == "client" {
+            return Err("client is reserved for host ingress".into());
+        }
+        let configuration = value
+            .get("configuration")
+            .cloned()
+            .unwrap_or_else(|| json!({}));
+        checked_object(&configuration, "agent configuration")?;
+        let arguments = match value.get("arguments") {
+            None => Vec::new(),
+            Some(values) => values
+                .as_array()
+                .ok_or("worker arguments must be an array")?
+                .iter()
+                .map(|value| {
+                    value
+                        .as_str()
+                        .map(str::to_owned)
+                        .ok_or_else(|| "worker arguments must be strings".to_owned())
+                })
+                .collect::<Result<Vec<_>>>()?,
+        };
+        if arguments.len() > 32
+            || arguments
+                .iter()
+                .any(|argument| argument.len() > 4096 || argument.contains('\0'))
+        {
+            return Err("worker arguments exceed supported bounds".into());
+        }
+        let environment_names = declared_environment(&value["environment"])?;
+        let agent = Agent {
+            executable: PathBuf::from(text(value, "executable")?),
+            sha256: text(value, "sha256")?.to_owned(),
+            handler: value
+                .get("handler")
+                .map(|v| {
+                    v.as_str()
+                        .filter(|s| !s.is_empty())
+                        .map(str::to_owned)
+                        .ok_or_else(|| "handler must be a nonempty string".to_string())
+                })
+                .transpose()?,
+            working_directory: PathBuf::from(text(value, "working_directory")?),
+            input_schema: operation_schema(value, "input_schema")?,
+            output_schema: operation_schema(value, "output_schema")?,
+            operation: text(value, "operation")?.to_owned(),
+            configuration,
+            arguments,
+            environment_names,
+        };
+        if !agent.executable.is_absolute()
+            || !agent.working_directory.is_absolute()
+            || !agent.working_directory.is_dir()
+            || agent.operation.is_empty()
+        {
+            return Err(
+                "worker executable and working_directory must be absolute; directory must exist and operation must be nonempty"
+                    .into(),
+            );
+        }
+        // Built-in actors share one host executable. Hash each identical
+        // path/digest binding once during open; dispatch still rechecks it.
+        if verified_executables.insert((agent.executable.clone(), agent.sha256.clone())) {
+            verify_executable(&agent)?;
+        }
+        if agents.insert(name.to_owned(), agent).is_some() {
+            return Err("duplicate agent name".into());
+        }
+    }
+    let topology = &bundle["topology"];
+    if topology["application"] != "agent-task/1" || !topology["edges"].is_array() {
+        return Err("bundle requires explicit topology and agent-task/1".into());
+    }
+    let declared: BTreeSet<&str> = topology["agents"]
+        .as_array()
+        .ok_or("topology agents required")?
+        .iter()
+        .map(|v| v.as_str().ok_or("invalid topology actor"))
+        .collect::<std::result::Result<_, _>>()?;
+    let expected: BTreeSet<&str> = agents
+        .keys()
+        .map(String::as_str)
+        .chain(std::iter::once("client"))
+        .collect();
+    if declared != expected {
+        return Err("topology actors differ from registered agents".into());
+    }
+    Ok(agents)
+}
+
+/// Public operation contracts derived from the same validated, immutable bundle
+/// used by execution. Private paths, provider settings and environment bindings
+/// are deliberately absent; publication requires a separate export policy.
+pub fn describe(bundle: &Value) -> Result<Value> {
+    let agents = validated_agents(bundle)?;
+    let contracts: Vec<_> = agents
+        .iter()
+        .map(|(name, agent)| {
+            json!({
+                "name": name, "operation": agent.operation,
+                "input_schema": agent.input_schema, "output_schema": agent.output_schema
+            })
+        })
+        .collect();
+    Ok(json!({"version":"mas-host-descriptor/1",
+        "bundle_digest":digest(bundle.to_string().as_bytes()),
+        "numeric_profile":"exact-integer-json/1", "max_message_bytes":65536,
+        "agents":contracts}))
+}
+
 impl Engine {
     pub fn open(bundle: &Value, state_dir: &Path, run_id: &str) -> Result<Self> {
-        checked_object(bundle, "bundle")?;
-        fields(bundle, &["version", "agents", "topology"], &[])?;
-        if bundle["version"] != "mas-bundle/3" {
-            return Err("unsupported bundle version".into());
-        }
-        let mut agents = BTreeMap::new();
-        let registrations = bundle["agents"]
-            .as_array()
-            .ok_or("bundle agents must be an array")?;
-        if registrations.is_empty() || registrations.len() > 31 {
-            return Err("register 1..31 application agents".into());
-        }
-        let mut verified_executables = BTreeSet::new();
-        for value in registrations {
-            fields(
-                value,
-                &[
-                    "name",
-                    "executable",
-                    "sha256",
-                    "operation",
-                    "environment",
-                    "working_directory",
-                ],
-                &[
-                    "handler",
-                    "configuration",
-                    "arguments",
-                    "input_schema",
-                    "output_schema",
-                ],
-            )?;
-            let name = text(value, "name")?;
-            if name == "client" {
-                return Err("client is reserved for host ingress".into());
-            }
-            let configuration = value
-                .get("configuration")
-                .cloned()
-                .unwrap_or_else(|| json!({}));
-            checked_object(&configuration, "agent configuration")?;
-            let arguments = match value.get("arguments") {
-                None => Vec::new(),
-                Some(values) => values
-                    .as_array()
-                    .ok_or("worker arguments must be an array")?
-                    .iter()
-                    .map(|value| {
-                        value
-                            .as_str()
-                            .map(str::to_owned)
-                            .ok_or_else(|| "worker arguments must be strings".to_owned())
-                    })
-                    .collect::<Result<Vec<_>>>()?,
-            };
-            if arguments.len() > 32
-                || arguments
-                    .iter()
-                    .any(|argument| argument.len() > 4096 || argument.contains('\0'))
-            {
-                return Err("worker arguments exceed supported bounds".into());
-            }
-            let environment_names = declared_environment(&value["environment"])?;
-            let agent = Agent {
-                executable: PathBuf::from(text(value, "executable")?),
-                sha256: text(value, "sha256")?.to_owned(),
-                handler: value
-                    .get("handler")
-                    .map(|v| {
-                        v.as_str()
-                            .filter(|s| !s.is_empty())
-                            .map(str::to_owned)
-                            .ok_or_else(|| "handler must be a nonempty string".to_string())
-                    })
-                    .transpose()?,
-                working_directory: PathBuf::from(text(value, "working_directory")?),
-                input_schema: operation_schema(value, "input_schema")?,
-                output_schema: operation_schema(value, "output_schema")?,
-                operation: text(value, "operation")?.to_owned(),
-                configuration,
-                arguments,
-                environment_names,
-            };
-            if !agent.executable.is_absolute()
-                || !agent.working_directory.is_absolute()
-                || !agent.working_directory.is_dir()
-                || agent.operation.is_empty()
-            {
-                return Err(
-                    "worker executable and working_directory must be absolute; directory must exist and operation must be nonempty"
-                        .into(),
-                );
-            }
-            // Built-in actors share one host executable. Hash each identical
-            // path/digest binding once during open; dispatch still rechecks it.
-            if verified_executables.insert((agent.executable.clone(), agent.sha256.clone())) {
-                verify_executable(&agent)?;
-            }
-            if agents.insert(name.to_owned(), agent).is_some() {
-                return Err("duplicate agent name".into());
-            }
-        }
+        let agents = validated_agents(bundle)?;
         let topology = &bundle["topology"];
-        if topology["application"] != "agent-task/1" || !topology["edges"].is_array() {
-            return Err("bundle requires explicit topology and agent-task/1".into());
-        }
-        let declared: BTreeSet<&str> = topology["agents"]
-            .as_array()
-            .ok_or("topology agents required")?
-            .iter()
-            .map(|v| v.as_str().ok_or("invalid topology actor"))
-            .collect::<std::result::Result<_, _>>()?;
-        let expected: BTreeSet<&str> = agents
-            .keys()
-            .map(String::as_str)
-            .chain(std::iter::once("client"))
-            .collect();
-        if declared != expected {
-            return Err("topology actors differ from registered agents".into());
-        }
         let directory = run_directory(state_dir, run_id)?;
         let owner = ownership(&directory)?;
         let mut db = journal(&directory)?;

@@ -10,7 +10,7 @@ the shared host remains Rust, and other language profiles require no Python runt
 
 `mas` and `mas-host` have independent responsibilities and release histories.
 This host consumes the public Rust `mas-protocol-codec` crate at commit
-`d130a48543e791b57f692e97e13f756b831d7833`. It does not copy or modify the protocol
+`bb89b8fa485d35690b3e46ba83d980892ff53443`. It does not copy or modify the protocol
 implementation. The dependency is pinned source while independently published
 protocol releases are unavailable. `Cargo.lock` records the complete Rust graph.
 
@@ -159,9 +159,7 @@ Supporting daemonising tools requires a stronger upstream guardian contract; a
 second cleanup implementation in this host would divide lifetime ownership.
 
 Maintained LLM and workflow implementations are described in
-[LLM agents and composition](llm-workflows.md). There is no remote service ingress,
-credential manager, human approval queue, distributed scheduler or migration from
-Python-host state. Model credentials use explicitly scoped environment references. The
+[LLM agents and composition](llm-workflows.md). The optional [A2A service](a2a.md) adds authenticated ingress, explicit exports, principal grants and a separate durable service journal. There is no credential manager, human approval queue, distributed scheduler or migration from Python-host state. Model credentials use explicitly scoped environment references. The
 configuration rejects unsupported languages and fields instead of silently
 falling back to Python or unrestricted execution.
 
@@ -183,9 +181,9 @@ Further releases should extend these boundaries in this order:
 3. Add maintained effect integrations with documented provider idempotency,
    evidence and credential binding. Generalise agent implementation kinds only
    alongside their executable contracts.
-4. Add authenticated service ingress and deployment grants independently of
-   application configuration. Then qualify shared storage, leases and ownership
-   fencing before allowing multiple host owners.
+4. Extend the implemented bounded A2A ingress only with explicit migration and
+   recovery contracts. Qualify shared storage, leases and ownership fencing before
+   allowing multiple host owners.
 5. Add richer durable workflow/human-input APIs if application evidence shows the
    named-request model is insufficient. Preserve explicit business control flow.
 

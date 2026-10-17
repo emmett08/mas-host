@@ -1,4 +1,5 @@
 //! Developer and administrative commands for the local native host.
+mod a2a;
 mod build;
 mod config;
 use serde_json::{json, Value};
@@ -12,6 +13,8 @@ const HELP: &str = "mas-host: native applications on the MAS protocol\n\n\
   run     --project DIR --agent NAME --input FILE|- [--input-format json|toml|yaml] --state DIR --run ID [--sdk-root DIR] [--agents FILE] [--topology FILE] [--connections FILE]\n\
   run     --bundle FILE --agent NAME --input FILE|- [--input-format json|toml|yaml] --state DIR --run ID\n\
   inspect --state DIR --run ID\n\
+  describe --bundle FILE\n\
+  serve-a2a --bundle FILE --state DIR --config FILE\n\
   observe --state DIR --run ID [--include-payloads true|false]\n\
   cancel  --state DIR --run ID\n\
   resolve --state DIR --run ID --effect ID --output FILE --evidence FILE\n\n\
@@ -52,6 +55,18 @@ fn sdk_root(args: &BTreeMap<String, String>) -> PathBuf {
 fn execute(args: &[String]) -> Result<Value, String> {
     let command = args.first().ok_or("missing command (try --help)")?;
     match command.as_str() {
+        "describe" => {
+            let args = options(&args[1..], &["--bundle"])?;
+            mas_host_core::describe(&config::read_json(Path::new(require(&args, "--bundle")?))?)
+        }
+        "serve-a2a" => {
+            let args = options(&args[1..], &["--bundle", "--state", "--config"])?;
+            a2a::serve(
+                config::read_json(Path::new(require(&args, "--bundle")?))?,
+                Path::new(require(&args, "--state")?),
+                config::read_json(Path::new(require(&args, "--config")?))?,
+            )
+        }
         "build" => {
             let args = options(
                 &args[1..],
