@@ -101,6 +101,8 @@ integers and a strict provider response schema. Subsequent turns receive the
 original `task` and prior request/result `history`. Each permitted peer's public
 operation and available schemas are included in the instructions. Command actors
 use the same delegation and topology permissions as native or LLM actors.
+An application can expose a custom MCP tool through such a delegate; see the
+[MCP adapter integration](mcp-tools.md) for ownership, effect and recovery rules.
 `client` is reserved for ingress and cannot be a workflow request target or an
 LLM delegate. The builder checks targets against executable application agents;
 the protocol checks communication permissions when each request is admitted.
