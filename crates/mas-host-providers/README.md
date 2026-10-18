@@ -38,6 +38,31 @@ the selected adapter, requested model, request identity/hash, bounded provider
 identifiers and integer token counts. It does not infer monetary cost from tokens.
 Cursor exposes no enforceable output-token limit; its evidence states that limit.
 
+For Responses API results, only `message` items whose `phase` is `final_answer`,
+missing or `null` can supply the operation result. Explicit `commentary` and other
+phases are excluded even when their text is valid JSON. Non-message output items
+are not operation results. The adapter requires exactly one eligible message and
+one `output_text` block: it neither chooses between multiple results nor joins
+separate text blocks into a new JSON value. This is stricter than the SDK helper's
+first-parsed-output selection because one host inference effect admits one result.
+Refusals in message content and incomplete responses remain unusable. A malformed
+final answer never falls back to commentary. The selected text still passes
+through the MAS integer-JSON parser, including duplicate-key and decimal-syntax
+checks, before the host validates the operation schema.
+
+HTTP output failures retain bounded `output_diagnostics` with fixed `stage` and
+`code` identifiers, distinguishing response-envelope, output-selection, output-json
+and host output-schema failures. Responses selection records counts named
+`eligible_messages`, `eligible_text_blocks`, `excluded_messages` and
+`other_output_items`, including when selection succeeds but schema validation
+subsequently fails. Invalid envelope JSON can retain `response_bytes` and
+`response_sha256` for the HTTP response bytes. Invalid selected JSON can retain
+`output_bytes` and `output_sha256` for the selected text; host schema failures use
+those two fields for canonical serialised JSON instead. No raw output, refusal
+text, parser errors or arbitrary phase/status strings enter these diagnostics.
+Transport byte limits bound their counts, and these fields introduce no retry or
+alternative decision path.
+
 ## Command extension contract
 
 Read one JSON document from stdin and write one JSON document to stdout. Exit zero
@@ -80,3 +105,5 @@ short-lived local commands. They make no live inference calls.
 Primary API references: [OpenAI Responses](https://developers.openai.com/api/reference/resources/responses/methods/create),
 [OpenAI structured outputs](https://developers.openai.com/api/docs/guides/structured-outputs?api-mode=responses),
 and [Cursor TypeScript SDK](https://cursor.com/docs/sdk/typescript), checked 15 October 2026.
+Phase selection follows the [OpenAI Python SDK structured-output helper documentation](https://github.com/openai/openai-python/blob/main/helpers.md),
+checked 18 October 2026, with the stricter single-result rule described above.

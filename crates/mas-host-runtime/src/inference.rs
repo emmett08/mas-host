@@ -1,6 +1,7 @@
 //! Durable inference turns and explicitly permitted peer delegation.
 use mas_host_providers::{Outcome, Request};
 use mas_host_sdk::{json, Context, Json, Result};
+use sha2::{Digest, Sha256};
 
 pub fn execute(
     ctx: &mut Context,
@@ -156,11 +157,32 @@ fn classify(outcome: Outcome, schema: &Json) -> Result<(Json, Json)> {
             output,
             mut evidence,
         } => {
-            if super::schema::validate(schema, &output).is_err()
-                || !output.is_object()
-                || mas_protocol_codec::parse_json(&output.to_string()).is_err()
-            {
+            let encoded = output.to_string();
+            let invalid = if !output.is_object() {
+                Some("expected-object")
+            } else if mas_protocol_codec::parse_json(&encoded).is_err() {
+                Some("integer-json")
+            } else if super::schema::validate(schema, &output).is_err() {
+                Some("schema-mismatch")
+            } else {
+                None
+            };
+            if let Some(code) = invalid {
                 evidence["output_status"] = json!("invalid");
+                // Preserve the rejection boundary, not model text or schema
+                // errors that could contain untrusted property names/values.
+                let digest = Sha256::digest(encoded.as_bytes())
+                    .iter()
+                    .map(|b| format!("{b:02x}"))
+                    .collect::<String>();
+                let diagnostics = &mut evidence["output_diagnostics"];
+                if !diagnostics.is_object() {
+                    *diagnostics = json!({});
+                }
+                diagnostics["stage"] = json!("output-schema");
+                diagnostics["code"] = json!(code);
+                diagnostics["output_bytes"] = json!(encoded.len());
+                diagnostics["output_sha256"] = json!(digest);
                 return Ok((
                     json!({"certainty":"completed","output_status":"invalid"}),
                     evidence,
@@ -238,6 +260,44 @@ mod tests {
         )
         .is_err());
         super::super::schema::check(&action_schema(&schema, &["reviewer"], true, true)).unwrap();
+    }
+
+    #[test]
+    fn rejection_diagnostics_distinguish_local_validation_without_retaining_output() {
+        let schema = json!({"type":"object","properties":{"ok":{"type":"boolean"}},"required":["ok"],"additionalProperties":false});
+        for (output, code) in [
+            (json!({"private-model-text":"secret"}), "schema-mismatch"),
+            (json!(["private-model-text"]), "expected-object"),
+            (json!({"n":1.5}), "integer-json"),
+        ] {
+            let encoded = output.to_string();
+            let (result, evidence) = classify(
+                Outcome::Completed {
+                    output,
+                    evidence: json!({"output_diagnostics":{"eligible_messages":1}}),
+                },
+                &schema,
+            )
+            .unwrap();
+            assert_eq!(
+                result,
+                json!({"certainty":"completed","output_status":"invalid"})
+            );
+            let diagnostic = &evidence["output_diagnostics"];
+            assert_eq!(diagnostic["stage"], "output-schema");
+            assert_eq!(diagnostic["code"], code);
+            assert_eq!(diagnostic["eligible_messages"], 1);
+            assert_eq!(diagnostic["output_bytes"], encoded.len());
+            assert_eq!(
+                diagnostic["output_sha256"],
+                Sha256::digest(encoded.as_bytes())
+                    .iter()
+                    .map(|b| format!("{b:02x}"))
+                    .collect::<String>()
+            );
+            assert!(!evidence.to_string().contains("private-model-text"));
+            assert!(!evidence.to_string().contains("secret"));
+        }
     }
 
     #[test]
