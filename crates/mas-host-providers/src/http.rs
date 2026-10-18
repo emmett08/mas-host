@@ -251,11 +251,14 @@ fn parse_response(api: Api, response: Value, mut ev: Value) -> Outcome {
                     }
                 };
             }
-            let mut text = None;
+            let mut texts = Vec::new();
             let mut eligible_messages = 0usize;
             let mut eligible_text_blocks = 0usize;
             let mut excluded_messages = 0usize;
             let mut other_output_items = 0usize;
+            let mut final_messages = 0usize;
+            let mut unphased_messages = 0usize;
+            let mut invalid_shape = false;
             let mut invalid_text = false;
             let mut refused = false;
             if let Some(output) = response["output"].as_array() {
@@ -270,9 +273,15 @@ fn parse_response(api: Api, response: Value, mut ev: Value) -> Outcome {
                     let eligible = item["phase"].is_null() || item["phase"] == "final_answer";
                     if eligible {
                         eligible_messages += 1;
+                        if item["phase"] == "final_answer" {
+                            final_messages += 1;
+                        } else {
+                            unphased_messages += 1;
+                        }
                     } else {
                         excluded_messages += 1;
                     }
+                    let before = eligible_text_blocks;
                     if let Some(content) = item["content"].as_array() {
                         for block in content {
                             if block["type"] == "refusal" {
@@ -281,11 +290,14 @@ fn parse_response(api: Api, response: Value, mut ev: Value) -> Outcome {
                             if eligible && block["type"] == "output_text" {
                                 eligible_text_blocks += 1;
                                 match block["text"].as_str() {
-                                    Some(value) => text = Some(value),
+                                    Some(value) => texts.push(value),
                                     None => invalid_text = true,
                                 }
                             }
                         }
+                    }
+                    if eligible && eligible_text_blocks - before != 1 {
+                        invalid_shape = true;
                     }
                 }
             }
@@ -293,14 +305,16 @@ fn parse_response(api: Api, response: Value, mut ev: Value) -> Outcome {
                 "eligible_messages": eligible_messages,
                 "eligible_text_blocks": eligible_text_blocks,
                 "excluded_messages": excluded_messages,
-                "other_output_items": other_output_items
+                "other_output_items": other_output_items,
+                "final_messages": final_messages,
+                "unphased_messages": unphased_messages
             });
             if refused {
                 ev["output_status"] = json!("refused");
                 output_diagnostic(&mut ev, "output-selection", "refusal");
                 return unusable("provider refused the request", ev);
             }
-            if eligible_messages > 1 || eligible_text_blocks > 1 {
+            if invalid_shape && (eligible_messages > 1 || eligible_text_blocks > 1) {
                 ev["output_status"] = json!("invalid");
                 output_diagnostic(&mut ev, "output-selection", "ambiguous-output");
                 return unusable("provider returned multiple eligible outputs", ev);
@@ -310,11 +324,42 @@ fn parse_response(api: Api, response: Value, mut ev: Value) -> Outcome {
                 output_diagnostic(&mut ev, "output-selection", "invalid-output-text");
                 return unusable("provider output text is invalid", ev);
             }
-            let Some(text) = text else {
+            let Some(&text) = texts.first() else {
                 ev["output_status"] = json!("invalid");
                 output_diagnostic(&mut ev, "output-selection", "missing-output");
                 return unusable("provider returned no eligible output", ev);
             };
+            // One inference effect must resolve to one JSON value. Repeated
+            // complete messages can carry that same value; accepting it once
+            // does not select between competing decisions or dispatch twice.
+            // Parse every eligible text before deciding, including malformed
+            // siblings. Explicit nonfinal phases remain excluded above.
+            let mut distinct = std::collections::BTreeSet::new();
+            let mut invalid_json_blocks = 0usize;
+            let mut first_invalid = None;
+            for candidate in &texts {
+                match mas_protocol_codec::parse_json(candidate) {
+                    Ok(value) => {
+                        // serde_json's default map has sorted keys. Comparison
+                        // uses the full encoding, never a digest or substring.
+                        distinct.insert(serde_json::to_string(&value).unwrap());
+                    }
+                    Err(_) => {
+                        invalid_json_blocks += 1;
+                        first_invalid.get_or_insert(*candidate);
+                    }
+                }
+            }
+            ev["output_diagnostics"]["distinct_json_outputs"] = json!(distinct.len());
+            ev["output_diagnostics"]["invalid_json_blocks"] = json!(invalid_json_blocks);
+            if let Some(invalid) = first_invalid {
+                return parse_output(invalid, ev);
+            }
+            if distinct.len() > 1 {
+                ev["output_status"] = json!("invalid");
+                output_diagnostic(&mut ev, "output-selection", "ambiguous-output");
+                return unusable("provider returned conflicting JSON outputs", ev);
+            }
             text
         }
         Api::Chat => {
@@ -337,6 +382,10 @@ fn parse_response(api: Api, response: Value, mut ev: Value) -> Outcome {
             text
         }
     };
+    parse_output(text, ev)
+}
+
+fn parse_output(text: &str, mut ev: Value) -> Outcome {
     match mas_protocol_codec::parse_json(text) {
         Ok(output) => {
             ev["output_status"] = json!("json");
@@ -350,7 +399,10 @@ fn parse_response(api: Api, response: Value, mut ev: Value) -> Outcome {
             output_diagnostic(&mut ev, "output-json", "integer-json");
             ev["output_diagnostics"]["output_bytes"] = json!(text.len());
             ev["output_diagnostics"]["output_sha256"] = json!(sha256(text.as_bytes()));
-            unusable("provider output is not JSON", ev)
+            Outcome::Unusable {
+                error: "provider output is not JSON".into(),
+                evidence: ev,
+            }
         }
     }
 }
@@ -449,20 +501,48 @@ mod tests {
         }
     }
     #[test]
-    fn responses_do_not_stitch_or_choose_between_eligible_outputs() {
+    fn responses_accept_only_one_distinct_json_value_across_complete_messages() {
+        let first = "{\"ok\":true,\"count\":2}";
+        let equivalent = " { \"count\": 2, \"ok\": true } ";
+        for phase in [Value::Null, json!("final_answer")] {
+            let mut legacy = message(Value::Null, first);
+            legacy.as_object_mut().unwrap().remove("phase");
+            for output in [
+                json!([legacy, message(phase.clone(), equivalent)]),
+                json!([message(phase.clone(), equivalent), legacy]),
+                json!([
+                    message(phase.clone(), first),
+                    message(phase.clone(), equivalent),
+                    legacy
+                ]),
+            ] {
+                assert!(
+                    matches!(responses(output), Outcome::Completed{output,evidence}
+                    if output == json!({"ok":true,"count":2})
+                        && evidence["output_diagnostics"]["distinct_json_outputs"] == 1
+                        && evidence["output_diagnostics"]["invalid_json_blocks"] == 0)
+                );
+            }
+        }
+    }
+    #[test]
+    fn responses_do_not_stitch_or_choose_between_conflicting_outputs() {
         for output in [
             json!([
                 message(json!("final_answer"), "{}"),
-                message(json!("final_answer"), "{}")
+                message(json!("final_answer"), "{\"different\":true}")
             ]),
             json!([
                 message(Value::Null, "{}"),
-                message(json!("final_answer"), "{}")
+                message(json!("final_answer"), "null")
             ]),
             json!([{"type":"message","phase":"final_answer","content":[
                 {"type":"output_text","text":"{"},{"type":"output_text","text":"\"ok\":true}"}
             ]}]),
             json!([message(json!("final_answer"),"{}"),{"type":"message","content":[]}]),
+            json!([{"type":"message","content":[
+                {"type":"output_text","text":"{}"},{"type":"output_text","text":"{}"}
+            ]}]),
         ] {
             let evidence = diagnostic(responses(output), "output-selection", "ambiguous-output");
             assert_eq!(evidence["output_status"], "invalid");
@@ -470,6 +550,48 @@ mod tests {
                 .get("output_sha256")
                 .is_none());
         }
+        let evidence = diagnostic(
+            responses(json!([
+                message(Value::Null, "{\"step\":1}"),
+                message(Value::Null, "{\"step\":2}")
+            ])),
+            "output-selection",
+            "ambiguous-output",
+        );
+        assert_eq!(evidence["output_diagnostics"]["distinct_json_outputs"], 2);
+        assert_eq!(evidence["output_diagnostics"]["unphased_messages"], 2);
+        assert_eq!(evidence["output_diagnostics"]["final_messages"], 0);
+    }
+    #[test]
+    fn responses_never_ignore_malformed_siblings_of_valid_json() {
+        for malformed in ["private prose", "{\"n\":1.0}", "{\"n\":1,\"n\":1}", "{} {}"] {
+            for texts in [["{}", malformed], [malformed, "{}"]] {
+                let evidence = diagnostic(
+                    responses(json!([
+                        message(Value::Null, texts[0]),
+                        message(json!("final_answer"), texts[1])
+                    ])),
+                    "output-json",
+                    "integer-json",
+                );
+                assert_eq!(evidence["output_diagnostics"]["distinct_json_outputs"], 1);
+                assert_eq!(evidence["output_diagnostics"]["invalid_json_blocks"], 1);
+                assert!(!evidence.to_string().contains(malformed));
+            }
+        }
+    }
+    #[test]
+    fn loopback_repeated_messages_return_one_result_without_retry() {
+        let body = json!({"status":"completed","output":[
+            message(Value::Null, "{\"ok\":true}"),
+            message(Value::Null, " { \"ok\": true } ")
+        ]})
+        .to_string();
+        let (outcome, _) = infer_loopback(Api::Responses, 200, body);
+        assert!(matches!(outcome, Outcome::Completed{output,evidence}
+            if output == json!({"ok":true})
+                && evidence["output_diagnostics"]["eligible_messages"] == 2
+                && evidence["output_diagnostics"]["distinct_json_outputs"] == 1));
     }
     #[test]
     fn responses_preserve_refusal_and_ignore_nonmessage_outputs() {
