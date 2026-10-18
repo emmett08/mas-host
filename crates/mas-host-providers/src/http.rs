@@ -3,6 +3,7 @@ use crate::{
     Provider, Request,
 };
 use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
 use std::process::Command;
 
 #[derive(Clone, Copy)]
@@ -181,6 +182,10 @@ impl Provider for Http {
             Ok(value) => value,
             Err(_) => {
                 ev["output_status"] = json!("invalid");
+                output_diagnostic(&mut ev, "response-envelope", "invalid-json");
+                ev["output_diagnostics"]["response_bytes"] = json!(split);
+                ev["output_diagnostics"]["response_sha256"] =
+                    json!(sha256(&result.stdout[..split]));
                 return Outcome::Unusable {
                     error: "provider returned invalid JSON".into(),
                     evidence: ev,
@@ -236,48 +241,103 @@ fn parse_response(api: Api, response: Value, mut ev: Value) -> Outcome {
                     response["status"].as_str(),
                     Some("incomplete" | "failed" | "cancelled")
                 ) {
+                    output_diagnostic(&mut ev, "response-envelope", "incomplete");
                     unusable("provider response did not complete", ev)
                 } else {
+                    output_diagnostic(&mut ev, "response-envelope", "nonterminal");
                     Outcome::Unknown {
                         error: "provider response has no terminal inference outcome".into(),
                         evidence: ev,
                     }
                 };
             }
-            let mut text = String::new();
+            let mut text = None;
+            let mut eligible_messages = 0usize;
+            let mut eligible_text_blocks = 0usize;
+            let mut excluded_messages = 0usize;
+            let mut other_output_items = 0usize;
+            let mut invalid_text = false;
+            let mut refused = false;
             if let Some(output) = response["output"].as_array() {
                 for item in output {
+                    if item["type"] != "message" {
+                        other_output_items += 1;
+                        continue;
+                    }
+                    // The Responses API distinguishes interim commentary from
+                    // final output. Preserve pre-phase responses, but never
+                    // infer eligibility from whether a text happens to be JSON.
+                    let eligible = item["phase"].is_null() || item["phase"] == "final_answer";
+                    if eligible {
+                        eligible_messages += 1;
+                    } else {
+                        excluded_messages += 1;
+                    }
                     if let Some(content) = item["content"].as_array() {
                         for block in content {
                             if block["type"] == "refusal" {
-                                ev["output_status"] = json!("refused");
-                                return unusable("provider refused the request", ev);
+                                refused = true;
                             }
-                            if block["type"] == "output_text" {
-                                if let Some(value) = block["text"].as_str() {
-                                    text.push_str(value);
+                            if eligible && block["type"] == "output_text" {
+                                eligible_text_blocks += 1;
+                                match block["text"].as_str() {
+                                    Some(value) => text = Some(value),
+                                    None => invalid_text = true,
                                 }
                             }
                         }
                     }
                 }
             }
+            ev["output_diagnostics"] = json!({
+                "eligible_messages": eligible_messages,
+                "eligible_text_blocks": eligible_text_blocks,
+                "excluded_messages": excluded_messages,
+                "other_output_items": other_output_items
+            });
+            if refused {
+                ev["output_status"] = json!("refused");
+                output_diagnostic(&mut ev, "output-selection", "refusal");
+                return unusable("provider refused the request", ev);
+            }
+            if eligible_messages > 1 || eligible_text_blocks > 1 {
+                ev["output_status"] = json!("invalid");
+                output_diagnostic(&mut ev, "output-selection", "ambiguous-output");
+                return unusable("provider returned multiple eligible outputs", ev);
+            }
+            if invalid_text {
+                ev["output_status"] = json!("invalid");
+                output_diagnostic(&mut ev, "output-selection", "invalid-output-text");
+                return unusable("provider output text is invalid", ev);
+            }
+            let Some(text) = text else {
+                ev["output_status"] = json!("invalid");
+                output_diagnostic(&mut ev, "output-selection", "missing-output");
+                return unusable("provider returned no eligible output", ev);
+            };
             text
         }
         Api::Chat => {
             let choice = &response["choices"][0];
             if !choice["message"]["refusal"].is_null() {
                 ev["output_status"] = json!("refused");
+                output_diagnostic(&mut ev, "output-selection", "refusal");
                 return unusable("provider refused the request", ev);
             }
             if choice["finish_reason"] != "stop" {
                 ev["output_status"] = json!("incomplete");
+                output_diagnostic(&mut ev, "response-envelope", "incomplete");
                 return unusable("provider response did not complete", ev);
             }
-            choice["message"]["content"].as_str().unwrap_or("").into()
+            let Some(text) = choice["message"]["content"].as_str() else {
+                ev["output_status"] = json!("invalid");
+                output_diagnostic(&mut ev, "output-selection", "missing-output");
+                return unusable("provider returned no eligible output", ev);
+            };
+            text
         }
     };
-    match mas_protocol_codec::parse_json(&text) {
+    match mas_protocol_codec::parse_json(text) {
         Ok(output) => {
             ev["output_status"] = json!("json");
             Outcome::Completed {
@@ -287,14 +347,195 @@ fn parse_response(api: Api, response: Value, mut ev: Value) -> Outcome {
         }
         Err(_) => {
             ev["output_status"] = json!("invalid");
+            output_diagnostic(&mut ev, "output-json", "integer-json");
+            ev["output_diagnostics"]["output_bytes"] = json!(text.len());
+            ev["output_diagnostics"]["output_sha256"] = json!(sha256(text.as_bytes()));
             unusable("provider output is not JSON", ev)
         }
     }
 }
 
+fn output_diagnostic(ev: &mut Value, stage: &str, code: &str) {
+    ev["output_diagnostics"]["stage"] = json!(stage);
+    ev["output_diagnostics"]["code"] = json!(code);
+}
+
+fn sha256(bytes: &[u8]) -> String {
+    Sha256::digest(bytes)
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn responses_select_final_answer_without_commentary() {
+        let response = json!({"status":"completed","output":[
+            {"type":"message","phase":"commentary","content":[{"type":"output_text","text":"I will inspect the pod."}]},
+            {"type":"message","phase":"final_answer","content":[{"type":"output_text","text":"{\"decision\":{\"kind\":\"request\",\"target\":\"pod_overview\",\"input_json\":\"{}\"}}"}]}
+        ]});
+        assert!(
+            matches!(parse_response(Api::Responses,response,json!({})),Outcome::Completed {output,..}
+            if output["decision"]["target"]=="pod_overview")
+        );
+    }
+    fn message(phase: Value, text: &str) -> Value {
+        json!({"type":"message","phase":phase,"content":[{"type":"output_text","text":text}]})
+    }
+    fn responses(output: Value) -> Outcome {
+        parse_response(
+            Api::Responses,
+            json!({"status":"completed","output":output}),
+            json!({}),
+        )
+    }
+    fn diagnostic(outcome: Outcome, stage: &str, code: &str) -> Value {
+        let Outcome::Unusable { evidence, .. } = outcome else {
+            panic!("expected unusable output, got {outcome:?}");
+        };
+        assert_eq!(evidence["output_diagnostics"]["stage"], stage);
+        assert_eq!(evidence["output_diagnostics"]["code"], code);
+        evidence
+    }
+    #[test]
+    fn responses_accept_legacy_missing_null_and_explicit_final_phases() {
+        let mut legacy = message(Value::Null, "{\"ok\":true}");
+        legacy.as_object_mut().unwrap().remove("phase");
+        for final_message in [
+            legacy,
+            message(Value::Null, "{\"ok\":true}"),
+            message(json!("final_answer"), "{\"ok\":true}"),
+        ] {
+            assert!(
+                matches!(responses(json!([final_message])), Outcome::Completed{output,evidence}
+                if output == json!({"ok":true})
+                    && evidence["output_diagnostics"]["eligible_messages"] == 1
+                    && evidence["output_diagnostics"]["eligible_text_blocks"] == 1)
+            );
+        }
+    }
+    #[test]
+    fn responses_never_promote_valid_json_from_an_explicit_nonfinal_phase() {
+        let commentary =
+            "{\"decision\":{\"kind\":\"request\",\"target\":\"wrong_tool\",\"input_json\":\"{}\"}}";
+        let final_text = "{\"decision\":{\"kind\":\"request\",\"target\":\"pod_overview\",\"input_json\":\"{}\"}}";
+        for phase in [
+            json!("commentary"),
+            json!("unrecognised-private-phase"),
+            json!(42),
+        ] {
+            let excluded = message(phase, commentary);
+            let evidence = diagnostic(
+                responses(json!([excluded])),
+                "output-selection",
+                "missing-output",
+            );
+            assert_eq!(evidence["output_diagnostics"]["eligible_messages"], 0);
+            assert_eq!(evidence["output_diagnostics"]["excluded_messages"], 1);
+            assert!(
+                matches!(responses(json!([excluded,message(json!("final_answer"),final_text)])),
+                Outcome::Completed{output,..} if output["decision"]["target"]=="pod_overview")
+            );
+            diagnostic(
+                responses(json!([
+                    excluded,
+                    message(json!("final_answer"), "invalid final text")
+                ])),
+                "output-json",
+                "integer-json",
+            );
+        }
+    }
+    #[test]
+    fn responses_do_not_stitch_or_choose_between_eligible_outputs() {
+        for output in [
+            json!([
+                message(json!("final_answer"), "{}"),
+                message(json!("final_answer"), "{}")
+            ]),
+            json!([
+                message(Value::Null, "{}"),
+                message(json!("final_answer"), "{}")
+            ]),
+            json!([{"type":"message","phase":"final_answer","content":[
+                {"type":"output_text","text":"{"},{"type":"output_text","text":"\"ok\":true}"}
+            ]}]),
+            json!([message(json!("final_answer"),"{}"),{"type":"message","content":[]}]),
+        ] {
+            let evidence = diagnostic(responses(output), "output-selection", "ambiguous-output");
+            assert_eq!(evidence["output_status"], "invalid");
+            assert!(evidence["output_diagnostics"]
+                .get("output_sha256")
+                .is_none());
+        }
+    }
+    #[test]
+    fn responses_preserve_refusal_and_ignore_nonmessage_outputs() {
+        for phase in [json!("final_answer"), json!("commentary"), Value::Null] {
+            let refusal = json!({"type":"message","phase":phase,"content":[{"type":"refusal","refusal":"private refusal"}]});
+            let evidence = diagnostic(
+                responses(json!([message(json!("commentary"), "{}"), refusal])),
+                "output-selection",
+                "refusal",
+            );
+            assert_eq!(evidence["output_status"], "refused");
+        }
+        let output = json!([
+            {"type":"reasoning","content":[{"type":"output_text","text":"private reasoning"},{"type":"refusal","refusal":"not a message"}]},
+            {"type":"function_call","arguments":"{}"},
+            {"type":"message","phase":"final_answer","content":[{"type":"output_text","text":"{}"},{"type":"other","text":"not final text"}]}
+        ]);
+        assert!(
+            matches!(responses(output),Outcome::Completed{output,evidence}
+            if output == json!({}) && evidence["output_diagnostics"]["other_output_items"] == 2)
+        );
+        diagnostic(
+            responses(
+                json!([{"type":"message","phase":"final_answer","content":[{"type":"output_text","text":{"private":"value"}}]}]),
+            ),
+            "output-selection",
+            "invalid-output-text",
+        );
+    }
+    #[test]
+    fn loopback_invalid_output_diagnostics_are_bounded_and_content_free() {
+        let secret = "private-output-secret-\u{1f512}";
+        let (outcome, _) = infer_loopback(Api::Responses, 200, secret.into());
+        let evidence = diagnostic(outcome, "response-envelope", "invalid-json");
+        assert_eq!(
+            evidence["output_diagnostics"]["response_bytes"],
+            secret.len()
+        );
+        assert_eq!(
+            evidence["output_diagnostics"]["response_sha256"],
+            sha256(secret.as_bytes())
+        );
+        assert!(!evidence.to_string().contains(secret));
+
+        let body = json!({"status":"completed","output":[message(json!("final_answer"),secret)]})
+            .to_string();
+        let (outcome, _) = infer_loopback(Api::Responses, 200, body);
+        let evidence = diagnostic(outcome, "output-json", "integer-json");
+        assert_eq!(evidence["output_diagnostics"]["output_bytes"], secret.len());
+        assert_eq!(
+            evidence["output_diagnostics"]["output_sha256"],
+            sha256(secret.as_bytes())
+        );
+        assert!(!evidence.to_string().contains(secret));
+        assert!(evidence.to_string().len() < 1024);
+
+        let evidence = diagnostic(
+            responses(json!([message(json!(secret), secret)])),
+            "output-selection",
+            "missing-output",
+        );
+        assert!(!evidence.to_string().contains(secret));
+        let outcome = parse_response(Api::Responses, json!({"status":secret}), json!({}));
+        assert!(matches!(outcome, Outcome::Unknown{evidence,..}
+            if evidence["output_diagnostics"]["code"] == "nonterminal" && !evidence.to_string().contains(secret)));
+    }
     #[test]
     fn responses_distinguish_refusal_incomplete_and_invalid_output() {
         let body =
