@@ -1,0 +1,56 @@
+   Compiling mas-host-providers v0.1.0 (/workspace/scratch/1951c174bbb8/mas-host/crates/mas-host-providers)
+   Compiling mas-host-runtime v0.1.0 (/workspace/scratch/1951c174bbb8/mas-host/crates/mas-host-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.50s
+     Running unittests src/lib.rs (target/debug/deps/mas_host_providers-b80ba9787fe6b447)
+
+running 26 tests
+test http::tests::chat_finish_reason_and_json_are_required ... ok
+test http::tests::endpoint_validation_rejects_credential_urls_and_remote_plaintext ... ok
+test command::tests::command_never_retries_or_copies_provider_error_text ... ok
+test command::tests::a_spawned_command_with_no_valid_envelope_is_unknown ... ok
+test http::tests::loopback_repeated_messages_return_one_result_without_retry ... ok
+test http::tests::model_json_retains_exact_integers_and_rejects_duplicate_or_decimal_syntax ... ok
+test http::tests::responses_accept_legacy_missing_null_and_explicit_final_phases ... ok
+test command::tests::command_contract_and_cursor_fixture_use_the_same_port ... ok
+test http::tests::responses_distinguish_refusal_incomplete_and_invalid_output ... ok
+test http::tests::responses_accept_only_one_distinct_json_value_across_complete_messages ... ok
+test http::tests::loopback_transport_uses_responses_contract_and_records_usage ... ok
+test http::tests::responses_do_not_stitch_or_choose_between_conflicting_outputs ... ok
+test http::tests::responses_equivalence_preserves_exact_json_types_and_string_contents ... ok
+test http::tests::responses_never_ignore_malformed_siblings_of_valid_json ... ok
+test http::tests::responses_never_promote_valid_json_from_an_explicit_nonfinal_phase ... ok
+test http::tests::responses_select_final_answer_without_commentary ... ok
+test http_error::tests::malformed_or_non_object_error_diagnostics_are_omitted ... ok
+test http::tests::responses_preserve_refusal_and_ignore_nonmessage_outputs ... ok
+test tests::missing_deadline_is_not_dispatched ... ok
+test tests::mock_has_the_same_contract_and_echoes_only_when_output_is_absent ... ok
+test tests::metadata_does_not_retain_errors_or_decimal_usage ... ok
+test http::tests::loopback_server_failure_remains_unknown ... ok
+test command::tests::cursor_raw_output_uses_the_exact_mas_json_parser ... ok
+test http::tests::loopback_invalid_output_diagnostics_are_bounded_and_content_free ... ok
+test http::tests::loopback_rejections_omit_arbitrary_strings_even_in_diagnostic_fields ... ok
+test http::tests::loopback_rejections_retain_safe_schema_authentication_and_quota_identifiers ... ok
+
+test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running unittests src/lib.rs (target/debug/deps/mas_host_runtime-46154fb0ddb5c8e8)
+
+running 3 tests
+test inference::tests::known_invalid_completion_does_not_become_an_unknown_effect ... ok
+test inference::tests::rejection_diagnostics_distinguish_local_validation_without_retaining_output ... ok
+test inference::tests::required_delegation_schema_excludes_early_completion ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests mas_host_providers
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests mas_host_runtime
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

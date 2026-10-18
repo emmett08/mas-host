@@ -21,7 +21,8 @@ SECONDS = 30
 MEMORY_BYTES = 512 * 1024 * 1024
 CASES = []
 for model, claim in (("revision", "settles"), ("disclosure", "context_finishes"),
-                     ("delegation", "delegation_finishes")):
+                     ("delegation", "delegation_finishes"),
+                     ("provider-results", "provider_results_settle")):
     for ltl in (False, True):
         for no_reduce in (False, True):
             CASES.append((model, f"{'progress' if ltl else 'safety'}{'-no-reduction' if no_reduce else ''}",
@@ -78,6 +79,38 @@ for name, macro, assertion in (
     CASES.append(("delegation", name, macro, None, False, assertion))
 CASES.append(("delegation", "stalled-inference", "BUG_STALL", "delegation_finishes",
               False, "acceptance cycle"))
+for name, macro, assertion in (
+    ("first-output", "BUG_FIRST_OUTPUT", "selected=="),
+    ("ignore-malformed-sibling", "BUG_MALFORMED_SIBLING", "selected=="),
+    ("commentary-promotion", "BUG_COMMENTARY", "selected=="),
+    ("ignore-refusal", "BUG_REFUSAL", "selected=="),
+    ("reject-equivalent-messages", "BUG_REJECT_REPEATED", "selected=="),
+    ("skip-schema", "BUG_SCHEMA", "peer_calls==prior_peer_calls"),
+    ("skip-request-admission", "BUG_REQUEST_ADMISSION", "peer_calls==prior_peer_calls"),
+    ("known-invalid-becomes-unknown", "BUG_INVALID_UNKNOWN", "inference_state==Known"),
+    ("inference-replay", "BUG_REPLAY", "inference_calls"),
+    ("peer-replay", "BUG_PEER_REPLAY", "peer_calls"),
+    ("invalid-retry", "BUG_INVALID_RETRY", "inference_calls"),
+    ("unknown-retry", "BUG_UNKNOWN_RETRY", "inference_calls"),
+    ("reclassify-retained-invalid", "BUG_RECLASSIFY", "retained_status==sealed_status"),
+    ("descriptor-rebind", "BUG_DESCRIPTOR_REBIND", "frozen_descriptor"),
+    ("single-witness", "WITNESS_SINGLE", "response_kind==Single"),
+    ("repeated-witness", "WITNESS_REPEATED", "response_kind==Repeated"),
+    ("triplicated-witness", "WITNESS_TRIPLICATED", "response_kind==Triplicated"),
+    ("conflict-after-peer-witness", "WITNESS_CONFLICT_AFTER_PEER", "response_kind==Conflicting"),
+    ("malformed-witness", "WITNESS_MALFORMED", "response_kind==MalformedSibling"),
+    ("schema-invalid-witness", "WITNESS_SCHEMA_INVALID", "response_kind==RepeatedSchemaInvalid"),
+    ("request-invalid-witness", "WITNESS_REQUEST_INVALID", "response_kind==RequestInvalid"),
+    ("refusal-witness", "WITNESS_REFUSAL", "response_kind==Refused"),
+    ("unknown-witness", "WITNESS_UNKNOWN", "terminal==Blocked"),
+    ("lost-known-witness", "WITNESS_LOST_KNOWN", "transient_known_lost"),
+    ("cached-inference-witness", "WITNESS_CACHED_INFERENCE", "cached_inference"),
+    ("delegate-crash-witness", "WITNESS_DELEGATE_CRASH", "delegate_state==Uncertain"),
+    ("descriptor-rebind-witness", "WITNESS_REBIND", "!(rebind_rejected)"),
+):
+    CASES.append(("provider-results", name, macro, None, False, assertion))
+CASES.append(("provider-results", "stalled-provider", "BUG_STALL", "provider_results_settle",
+              False, "acceptance cycle"))
 
 
 def bounded() -> None:
@@ -118,7 +151,11 @@ def main() -> int:
                           "revisions": 1, "disruptions": 1, "disclosure_worlds": 2,
                           "delegation": {"inference_turns": 3, "permitted_peers": 2,
                                          "required_peer_subsets": 4,
-                                         "minimum_calls": [0, 1, 2], "replays": 1}},
+                                         "minimum_calls": [0, 1, 2], "replays": 1},
+                          "provider_results": {"inference_effects": 1, "messages": 3,
+                                               "downstream_effects": 1,
+                                               "retained_earlier_peers": [0, 1],
+                                               "crashes": 1, "terminal_replays": 1}},
                "assumptions": [
                    "One host owner serialises this run and immutable journal writes are atomic",
                    "A provider invocation terminates or reaches its fixed external deadline",
@@ -127,6 +164,8 @@ def main() -> int:
                    "Deadline values are abstract observations; no wall-clock or scheduling bound is proved",
                    "Two disclosure worlds differ only in withheld peer findings",
                    "Disclosure applies only to host-managed inputs under the trusted-worker boundary",
+                   "Provider result values abstract exact parsed JSON; schema and request admissibility are separate inputs",
+                   "Provider result admission covers one current logical decision, not semantic deduplication across turns",
                    "No unmediated files, provider memory, traffic timing, hash collision or storage adversary",
                    "No fairness options, approximate hashing or disabled bounds/assertion checks",
                    "This is finite control checking plus implementation correspondence, not a refinement proof",

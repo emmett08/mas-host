@@ -1,0 +1,73 @@
+   Compiling mas-host-worker v0.1.0 (/workspace/scratch/1951c174bbb8/mas-host/crates/mas-host-worker)
+   Compiling mas-host-sdk v0.1.0 (/workspace/scratch/1951c174bbb8/mas-host/sdk/rust)
+   Compiling mas-host-core v0.1.0 (/workspace/scratch/1951c174bbb8/mas-host/crates/mas-host-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.65s
+     Running unittests src/lib.rs (target/debug/deps/mas_host_core-0ecc11aa0cf9558a)
+
+running 39 tests
+test revision::tests::derived_output_intersects_restrictions_and_feedback_is_filtered ... ok
+test revision::tests::evaluator_failure_and_forged_identity_cannot_pass ... ok
+test revision::tests::audit_records_and_contexts_cannot_be_rewritten_or_deleted ... ok
+test revision::tests::exact_evidence_and_frozen_authority_are_required_and_inconclusive_is_preserved ... ok
+test revision::tests::withheld_peer_content_does_not_affect_independent_input_or_policy ... ok
+test revision::tests::host_evidence_names_are_rejected_before_any_draft_dispatch ... ok
+test revision::tests::invocation_identity_is_reserved_once_and_audit_conflicts_are_rejected ... ok
+test tests::bundle_two_binds_configuration_arguments_and_public_operation ... ok
+test revision::tests::retained_terminal_replay_survives_later_stop_without_reclassification ... ok
+test revision::tests::retained_assessment_revalidates_every_binding_and_original_context ... ok
+test tests::cancellation_interrupts_admission_backoff_without_dispatch ... ok
+test tests::cancellation_persists_without_resolving_an_effect ... ok
+test tests::executable_verification_cache_does_not_trust_a_different_digest ... ok
+test revision::tests::scoped_inference_unknown_effect_remains_blocked_after_restart ... ok
+test revision::tests::restart_reuses_terminal_error_assessment_without_reclassifying_completed_worker_output ... ok
+test tests::cancellation_prevents_durable_final_result_and_retains_known_effect_completion ... ok
+test revision::tests::stop_after_assessment_prevents_new_reservation_at_transaction_boundary ... ok
+test tests::effect_identity_and_evidence_fail_closed ... ok
+test tests::environment_scope_is_independent_of_implementation_kind ... ok
+test tests::completed_output_survives_a_missing_protocol_finish ... ok
+test tests::forbidden_route_uses_protocol_authority ... ok
+test tests::live_observation_is_read_only_ordered_and_payloads_require_opt_in ... ok
+test tests::explicit_resume_of_uncertain_admission_reuses_committed_request ... ok
+test tests::identity_drift_and_reused_root_input_are_rejected ... ok
+test tests::observation_rejects_missing_and_incompatible_runs_without_creating_state ... ok
+test tests::execution_permission_is_uncertain_after_restart_and_requires_resolution ... ok
+test tests::exhausted_capacity_retry_keeps_child_and_ancestor_replayable ... ok
+test tests::original_deadline_expires_during_capacity_backoff_without_dispatch ... ok
+test tests::parallel_sibling_effect_does_not_block_independent_branch_completion ... ok
+test tests::parent_failure_waits_until_cached_child_terminal_can_be_admitted ... ok
+test tests::permitted_request_without_reply_route_is_rejected_before_preparation_or_execution ... ok
+test tests::parent_repairs_retained_child_output_before_success ... ok
+test tests::independent_run_namespaces_have_distinct_effect_identities ... ok
+test tests::rejects_previous_bundle_version_and_missing_public_operation ... ok
+test tests::removed_binary_does_not_reclassify_an_admitted_child_as_rejected ... ok
+test tests::storage_admission_failure_is_blocked_without_automatic_retry ... ok
+test tests::unfinished_child_prevents_parent_success_but_rejected_route_is_settled ... ok
+test tests::transient_admission_retries_same_identity_after_acknowledgement ... ok
+test tests::prepared_reservation_recovers_without_a_second_charge ... ok
+
+test result: ok. 39 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.26s
+
+     Running unittests src/lib.rs (target/debug/deps/mas_host_sdk-ce347e9650f32e0a)
+
+running 6 tests
+test tests::native_dispatch_still_rejects_another_handler ... ok
+test tests::configured_dispatch_keeps_configuration_separate_from_task_input ... ok
+test tests::admitted_effect_reports_output_and_evidence ... ok
+test tests::cached_effect_does_not_execute_and_ordered_parallel_is_checked ... ok
+test tests::framing_rejects_invalid_json_and_preserves_integer_unicode ... ok
+test tests::configured_worker_channel_does_not_escape_into_exec_children ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+   Doc-tests mas_host_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests mas_host_sdk
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

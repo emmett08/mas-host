@@ -7,6 +7,10 @@ vendors without changing host execution. The process transport has one deadline
 and byte limits, runs no shell, and performs no retries. Run it inside the host's
 supervised worker so its guardian also owns descendant cleanup.
 
+The [Nehemiah inference result contract](../../docs/inference-results.md) defines
+single-result selection, local validation, retention and replay, with the incident
+assessment and formal/implementation verification boundaries.
+
 | Connection kind | Configuration |
 | --- | --- |
 | `mock` | Optional `output` constant; absent output echoes the JSON input. Explicit `null` returns null. |
