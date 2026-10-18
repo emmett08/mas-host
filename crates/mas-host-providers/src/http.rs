@@ -526,6 +526,40 @@ mod tests {
         }
     }
     #[test]
+    fn responses_equivalence_preserves_exact_json_types_and_string_contents() {
+        for (first, second, equivalent) in [
+            (
+                r#"{"n":9007199254740993}"#,
+                r#"{ "n": 9007199254740993 }"#,
+                true,
+            ),
+            (
+                r#"{"n":9007199254740992}"#,
+                r#"{"n":9007199254740993}"#,
+                false,
+            ),
+            (r#"{"n":1}"#, r#"{"n":true}"#, false),
+            (r#"{"n":1}"#, r#"{"n":"1"}"#, false),
+            (r#"{"items":[1,2]}"#, r#"{"items":[2,1]}"#, false),
+            (r#"{"text":"\u0061"}"#, r#"{"text":"a"}"#, true),
+            (r#"{"input_json":"{}"}"#, r#"{"input_json":"{ }"}"#, false),
+        ] {
+            for texts in [[first, second], [second, first]] {
+                let outcome = responses(json!([
+                    message(Value::Null, texts[0]),
+                    message(json!("final_answer"), texts[1])
+                ]));
+                if equivalent {
+                    assert!(matches!(outcome, Outcome::Completed { output, .. }
+                        if output == mas_protocol_codec::parse_json(first).unwrap()));
+                } else {
+                    let evidence = diagnostic(outcome, "output-selection", "ambiguous-output");
+                    assert_eq!(evidence["output_diagnostics"]["distinct_json_outputs"], 2);
+                }
+            }
+        }
+    }
+    #[test]
     fn responses_do_not_stitch_or_choose_between_conflicting_outputs() {
         for output in [
             json!([

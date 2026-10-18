@@ -96,7 +96,7 @@ the revision controller adds a bounded outer sequence.
 
 ## Non-vacuity and result interpretation
 
-The runner executes safety and `settles`/`context_finishes` LTL checks both with
+The runner executes safety and each model's named LTL check both with
 and without partial-order reduction. Safety builds disable never claims but
 retain assertions and bounds checks. LTL builds explicitly select the claim and
 enable acceptance-cycle detection. Search-depth exhaustion is an error. Each
@@ -189,3 +189,91 @@ the existing identity, journal and delegation mechanisms; their storage and
 interleaving behaviour remains covered by implementation tests and the other
 relevant models. These are finite control checks and implementation
 correspondence, rather than a refinement proof of the Rust runtime.
+
+## Inference-result admission and durable replay
+
+`provider-results.pml` checks the [host inference-result profile](../docs/inference-results.md)
+without changing Nehemiah wire version 1. Its service is one current inference
+decision which may authorise one downstream external effect. An optional retained
+earlier peer has a different identity: a conflicting current result must not
+authorise the next effect. This does not forbid independent later turns from
+requesting the same peer again, and it does not assert that a native handler
+executes only once.
+
+The finite environment has eighteen response classes, with one to three messages
+and either original or reversed order. Classes include one result, two or three
+equal values, conflicting values, different opaque `input_json` strings, a
+malformed sibling, commentary alone or beside a final result, refusal in excluded
+commentary, incomplete and nonterminal responses, unknown transport, single or
+repeated schema-invalid results, inadmissible request input, and split, absent or
+non-string text. These are representative classes, not every combination of
+three arbitrary provider messages. Exact parsed values are abstract identities
+`VALUE_A` and `VALUE_B`; the model neither parses JSON nor recursively normalises
+JSON encoded inside strings. Parser and equality tests supply that separate
+implementation evidence.
+
+The host counts eligible absent/null/final phases, checks the shape of every
+eligible message, parses every represented text and compares all parsed values.
+Its selection result is checked against an independent response-class oracle.
+This includes a positive service requirement: repeated equal eligible messages
+must be accepted, subject to the remaining checks. `schema_valid` represents
+local output validation. `request_valid` separately represents exact parsing of
+`input_json`, its object requirement, and target/operation admission. Both are
+required before a downstream effect, so schema conformance alone does not
+authorise execution.
+
+The bound permits one independently scheduled crash and one terminal replay.
+Preparation, durable executing state, actual external dispatch, observation,
+selection, schema classification and durable result retention are separate
+transitions. The delegate effect has separate start, dispatch, observation and
+retention transitions too. A crash after an observed known result but before its
+durable retention leaves an uncertain effect and blocks recovery; it must not
+reconstruct certainty from the discarded observation. Retained invalid results
+stay known and invalid. A retained valid inference may be reused after a crash
+while the downstream handler continues; a downstream effect whose execution is
+uncertain blocks. Atomic sections cover one local step or one journal transition,
+not the whole inference/dispatch/retention sequence.
+
+| Model property or transition | Implementation correspondence | Independent implementation evidence |
+| --- | --- | --- |
+| Eligible-message selection; all equal values accepted once | `http::parse_response` and `parse_output` | Provider tests for phase filtering, repeated equal values, malformed siblings, conflicting values, text shape and exact JSON types/strings |
+| Schema validity distinct from request admission | `inference::classify` followed by `inference::execute` and `Context::request` | Runtime schema tests and application integration fixtures reject invalid decisions/requests without another tool call |
+| Executing state before external work; known result retained before action | `Inner::begin_effect`, `Context::effect`, `Inner::complete_effect` | Core/SDK effect tests and native recovery acceptance tests exercise actual journal and worker boundaries |
+| Known-invalid replay stays invalid with unchanged dispatch counts | Retained effect output plus terminal invocation state | Scripted real-host integration fixtures replay failed investigations without new provider or MCP calls |
+| Uncertain effect blocks; cached valid result skips provider work | `Inner::begin_effect`, recovery and cached `Context::effect` | Core recovery tests distinguish executing/unknown from completed/resolved effects |
+| Descriptor changes cannot rebind an identity | `Inner::prepare` | Core identity tests reject changed kind, actor, target or descriptor under a retained key |
+
+Assertions require at most one current inference dispatch and one current
+downstream effect, valid admission for that effect, immutable retained status,
+immutable identity binding and unchanged effect counters during replay. Without
+a crash, a known unusable observation must remain a known retained failure,
+rather than becoming uncertain. The
+conditional service assertion requires successful completion when the result is
+admissible, the delegate returns successfully and no crash occurs. The separate
+`provider_results_settle` LTL claim requires eventual terminal settlement,
+including failure or blockage. It assumes represented external work returns or
+reaches its existing deadline; it proves no elapsed-time bound or eventual
+reconciliation. No fairness switch is used.
+
+The runner adds four full-state safety/progress searches, with and without
+partial-order reduction. Fourteen deliberate defects check first-output selection,
+ignored malformed siblings, commentary promotion, ignored refusal, rejection of
+equal repetitions, skipped schema or request-admission checks, known-invalid
+results misclassified as uncertain, inference/peer replay dispatch, retry
+after known-invalid or uncertain outcomes, reclassification of retained invalid
+results and descriptor rebinding. Thirteen reachability witnesses cover single,
+double and triple valid results; conflict after an earlier peer; malformed and
+schema-invalid retained replay; schema-valid but inadmissible requests; retained
+refusal; unknown replay; loss before retention; cached
+inference recovery; delegate uncertainty after a crash; and rejected rebinding.
+A permanent-stall mutation must produce a replayed acceptance cycle.
+
+The model assumes one owner, durable atomic journal writes and admitted effect
+identities, and excludes storage loss, hash collisions, hostile workers, external
+reconciliation, cancellation/deadline interleavings and provider process cleanup.
+Not-sent outcomes and explicit HTTP rejection are not separate response classes
+in this model; provider/runtime implementation tests cover those boundaries.
+The existing revision model and implementation tests cover relevant excluded
+host behaviour. These results establish finite control properties and an
+implementation correspondence; they are not a proof that the Rust implementation
+refines the model or that any live provider run will succeed.

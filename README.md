@@ -19,6 +19,8 @@ foreach and named subworkflows. Star, tree and mesh routes can be combined in on
 application. Every cross-agent request still passes through MAS admission.
 The [composable examples](https://github.com/emmett08/mas-host-examples/tree/main/examples/composable-agents)
 exercise these shapes with one actor definition and selectable provider profiles.
+The [inference result contract](docs/inference-results.md) specifies how repeated,
+conflicting and unusable provider outputs interact with validation and replay.
 
 ## Build and try an application
 
