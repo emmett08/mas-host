@@ -41,10 +41,13 @@ Cursor exposes no enforceable output-token limit; its evidence states that limit
 For Responses API results, only `message` items whose `phase` is `final_answer`,
 missing or `null` can supply the operation result. Explicit `commentary` and other
 phases are excluded even when their text is valid JSON. Non-message output items
-are not operation results. The adapter requires exactly one eligible message and
-one `output_text` block: it neither chooses between multiple results nor joins
-separate text blocks into a new JSON value. This is stricter than the SDK helper's
-first-parsed-output selection because one host inference effect admits one result.
+are not operation results. Each eligible message must contain one `output_text`
+block. Every eligible text must parse as the same JSON value. Repeated equivalent
+messages therefore produce one result and one downstream decision. Whitespace
+and object-key order may differ. Distinct values, a malformed sibling or an empty
+eligible message remain unusable. The adapter never joins separate text blocks
+into a new JSON value. This is stricter than the SDK helper's first-parsed-output
+selection because one host inference effect admits one distinct result.
 Refusals in message content and incomplete responses remain unusable. A malformed
 final answer never falls back to commentary. The selected text still passes
 through the MAS integer-JSON parser, including duplicate-key and decimal-syntax
@@ -55,7 +58,11 @@ HTTP output failures retain bounded `output_diagnostics` with fixed `stage` and
 and host output-schema failures. Responses selection records counts named
 `eligible_messages`, `eligible_text_blocks`, `excluded_messages` and
 `other_output_items`, including when selection succeeds but schema validation
-subsequently fails. Invalid envelope JSON can retain `response_bytes` and
+subsequently fails. `final_messages` and `unphased_messages` distinguish eligible
+phase categories. Once message structure is valid, `distinct_json_outputs` and
+`invalid_json_blocks` distinguish repetition, conflict and malformed text without
+retaining their contents. These counts describe parsing, not schema acceptance.
+Invalid envelope JSON can retain `response_bytes` and
 `response_sha256` for the HTTP response bytes. Invalid selected JSON can retain
 `output_bytes` and `output_sha256` for the selected text; host schema failures use
 those two fields for canonical serialised JSON instead. No raw output, refusal
