@@ -12,6 +12,24 @@ effect admission, inspection and evidence-based recovery. It consumes a pinned
 revision of [`emmett08/mas`](https://github.com/emmett08/mas) through its public
 Rust crate; neither the protocol repository nor existing demos need changes.
 
+## Architecture in motion
+
+<picture>
+  <source media="(prefers-reduced-motion: reduce)" srcset="docs/diagrams/mas-host-architecture.png">
+  <img src="docs/diagrams/mas-host-architecture.gif" alt="Animated MAS Host architecture: build and frozen bundle, CLI or A2A ingress, Rust core, separate stores, supervised native, command, LLM and workflow workers, external effects, governed acquisition, inherited source restrictions, privacy inspection and authorised effect/source reads." width="1200">
+</picture>
+
+The animation follows build, admission, worker execution and recovery, including
+the retained-effect reader from [PR #19](https://github.com/emmett08/mas-host/pull/19)
+and governed acquisition with inherited source restrictions from
+[PR #20](https://github.com/emmett08/mas-host/pull/20).
+Packet motion shows the sequence of operations with illustrative timing.
+The governed path applies to explicitly configured structured A2A operations.
+
+[Static diagram](docs/diagrams/mas-host-architecture.svg) ·
+[Flow explanation and regeneration](docs/diagrams/README.md) ·
+[Architecture contracts](docs/architecture.md)
+
 The [Nehemiah implementation sequence](docs/nehemiah-implementation.md) starts
 the scaling, governed-data and PII plans with workload baselines, strict
 [profile preflight](docs/nehemiah-governance.md) and synthetic privacy fixtures.
