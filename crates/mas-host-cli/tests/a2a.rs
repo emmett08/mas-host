@@ -244,7 +244,8 @@ impl Server {
     }
 
     fn completed(&self, id: &str) -> Value {
-        let deadline = Instant::now() + Duration::from_secs(10);
+        // This polls correctness, not a latency SLO; allow slower CI scheduling.
+        let deadline = Instant::now() + Duration::from_secs(30);
         loop {
             let task = self.task(id);
             if task["metadata"]["mas"]["state"] == "completed" {
