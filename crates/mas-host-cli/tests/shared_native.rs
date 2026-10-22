@@ -53,11 +53,11 @@ pub fn apply(_ctx:&mut Context,input:Json)->Result<Json>{
         );
         write(
             &root.join("agents.json"),
-            &json!({"version":"mas-agents/3","agents":[{"name":"native","operation":"native/1","input_schema":"input.json","output_schema":"output.json","implementation":{"kind":"native","language":"rust","source":"native.rs","handler":"apply"}}]}),
+            &json!({"version":"mas-agents/3","limits":{"max_calls":1,"wall_seconds":120},"agents":[{"name":"native","operation":"native/1","input_schema":"input.json","output_schema":"output.json","implementation":{"kind":"native","language":"rust","source":"native.rs","handler":"apply"}}]}),
         );
         write(
             &root.join("topology.json"),
-            &json!({"version":"mas-topology/1","edges":[["client","native"],["native","client"]],"max_calls":1,"wall_seconds":120}),
+            &json!({"version":"mas-topology/1","edges":[["client","native"],["native","client"]]}),
         );
         let output = Command::new(env!("CARGO_BIN_EXE_mas-host"))
             .args(["build", "--project"])
@@ -137,7 +137,7 @@ pub fn apply(_ctx:&mut Context,input:Json)->Result<Json>{
         );
         serde_json::from_slice(&output.stdout).unwrap()
     }
-    fn queue(&self, id: &str) -> String {
+    fn configure_queue(&self) -> String {
         let mut repo = self.repo();
         let bundle: Value = serde_json::from_slice(&fs::read(&self.bundle).unwrap()).unwrap();
         let bundle_digest = mas_host_core::describe(&bundle).unwrap()["bundle_digest"].clone();
@@ -173,6 +173,11 @@ pub fn apply(_ctx:&mut Context,input:Json)->Result<Json>{
         )
         .unwrap();
         repo.host_command("task-scheduler","task.configure_scheduler",&json!({"policy":{"max_workers":1,"max_per_principal":1,"workflows":{},"resources":{}}})).unwrap();
+        identity
+    }
+    fn queue(&self, id: &str) -> String {
+        let identity = self.configure_queue();
+        let mut repo = self.repo();
         let input = json!({"id":id,"ledger":self.root.join("ledger"),"lose_reply":false});
         repo.host_command("submit-native","task.submit",&json!({"principal":"tester","namespace":"mas-unified/1","epoch":"native-test-epoch","key":id,"digest":digest(input.to_string().as_bytes()),"task":id,"workflow":"native","identity":identity,"expected_identity":identity,"input":input,"metadata":{}})).unwrap();
         identity
@@ -292,4 +297,144 @@ fn postgres_queued_native_cli_preserves_task_identity_and_executes_once() {
             .unwrap()["calls"],
         1
     );
+}
+
+struct QueueServer {
+    child: std::process::Child,
+    address: std::net::SocketAddr,
+}
+impl QueueServer {
+    fn start(fixture: &Fixture, identity: &str, replica: &str) -> Self {
+        let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        drop(listener);
+        let config = fixture.root.join(format!("{replica}.json"));
+        write(
+            &config,
+            &json!({"version":"mas-host-a2a/1","listen":address.to_string(),"public_url":format!("http://{address}/a2a"),"name":"shared-native-fixture","exports":[{"agent":"native","name":"Native","description":"Fixture operation","public":false}],"principals":[{"name":"tester","token_sha256":digest(b"tester-fixture-token-01234567890123456789"),"agents":["native"]},{"name":"other","token_sha256":digest(b"other-fixture-token-012345678901234567890"),"agents":["native"]}],"shared_queue":{"version":"mas-host-a2a-shared-native/1","authority_file":fixture.root.join("authority.json"),"service_epoch":"fixture-service-epoch","workflows":{"native":{"name":"native","identity":identity}}}}),
+        );
+        let child = Command::new(env!("CARGO_BIN_EXE_mas-host"))
+            .env("MAS_POSTGRES_DSN", &fixture.dsn)
+            .args(["serve-a2a", "--bundle"])
+            .arg(&fixture.bundle)
+            .arg("--state")
+            .arg(fixture.root.join(replica))
+            .arg("--config")
+            .arg(config)
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::null())
+            .spawn()
+            .unwrap();
+        let mut server = Self { child, address };
+        let until = std::time::Instant::now() + std::time::Duration::from_secs(10);
+        loop {
+            if std::net::TcpStream::connect(address).is_ok() {
+                break;
+            }
+            assert!(
+                server.child.try_wait().unwrap().is_none(),
+                "shared A2A server exited"
+            );
+            assert!(
+                std::time::Instant::now() < until,
+                "shared A2A startup timed out"
+            );
+            std::thread::sleep(std::time::Duration::from_millis(20));
+        }
+        server
+    }
+    fn rpc(&self, token: &str, id: &str, method: &str, params: Value) -> Value {
+        use std::io::{Read, Write};
+        let body = json!({"jsonrpc":"2.0","id":id,"method":method,"params":params}).to_string();
+        let mut stream = std::net::TcpStream::connect(self.address).unwrap();
+        stream
+            .set_read_timeout(Some(std::time::Duration::from_secs(15)))
+            .unwrap();
+        write!(stream,"POST /a2a HTTP/1.1\r\nHost: {}\r\nConnection: close\r\nContent-Type: application/json\r\nContent-Length: {}\r\nAuthorization: Bearer {token}\r\nA2A-Version: 1.0\r\nA2A-Extensions: urn:mas:host-task-service:1\r\n\r\n{body}",self.address,body.len()).unwrap();
+        let mut response = String::new();
+        stream.read_to_string(&mut response).unwrap();
+        let (head, body) = response.split_once("\r\n\r\n").unwrap();
+        assert!(head.starts_with("HTTP/1.1 200"), "{head}");
+        serde_json::from_str(body).unwrap()
+    }
+}
+impl Drop for QueueServer {
+    fn drop(&mut self) {
+        let _ = self.child.kill();
+        let _ = self.child.wait();
+    }
+}
+
+#[test]
+#[ignore = "requires actual PostgreSQL and native Rust compilation"]
+fn authenticated_a2a_shared_ingress_replays_across_replicas_and_dispatches_once() {
+    const TESTER: &str = "tester-fixture-token-01234567890123456789";
+    const OTHER: &str = "other-fixture-token-012345678901234567890";
+    let fixture = Fixture::new();
+    let identity = fixture.configure_queue();
+    let bundle: Value = serde_json::from_slice(&fs::read(&fixture.bundle).unwrap()).unwrap();
+    let descriptor = mas_host_core::describe(&bundle).unwrap();
+    let mut request = json!({"message":{"messageId":"one-original-request","role":"ROLE_USER","parts":[{"data":{"agent":"native","descriptorDigest":descriptor["bundle_digest"],"input":{"id":"a2a-shared","ledger":fixture.root.join("ledger"),"lose_reply":false}}}]},"configuration":{"returnImmediately":true}});
+    let first = QueueServer::start(&fixture, &identity, "replica-one");
+    let admitted = first.rpc(TESTER, "first-rpc", "SendMessage", request.clone());
+    let task = admitted["result"]["task"]["id"]
+        .as_str()
+        .expect("shared admission returned task")
+        .to_owned();
+    assert_eq!(
+        admitted["result"]["task"]["metadata"]["mas"]["state"],
+        "queued"
+    );
+    assert!(
+        !fixture.root.join("ledger").exists(),
+        "ingress executed a worker"
+    );
+    drop(first); // Lost client acknowledgement is reconciled at another ingress.
+    let second = QueueServer::start(&fixture, &identity, "replica-two");
+    let replay = second.rpc(
+        TESTER,
+        "different-transport-id",
+        "SendMessage",
+        request.clone(),
+    );
+    assert_eq!(replay["result"]["task"]["id"], task);
+    let status = second.rpc(TESTER, "status", "GetTaskStatus", json!({"id":task}));
+    assert_eq!(status["result"]["serviceState"], "queued");
+    assert_eq!(status["result"]["executionPermission"], false);
+    assert!(status["result"].get("artifacts").is_none());
+    assert_eq!(
+        second.rpc(OTHER, "forged-read", "GetTask", json!({"id":task}))["error"]["code"],
+        -32001
+    );
+    assert_eq!(
+        second.rpc(OTHER, "forged-cancel", "CancelTask", json!({"id":task}))["error"]["code"],
+        -32001
+    );
+    request["message"]["parts"][0]["data"]["input"]["id"] = json!("changed-content");
+    assert!(second.rpc(TESTER, "conflict", "SendMessage", request)["error"].is_object());
+    assert_eq!(fixture.drain(&identity)["fresh_claims"], 1);
+    let completed = second.rpc(TESTER, "completed", "GetTask", json!({"id":task}));
+    assert_eq!(
+        completed["result"]["status"]["state"],
+        "TASK_STATE_COMPLETED"
+    );
+    assert_eq!(
+        completed["result"]["artifacts"][0]["parts"][0]["data"],
+        json!({"accepted":true})
+    );
+    assert_eq!(fixture.drain(&identity)["fresh_claims"], 0);
+    assert_eq!(
+        fs::read_to_string(fixture.root.join("ledger")).unwrap(),
+        "a2a-shared\n"
+    );
+    for replica in ["replica-one", "replica-two"] {
+        let db =
+            rusqlite::Connection::open(fixture.root.join(replica).join("service.sqlite")).unwrap();
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM tasks", [], |r| r.get::<_, i64>(0))
+                .unwrap(),
+            0,
+            "local queue became an owner"
+        );
+    }
 }

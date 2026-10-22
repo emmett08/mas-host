@@ -9,6 +9,8 @@ mod retained_assessment;
 mod retained_effect;
 mod retained_source;
 mod shared_source;
+#[cfg(feature = "shared-native")]
+mod shared_queue;
 mod status;
 use configuration::Configuration;
 use governed::Caller;
@@ -179,6 +181,10 @@ impl Service {
         principal
             .current()
             .map_err(|_| RpcError(-32001, "task_not_found"))?;
+        #[cfg(feature = "shared-native")]
+        if self.configuration.shared_queue.is_some() {
+            return self.shared_task(principal, id);
+        }
         let db = self
             .db
             .lock()
@@ -321,6 +327,10 @@ impl Service {
             }) {
                 return Err(RpcError(-32005, "content_type_not_supported"));
             }
+        }
+        #[cfg(feature = "shared-native")]
+        if self.configuration.shared_queue.is_some() {
+            return self.shared_submit(principal, &message_id, &agent, &input, message);
         }
         let content = principal
             .content(params)
@@ -526,6 +536,10 @@ impl Service {
         }
     }
     fn cancel(&self, principal: &Caller, params: &Value) -> RpcResult<Value> {
+        #[cfg(feature = "shared-native")]
+        if self.configuration.shared_queue.is_some() {
+            return self.shared_cancel(principal, params);
+        }
         principal
             .current()
             .map_err(|_| RpcError(-32001, "task_not_found"))?;

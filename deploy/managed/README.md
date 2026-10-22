@@ -77,6 +77,20 @@ The configuration digest binds the exact image, source scope, export, credential
 reference names and network destinations. Current grant epochs and secret
 rotation remain host/adapter authority responsibilities.
 
+The example declares `governance_version: "mas-governed-local/2"` and leaves
+`source_publication` false. To enable a source coordinator's runtime publication,
+set that explicit boolean true and grant the producer the existing source-read
+and `publish-source` permissions under every applicable source policy. The
+renderer passes the boolean into the generated A2A2 service configuration and
+binds it into the deployment digest. It rejects an absent/local/1 governance
+declaration or a non-boolean value when this field is supplied. The declaration
+expresses the expected external Secret version. The maintained A2A service
+independently parses the mounted governance JSON and rejects an actual version that
+does not support source reads. The local rendering receipt therefore keeps
+external-Secret validation `NOT_RUN` and source publication at
+`startup-validation-required`. Enabling publication on a retained service still
+requires the host's explicit service-identity migration contract.
+
 ```sh
 python3 deploy/managed/prepare.py configuration.json \
   --host target/release/mas-host --output prepared-deployment

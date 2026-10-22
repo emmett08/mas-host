@@ -35,6 +35,26 @@ class DeploymentTests(unittest.TestCase):
         self.assertEqual(service["version"], "mas-host-a2a/2")
         self.assertEqual(proxy["ports"][0]["containerPort"], 8443)
 
+    def test_source_publication_requires_explicit_source_read_contract(self):
+        self.config["source_publication"] = True
+        service = json.loads(self.find("Secret")["stringData"]["service.json"])
+        self.assertTrue(service["source_publication"])
+        self.config["source_publication"] = False
+        service = json.loads(self.find("Secret")["stringData"]["service.json"])
+        self.assertFalse(service["source_publication"])
+        self.config["source_publication"] = "true"
+        with self.assertRaises(ValueError):
+            prepare.validate(self.config)
+        self.config["source_publication"] = True
+        self.config["governance_version"] = "mas-governed-local/1"
+        with self.assertRaises(ValueError):
+            prepare.validate(self.config)
+        del self.config["governance_version"]
+        with self.assertRaises(ValueError):
+            prepare.validate(self.config)
+        del self.config["source_publication"]
+        self.assertNotIn("source_publication", json.loads(self.find("Secret")["stringData"]["service.json"]))
+
     def test_images_must_be_digest_pinned(self):
         for field in ("host_image", "proxy_image"):
             self.config[field] = "registry.example/image:latest"

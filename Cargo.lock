@@ -606,7 +606,7 @@ dependencies = [
 [[package]]
 name = "mas-protocol-codec"
 version = "0.1.0"
-source = "git+https://github.com/emmett08/mas?rev=c6bca13f2e1adc6456786d51abfdd0afe374fd24#c6bca13f2e1adc6456786d51abfdd0afe374fd24"
+source = "git+https://github.com/emmett08/mas?rev=3620aa2c848a7808e5c52ad3b6f09213ff7aaa95#3620aa2c848a7808e5c52ad3b6f09213ff7aaa95"
 dependencies = [
  "hmac",
  "libc",

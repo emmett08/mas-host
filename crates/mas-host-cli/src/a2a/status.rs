@@ -31,6 +31,10 @@ pub(super) fn initialise(db: &Connection) -> Result<()> {
 
 impl Service {
     pub(super) fn task_status(&self, caller: &Caller, request: &Value) -> RpcResult<Value> {
+        #[cfg(feature = "shared-native")]
+        if self.configuration.shared_queue.is_some() {
+            return self.shared_status(caller, request);
+        }
         fields(request, &["id"], &[])?;
         let id = text(request, "id")?;
         caller.current().map_err(|_| unavailable())?;

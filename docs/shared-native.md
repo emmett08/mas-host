@@ -11,8 +11,8 @@ The supported operation is one credential-free source-function actor with empty
 configuration, explicit object input/output schemas and exactly the client request
 and reply routes. A single native invocation reserves its configured allocation.
 Child requests and application effect frames stop the operation conservatively.
-Managed privacy, revision, queued A2A dispatch, shared subscribers and automatic
-takeover require their separately qualified implementations.
+Managed privacy, revision, shared protected subscribers and automatic takeover
+require their separately qualified implementations.
 
 The operator provisions the existing native host/controller repositories and
 allocation scopes before execution. The host never creates database schemas,
@@ -114,7 +114,61 @@ under the original task/run identity. Releasing its worker slot preserves native
 call charges and any unresolved execution obligation. The turn performs no
 automatic recovery or external-operation retry.
 
-This entry point establishes a bounded native queued slice. Authenticated shared
-A2A ingress, provider-specific quota pacing, automatic recovery capacity,
-shared protected-data execution and deployment fairness/capacity qualification
-remain subsequent work. Local A2A limits retain their existing values.
+This entry point establishes a bounded native queued slice. Automatic recovery
+capacity, shared protected-data execution and deployment fairness/capacity
+qualification remain subsequent work. Local A2A limits retain their existing
+values. Provider request allowances have a separate authority contract; they do
+not grant permission to retry a native effect.
+
+
+## Authenticated shared A2A ingress
+
+With `shared-native`, the existing `serve-a2a` boundary accepts this optional
+administrator-owned field in a `mas-host-a2a/1` configuration:
+
+```json
+"shared_queue": {
+  "version": "mas-host-a2a-shared-native/1",
+  "authority_file": "/operator/authority.json",
+  "service_epoch": "original-service-epoch",
+  "workflows": {"registered-actor": {
+    "name": "registered-workflow", "identity": "exact-descriptor-sha256"
+  }}
+}
+```
+
+The existing bearer authentication, export grants, descriptor and schema checks
+run before PostgreSQL submission. Each export has one exact immutable native
+workflow/source-package binding. Its principal limits, global queue policy,
+allocation and scheduler must already be provisioned by the operator. Ingress
+neither provisions allowances nor dispatches workers. `shared-drain` remains the
+native queue consumer. No shared task is inserted in the local SQLite queue.
+
+The logical deployment/schema, original service epoch, authenticated principal
+and original `messageId` determine one request, task and command identity. The
+canonical digest includes business input, actor and immutable workflow/bundle
+identity; RPC ids, JSON whitespace/key order and `returnImmediately` do not
+change it. A lost response is reconciled by repeating that original message at
+another ingress with the same logical authority/service epoch. Conflicting
+content cannot replace the original task. Credential rotation and controller
+handover do not create a fresh request namespace. Changing the authority file
+while a service is running fails closed and requires an operator restart.
+
+`GetTask` and `CancelTask` require the exact authenticated principal, current
+export grant and original service/epoch/workflow binding. `GetTaskStatus` uses
+the native `task.status` projection: one owned lookup without input, output,
+history, deadline reconciliation or the authority writer lock. Cancellation
+records intent in the existing task owner; it makes no claim that an external
+operation stopped. Full result delivery separately validates its retained
+schema and availability. An unavailable database, ambiguous admission or
+replayed receipt grants no worker permission.
+
+This initial shared ingress supports only the credential-free single-function
+native slice. It rejects governed-local/managed privacy execution and custom
+`contextId`; those profiles require shared governance and context contracts.
+The real PostgreSQL HTTP test submits through one ingress, repeats through
+another, rejects a different principal and changed content, then checks that
+one native drain produced one independent source-ledger action and neither
+local service acquired a task queue record. Sustained workload, provider-specific
+integration and full shared protected-data execution remain qualification and
+implementation obligations, respectively.

@@ -26,6 +26,7 @@ REQUIRED = {
     "tls_secret", "state_claim", "export_claim", "lifecycle_claim", "ingress_namespace", "exports",
     "ingress_pod_labels", "credential_references", "provider_endpoints", "collector",
 }
+OPTIONAL = {"governance_version", "source_publication"}
 
 
 def load_json(raw: bytes | str) -> dict:
@@ -81,8 +82,17 @@ def endpoint(value: object) -> dict:
 
 
 def validate(config: dict) -> dict:
-    if not isinstance(config, dict) or set(config) != REQUIRED or config["version"] != VERSION:
+    if (not isinstance(config, dict) or not REQUIRED <= set(config)
+            or not set(config) <= REQUIRED | OPTIONAL or config["version"] != VERSION):
         raise ValueError("unsupported deployment shape or version")
+    if "governance_version" in config and config["governance_version"] not in (
+            "mas-governed-local/1", "mas-governed-local/2"):
+        raise ValueError("unsupported governance version declaration")
+    if "source_publication" in config:
+        if type(config["source_publication"]) is not bool:
+            raise ValueError("source_publication must be boolean")
+        if config.get("governance_version") != "mas-governed-local/2":
+            raise ValueError("source publication requires the governed local/2 source-read contract")
     for key in ("namespace", "name", "configuration_secret", "commitment_secret", "tls_secret", "state_claim", "export_claim", "lifecycle_claim", "ingress_namespace"):
         check_name(config[key])
     if len({config["state_claim"], config["export_claim"], config["lifecycle_claim"]}) != 3:
@@ -209,6 +219,8 @@ def render(config: dict) -> dict:
                "name": name, "authentication_file": "/etc/nehemiah/authentication.json",
                "governance_file": "/etc/nehemiah/governance.json", "exports": config["exports"],
                "max_active": 1, "max_tasks": 1000}
+    if "source_publication" in config:
+        service["source_publication"] = config["source_publication"]
     add("Secret", name + "-service", type="Opaque", stringData={"service.json": json.dumps(service, sort_keys=True)})
     proxy_config = """pid /tmp/nginx.pid;
 events { worker_connections 128; }
@@ -372,6 +384,8 @@ def main() -> int:
             "version": "mas-host-deployment-qualification/1", "profile": config["profile"],
             "rendered": True, "host_preflight": "NOT_RUN" if args.candidate else "PASS",
             "image_build": "NOT_RUN", "cluster_rbac": "NOT_RUN", "cluster_egress": "NOT_RUN",
+            "governance_secret_validation": "NOT_RUN",
+            "source_publication": "startup-validation-required" if "source_publication" in config else "not-requested",
             "volume_lock": "NOT_RUN", "restore": "NOT_RUN", "worker_isolation": "UNSUPPORTED",
             "configuration_sha256": hashlib.sha256(json.dumps(config, sort_keys=True, separators=(",", ":")).encode()).hexdigest(),
         }, indent=2) + "\n")

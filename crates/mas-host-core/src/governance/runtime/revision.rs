@@ -4,6 +4,15 @@ use serde_json::Value;
 type Result<T> = std::result::Result<T, String>;
 
 impl GovernedSession {
+    pub(crate) fn check_revision_support(&self) -> Result<()> {
+        self.check_current()?;
+        self.0
+            .revision
+            .as_ref()
+            .ok_or("governed-revision-unsupported")?;
+        Ok(())
+    }
+
     pub(crate) fn revision_record(
         &self,
         kind: &str,

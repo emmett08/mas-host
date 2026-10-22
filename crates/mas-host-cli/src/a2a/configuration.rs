@@ -18,6 +18,8 @@ pub(super) struct Configuration {
     pub governed: Option<GovernedIngress>,
     pub source_exports: BTreeMap<String, super::shared_source::SourceExport>,
     pub source_publication: bool,
+    #[cfg(feature = "shared-native")]
+    pub shared_queue: Option<super::shared_queue::SharedQueue>,
 }
 fn string(value: &Value, key: &str, max: usize) -> Result<String> {
     value[key]
@@ -75,7 +77,11 @@ impl Configuration {
         } else {
             required.push("principals");
         }
-        let mut optional = vec!["max_active", "max_tasks"];
+        let mut optional = vec!["max_active", "max_tasks", "shared_queue"];
+        #[cfg(not(feature = "shared-native"))]
+        if value.get("shared_queue").is_some() {
+            return Err("shared_queue requires shared-native feature".into());
+        }
         if governed.is_some() {
             optional.push("privacy_inspector_file");
             optional.push("source_exports");
@@ -206,6 +212,19 @@ impl Configuration {
                 .as_ref()
                 .is_some_and(GovernedIngress::source_reads_supported),
         )?;
+        #[cfg(feature = "shared-native")]
+        let shared_queue = value
+            .get("shared_queue")
+            .map(|shared| {
+                super::shared_queue::SharedQueue::parse(
+                    shared,
+                    bundle,
+                    descriptor,
+                    &exports,
+                    governed.is_some(),
+                )
+            })
+            .transpose()?;
         let result = Self {
             listen,
             public_url,
@@ -214,6 +233,8 @@ impl Configuration {
             principals,
             max_active: bound(value, "max_active", 4, 16)?,
             max_tasks: bound(value, "max_tasks", 1000, 10000)?,
+            #[cfg(feature = "shared-native")]
+            shared_queue,
             governed,
             source_exports,
             source_publication,
@@ -271,6 +292,12 @@ impl Configuration {
                     "params":{"descriptor":projection,"methods":["SendMessage","GetTask","GetTaskStatus","CancelTask"],"cancellation":"intent-only; pending cancellation returns TaskNotCancelableError","restart":"unfinished accepted work becomes unknown; no automatic redispatch"}}]},
             "securitySchemes":{"bearer":{"httpAuthSecurityScheme":{"scheme":"Bearer"}}},"securityRequirements":[{"schemes":{"bearer":{"list":[]}}}],
             "defaultInputModes":["application/json"],"defaultOutputModes":["application/json"],"skills":skills});
+        #[cfg(feature = "shared-native")]
+        if self.shared_queue.is_some() {
+            card["capabilities"]["extensions"][0]["params"]["backend"] = json!("shared-native");
+            card["capabilities"]["extensions"][0]["params"]["restart"] = json!("original queued task and effect identities remain in PostgreSQL; no ingress dispatch");
+            card["capabilities"]["extensions"][0]["params"]["customContext"] = json!(false);
+        }
         if self.governed.is_some() {
             card["capabilities"]["extensions"].as_array_mut().unwrap().push(json!({
                 "uri":super::retained_effect::PROFILE,"required":false,
