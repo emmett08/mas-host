@@ -1,0 +1,238 @@
+{
+  "version": "mas-host-paced-baseline/1",
+  "status": "LOCAL_EXPERIMENT_ONLY",
+  "environment": {
+    "checkout_revision": "d9ac1014a1f2428e3c20aa7d7ee17506a012f7ad",
+    "host_source_revision": null,
+    "host_source_binding": "BINARY_HASH_ONLY_BUILD_PROVENANCE_REQUIRED",
+    "working_tree_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_tree_identity_complete": false,
+    "host_sha256": "e51e5a2b6c2912136dc493cf62f5d6a5afb2013a6b60b4d637044b9072dc62a5",
+    "cargo_lock_sha256": "bf572b523cb27c4086f49cb0710d26a3acdc91bc843d4e6c29f1160788d06bf1",
+    "workspace_manifest_sha256": "2906e7da21021a71e213979ffa58f4e75955a41a857d9b3d38c8116b6cade039",
+    "harness_sha256": {
+      "baseline.py": "5f50e486b0a2890873cc380551d37a8b4e32e53534dd4488298ce39af201b95c",
+      "workload.py": "3ec321191623d40dfbf79b3687e7769ff6701a6c257fda1fafafe813c3e1003b"
+    },
+    "python": "3.12.14",
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "os": "Linux",
+    "kernel": "6.18.55",
+    "architecture": "x86_64",
+    "logical_cpus": 9,
+    "physical_memory_bytes": 10451435520,
+    "storage": "temporary directory, local SQLite journals; filesystem/device unqualified",
+    "database_version": null,
+    "cost_ceiling": null,
+    "provider_requests": 0,
+    "provider_tokens": null,
+    "provider_billing": null
+  },
+  "workload_manifest_sha256": "11347538149d52c180a59a16d63a82fc2dd54a712ba84b278b03b7009b38640f",
+  "parameters": {
+    "count": 3,
+    "offered_rate_per_second": 2.0,
+    "occupancy_ms": 50,
+    "concurrency": 2,
+    "seed": 20261022,
+    "distribution": "uniform",
+    "fault_every": 2,
+    "fault_mode": "refuse-before-effect"
+  },
+  "limits": {
+    "maximum_requests": 10000,
+    "maximum_active_cli": 2,
+    "maximum_harness_pending": 3,
+    "maximum_cli_seconds": 60,
+    "maximum_source_ledger_bytes_per_request": 65536,
+    "maximum_aggregate_source_ledger_bytes": 196608
+  },
+  "assignment_to_investigation_mapping": "UNESTABLISHED",
+  "fixture_mapping": "one original request, one root worker, one admitted synthetic effect",
+  "host_queued_service_exercised": false,
+  "records": [
+    {
+      "admission": "admitted",
+      "execution": "completed",
+      "started": true,
+      "request_id": "paced-e84e0b0a6a774f91-00000",
+      "tenant": "tenant-0000",
+      "cluster": "cluster-0000",
+      "fault_mode": "success",
+      "input_bytes": 166,
+      "scheduled_offer_ms": 0.0,
+      "harness_started_ms": 2.077882,
+      "harness_queue_ms": 2.077882,
+      "elapsed_ms": 1146.639315,
+      "cli_returncode": 0,
+      "observer_success": true,
+      "observer_ms": 10.98845,
+      "host_admission_latency_ms": null,
+      "host_eligible_queue_ms": null,
+      "retained_effect_id": "eff-bcbb74a28979178264526bbf3782d2f6890949c1e66b6c270e095ec2156fa989",
+      "retained_effect_state": "completed",
+      "effect_id": "eff-bcbb74a28979178264526bbf3782d2f6890949c1e66b6c270e095ec2156fa989",
+      "application_check": "pass"
+    },
+    {
+      "admission": "admitted",
+      "execution": "failed",
+      "started": null,
+      "request_id": "paced-e84e0b0a6a774f91-00001",
+      "tenant": "tenant-0001",
+      "cluster": "cluster-0001",
+      "fault_mode": "refuse-before-effect",
+      "input_bytes": 179,
+      "scheduled_offer_ms": 500.0,
+      "harness_started_ms": 505.742896,
+      "harness_queue_ms": 5.742895999999973,
+      "elapsed_ms": 792.833683,
+      "cli_returncode": 1,
+      "observer_success": true,
+      "observer_ms": 6.00517,
+      "host_admission_latency_ms": null,
+      "host_eligible_queue_ms": null,
+      "retained_effect_id": null,
+      "retained_effect_state": null,
+      "effect_id": null,
+      "application_check": "unavailable"
+    },
+    {
+      "admission": "admitted",
+      "execution": "completed",
+      "started": true,
+      "request_id": "paced-e84e0b0a6a774f91-00002",
+      "tenant": "tenant-0002",
+      "cluster": "cluster-0002",
+      "fault_mode": "success",
+      "input_bytes": 166,
+      "scheduled_offer_ms": 1000.0,
+      "harness_started_ms": 1161.59959,
+      "harness_queue_ms": 161.59959000000003,
+      "elapsed_ms": 944.421302,
+      "cli_returncode": 0,
+      "observer_success": true,
+      "observer_ms": 14.409291,
+      "host_admission_latency_ms": null,
+      "host_eligible_queue_ms": null,
+      "retained_effect_id": "eff-1faa22dc1cf30cda712f6d474a43d68b4931bea6943a4c8a3648d6a5bc57f150",
+      "retained_effect_state": "completed",
+      "effect_id": "eff-1faa22dc1cf30cda712f6d474a43d68b4931bea6943a4c8a3648d6a5bc57f150",
+      "application_check": "pass"
+    }
+  ],
+  "source_history": [
+    {
+      "at_ms": 1792712318303,
+      "effect_id": "eff-bcbb74a28979178264526bbf3782d2f6890949c1e66b6c270e095ec2156fa989",
+      "kind": "started",
+      "request_id": "paced-e84e0b0a6a774f91-00000"
+    },
+    {
+      "at_ms": 1792712318355,
+      "effect_id": "eff-bcbb74a28979178264526bbf3782d2f6890949c1e66b6c270e095ec2156fa989",
+      "kind": "completed",
+      "request_id": "paced-e84e0b0a6a774f91-00000"
+    },
+    {
+      "at_ms": 1792712319056,
+      "effect_id": "eff-1faa22dc1cf30cda712f6d474a43d68b4931bea6943a4c8a3648d6a5bc57f150",
+      "kind": "started",
+      "request_id": "paced-e84e0b0a6a774f91-00002"
+    },
+    {
+      "at_ms": 1792712319134,
+      "effect_id": "eff-1faa22dc1cf30cda712f6d474a43d68b4931bea6943a4c8a3648d6a5bc57f150",
+      "kind": "completed",
+      "request_id": "paced-e84e0b0a6a774f91-00002"
+    }
+  ],
+  "qualification": {
+    "V": {
+      "status": "NOT_RUN",
+      "reason": "authenticated bounded status materialisation and reference deployment"
+    },
+    "L": {
+      "status": "NOT_RUN",
+      "reason": "sustained paced baseline on an identified reference deployment"
+    },
+    "S": {
+      "status": "NOT_RUN",
+      "reason": "qualified shared host, quota scope and hardware envelope"
+    },
+    "A": {
+      "status": "NOT_RUN",
+      "reason": "assignment mapping and bounded deterministic provider fixture"
+    },
+    "A+": {
+      "status": "NOT_RUN",
+      "reason": "adopted demand and independently qualified deployment"
+    },
+    "E": {
+      "status": "NOT_RUN",
+      "reason": "external telemetry pipeline benchmark"
+    },
+    "E+": {
+      "status": "NOT_RUN",
+      "reason": "distributed full-pipeline measurement"
+    }
+  },
+  "experiment_source_sha256": {
+    "tests/performance/paced.py": "7cf64a02a7c8e319c4c52aadf205545c99e8a13034a012f41081316c690c8b6b",
+    "tests/performance/history.py": "3d260cfa630e81f756d2ab7d818adff5e04931ffc386d9f8a77cde697b4d8650",
+    "tests/performance/fixture/agents.toml": "e4f183d1dbc9a549184b297c20b8c4442d7902c605b3547dcd9c222fe4070968",
+    "tests/performance/fixture/occupancy.rs": "7de8628762819fcf5dd51367033cc8bb437e0589c277290898863eeb552b5329",
+    "tests/performance/fixture/topology.yaml": "c5e75de31bb9561291e94ad7248d49bf02d05f2a71423fe5e366b8285e85c55d"
+  },
+  "host_snapshot_sha256": "e51e5a2b6c2912136dc493cf62f5d6a5afb2013a6b60b4d637044b9072dc62a5",
+  "build_ms": 308.040094,
+  "fixture_bundle_sha256": "0dfd3eeefb97f6c097973190c0e2903c12f48cfedf8753b963d403fa93894617",
+  "elapsed_ms": 2124.916118,
+  "retained_state_bytes": 233472,
+  "history_check": {
+    "status": "PASS",
+    "errors": [],
+    "coverage_gaps": [],
+    "offered_identities": 3,
+    "result_identities": 3,
+    "source_completed_with_host_unsettled": 0
+  },
+  "totals": {
+    "offered": 3,
+    "admission": {
+      "admitted": 3,
+      "deferred": 0,
+      "rejected": 0,
+      "unknown": 0
+    },
+    "execution": {
+      "not_started": 0,
+      "started": 0,
+      "completed": 2,
+      "failed": 1,
+      "unknown": 0
+    },
+    "started": 2,
+    "start_unknown": 1
+  },
+  "observed_source_occupancy": {
+    "peak_observed_source_occupancy": 1,
+    "source_occupancy_seconds": 0.13,
+    "timestamp_resolution_ms": 1,
+    "assignment_seconds": null,
+    "cpu_seconds": null
+  },
+  "native_cli_latency": {
+    "count": 3,
+    "p50_ms": 944.421302,
+    "p95_ms": 1146.639315,
+    "p99_ms": 1146.639315
+  },
+  "harness_queue_latency": {
+    "count": 3,
+    "p50_ms": 5.742895999999973,
+    "p95_ms": 161.59959000000003,
+    "p99_ms": 161.59959000000003
+  },
+  "successful_completion_rate_per_second": 0.9412136239440957
+}

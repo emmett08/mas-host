@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  linux:
+  runtime:
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     env:
@@ -40,7 +40,26 @@ jobs:
         run: make test
       - name: Native applications and effect recovery
         run: make acceptance
+      - name: Bounded synthetic workload invariants
+        run: make workload-acceptance
+      - name: Retain workload qualification evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: host-workload-invariants
+          path: target/workload-acceptance
+          if-no-files-found: warn
+          retention-days: 14
+
+  formal:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Check host control and governed recovery with SPIN
+        timeout-minutes: 22
         run: |
           sudo apt-get update
           sudo apt-get install -y spin
@@ -53,6 +72,21 @@ jobs:
           path: formal/evidence
           if-no-files-found: warn
           retention-days: 14
+
+  # Preserve the existing required linux status: both independent gates must pass.
+  linux:
+    needs: [runtime, formal]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Require runtime and complete formal verification
+        env:
+          RUNTIME_RESULT: ${{ needs.runtime.result }}
+          FORMAL_RESULT: ${{ needs.formal.result }}
+        run: |
+          test "$RUNTIME_RESULT" = success
+          test "$FORMAL_RESULT" = success
 
   shared-native:
     runs-on: ubuntu-24.04
@@ -82,7 +116,7 @@ jobs:
         run: cargo clippy --locked -p mas-host --features shared-native --all-targets -- -D warnings
       - name: Check shared preflight, deadline translation and queue decisions
         run: |
-          cargo test --locked -p mas-host-core --features shared-native shared_native::tests
+          cargo test --locked -p mas-host-core --features shared-native shared_native::
           cargo test --locked -p mas-host --features shared-native --bin mas-host shared_queue::tests
       - name: Exercise native PostgreSQL execution and paged queue traversal
         run: cargo test --locked -p mas-host --features shared-native --test shared_native --test shared_queue -- --ignored --nocapture

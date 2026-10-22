@@ -1,0 +1,14 @@
+{
+  "version": "nehemiah-formal-raw-outputs/1",
+  "purpose": "Local raw runner outputs, reproducible with formal/verify.py; full logs and traces are uploaded by the existing CI artifact step.",
+  "files": {
+    "commands.json": {
+      "bytes": 9104399,
+      "sha256": "8e25d7226881ae7069614edc10d30209e8af6dd80d486bcac4b24f9b12d6ef2c"
+    },
+    "counterexamples.zip": {
+      "bytes": 30430682,
+      "sha256": "0332cccb4829ec0c026447db9b69ec2e248d1ba70aa2f86959257e62e2dfef8d"
+    }
+  }
+}

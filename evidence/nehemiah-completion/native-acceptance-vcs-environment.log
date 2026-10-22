@@ -1,0 +1,28 @@
+cargo test --locked -p mas-host --test acceptance -- --ignored --nocapture
+    Finished `test` profile [unoptimized] target(s) in 0.12s
+     Running tests/acceptance.rs (target/debug/deps/acceptance-521c2fe81be949dd)
+
+running 1 test
+
+thread 'code_only_apps_and_real_effect_recovery' (21) panicked at crates/mas-host-cli/tests/acceptance.rs:24:5:
+command ["build", "--project", "/workspace/scratch/7e4732696542/nehemiah-integrated/tests/fixtures/go-release", "--sdk-root", "/workspace/scratch/7e4732696542/nehemiah-integrated"]
+
+mas-go-gen: compile handlers in example.org/release-qualification: exit status 1
+error obtaining VCS status: exit status 128
+	Use -buildvcs=false to disable VCS stamping.
+
+exit status 1
+{"error":"Go generation/build failed","status":"error"}
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test code_only_apps_and_real_effect_recovery ... FAILED
+
+failures:
+
+failures:
+    code_only_apps_and_real_effect_recovery
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.65s
+
+error: test failed, to rerun pass `-p mas-host --test acceptance`
+make: *** [Makefile:70: acceptance] Error 101
