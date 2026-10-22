@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1130" viewBox="0 0 1200 1130" role="img" aria-labelledby="title desc">
+<title id="title">MAS Host for Nehemiah: architecture including PR #20</title>
+<desc id="desc">Application build inputs produce a frozen bundle. CLI or A2A ingress reaches the Rust core. Separate protocol and execution stores support supervised workers, replay and admitted effects. Source associations and invocation exposure stay in execution.sqlite. Optional governance carries complete source restrictions and expiry through later work. Authorised effect and source readers apply current authority and task exposure. Privacy case status preserves uncertainty. Ordinary observation is read-only.</desc>
+<rect x="0" y="0" width="1200" height="1130" rx="0" fill="#0c1424" stroke="none" stroke-width="1"/>
+<rect x="38" y="33" width="5" height="54" rx="2" fill="#73dfc4" stroke="none" stroke-width="1"/>
+<text x="58" y="32" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="32" font-weight="700" fill="#eff5ff">MAS Host for Nehemiah</text>
+<text x="58" y="78" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="400" fill="#b8c8df">Build once. Admit explicitly. Retain enough evidence to recover.</text>
+<text x="58" y="113" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="12" font-weight="700" fill="#73dfc4">APPLICATION BUILD</text>
+<polygon points="36,252 1164,252 1164,676 848,676 848,920 36,920" fill="#111e32" stroke="#47617e"/>
+<text x="58" y="264" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="12" font-weight="700" fill="#b8c8df">TRUSTED LOCAL LINUX HOST</text>
+<text x="872" y="264" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="12" font-weight="700" fill="#ffc979">OPTIONAL GOVERNED A2A PROFILE</text>
+<rect x="350" y="438" width="476" height="124" rx="12" fill="#111e32" stroke="#47617e" stroke-width="1"/>
+<text x="368" y="449" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="12" font-weight="700" fill="#73dfc4">TWO STORES</text>
+<rect x="58" y="698" width="750" height="166" rx="12" fill="#111e32" stroke="#47617e" stroke-width="1"/>
+<text x="78" y="715" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="15" font-weight="700" fill="#73dfc4">SUPERVISED WORKER PROCESSES</text>
+<text x="368" y="680" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="400" fill="#b8c8df">mas-native/1 · Unix socketpair · framed JSON</text>
+<text x="872" y="716" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="12" font-weight="700" fill="#ffc979">OUTSIDE THE HOST</text>
+<text x="78" y="897" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="400" fill="#b8c8df">Original deadlines · process-group cleanup · trusted code</text>
+<polyline points="398,169 444,169" fill="none" stroke="#47617e" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="444,169 435.8959760788259,172.91468980700108 435.8959760788259,165.08531019299892" fill="#47617e" stroke="none"/>
+<polyline points="686,169 732,169" fill="none" stroke="#47617e" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="732,169 723.8959760788259,172.91468980700108 723.8959760788259,165.08531019299892" fill="#47617e" stroke="none"/>
+<polyline points="936,205 936,231 770,231 770,290" fill="none" stroke="#47617e" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="770,290 766.0853101929989,281.8959760788259 773.9146898070011,281.8959760788259" fill="#47617e" stroke="none"/>
+<polyline points="298,343 368,343" fill="none" stroke="#47617e" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="368,343 359.8959760788259,346.9146898070011 359.8959760788259,339.0853101929989" fill="#47617e" stroke="none"/>
+<polyline points="808,343 872,343" fill="none" stroke="#47617e" stroke-width="2" stroke-linejoin="round" stroke-dasharray="7 6"/>
+<polygon points="872,343 863.8959760788259,346.9146898070011 863.8959760788259,339.0853101929989" fill="#47617e" stroke="none"/>
+<polyline points="1007,402 1007,462" fill="none" stroke="#47617e" stroke-width="2" stroke-linejoin="round" stroke-dasharray="7 6"/>
+<polygon points="1007,462 1003.0853101929989,453.8959760788259 1010.9146898070011,453.8959760788259" fill="#47617e" stroke="none"/>
+<polyline points="473,402 473,472" fill="none" stroke="#47617e" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="473,472 469.0853101929989,463.8959760788259 476.9146898070011,463.8959760788259" fill="#47617e" stroke="none"/>
+<polyline points="703,402 703,472" fill="none" stroke="#47617e" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="703,472 699.0853101929989,463.8959760788259 706.9146898070011,463.8959760788259" fill="#47617e" stroke="none"/>
+<polyline points="368,508 298,508" fill="none" stroke="#47617e" stroke-width="2" stroke-linejoin="round" stroke-dasharray="7 6"/>
+<polygon points="298,508 306.1040239211741,504.0853101929989 306.1040239211741,511.9146898070011" fill="#47617e" stroke="none"/>
+<polyline points="598,523 588,523 588,558 178,558 178,538" fill="none" stroke="#47617e" stroke-width="2" stroke-linejoin="round" stroke-dasharray="7 6"/>
+<polygon points="178,538 181.91468980700108,546.1040239211741 174.08531019299892,546.1040239211741" fill="#47617e" stroke="none"/>
+<polyline points="703,544 703,616 298,616" fill="none" stroke="#47617e" stroke-width="2" stroke-linejoin="round" stroke-dasharray="7 6"/>
+<polygon points="298,616 306.1040239211741,612.0853101929989 306.1040239211741,619.9146898070011" fill="#47617e" stroke="none"/>
+<polyline points="58,362 46,362 46,616 58,616" fill="none" stroke="#47617e" stroke-width="2" stroke-linejoin="round" stroke-dasharray="7 6"/>
+<polygon points="58,616 49.89597607882591,619.9146898070011 49.89597607882591,612.0853101929989" fill="#47617e" stroke="none"/>
+<polyline points="808,523 854,523 854,614 872,614" fill="none" stroke="#47617e" stroke-width="2" stroke-linejoin="round" stroke-dasharray="7 6"/>
+<polygon points="872,614 863.8959760788259,617.9146898070011 863.8959760788259,610.0853101929989" fill="#47617e" stroke="none"/>
+<polyline points="1142,614 1152,614 1152,370 1142,370" fill="none" stroke="#47617e" stroke-width="2" stroke-linejoin="round" stroke-dasharray="7 6"/>
+<polygon points="1142,370 1150.104023921174,366.0853101929989 1150.104023921174,373.9146898070011" fill="#47617e" stroke="none"/>
+<polyline points="524,844 524,884 1007,884 1007,858" fill="none" stroke="#47617e" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="1007,858 1010.9146898070011,866.1040239211741 1003.0853101929989,866.1040239211741" fill="#47617e" stroke="none"/>
+<polyline points="160,844 160,884 1007,884 1007,858" fill="none" stroke="#47617e" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="1007,858 1010.9146898070011,866.1040239211741 1003.0853101929989,866.1040239211741" fill="#47617e" stroke="none"/>
+<polyline points="808,381 840,381 840,750 160,750 160,768" fill="none" stroke="#47617e" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="160,768 156.08531019299892,759.8959760788259 163.91468980700108,759.8959760788259" fill="#47617e" stroke="none"/>
+<polyline points="808,381 840,381 840,750 342,750 342,768" fill="none" stroke="#47617e" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="342,768 338.0853101929989,759.8959760788259 345.9146898070011,759.8959760788259" fill="#47617e" stroke="none"/>
+<polyline points="808,381 840,381 840,750 524,750 524,768" fill="none" stroke="#47617e" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="524,768 520.0853101929989,759.8959760788259 527.9146898070011,759.8959760788259" fill="#47617e" stroke="none"/>
+<polyline points="808,381 840,381 840,750 706,750 706,768" fill="none" stroke="#47617e" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="706,768 702.0853101929989,759.8959760788259 709.9146898070011,759.8959760788259" fill="#47617e" stroke="none"/>
+<rect x="58" y="133" width="340" height="72" rx="12" fill="#17263d" stroke="#47617e" stroke-width="1"/>
+<rect x="70" y="147" width="3" height="44" rx="1" fill="#47617e" stroke="none" stroke-width="1"/>
+<text x="83" y="146" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="700" fill="#eff5ff">Application project</text>
+<text x="83" y="171" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Source + agents + topology</text>
+<rect x="444" y="133" width="242" height="72" rx="12" fill="#17263d" stroke="#47617e" stroke-width="1"/>
+<rect x="456" y="147" width="3" height="44" rx="1" fill="#47617e" stroke="none" stroke-width="1"/>
+<text x="469" y="146" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="700" fill="#eff5ff">Build tooling</text>
+<text x="469" y="171" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Validate + bind handlers</text>
+<rect x="732" y="133" width="410" height="72" rx="12" fill="#17263d" stroke="#47617e" stroke-width="1"/>
+<rect x="744" y="147" width="3" height="44" rx="1" fill="#47617e" stroke="none" stroke-width="1"/>
+<text x="757" y="146" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="700" fill="#eff5ff">Frozen bundle + executables</text>
+<text x="757" y="171" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Schemas, routes and executable digests</text>
+<rect x="58" y="290" width="240" height="102" rx="12" fill="#17263d" stroke="#47617e" stroke-width="1"/>
+<rect x="70" y="304" width="3" height="74" rx="1" fill="#47617e" stroke="none" stroke-width="1"/>
+<text x="83" y="303" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="700" fill="#eff5ff">CLI / optional A2A</text>
+<text x="83" y="328" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">A2A: authenticated tasks</text>
+<text x="83" y="348" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Scoped Agent Cards</text>
+<rect x="368" y="290" width="440" height="112" rx="12" fill="#17263d" stroke="#47617e" stroke-width="1"/>
+<rect x="380" y="304" width="3" height="84" rx="1" fill="#47617e" stroke="none" stroke-width="1"/>
+<text x="393" y="303" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="700" fill="#eff5ff">Rust execution core</text>
+<text x="393" y="328" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Identity, routes and run budgets</text>
+<text x="393" y="348" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Named requests, replay and effects</text>
+<rect x="872" y="290" width="270" height="112" rx="12" fill="#17263d" stroke="#47617e" stroke-width="1"/>
+<rect x="884" y="304" width="3" height="84" rx="1" fill="#47617e" stroke="none" stroke-width="1"/>
+<text x="897" y="303" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="700" fill="#eff5ff">Governed boundaries</text>
+<text x="897" y="328" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Current grants + policy</text>
+<text x="897" y="348" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Baseline + source policies</text>
+<rect x="58" y="462" width="240" height="76" rx="12" fill="#17263d" stroke="#47617e" stroke-width="1"/>
+<rect x="70" y="476" width="3" height="48" rx="1" fill="#47617e" stroke="none" stroke-width="1"/>
+<text x="83" y="475" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="700" fill="#eff5ff">Run observation</text>
+<text x="83" y="500" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">mas-host observe</text>
+<rect x="368" y="472" width="210" height="72" rx="12" fill="#17263d" stroke="#47617e" stroke-width="1"/>
+<rect x="380" y="486" width="3" height="44" rx="1" fill="#47617e" stroke="none" stroke-width="1"/>
+<text x="393" y="485" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="700" fill="#eff5ff">protocol.sqlite</text>
+<text x="393" y="510" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Messages + tasks</text>
+<rect x="598" y="472" width="210" height="72" rx="12" fill="#17263d" stroke="#47617e" stroke-width="1"/>
+<rect x="610" y="486" width="3" height="44" rx="1" fill="#47617e" stroke="none" stroke-width="1"/>
+<text x="623" y="485" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="700" fill="#eff5ff">execution.sqlite</text>
+<text x="623" y="510" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Steps + sources</text>
+<rect x="872" y="462" width="270" height="82" rx="12" fill="#17263d" stroke="#47617e" stroke-width="1"/>
+<rect x="884" y="476" width="3" height="54" rx="1" fill="#47617e" stroke="none" stroke-width="1"/>
+<text x="897" y="475" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="700" fill="#eff5ff">Privacy inspector</text>
+<text x="897" y="500" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Pinned model + patterns</text>
+<rect x="872" y="566" width="270" height="96" rx="12" fill="#17263d" stroke="#47617e" stroke-width="1"/>
+<rect x="884" y="580" width="3" height="68" rx="1" fill="#47617e" stroke="none" stroke-width="1"/>
+<text x="897" y="579" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="700" fill="#eff5ff">Source restrictions</text>
+<text x="897" y="604" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Ancestry + task exposure</text>
+<text x="897" y="624" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Expiry + pending acquisition</text>
+<rect x="58" y="578" width="240" height="96" rx="12" fill="#17263d" stroke="#47617e" stroke-width="1"/>
+<rect x="70" y="592" width="3" height="68" rx="1" fill="#47617e" stroke="none" stroke-width="1"/>
+<text x="83" y="591" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="700" fill="#eff5ff">Authorised readers</text>
+<text x="83" y="616" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">GetRetainedEffect</text>
+<text x="83" y="636" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">GetRetainedSource</text>
+<rect x="78" y="768" width="164" height="76" rx="12" fill="#17263d" stroke="#47617e" stroke-width="1"/>
+<rect x="90" y="782" width="3" height="48" rx="1" fill="#47617e" stroke="none" stroke-width="1"/>
+<text x="103" y="781" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="700" fill="#eff5ff">Native SDK</text>
+<text x="103" y="806" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Go / Rust</text>
+<text x="103" y="826" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">C++ / Python</text>
+<rect x="260" y="768" width="164" height="76" rx="12" fill="#17263d" stroke="#47617e" stroke-width="1"/>
+<rect x="272" y="782" width="3" height="48" rx="1" fill="#47617e" stroke="none" stroke-width="1"/>
+<text x="285" y="781" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="700" fill="#eff5ff">Command</text>
+<text x="285" y="806" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">CLI / MCP</text>
+<rect x="442" y="768" width="164" height="76" rx="12" fill="#17263d" stroke="#47617e" stroke-width="1"/>
+<rect x="454" y="782" width="3" height="48" rx="1" fill="#47617e" stroke="none" stroke-width="1"/>
+<text x="467" y="781" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="700" fill="#eff5ff">LLM</text>
+<text x="467" y="806" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Providers</text>
+<text x="467" y="826" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Scoped secrets</text>
+<rect x="624" y="768" width="164" height="76" rx="12" fill="#17263d" stroke="#47617e" stroke-width="1"/>
+<rect x="636" y="782" width="3" height="48" rx="1" fill="#47617e" stroke="none" stroke-width="1"/>
+<text x="649" y="781" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="700" fill="#eff5ff">Workflow</text>
+<text x="649" y="806" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Fork / join</text>
+<text x="649" y="826" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Branch / loop</text>
+<rect x="872" y="746" width="270" height="112" rx="12" fill="#17263d" stroke="#47617e" stroke-width="1"/>
+<rect x="884" y="760" width="3" height="84" rx="1" fill="#47617e" stroke="none" stroke-width="1"/>
+<text x="897" y="759" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="700" fill="#eff5ff">External systems</text>
+<text x="897" y="784" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Model providers / tools</text>
+<text x="897" y="804" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Worker executes the effect</text>
+<rect x="36" y="940" width="1128" height="132" rx="12" fill="#111e32" stroke="#47617e" stroke-width="1"/>
+<text x="58" y="958" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="700" fill="#eff5ff">Architecture at a glance</text>
+<text x="58" y="996" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="400" fill="#b8c8df">The host mediates communication and durable execution. Governed acquisition carries source policy, ancestry</text>
+<text x="58" y="1019" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="400" fill="#b8c8df">and exposure through later work. Authorised reads preserve settlement, payload disposition and external</text>
+<text x="58" y="1042" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="400" fill="#b8c8df">execution certainty as separate facts.</text>
+<polyline points="58,1101 83,1101" fill="none" stroke="#78b7ff" stroke-width="3" stroke-linejoin="round"/>
+<text x="93" y="1090" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Build / ingress</text>
+<polyline points="302,1101 327,1101" fill="none" stroke="#73dfc4" stroke-width="3" stroke-linejoin="round"/>
+<text x="337" y="1090" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Execution / IPC</text>
+<polyline points="568,1101 593,1101" fill="none" stroke="#ffc979" stroke-width="3" stroke-linejoin="round" stroke-dasharray="7 6"/>
+<text x="603" y="1090" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Governance / effects</text>
+<polyline points="898,1101 923,1101" fill="none" stroke="#c2a8ff" stroke-width="3" stroke-linejoin="round" stroke-dasharray="7 6"/>
+<text x="933" y="1090" dominant-baseline="text-before-edge" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="400" fill="#b8c8df">Read-only paths</text>
+</svg>
