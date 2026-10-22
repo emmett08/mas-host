@@ -99,6 +99,33 @@ impl GovernedIngress {
                 .fold(0u8, |d, (a, b)| d | (a ^ b))
                 == 0
         })?;
+        self.caller_for_record(configuration, record)
+    }
+
+    /// Reconstitute an operator-selected producer under its current exact
+    /// authentication record, without recovering or exposing any bearer.
+    pub(super) fn configured_caller(
+        &self,
+        configuration: &Configuration,
+        tenant: &str,
+        principal: &str,
+        purpose: &str,
+        grant_ref: &str,
+    ) -> Option<Caller> {
+        let records = self.records(configuration).ok()?;
+        let record = records.iter().find(|record| {
+            record["tenant"] == tenant
+                && record["principal"] == principal
+                && record["purpose"] == purpose
+                && record["grant_ref"] == grant_ref
+        })?;
+        self.caller_for_record(configuration, record)
+    }
+
+    fn caller_for_record(&self, configuration: &Configuration, record: &Value) -> Option<Caller> {
+        if key_identity(&self.key_file).ok()? != self.key_digest {
+            return None;
+        }
         let session = GovernedSession::from_value(
             &self.session_config,
             record["tenant"].as_str()?,
@@ -165,6 +192,10 @@ impl GovernedIngress {
 
     pub(super) fn source_reads_supported(&self) -> bool {
         self.session_config["version"] == "mas-governed-local/2"
+    }
+
+    pub(super) fn referenced_lineage_enabled(&self) -> bool {
+        self.source_reads_supported() && self.session_config.get("lineage").is_some()
     }
 }
 
@@ -277,6 +308,19 @@ fn read_records(file: &std::path::Path, exports: &BTreeSet<String>) -> Result<Ve
 }
 
 impl Caller {
+    pub(super) fn source_export_identity(&self) -> Result<Value> {
+        self.current()?;
+        let record = &self
+            .lease
+            .as_ref()
+            .ok_or("governed authentication required")?
+            .record;
+        Ok(
+            json!({"tenant":record["tenant"],"principal":record["principal"],
+            "purpose":record["purpose"],"grant_ref":record["grant_ref"]}),
+        )
+    }
+
     pub fn current(&self) -> Result<()> {
         if let Some(lease) = &self.lease {
             lease.check()?;

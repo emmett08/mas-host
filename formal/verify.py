@@ -27,11 +27,27 @@ for model, claim in (("revision", "settles"), ("disclosure", "context_finishes")
                      ("governed-local", "governed_local_settles"),
                      ("privacy-response", "privacy_response_settles"),
                      ("retained-effect", "retained_effect_finishes"),
-                     ("exposure-lineage", "exposure_lineage_finishes")):
+                     ("exposure-lineage", "exposure_lineage_finishes"),
+                     ("privacy-lifecycle", "privacy_lifecycle_finishes"),
+                     ("shared-native", "shared_native_finishes")):
     for ltl in (False, True):
         for no_reduce in (False, True):
             CASES.append((model, f"{'progress' if ltl else 'safety'}{'-no-reduction' if no_reduce else ''}",
                           None, claim if ltl else None, no_reduce, None))
+for name, macro, assertion in (
+    ("unknown-retry", "BUG_UNKNOWN_RETRY", "unknown_seen"),
+    ("replay", "BUG_REPLAY", "attempts<=2"),
+    ("stale-authority", "BUG_STALE_AUTH", "rights"),
+    ("early-retry", "BUG_EARLY_RETRY", "now>=due"),
+    ("ack-certainty", "BUG_ACK_CERTAINTY", "acknowledgement"),
+    ("escalation-identity", "BUG_ESCALATION_ID", "action!=retained_action"),
+    ("review-binding", "BUG_REVIEW_BINDING", "exact_review"),
+    ("review-release", "BUG_REVIEW_RELEASE", "release_permission"),
+    ("accepted-witness", "WITNESS_ACCEPTED", "accepted"),
+    ("escalated-witness", "WITNESS_ESCALATED", "escalated"),
+    ("unknown-witness", "WITNESS_UNKNOWN", "unknown_seen"),
+):
+    CASES.append(("privacy-lifecycle", name, macro, None, False, assertion))
 for name, macro, assertion in (
     ("unknown-retry", "BUG_UNKNOWN_RETRY", "effect_dispatches"),
     ("completed-replay", "BUG_REPLAY", "effect_dispatches"),
@@ -255,6 +271,18 @@ for name, macro, assertion in (
 CASES.append(("exposure-lineage", "stalled-acquisition", "BUG_STALL", "exposure_lineage_finishes",
               False, "acceptance cycle"))
 
+
+for name, macro, assertion in (
+    ("replay-dispatch", "BUG_REPLAY_DISPATCH", "dispatches<=1"),
+    ("unknown-retry", "BUG_UNKNOWN_RETRY", "allocations<=1"),
+    ("stale-completion", "BUG_STALE_COMPLETE", "epoch==admitted_epoch"),
+    ("erase-completion", "BUG_ERASE_COMPLETION", "state==Completed"),
+    ("complete-witness", "WITNESS_COMPLETE", "!(completed_seen)"),
+    ("unknown-witness", "WITNESS_UNKNOWN", "!(unknown_seen)"),
+    ("lost-admission-witness", "WITNESS_LOST_ADMISSION", "!(reply_lost)"),
+    ("fenced-witness", "WITNESS_FENCED", "!(stale_completion_blocked)"),
+):
+    CASES.append(("shared-native", name, macro, None, False, assertion))
 
 def bounded() -> None:
     resource.setrlimit(resource.RLIMIT_AS, (MEMORY_BYTES, MEMORY_BYTES))

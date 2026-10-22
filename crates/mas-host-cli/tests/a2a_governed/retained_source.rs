@@ -4,7 +4,7 @@ use super::*;
 const SOURCE_EXTENSION: &str = "urn:mas:host-governed-source-read:1";
 const EFFECT_EXTENSION: &str = "urn:mas:host-governed-effect-read:1";
 
-fn configured_source(project: &Project) {
+pub(super) fn configured_source(project: &Project) {
     let path = project.root.join("governance.json");
     let mut config: Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
     config["version"] = json!("mas-governed-local/2");
@@ -30,7 +30,7 @@ fn configured_source(project: &Project) {
     write(path, &authority);
 }
 
-fn exchange(
+pub(super) fn exchange(
     server: &Server,
     token: &str,
     extensions: Option<&str>,
@@ -67,7 +67,7 @@ fn source(server: &Server, token: &str, id: &str, key: &str) -> (u16, String, Va
     )
 }
 
-fn submitted(project: &Project, server: &Server, mode: &str) -> String {
+pub(super) fn submitted(project: &Project, server: &Server, mode: &str) -> String {
     let original = project.send(mode, PRIVATE);
     let deadline = Instant::now() + Duration::from_secs(30);
     loop {
@@ -82,8 +82,12 @@ fn submitted(project: &Project, server: &Server, mode: &str) -> String {
     }
 }
 
-fn completed(server: &Server, id: &str) -> Value {
-    let deadline = Instant::now() + Duration::from_secs(30);
+pub(super) fn completed(server: &Server, id: &str) -> Value {
+    completed_within(server, id, Duration::from_secs(30))
+}
+
+fn completed_within(server: &Server, id: &str, allowance: Duration) -> Value {
+    let deadline = Instant::now() + allowance;
     loop {
         let (_, response) = server.rpc(TOKEN, "GetTask", json!({"id":id}));
         if response["error"] == json!({"code":-32001,"message":"task_not_found"}) {
@@ -123,7 +127,7 @@ fn authority_denied(value: &(u16, String, Value)) {
     assert!(!value.2.to_string().contains(PRIVATE));
 }
 
-fn journal(project: &Project, id: &str) -> Value {
+pub(super) fn journal(project: &Project, id: &str) -> Value {
     let db = rusqlite::Connection::open(
         project
             .root
@@ -201,7 +205,7 @@ fn rebuild(project: &mut Project) {
         .into();
 }
 
-fn change_authority(project: &Project, change: impl FnOnce(&mut Value)) {
+pub(super) fn change_authority(project: &Project, change: impl FnOnce(&mut Value)) {
     let path = project.root.join("authority.json");
     let mut value: Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
     change(&mut value);
@@ -761,7 +765,11 @@ fn nested_native_consumer_cannot_remove_inherited_restrictions_with_empty_lineag
 
 fn completed_graph(server: &Server, project: &Project, id: &str) {
     let started = Instant::now();
-    let outcome = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| completed(server, id)));
+    // Observe the complete declared 60-second workload budget plus bounded
+    // final delivery. This does not extend the host's execution deadline.
+    let outcome = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        completed_within(server, id, Duration::from_secs(65))
+    }));
     if let Err(failure) = outcome {
         let bundle: Value = serde_json::from_slice(&fs::read(&project.bundle).unwrap()).unwrap();
         let db = rusqlite::Connection::open(
@@ -881,4 +889,32 @@ fn source_reader_preserves_more_than_thirty_two_ancestors_and_rejects_missing_pa
     assert_eq!(journal(&project, &id), broken);
     assert_eq!(project.calls(), 33);
     project.assert_private_absent();
+}
+
+#[test]
+fn materialised_status_inherits_restricted_source_delivery_policy() {
+    let project = Project::new();
+    configured_source(&project);
+    let server = project.start();
+    let id = submitted(&project, &server, "available");
+    completed(&server, &id);
+    let (_, view) = server.rpc(TOKEN, "GetTaskStatus", json!({"id":id}));
+    assert!(view.get("error").is_none(), "{view}");
+    change_authority(&project, |authority| {
+        for policy in authority["policies"].as_array_mut().unwrap() {
+            if policy["id"] == "collected" {
+                policy["rules"]
+                    .as_array_mut()
+                    .unwrap()
+                    .retain(|rule| rule["operation"] != "deliver");
+            }
+        }
+    });
+    let (_, denial) = server.rpc(TOKEN, "GetTaskStatus", json!({"id":id}));
+    assert!(
+        denial.get("error").is_some(),
+        "source restriction bypassed by summary: {denial}"
+    );
+    assert!(denial.get("result").is_none());
+    assert_eq!(project.calls(), 1);
 }

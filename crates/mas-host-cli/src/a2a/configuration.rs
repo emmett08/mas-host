@@ -16,6 +16,8 @@ pub(super) struct Configuration {
     pub max_active: usize,
     pub max_tasks: usize,
     pub governed: Option<GovernedIngress>,
+    pub source_exports: BTreeMap<String, super::shared_source::SourceExport>,
+    pub source_publication: bool,
 }
 fn string(value: &Value, key: &str, max: usize) -> Result<String> {
     value[key]
@@ -42,6 +44,17 @@ impl Configuration {
             .is_some_and(GovernedIngress::source_reads_supported)
     }
 
+    pub(super) fn shared_reads_supported(&self) -> bool {
+        self.source_reads_supported()
+            && (!self.source_exports.is_empty() || self.source_publication)
+    }
+
+    pub(super) fn lineage_reads_supported(&self) -> bool {
+        self.governed
+            .as_ref()
+            .is_some_and(GovernedIngress::referenced_lineage_enabled)
+    }
+
     pub(super) fn connection_timeout(&self) -> std::time::Duration {
         connection_timeout(
             self.governed
@@ -65,6 +78,8 @@ impl Configuration {
         let mut optional = vec!["max_active", "max_tasks"];
         if governed.is_some() {
             optional.push("privacy_inspector_file");
+            optional.push("source_exports");
+            optional.push("source_publication");
         }
         crate::config::fields(value, &required, &optional, "A2A configuration")?;
         let listen: SocketAddr = string(value, "listen", 100)?
@@ -178,6 +193,19 @@ impl Configuration {
                 return Err("duplicate principal".into());
             }
         }
+        let source_exports = super::shared_source::parse(
+            value,
+            &exports.keys().cloned().collect(),
+            governed
+                .as_ref()
+                .is_some_and(GovernedIngress::source_reads_supported),
+        )?;
+        let source_publication = super::publication::enabled(
+            value,
+            governed
+                .as_ref()
+                .is_some_and(GovernedIngress::source_reads_supported),
+        )?;
         let result = Self {
             listen,
             public_url,
@@ -187,6 +215,8 @@ impl Configuration {
             max_active: bound(value, "max_active", 4, 16)?,
             max_tasks: bound(value, "max_tasks", 1000, 10000)?,
             governed,
+            source_exports,
+            source_publication,
         };
         if let Some(governed) = &result.governed {
             governed.validate(&result)?;
@@ -238,7 +268,7 @@ impl Configuration {
             "supportedInterfaces":[{"url":self.public_url,"protocolBinding":"JSONRPC","protocolVersion":"1.0"}],
             "capabilities":{"streaming":false,"pushNotifications":false,"extendedAgentCard":true,
                 "extensions":[{"uri":PROFILE,"required":true,"description":"Exact integer JSON, pinned operation contracts, durable request identity and explicit uncertain outcomes.",
-                    "params":{"descriptor":projection,"methods":["SendMessage","GetTask","CancelTask"],"cancellation":"intent-only; pending cancellation returns TaskNotCancelableError","restart":"unfinished accepted work becomes unknown; no automatic redispatch"}}]},
+                    "params":{"descriptor":projection,"methods":["SendMessage","GetTask","GetTaskStatus","CancelTask"],"cancellation":"intent-only; pending cancellation returns TaskNotCancelableError","restart":"unfinished accepted work becomes unknown; no automatic redispatch"}}]},
             "securitySchemes":{"bearer":{"httpAuthSecurityScheme":{"scheme":"Bearer"}}},"securityRequirements":[{"schemes":{"bearer":{"list":[]}}}],
             "defaultInputModes":["application/json"],"defaultOutputModes":["application/json"],"skills":skills});
         if self.governed.is_some() {
@@ -252,6 +282,14 @@ impl Configuration {
                     "semantics":"read-only snapshot; no dispatch, settlement or reconciliation"}
             }));
         }
+        if self.governed.is_some() {
+            card["capabilities"]["extensions"].as_array_mut().unwrap().push(json!({
+                "uri":super::retained_assessment::PROFILE,"required":false,
+                "description":"Read and append a separately authorised exact component assessment review. Review grants no release or execution permission.",
+                "params":{"requires":[PROFILE],"methods":["GetRetainedAssessment","AdjudicateAssessment"],
+                    "resultVersion":"mas-governed-assessment-view/1","rawSource":"not-retained"}
+            }));
+        }
         if self.source_reads_supported() {
             card["capabilities"]["extensions"].as_array_mut().unwrap().push(json!({
                 "uri":super::retained_source::PROFILE,"required":false,
@@ -260,6 +298,54 @@ impl Configuration {
                     "requestFields":["id","key"],"additionalRequestFields":false,"maxKeyUtf8Bytes":128,
                     "resultVersion":"mas-governed-source-view/1","scope":"owned-task-root-workflow-sources",
                     "semantics":"read-only snapshot; discarded raw originals are not retained"}
+            }));
+        }
+        if self.shared_reads_supported() {
+            card["capabilities"]["extensions"].as_array_mut().unwrap().push(json!({
+                "uri":super::shared_source::PROFILE,"required":false,
+                "description":"Read an operator-approved retained source under independent current reader authority.",
+                "params":{"requires":[PROFILE],"methods":["GetSharedSource"],
+                    "requestFields":["reference"],"additionalRequestFields":false,"maxReferenceUtf8Bytes":128,
+                    "resultVersion":"mas-governed-source-view/1","scope":"operator-approved-shared-root-workflow-sources",
+                    "semantics":"read-only snapshot; producer and recipient authority both required; no new acquisition"}
+            }));
+        }
+        if self.source_publication {
+            card["capabilities"]["extensions"].as_array_mut().unwrap().push(json!({
+                "uri":super::publication::PROFILE,"required":false,
+                "description":"Publish an immutable retained source selection under its owner's current publication authority.",
+                "params":{"requires":[PROFILE],"methods":["PublishRetainedSource"],
+                    "requestFields":["id","key","reference"],"additionalRequestFields":false,
+                    "resultVersion":"mas-governed-source-publication/1","maxAliasUtf8Bytes":128,
+                    "semantics":"retained completed source only; publication grants no recipient access or execution permission"}
+            }));
+        }
+        if self.lineage_reads_supported() {
+            let extensions = card["capabilities"]["extensions"].as_array_mut().unwrap();
+            for extension in extensions.iter_mut().filter(|extension| {
+                extension["uri"] == super::retained_source::PROFILE
+                    || extension["uri"] == super::shared_source::PROFILE
+            }) {
+                extension["params"]
+                    .as_object_mut()
+                    .unwrap()
+                    .remove("resultVersion");
+                extension["params"]["resultVersions"] =
+                    json!(["mas-governed-source-view/1", "mas-governed-source-view/2"]);
+                extension["params"]["lineageExtension"] = json!(super::lineage::PROFILE);
+            }
+            let mut methods = vec!["GetRetainedSourceLineage"];
+            if self.shared_reads_supported() {
+                methods.push("GetSharedSourceLineage");
+            }
+            extensions.push(json!({
+                "uri":super::lineage::PROFILE,"required":false,
+                "description":"Resolve a complete retained source closure through exact currently authorised metadata pages.",
+                "params":{"requires":[PROFILE],"methods":methods,
+                    "resultVersion":"mas-governed-lineage-page/1","maxPageRecords":16,"maxPageBytes":65536,
+                    "closureReferenceUtf8Bytes":64,"closureReferenceEncoding":"lowercase-hex",
+                    "closureBinding":"exact reference from the selected source view",
+                    "semantics":"complete closure admission repeated per page; no acquisition or execution recovery"}
             }));
         }
         card

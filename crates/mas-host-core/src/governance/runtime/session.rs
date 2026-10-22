@@ -39,16 +39,20 @@ pub(super) struct AgentPolicy {
     pub effects: BTreeMap<String, Effect>,
 }
 
-struct Session {
+pub(super) struct Session {
     authority_file: PathBuf,
+    lifecycle_file: Option<PathBuf>,
+    pub(super) credentials_file: Option<PathBuf>,
+    pub(super) revision: Option<Value>,
+    pub(super) lineage: Option<Value>,
     key_file: PathBuf,
     key: [u8; 32],
     key_id: String,
-    tenant: String,
-    principal: String,
+    pub(super) tenant: String,
+    pub(super) principal: String,
     purpose: String,
-    grant_ref: String,
-    epoch: u64,
+    pub(super) grant_ref: String,
+    pub(super) epoch: u64,
     policy_version: String,
     policy_digest: String,
     location: String,
@@ -66,7 +70,7 @@ struct Session {
 /// require an explicit retained-run migration; credential epochs remain separate.
 #[derive(Clone)]
 pub struct GovernedSession(
-    Arc<Session>,
+    pub(super) Arc<Session>,
     Option<Arc<dyn Fn() -> Result<()> + Send + Sync>>,
     pub(super) Option<Arc<InspectionGate>>,
 );
@@ -143,7 +147,17 @@ impl GovernedSession {
                 "location",
                 "agents",
             ],
-            if v2 { &["baseline_policy_refs"] } else { &[] },
+            if v2 {
+                &[
+                    "baseline_policy_refs",
+                    "lifecycle_file",
+                    "credentials_file",
+                    "revision",
+                    "lineage",
+                ]
+            } else {
+                &[]
+            },
         )
         .map_err(|_| "governed-config-invalid")?;
         for value in [tenant, principal, purpose, grant_ref] {
@@ -156,6 +170,14 @@ impl GovernedSession {
         } else {
             BTreeSet::new()
         };
+        let lifecycle_file = config
+            .get("lifecycle_file")
+            .map(|_| path(config, "lifecycle_file"))
+            .transpose()?;
+        let credentials_file = config
+            .get("credentials_file")
+            .map(|_| path(config, "credentials_file"))
+            .transpose()?;
         let key_file = path(config, "commitment_key_file")?;
         let key = key(&key_file)?;
         let key_id = id(config, "commitment_key_id")?;
@@ -238,12 +260,69 @@ impl GovernedSession {
                 return Err("governed-config-duplicate-agent".into());
             }
         }
+        let lineage = config.get("lineage").cloned();
+        if let Some(contract) = &lineage {
+            crate::fields(
+                contract,
+                &["version", "max_sources", "max_metadata_bytes"],
+                &[],
+            )
+            .map_err(|_| "governed-lineage-config-invalid")?;
+            if contract["version"] != "mas-governed-referenced-lineage/1"
+                || contract["max_sources"]
+                    .as_u64()
+                    .is_none_or(|n| !(65..=256).contains(&n))
+                || contract["max_metadata_bytes"]
+                    .as_u64()
+                    .is_none_or(|n| !(65_536..=1_048_576).contains(&n))
+            {
+                return Err("governed-lineage-config-invalid".into());
+            }
+        }
+        let revision = config.get("revision").cloned();
+        if let Some(contract) = &revision {
+            crate::fields(contract, &["actor", "schemas"], &[])
+                .map_err(|_| "governed-revision-config-invalid")?;
+            let actor = id(contract, "actor")?;
+            if !agents.contains_key(&actor) {
+                return Err("governed-revision-controller-not-declared".into());
+            }
+            let kinds = [
+                "plan",
+                "context",
+                "candidate",
+                "rubric",
+                "evidence",
+                "assessment",
+                "terminal",
+                "delivery",
+            ];
+            crate::fields(&contract["schemas"], &kinds, &[])
+                .map_err(|_| "governed-revision-config-invalid")?;
+            for kind in kinds {
+                let shape = &contract["schemas"][kind];
+                if let Some(choices) = shape.as_array() {
+                    if choices.is_empty() || choices.len() > 16 {
+                        return Err("governed-revision-schema-alternatives".into());
+                    }
+                    for choice in choices {
+                        schema::check(choice, 0)?;
+                    }
+                } else {
+                    schema::check(shape, 0)?;
+                }
+            }
+        }
         let fingerprint = crate::digest(json!({"config":config,"tenant":tenant,"principal":principal,
             "purpose":purpose,"grant_ref":grant_ref,"policy_version":snapshot.grant["policy_version"],
             "policy_digest":snapshot.policy_digest,"key_sha256":crate::digest(&key)}).to_string().as_bytes());
         Ok(Self(
             Arc::new(Session {
                 authority_file,
+                lifecycle_file,
+                credentials_file,
+                revision,
+                lineage,
                 key_file,
                 key,
                 key_id,
@@ -373,6 +452,44 @@ impl GovernedSession {
             .iter()
             .map(|b| format!("{b:02x}"))
             .collect())
+    }
+
+    pub(super) fn compatible_source_reader(&self, reader: &Self) -> Result<()> {
+        self.check_current()?;
+        reader.check_current()?;
+        if !self.is_v2()
+            || !reader.is_v2()
+            || self.0.tenant != reader.0.tenant
+            || self.0.policy_version != reader.0.policy_version
+            || self.0.policy_digest != reader.0.policy_digest
+            || self.0.baseline_policy_refs != reader.0.baseline_policy_refs
+            || self.0.lineage != reader.0.lineage
+        {
+            return Err("governed-shared-policy-domain-mismatch".into());
+        }
+        Ok(())
+    }
+
+    pub fn referenced_lineage_enabled(&self) -> bool {
+        self.0.lineage.is_some()
+    }
+    pub(crate) fn source_limit(&self) -> usize {
+        self.0
+            .lineage
+            .as_ref()
+            .and_then(|v| v["max_sources"].as_u64())
+            .unwrap_or(64) as usize
+    }
+    pub(crate) fn lineage_byte_limit(&self) -> usize {
+        self.0
+            .lineage
+            .as_ref()
+            .and_then(|v| v["max_metadata_bytes"].as_u64())
+            .unwrap_or(65_536) as usize
+    }
+
+    pub(crate) fn lifecycle_file(&self) -> Option<&Path> {
+        self.0.lifecycle_file.as_deref()
     }
 
     pub fn is_v2(&self) -> bool {

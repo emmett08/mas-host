@@ -39,9 +39,7 @@ impl Inner {
         .map_err(error)
     }
     pub(super) fn freeze_revision(&self, plan: &Value, input: &Value) -> Result<()> {
-        if self.governance.is_some() {
-            return Err("governed-revision-unsupported".into());
-        }
+        self.mediate_revision_record("plan", &json!({"plan":plan,"input":input}))?;
         let db = lock(&self.journal)?;
         create(&db)?;
         let started: bool = db
@@ -98,6 +96,7 @@ impl Inner {
             .transpose()
     }
     pub(super) fn record(&self, kind: &str, record: &Value, readers: &Value) -> Result<()> {
+        self.mediate_revision_record(kind, record)?;
         let id = text(record, "id")?;
         let body = record.to_string();
         let readers = readers.to_string();
@@ -137,6 +136,7 @@ impl Inner {
             .transpose()
     }
     pub(super) fn bind_context(&self, id: &str, context: &Value) -> Result<()> {
+        self.mediate_revision_record("context", context)?;
         let mut db = lock(&self.journal)?;
         let tx = db
             .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
@@ -299,6 +299,7 @@ impl Inner {
     }
     pub(super) fn terminal_revision(&self, value: &Value) -> Result<()> {
         fields(value, &["status", "selected"], &[])?;
+        self.mediate_revision_record("terminal", value)?;
         let mut db = lock(&self.journal)?;
         let tx = db
             .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)

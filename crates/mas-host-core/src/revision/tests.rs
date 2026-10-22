@@ -544,3 +544,71 @@ fn retained_terminal_replay_survives_later_stop_without_reclassification() {
     drop(engine);
     std::fs::remove_dir_all(path).unwrap();
 }
+
+fn exact_schema(value: &Value) -> Value {
+    match value {
+        Value::Null => json!({"type":"null"}),
+        Value::Bool(_) => json!({"type":"boolean"}),
+        Value::Number(_) => json!({"type":"integer","minimum":value,"maximum":value}),
+        Value::String(_) => json!({"type":"string","enum":[value]}),
+        Value::Array(items) => {
+            json!({"type":"array","maxItems":items.len(),"items":items.first().map(exact_schema).unwrap_or_else(||json!({"type":"null"}))})
+        }
+        Value::Object(fields) => {
+            let properties = fields
+                .iter()
+                .map(|(k, v)| (k.clone(), exact_schema(v)))
+                .collect::<serde_json::Map<_, _>>();
+            json!({"type":"object","properties":properties,"required":fields.keys().collect::<Vec<_>>(),"additionalProperties":false})
+        }
+    }
+}
+
+#[test]
+fn governed_revision_gates_actual_frozen_plan_context_and_audit_sinks() {
+    use crate::governance::{govern_namespace_lifecycle, GovernedSession};
+    use std::os::unix::fs::PermissionsExt;
+    let (path, bundle, ordinary) = engine_fixture();
+    drop(ordinary);
+    let key = path.join("governed-key");
+    std::fs::write(&key, [17_u8; 32]).unwrap();
+    std::fs::set_permissions(&key, std::fs::Permissions::from_mode(0o600)).unwrap();
+    let expiry = crate::now_ms().unwrap() + 60_000;
+    let rules=[("revision-retain","controller:worker","local-worker"),("deliver","principal-a","client")].map(|(operation,recipient,destination)|json!({"operation":operation,"principal":"principal-a","actor":"worker","producer":"host","recipient":recipient,"purpose":"diagnosis","destination":destination,"location":"uk","classifications":["restricted"],"obligations":["inline-retention-approved"],"max_bytes":65536}));
+    let authority = json!({"version":"mas-governed-authority/1","grants":[{"version":"mas-current-authority/1","tenant":"tenant-a","principal":"principal-a","grant_ref":"grant-a","grant_epoch":1,"policy_version":"policy-v1","status":"active","valid_from_ms":0,"expires_at_ms":expiry}],"policies":[{"version":"mas-data-use-policy/1","id":"policy-a","tenant":"tenant-a","policy_version":"policy-v1","valid_from_ms":0,"expires_at_ms":expiry,"rules":rules}]});
+    std::fs::write(path.join("authority.json"), authority.to_string()).unwrap();
+    let plan = json!({"max_invocations":1});
+    let input = json!({"sources":[]});
+    let context = json!({"actor":"worker","input":{},"policy":{},"readers":["*"]});
+    let candidate = json!({"id":"candidate-0","output":{"n":1}});
+    let empty = exact_schema(&json!({}));
+    let schemas = json!({"plan":exact_schema(&json!({"plan":plan,"input":input})),"context":exact_schema(&context),"candidate":exact_schema(&candidate),"rubric":empty,"evidence":empty,"assessment":empty,"terminal":empty,"delivery":empty});
+    let config = json!({"version":"mas-governed-local/2","authority_file":path.join("authority.json"),"commitment_key_file":key,"commitment_key_id":"test-key","location":"uk","baseline_policy_refs":["policy-a"],"lifecycle_file":path.join("lifecycle.sqlite"),"revision":{"actor":"worker","schemas":schemas},"agents":[{"actor":"worker","destination":"local-worker","input_schema":empty,"output_schema":empty,"effects":[]}]});
+    let session =
+        GovernedSession::from_value(&config, "tenant-a", "principal-a", "diagnosis", "grant-a")
+            .unwrap();
+    let engine =
+        Engine::open_governed(&bundle, &path, "protected-revision", session.clone()).unwrap();
+    engine.inner.freeze_revision(&plan, &input).unwrap();
+    engine
+        .inner
+        .bind_context("revision-context", &context)
+        .unwrap();
+    engine
+        .inner
+        .record("candidate", &candidate, &json!(["*"]))
+        .unwrap();
+    let mut forbidden = candidate.clone();
+    forbidden["private"] = json!("private-revision-marker");
+    assert!(engine
+        .inner
+        .record("candidate", &forbidden, &json!(["*"]))
+        .is_err());
+    let audit = store::audit(&lock(&engine.inner.journal).unwrap()).unwrap();
+    assert_eq!(audit["candidates"], json!([candidate]));
+    assert!(!audit.to_string().contains("private-revision-marker"));
+    drop(engine);
+    govern_namespace_lifecycle(&path.join("protected-revision"), &session, "retire", None).unwrap();
+    assert!(Engine::open_governed(&bundle, &path, "protected-revision", session).is_err());
+    std::fs::remove_dir_all(path).unwrap();
+}

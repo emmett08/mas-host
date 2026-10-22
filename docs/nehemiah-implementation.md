@@ -21,7 +21,11 @@ current plan snapshots.
 | E2/E3 structured acquisition | Opt-in version 2 baseline/source-policy association, durable pending acquisition, host-owned ancestry/exposure and authorised retained projection reads through existing journals | Exact assessment custody, source-byte adjudication, protected revision, larger closure and shared-subscriber qualification |
 | N3 first response slice | Trusted native safe-case intent and separately admitted notification through existing effects; bounded memory fixture, HTTPS incident-submission adapter and authorised retained case-status projection | Exact component-assessment/source-byte resolution, adjudication, durable queue, timed retry/escalation, provider reconciliation and endpoint/deployment qualification |
 | Independent P9a | Connection-profile consumption is published in [CSO PR #381](https://github.com/emmett08/catalog-sync-operator-monograph/pull/381), stacked on PR #379, at `65de861aa7c71fae3eaf4dcea825b66e7ebe4d1b` | Consumer merge and the separately selected PR #380 integration; broader dynamic credential/privacy qualification |
-| E4/E5 and N4/N5 | Required capabilities stay explicit and unsupported paths reject | Deletion/expiry/restore, worker isolation, consumer and measured deployment qualification |
+| E2 protected structured revision | Exact controller record schemas, current retention gates, inherited complete exposure and metadata-only audit delivery through the existing controller | Domain-specific full revision-round and unstructured qualification |
+| E2 credential lifecycle | Current scoped reference resolution before launch; durable monotone credential epochs and keyed value bindings | Administrative recovery after user-grant expiry and confinement of already running workers |
+| E3 shared retained-source readers | Explicit operator source exports and independent authenticated subscriber grants; original complete source restrictions remain conjunctive | Continuous subscription/cancellation, shared linearised admission and larger source closures |
+| E4 namespace lifecycle | Independent tombstones, holds, monotone access expiry, restore denial and stopped-namespace local payload purge | Individual-object lifecycle, automatic purge, all external copies and physical-erasure qualification |
+| E5 and N4/N5 deployment | Concrete hardened placement renderer, least-privilege collector and qualification commands; managed profile remains gated | Live images/CNI/volumes, hostile-worker isolation, consumer and measured deployment qualification |
 
 The first governed path is a single-owner trusted-local implementation. Its
 schemas allow closed objects, enumerated strings, bounded integers/arrays,
@@ -176,5 +180,8 @@ part of local validation.
 See [capability packaging](capabilities.md), [governed local usage](governed-local.md),
 [detector mediation](governed-privacy.md),
 [contract preflight](nehemiah-governance.md), [local detector usage](privacy-detector.md)
-[retained effect reading](governed-evidence-reader.md) and
+[retained effect reading](governed-evidence-reader.md),
+[namespace lifecycle and credentials](governed-lifecycle.md),
+[structured revision](governed-revision.md),
+[shared source reading](governed-shared-sources.md) and
 [workload usage](workload-baseline.md) for executable entry points.

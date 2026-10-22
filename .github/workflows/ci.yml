@@ -53,3 +53,36 @@ jobs:
           path: formal/evidence
           if-no-files-found: warn
           retention-days: 14
+
+  shared-native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16.15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: native-fixture-password
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      MAS_TEST_POSTGRES_DSN: host=127.0.0.1 port=5432 user=postgres password=native-fixture-password dbname=postgres sslmode=disable
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Install pinned Rust
+        run: rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy
+      - name: Analyse optional shared profile
+        run: cargo clippy --locked -p mas-host --features shared-native --all-targets -- -D warnings
+      - name: Check shared preflight, deadline translation and queue decisions
+        run: |
+          cargo test --locked -p mas-host-core --features shared-native shared_native::tests
+          cargo test --locked -p mas-host --features shared-native --bin mas-host shared_queue::tests
+      - name: Exercise native PostgreSQL execution and paged queue traversal
+        run: cargo test --locked -p mas-host --features shared-native --test shared_native --test shared_queue -- --ignored --nocapture

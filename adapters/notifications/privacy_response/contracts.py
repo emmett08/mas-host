@@ -86,30 +86,34 @@ class Notification:
     case_id: str
     action_id: str
     event: CaseEvent
+    kind: str = "review"
 
     def __post_init__(self):
         _require(type(self.event) is CaseEvent)
+        _require(type(self.kind) is str and self.kind in ("review", "escalation"))
         _require(type(self.case_id) is str and
                  re.fullmatch(r"privacy-case-[0-9a-f]{64}", self.case_id) is not None)
         _require(type(self.action_id) is str and
                  re.fullmatch(r"privacy-notification-[0-9a-f]{64}", self.action_id) is not None)
         _require(self.action_id == _identity("privacy-notification", self.case_id,
-                                            self.event.event_version, self.event.route))
+                                            self.event.event_version, self.event.route, *(() if self.kind == "review" else ("escalation",))))
 
     @classmethod
-    def for_invocation(cls, invocation_id, event):
+    def for_invocation(cls, invocation_id, event, *, kind="review"):
         _require(type(invocation_id) is str and
                  re.fullmatch(r"task-[0-9a-f]{64}", invocation_id) is not None)
         _require(type(event) is CaseEvent)
         case_id = _identity("privacy-case", invocation_id)
-        action_id = _identity("privacy-notification", case_id, event.event_version, event.route)
-        return cls(case_id, action_id, event)
+        _require(type(kind) is str and kind in ("review", "escalation"))
+        action_id = _identity("privacy-notification", case_id, event.event_version, event.route,
+                              *(() if kind == "review" else ("escalation",)))
+        return cls(case_id, action_id, event, kind)
 
     def payload(self):
         # No supplied endpoint, title, prose, source reference or detected value
         # can enter this projection. A case link is deferred until its resolver
         # has a separately qualified authorisation/existence-metadata contract.
-        return {"template": "privacy-handling-review/1",
+        return {"template": "privacy-handling-review/1" if self.kind == "review" else "privacy-handling-escalation/1",
                 "case_id": self.case_id, "action_id": self.action_id,
                 **self.event.safe_record(), "version": "mas-privacy-notification/1"}
 

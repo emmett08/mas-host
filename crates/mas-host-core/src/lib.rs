@@ -31,6 +31,8 @@ mod observation;
 mod protocol;
 mod request_routes;
 mod revision;
+#[cfg(feature = "shared-native")]
+pub mod shared_native;
 use journal::{journal, read_step, Step};
 pub use observation::observe;
 use protocol::{effect_evidence, finish_effect};
@@ -378,6 +380,13 @@ impl Engine {
         let agents = validated_agents(bundle)?;
         let topology = &bundle["topology"];
         let directory = run_directory(state_dir, run_id)?;
+        if governance
+            .as_ref()
+            .and_then(|session| session.lifecycle_file())
+            .is_some_and(|path| path.starts_with(&directory))
+        {
+            return Err("governed-lifecycle-ledger-must-be-independent".into());
+        }
         let owner = ownership(&directory)?;
         let mut db = journal(&directory)?;
         governance::runtime::open_namespace(&db, governance.as_ref())?;
@@ -407,6 +416,7 @@ impl Engine {
             )
             .optional()
             .map_err(error)?;
+        let fresh = prior.is_none();
         let nonce = if let Some((version, id, old, nonce)) = prior {
             if version != 1 || id != run_id || old != fingerprint {
                 return Err("retained run implementation identity differs".into());
@@ -422,6 +432,9 @@ impl Engine {
                 params![run_id,encoded,fingerprint,nonce]).map_err(error)?;
             nonce
         };
+        if let Some(session) = &governance {
+            governance::runtime::lifecycle::check_namespace(session, run_id, &nonce, fresh)?;
+        }
         let mut protocol = Store::open(directory.join("protocol.sqlite"))?;
         let snapshot = protocol.create_run(run_id, topology)?;
         let deadline_ms = (snapshot["deadline"]
@@ -556,6 +569,9 @@ fn verify_executable(agent: &Agent) -> Result<()> {
 
 impl Inner {
     fn check_live(&self) -> Result<()> {
+        if let Some(session) = &self.governance {
+            governance::runtime::lifecycle::check_directory(&self.directory, session)?;
+        }
         let cancelled: i64 = lock(&self.journal)?
             .query_row(
                 "SELECT cancelled FROM metadata WHERE singleton=1",

@@ -127,6 +127,39 @@ async fn handle(service: Arc<Service>, request: Request<Incoming>) -> Response<B
                 v.split(',')
                     .any(|x| x.trim() == super::retained_source::PROFILE)
             });
+    let assessment_extension = service.configuration.governed.is_some()
+        && request
+            .headers()
+            .get("a2a-extensions")
+            .and_then(|v| v.to_str().ok())
+            .is_some_and(|v| {
+                v.split(',')
+                    .any(|x| x.trim() == super::retained_assessment::PROFILE)
+            });
+    let shared_extension = service.configuration.shared_reads_supported()
+        && request
+            .headers()
+            .get("a2a-extensions")
+            .and_then(|v| v.to_str().ok())
+            .is_some_and(|v| {
+                v.split(',')
+                    .any(|x| x.trim() == super::shared_source::PROFILE)
+            });
+    let lineage_extension = service.configuration.lineage_reads_supported()
+        && request
+            .headers()
+            .get("a2a-extensions")
+            .and_then(|v| v.to_str().ok())
+            .is_some_and(|v| v.split(',').any(|x| x.trim() == super::lineage::PROFILE));
+    let publication_extension = service.configuration.source_publication
+        && request
+            .headers()
+            .get("a2a-extensions")
+            .and_then(|v| v.to_str().ok())
+            .is_some_and(|v| {
+                v.split(',')
+                    .any(|x| x.trim() == super::publication::PROFILE)
+            });
     let collected = tokio::time::timeout(
         Duration::from_secs(3),
         Limited::new(request.into_body(), 65_536).collect(),
@@ -178,9 +211,15 @@ async fn handle(service: Arc<Service>, request: Request<Incoming>) -> Response<B
         cloned.rpc(
             &caller,
             &body,
-            extension,
-            effect_extension,
-            source_extension,
+            super::RpcExtensions {
+                task: extension,
+                effect: effect_extension,
+                source: source_extension,
+                shared: shared_extension,
+                lineage: lineage_extension,
+                assessment: assessment_extension,
+                publication: publication_extension,
+            },
         )
     })
     .await
@@ -278,6 +317,18 @@ async fn handle(service: Arc<Service>, request: Request<Incoming>) -> Response<B
         }
         if source_extension {
             extensions.push(super::retained_source::PROFILE);
+        }
+        if shared_extension {
+            extensions.push(super::shared_source::PROFILE);
+        }
+        if assessment_extension {
+            extensions.push(super::retained_assessment::PROFILE);
+        }
+        if lineage_extension {
+            extensions.push(super::lineage::PROFILE);
+        }
+        if publication_extension {
+            extensions.push(super::publication::PROFILE);
         }
         response.headers_mut().insert(
             "a2a-extensions",

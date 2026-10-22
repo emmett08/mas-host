@@ -506,3 +506,6 @@ fn trusted_credential_callback_is_checked_at_every_boundary_and_free_text_is_rej
     )
     .is_err());
 }
+
+#[path = "lifecycle_tests.rs"]
+mod lifecycle_tests;

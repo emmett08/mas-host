@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 .SHELLFLAGS := -euo pipefail -c
 
-.PHONY: build check test acceptance provider-test python-test workload-test privacy-test notification-test capability-test
+.PHONY: build check test acceptance provider-test python-test workload-test workload-acceptance privacy-test notification-test capability-test governance-test
 
 capability-test:
 	npm --prefix examples/structured-evidence/typescript ci --ignore-scripts
@@ -15,12 +15,22 @@ python-test:
 workload-test:
 	python3 -m unittest discover -s tests/performance -p 'test_*.py' -v
 
+workload-acceptance: build workload-test
+	mkdir -p target/workload-acceptance
+	python3 tests/performance/paced.py --host target/debug/mas-host --count 4 --rate 20 --occupancy-ms 100 --concurrency 2 --fault-every 2 --fault-mode lost-completion --output target/workload-acceptance/lost-completion.json
+	python3 tests/performance/paced.py --host target/debug/mas-host --count 3 --rate 2 --occupancy-ms 50 --concurrency 2 --fault-every 2 --fault-mode refuse-before-effect --output target/workload-acceptance/refusal.json
+
 privacy-test:
+	PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s adapters/privacy -p test_qualification.py -v
 	PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=adapters/privacy python3 -m unittest discover -s adapters/privacy/tests -p 'test_*.py' -v
 	PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests/privacy -p 'test_*.py' -v
 
 notification-test:
 	PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=sdk/python:adapters/notifications python3 -m unittest discover -s adapters/notifications/tests -p 'test_*.py' -v
+
+governance-test:
+	PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s deploy/managed/tests -v
+	PYTHONDONTWRITEBYTECODE=1 MAS_HOST_BINARY="$${CARGO_TARGET_DIR:-target}/debug/mas-host" python3 -m unittest discover -s tests/governance -v
 
 provider-test:
 	node --test assets/providers/cursor.test.mjs
@@ -46,6 +56,7 @@ test: check capability-test
 	$(MAKE) workload-test
 	$(MAKE) privacy-test
 	$(MAKE) notification-test
+	$(MAKE) governance-test
 
 acceptance:
 	cargo test --locked -p mas-host --test acceptance -- --ignored --nocapture

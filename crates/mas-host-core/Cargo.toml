@@ -16,3 +16,6 @@ sha2.workspace = true
 rusqlite.workspace = true
 libc.workspace = true
 hmac = "=0.13.0"
+
+[features]
+shared-native = ["mas-protocol-codec/postgres-repository"]
