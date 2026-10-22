@@ -19,6 +19,9 @@ separate from the historical revision/disclosure checks below.
 The [privacy response adapter model](privacy-response.md) separately checks
 safe-intent ordering, current notification admission, provider certainty and
 duplicate/unknown handling for the initial N3 adapter.
+The [read-only retained-effect model](retained-effect.md) checks coherent
+snapshots, current whole-view disclosure and retained completion facts while a
+live owner operates, with no reader recovery, journal mutation or dispatch.
 
 These models check a finite control abstraction. They do not prove that a
 candidate diagnoses an incident correctly, that a model evaluator is reliable,

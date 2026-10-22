@@ -109,6 +109,15 @@ async fn handle(service: Arc<Service>, request: Request<Incoming>) -> Response<B
         .get("a2a-extensions")
         .and_then(|v| v.to_str().ok())
         .is_some_and(|v| v.split(',').any(|x| x.trim() == PROFILE));
+    let effect_extension = service.configuration.governed.is_some()
+        && request
+            .headers()
+            .get("a2a-extensions")
+            .and_then(|v| v.to_str().ok())
+            .is_some_and(|v| {
+                v.split(',')
+                    .any(|x| x.trim() == super::retained_effect::PROFILE)
+            });
     let collected = tokio::time::timeout(
         Duration::from_secs(3),
         Limited::new(request.into_body(), 65_536).collect(),
@@ -156,16 +165,19 @@ async fn handle(service: Arc<Service>, request: Request<Incoming>) -> Response<B
     let cloned = Arc::clone(&service);
     let caller = principal.clone();
     let body = request.clone();
-    let mut result =
-        match tokio::task::spawn_blocking(move || cloned.rpc(&caller, &body, extension)).await {
-            Ok(v) => v,
-            Err(_) => {
-                return response(
-                    StatusCode::OK,
-                    rpc_error(&request, -32603, "service_unavailable"),
-                )
-            }
-        };
+    let mut result = match tokio::task::spawn_blocking(move || {
+        cloned.rpc(&caller, &body, extension, effect_extension)
+    })
+    .await
+    {
+        Ok(v) => v,
+        Err(_) => {
+            return response(
+                StatusCode::OK,
+                rpc_error(&request, -32603, "service_unavailable"),
+            )
+        }
+    };
     if request["method"] == "SendMessage"
         && request["params"]["configuration"]["returnImmediately"] != true
         && result["result"]["task"].is_object()
@@ -238,9 +250,14 @@ async fn handle(service: Arc<Service>, request: Request<Incoming>) -> Response<B
     }
     let mut response = response(StatusCode::OK, result);
     if extension {
+        let extensions = if effect_extension {
+            format!("{PROFILE}, {}", super::retained_effect::PROFILE)
+        } else {
+            PROFILE.to_owned()
+        };
         response.headers_mut().insert(
             "a2a-extensions",
-            hyper::header::HeaderValue::from_static(PROFILE),
+            hyper::header::HeaderValue::from_str(&extensions).unwrap(),
         );
     }
     response

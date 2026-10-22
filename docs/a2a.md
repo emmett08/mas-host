@@ -6,6 +6,14 @@ configuration, envelope and profile identifiers remain unchanged. The gateway
 runs the same immutable bundle and `Engine` as the local CLI. It adds service
 admission and task records around that execution authority.
 
+The wire version remains `1.0`. The [source pin](a2a-source-pin.json) identifies
+the official `v1.0.0` proto, specification and extension guidance at commit
+`173695755607e884aa9acf8ce4feed90e32727a1`, with verified Git blob and SHA-256
+digests. The retained-effect extension follows that version's extension method,
+dependency, activation and response acknowledgement rules. These source checks
+bound the extension review. Independent SDK interoperability retains its own
+validation requirement.
+
 ```sh
 mas-host describe --bundle application-bundle.json
 mas-host serve-a2a --bundle application-bundle.json --state .service --config service.json
@@ -64,6 +72,7 @@ credentials, and HTTP responses disable caching.
 | `SendMessage` | Submit one JSON data part to a pinned exported actor; return a durable task |
 | `GetTask` | Observe only a task owned by the authenticated principal |
 | `CancelTask` | Persist cancellation intent; return `-32002` while cancellation remains unconfirmed |
+| `GetRetainedEffect` | Governed A2A2 extension: read one root-workflow effect under current resolve authority |
 
 RPCs use `POST /a2a`, `Content-Type: application/json`, `Authorization: Bearer ...`
 and `A2A-Version: 1.0`. Task methods additionally require:
@@ -112,6 +121,102 @@ Clients must preserve these values. SDKs that convert JSON numbers through
 floating-point representations need application-defined decimal strings or
 rational records; the gateway never rounds data to accommodate a client.
 
+## Governed retained-effect reads
+
+A `mas-host-a2a/2` service advertises the optional extension
+`urn:mas:host-governed-effect-read:1`. Its `params.requires` names the existing
+task-service extension. `params.methods`, `requestFields`,
+`additionalRequestFields`, `maxKeyUtf8Bytes`, `requestExample`, `resultVersion`
+and `scope` describe the method and its bounded request. The example field is
+illustrative. Requests must supply an actual task ID and exact logical effect
+key.
+
+Activate both extensions to call the method:
+
+```text
+A2A-Extensions: urn:mas:host-task-service:1, urn:mas:host-governed-effect-read:1
+```
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "read-case-1",
+  "method": "GetRetainedEffect",
+  "params": {
+    "id": "a2a-REPLACE_WITH_THE_OWNED_TASK_ID_SUFFIX",
+    "key": "privacy-case-intent"
+  }
+}
+```
+
+The response acknowledges both activated URIs. The additional URI is optional
+for existing task operations and mandatory for `GetRetainedEffect`. Omission
+returns `-32008` with `required_effect_extension_missing`. Ordinary A2A1 services
+keep their existing extension set and unknown-method behaviour. Unsupported
+optional URIs are ignored and excluded from the acknowledgement.
+
+The request has exactly `id` and `key`. A key contains 1–128 UTF-8 bytes without
+control characters. The task must belong to the authenticated owner and its
+actor must remain an authorised export. The service validates the retained
+scope fingerprint before deriving a run directory. The core then selects that
+namespace's exact root invocation. Clients supply neither filesystem paths nor
+actor, tenant or parent-invocation identities.
+
+Current policy must explicitly permit operation `resolve`, recipient equal to
+the authenticated principal, and destination `client`, for the task's workflow
+actor, purpose and location. Every applicable policy participates. A configured
+inspector also needs its current `inspect` permission for the query and any
+returned application payload. Existing `deliver` permission alone grants no
+effect-read authority.
+
+The result is the closed `mas-governed-effect-view/1` object:
+
+| Field | Meaning |
+|---|---|
+| `version` | `mas-governed-effect-view/1` |
+| `namespace_ref` | Opaque keyed reference to the admitted namespace |
+| `actor`, `parent_invocation`, `key` | Exact workflow, root invocation and logical effect key |
+| `effect_id` | Original durable effect identity, or null when no effect is recorded |
+| `state` | Recorded step state, or `not-recorded` in this snapshot |
+| `host_settlement` | `completed`, `pending`, `failed` or `unknown` |
+| `external_execution` | `completed`, `not-sent`, `refused` or `unknown` |
+| `payload_disposition` | `available`, `withheld` or `unavailable` |
+| `descriptor`, `output`, `evidence` | Currently permitted retained application values, or null |
+
+`prepared` and `executing` steps retain pending host settlement and unknown
+external execution. `completed` and `resolved` require the retained completion
+record to agree with the output and evidence. A known completion whose payload
+is withheld keeps its original external certainty. An authorised missing key
+returns `not-recorded`, unknown settlement/execution, unavailable payload and
+null values. That observation supplies no retry authority.
+
+The reader checks query authority before opening a bounded read-only SQLite
+snapshot. It validates the namespace and original effect identity, releases the
+snapshot, then checks current rights for the complete view. It takes no
+execution-owner lock and performs no task dispatch, settlement or reconciliation.
+Task and effect states retain their stored values. A configured detector may
+run within its existing processing and resource contract.
+
+Retained application values undergo their declared schema and current inspection
+checks. If those payload checks fail after an authorised lookup, a separately
+authorised metadata view can retain settlement and certainty while returning
+null application values and a withheld disposition. A failed query inspection,
+revoked metadata right, unavailable policy, invalid namespace or corrupt record
+returns the uniform `-32001` `effect_not_found` error. Authentication rejection
+continues to use the service's ordinary HTTP authentication response.
+
+The exact view is bounded to 65,536 bytes. Each read can consume one query
+inspection budget and one application-payload inspection budget, within the
+existing inspector-enabled HTTP connection bound. Lease and current scope are
+rechecked before and after the read. The file-backed profile retains its
+documented snapshot authority semantics.
+
+Consumers combining case-intent and notification views must require matching
+`namespace_ref`, `actor` and `parent_invocation`, then validate their exact
+logical keys, event and destination binding. Each HTTP call observes its own
+snapshot. The [privacy response example](../examples/privacy-response/README.md)
+keeps action state, recipient delivery and payload availability separate.
+
 Streaming, push notifications, `ListTasks`, task continuations, arbitrary file
 parts, remote effect resolution and dynamic membership are outside this profile.
 A card is descriptive metadata: discovery cannot add an actor or route to a run.
@@ -148,7 +253,8 @@ worker dispatch closes the service task as `failed`; after dispatch, uncertain
 outcomes remain `unknown` rather than being reported as confirmed cancellation.
 
 The local core's `inspect`, `observe` and evidence-backed `resolve` commands
-remain available under `.service/runs`. Resolving a core effect does **not**
+remain available for ordinary runs under `.service/runs`. Governed retained
+effects use the authorised read extension above. Resolving a core effect does **not**
 automatically settle or resume a gateway task. This first profile has no remote
 or automatic reconciliation path; retain unknown records for operator review.
 Creating another state directory or message identity does not establish that

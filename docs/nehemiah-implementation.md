@@ -17,7 +17,8 @@ current plan snapshots.
 | PII N0/N1 | Exact-source assessments, deterministic fixtures, pinned local neural adapter and supervised inspection | Labelled deployment-domain quality thresholds and qualification; inspection never grants unstructured release |
 | E2/E3 and N2 first structured slice | Authenticated A2A2/core sessions, pre-persistence projection, keyed original-request conflicts, current admission/delivery checks, safe effect completion and replay | Complete N2 coverage, shared acquisition/subscribers, general evidence lineage/resolution, revision integration, dynamic runtime credentials and unstructured handling |
 | N2 detector mediation | Optional operator-pinned local inspection at structured ingress, invocation, effect arguments, result/evidence retention and retained payload delivery; exact-source coverage, current processing authority and version-bound receipts | Cross-field/conversational inspection, numeric identifiers, arbitrary text qualification and remaining acquisition/inference/revision paths |
-| N3 first response slice | Trusted native safe-case intent and separately admitted notification through existing effects; bounded memory fixture and HTTPS incident-submission adapter | Full case lifecycle, restricted resolver, adjudication, durable queue, timed retry/escalation, provider reconciliation and endpoint/deployment qualification |
+| N2/E3 retained-effect reader | Current-authority, read-only resolution of an exact retained effect, with separate metadata/payload checks and no execution recovery | Complete source ancestry, exposure inheritance, shared subscribers and reader/ancestor qualification |
+| N3 first response slice | Trusted native safe-case intent and separately admitted notification through existing effects; bounded memory fixture, HTTPS incident-submission adapter and authorised retained case-status projection | Exact assessment/source resolution, adjudication, durable queue, timed retry/escalation, provider reconciliation and endpoint/deployment qualification |
 | Independent P9a | Connection-profile consumption is published in [CSO PR #381](https://github.com/emmett08/catalog-sync-operator-monograph/pull/381), stacked on PR #379, at `65de861aa7c71fae3eaf4dcea825b66e7ebe4d1b` | Consumer merge and the separately selected PR #380 integration; broader dynamic credential/privacy qualification |
 | E4/E5 and N4/N5 | Required capabilities stay explicit and unsupported paths reject | Deletion/expiry/restore, worker isolation, consumer and measured deployment qualification |
 
@@ -58,7 +59,16 @@ The notification descriptor also binds the configured destination contract.
 Credential rotation retains that destination identity. Endpoint acceptance,
 known refusal, uncertain submission and recipient delivery remain distinct.
 The example supplies one event and one bounded notification attempt per
-invocation. Full N3 lifecycle and scheduling remain subsequent work.
+invocation. Its case-status consumer now reads the original intent and
+notification records through the host's authorised retained-effect reader.
+Full N3 lifecycle and scheduling remain subsequent work.
+
+The retained-effect reader extends the existing read-only observation pattern.
+It selects an exact governed namespace, parent invocation, actor and logical key,
+then checks current rights before delivering a bounded record. It preserves
+completion and uncertainty without opening an execution engine. The A2A service
+derives the run and root invocation from an authenticated, owned task. This first
+resolver increment supplies no source-lineage or shared-reader qualification.
 
 The selected design adds explicit A2A2 and `Engine::open_governed` entry points.
 Existing local APIs and configuration versions retain their behavior. A
@@ -113,17 +123,25 @@ conformance have separate source-bound receipts under
 cryptography and detector behaviour, and establish no implementation refinement,
 population detector quality or distributed revocation linearisation theorem.
 
+The [retained-effect model](../formal/retained-effect.md) checks the new reader's
+current lookup/delivery admission, coherent read-only snapshot, binding and
+completion-preserving withholding rules. Its implementation and formal receipts
+are kept separately under `evidence/nehemiah-governed-reader/`. Case-status
+projection consumes independent effect snapshots and preserves that limitation.
+
 ## Next dependent increments
 
 1. Complete N2/E2 across the remaining supported acquisition, inference,
    revision, evidence and diagnostic paths, with version-bound unstructured
    inspection and declared handling outcomes. Keep unsupported paths closed.
-2. Extend E3's governed evidence resolver, source-exposure inheritance and shared
-   subscriber delivery; qualify revocation and resolver-failure cases, including
+2. Extend E3's retained-effect resolution with complete source ancestry,
+   source-exposure inheritance and shared subscriber delivery; qualify
+   revocation and resolver-failure cases, including
    more than 32 consumers/ancestors. Complete dynamic credential lifecycle before
    protected sharing.
-3. Extend the N3 response slice with the restricted case resolver, adjudication,
-   durable queue, permitted retry/escalation and provider reconciliation. A lost
+3. Extend N3's case-status reader with authorised exact assessment/source
+   resolution, adjudication, a durable queue, permitted retry/escalation and
+   provider reconciliation. A lost
    acknowledgement currently remains uncertain under its original action
    identity and prevents redispatch.
 4. Qualify E4 deletion/expiry/restore and E5 worker isolation before managed
@@ -144,4 +162,5 @@ part of local validation.
 See [capability packaging](capabilities.md), [governed local usage](governed-local.md),
 [detector mediation](governed-privacy.md),
 [contract preflight](nehemiah-governance.md), [local detector usage](privacy-detector.md)
-and [workload usage](workload-baseline.md) for executable entry points.
+[retained effect reading](governed-evidence-reader.md) and
+[workload usage](workload-baseline.md) for executable entry points.
