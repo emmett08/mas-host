@@ -1,0 +1,11 @@
+{
+  "base_commit": "c84feb406eff46e9c2857b5ad92a817ab4bc12ec",
+  "tree": "6f5f7acd4d7bd18a891e414fe09e234845a041d3",
+  "local_test_commit": "c4510f00e543d37fe2075caf963bd876b2042763",
+  "changed_source_sha256": {
+    "crates/mas-host-cli/src/a2a/retained.rs": "c9230b9f2f0549d62e474e43ccd74164ed2a307b01f01dc5e27cd1fab84ee2a9",
+    "crates/mas-host-cli/src/a2a/retained_effect.rs": "4ca51b8f13188792fb8a65bc31aa2899663d3a207a91a2ad10e185d519afb6a5",
+    "crates/mas-host-cli/src/a2a/mod.rs": "2d17f681e209c625b40d7a62478a452fb547a19459bffe26450e51f237b1f9c4"
+  },
+  "remote_commit": "5f9ff2eaeb130fa15ba9cecb1daf40652c1b112c"
+}

@@ -1,0 +1,208 @@
+{
+  "version": "nehemiah-exposure-core-review/1",
+  "reviewed_at_utc": "2026-10-22T20:07:26.176520+00:00",
+  "scope": "Opt-in mas-governed-local/2 structured acquisition and complete bounded host exposure; existing mas-governed-local/1 compatibility retained.",
+  "status": "production-frozen-pending-final-integration-gates",
+  "source_sha256": {
+    "crates/mas-host-core/src/lib.rs": "07e384fcbcb85b4ba72b5682594c5ad05e339dce81ff57b1b5076dd501d4ace5",
+    "crates/mas-host-core/src/effects.rs": "252b194c4a498cee856269e7940fc1597f3c6f98c7e917ef7cd7651a445eba34",
+    "crates/mas-host-core/src/execution.rs": "9d14f44255d43d4ebe75c4c5e46fc06206a2b61f0c3e8f89d3c09b256e9dca9a",
+    "crates/mas-host-core/src/governance/runtime/session.rs": "34939af7400c0d9188113832a11f34cc7efeb14d36e57cad9b98f480c3598e59",
+    "crates/mas-host-core/src/governance/runtime/authorization.rs": "a3caa40691c071bc3f83b050474ef58fb3b5853258a2f6c3b10b3e5bd9672be1",
+    "crates/mas-host-core/src/governance/runtime/exposure_authorization.rs": "1476a21d08d005bf2d25b1b8f243ddd0edeaa3bb1a7dd1c85d6dc46d898f0389",
+    "crates/mas-host-core/src/governance/runtime/inspection.rs": "29607f1cdb62c382f72a607b57d6ad88695430159cad621c3d71c0ea56e57594",
+    "crates/mas-host-core/src/governance/runtime/boundary.rs": "6e09be3cd57b9b97c62e6c11ec8742d7b9f69dab98f4b71c555c6f250a54e368",
+    "crates/mas-host-core/src/governance/runtime/storage.rs": "e6929a1bba0e966568fb8dd02b25bfe04569874f06fbae41cf6258499a7455fa",
+    "crates/mas-host-core/src/governance/runtime/source.rs": "8ca976179f279f32cfad757aad1acf3e1b3c238ebce34b5e0aa7da3be1897414",
+    "crates/mas-host-core/src/governance/runtime/exposure.rs": "7286073d8deb36e9fe3b0b3d64f08858439cc05166b641b9b172e71044d21487",
+    "crates/mas-host-core/src/governance/runtime/lineage.rs": "a435ba14cf29ba115f5998f393d2042949354eee56c5811a2e22669cf5035e27"
+  },
+  "module_ownership": {
+    "source.rs": "Closed immutable source metadata and whole-body keyed identity; payload remains existing steps.input/output.",
+    "exposure.rs": "Bounded complete DAG closure, sparse maximal frontier, sealed context/invocation manifests and sealed pending effect obligations in existing journal.",
+    "exposure_authorization.rs": "Config2 conjunction of baseline and all original source policies, deduplicated by trusted template and exact applicable evidence refs.",
+    "lineage.rs": "Same Inner owner adapts existing prepare/completion transactions to source/exposure binding; no second runtime or database owner.",
+    "session.rs": "Immutable configuration/profile identity, current credentials/policy and trusted destination/schema selection.",
+    "boundary.rs": "Structured projection, privacy processing/current release and completion certainty separation.",
+    "lib.rs/execution.rs/effects.rs": "Existing step uniqueness, protocol dispatch/recovery, worker lifecycle and known external completion owners retained."
+  },
+  "extracted": [
+    {
+      "methods": [
+        "authorize_exposure",
+        "authorize_exposure_sized",
+        "authorize_resolution_with_exposure",
+        "authorize_resolution_payload_with_exposure",
+        "authorize_status_with_exposure"
+      ],
+      "to": "exposure_authorization.rs",
+      "reason": "Keep full-source version2 policy construction cohesive while preserving exact version1 decision records."
+    },
+    {
+      "methods": [
+        "governed_context",
+        "bind_governed_step",
+        "bind_governed_request_output",
+        "begin_governed_effect",
+        "bind_governed_effect_output",
+        "governed_recipient_exposure",
+        "final_governed_delivery"
+      ],
+      "to": "lineage.rs",
+      "reason": "Concentrate host-only exposure transaction adapters and fresh/cached recipient admission, retaining the existing Inner and journal transaction owner; final pure context verification follows all callbacks."
+    },
+    {
+      "methods": [
+        "Source::parse",
+        "Source::create",
+        "Source::create_at"
+      ],
+      "to": "source.rs",
+      "reason": "Bind complete immutable metadata, original source expiry and exact retained projection independently of retrieval presentation."
+    },
+    {
+      "methods": [
+        "Exposure::union",
+        "load_invocation",
+        "load_context",
+        "load_step_source",
+        "create_source",
+        "begin_pending",
+        "finish_pending"
+      ],
+      "to": "exposure.rs",
+      "reason": "One reusable complete closure and sealed-manifest mechanism for execution and read-only consumers."
+    }
+  ],
+  "retained": [
+    {
+      "methods": [
+        "Inner::prepare",
+        "Inner::prepare_with_exposure"
+      ],
+      "reason": "Existing original-input binding, step-key uniqueness, checkpoint limit and durable step admission remain one transaction; lineage computation/binding extracted."
+    },
+    {
+      "methods": [
+        "Inner::request",
+        "Inner::request_with_exposure",
+        "Inner::serve"
+      ],
+      "reason": "Existing worker/protocol owner is the real consumer. Parallel freezes one shared parent context before child threads; recipient exposure commits before reply."
+    },
+    {
+      "methods": [
+        "Inner::begin_effect",
+        "Inner::complete_effect"
+      ],
+      "reason": "Existing protocol reservation and known external completion owner remains authoritative. Pending+executing is atomic; completion truth persists independently of lineage disclosure failure."
+    },
+    {
+      "methods": [
+        "Inner::governed_effect_completion",
+        "Inner::governed_output",
+        "Inner::governed_request_delivery"
+      ],
+      "reason": "Projection/inspection/disclosure and independent host settlement belong at existing boundary; full source closure is supplied there."
+    },
+    {
+      "methods": [
+        "GovernedSession::prepare_effect_with_exposure"
+      ],
+      "reason": "Operator-owned schema/destination/source-policy selection remains with session configuration; extra restrictions authorise the real descriptor before execution."
+    },
+    {
+      "methods": [
+        "authorize_inspected_with_exposure",
+        "inspect_boundary_with_exposure"
+      ],
+      "reason": "Existing scanner owner enforces inherited processing permissions before callbacks and exact aggregate receipt byte bounds."
+    },
+    {
+      "methods": [
+        "authorize_sized (version1)"
+      ],
+      "reason": "Separate historical constructor preserves version1 policy association IDs, decision/receipt semantics and compatibility; version2 deliberately uses template-level deduplication."
+    }
+  ],
+  "reviewed_invariants": [
+    "Config1 rejects version2 fields; version2 requires nonempty valid baseline refs; source refs are operator-owned and fingerprint-bound.",
+    "Source identity seals complete metadata including original refs, parents, expiry, actor, step/kind and exact projection commitment.",
+    "Sealed manifests bind sorted frontier, full closure count/binding and pending effects; missing/edited metadata never becomes an empty context.",
+    "All closure ancestors are retained and conjoined; count over64 or metadata/decision over65536 holds without truncation.",
+    "Every version2 effect has sealed pending state before execute; new nested outbound work and pending reads are denied until settlement.",
+    "Initial acquisition descriptor and output processing use additional source restrictions before effect/inspector callbacks.",
+    "Grant/source expiry is never reset on replay or callback-time grant renewal; pure journal constructors receive required admitted expiry captured before lock.",
+    "No session/current/inspector callback is intentionally executed while holding the journal mutex/SQLite transaction; source graph parsing/MAC helpers are pure.",
+    "Known external completion remains retained when current inspection/policy/lineage delivery fails; unknown is never redispatched.",
+    "Version1 wire shapes and historical effect-view/1 remain unchanged.",
+    "Native fresh/cached request/effect replies conjoin the selected source closure with current recipient exposure, commit before reply, and final no-scan payload admission is followed by a pure unchanged-context/expiry check; callback-time growth denies delivery.",
+    "Owned retained effect/source delivery also conjoins full current invocation exposure; public selected-source lineage remains provenance rather than an authority bypass (reader integration owned separately).",
+    "Version2 native ACK revalidates exact stored completion against bound step output/evidence and the existing closed host receipt validator before trusted-host/no-scan disclosure."
+  ],
+  "focused_evidence": [
+    {
+      "command": "cargo test -p mas-host-core governance::runtime::source_resolver_tests --locked --offline",
+      "result": "3 PASS",
+      "limitation": "Before final extraction and callback-under-lock fix; final full gate binds frozen source."
+    },
+    {
+      "command": "cargo test -p mas-host-core governance::runtime::exposure_adversarial_tests --locked --offline",
+      "result": "17 PASS reported by independent reviewer;65.74seconds",
+      "limitation": "Compilation overlapped structural extraction. Final compile and full integration gate remain authoritative."
+    },
+    {
+      "command": "cargo clippy -p mas-host-cli ... -D warnings",
+      "result": "PASS before final extraction; final rerun owned by CLI agent",
+      "limitation": "Do not treat earlier pass as a hash-bound final result."
+    },
+    {
+      "command": "independent cached-effect size and frozen-sibling reply regressions",
+      "result": "pending final focused execution",
+      "limitation": "Added for final current-recipient union correction; parent full gate must pass before acceptance."
+    }
+  ],
+  "limits": [
+    "One trusted local owner and principal; no shared subscriber or hostile native-worker isolation claim.",
+    "Source retrieval exposes retained structured projection and sealed lineage only; raw discarded originals and exact detector-assessment custody are not implemented in this slice.",
+    "Pending callback polling can return uniform unavailable; no synthetic covered output is invented.",
+    "No whole-database anti-rollback/tamperproof claim; no new global state owner, raw source store, adjudication/declassification engine or arbitrary unstructured release.",
+    "Final make test, acceptance, provider, default SPIN and HTTP gates owned by parent/other agents remain pending at receipt creation."
+  ],
+  "separate_refactor_stage": {
+    "version": "nehemiah-retained-cli-refactor-review/1",
+    "base_revision": "c84feb406eff46e9c2857b5ad92a817ab4bc12ec",
+    "tree": "6f5f7acd4d7bd18a891e414fe09e234845a041d3",
+    "files": [
+      "crates/mas-host-cli/src/a2a/retained.rs",
+      "crates/mas-host-cli/src/a2a/retained_effect.rs",
+      "crates/mas-host-cli/src/a2a/mod.rs (only mod retained declaration)"
+    ],
+    "baseline_retained_effect_sha256": "f4e701a21ce832dd06f7774a93abb7b7013e4c1f2f8a5de58c44d577f4d38778",
+    "extracted_helper_sha256": "c9230b9f2f0549d62e474e43ccd74164ed2a307b01f01dc5e27cd1fab84ee2a9",
+    "thin_wrapper_sha256": "4ca51b8f13188792fb8a65bc31aa2899663d3a207a91a2ad10e185d519afb6a5",
+    "manual_review": "behavior-equivalent extraction",
+    "preserved_order": [
+      "closed fields",
+      "exact task id",
+      "bounded key",
+      "session required",
+      "principal.current",
+      "same task/governed-task owned SQL join",
+      "agent and fingerprint",
+      "same run path",
+      "same core reader",
+      "principal.current"
+    ],
+    "preserved_failures": [
+      "invalid key -32602 invalid_parameters",
+      "all unavailable session/lock/query/missing/ownership/fingerprint/core failures -32001 effect_not_found"
+    ],
+    "preserved_boundary": "No run path or filesystem lookup before service-owned task association and current authority.",
+    "characterization_gate": {
+      "owner": "root",
+      "result": "pending isolated old8 HTTP retained-reader tests against this refactor tree; no feature source overlay"
+    },
+    "scope_exclusion": "New source endpoints, exposure inheritance, reader policy union and new helper modules for those features belong to the later semantic commit."
+  }
+}

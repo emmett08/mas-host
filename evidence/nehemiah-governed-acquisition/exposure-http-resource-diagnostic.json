@@ -1,0 +1,76 @@
+{
+  "captured_at_utc": "2026-10-22T20:59:43.230577+00:00",
+  "loadavg": [
+    6.201171875,
+    2.9912109375,
+    2.1162109375
+  ],
+  "cpu_count": 9,
+  "disk": {
+    "total": 33770192896,
+    "used": 24094216192,
+    "free": 7941214208
+  },
+  "memory.current": "3367104512\n",
+  "memory.max": "8589934592\n",
+  "memory.events": "low 0\nhigh 0\nmax 197707\noom 0\noom_kill 0\noom_group_kill 0\n",
+  "cpu.max": "800000 100000\n",
+  "cpu.stat": "usage_usec 31743307437\nuser_usec 27506064543\nsystem_usec 4237242893\nnice_usec 0\nnr_periods 264528\nnr_throttled 11218\nthrottled_usec 1381539137\nnr_bursts 0\nburst_usec 0\n",
+  "pids.current": "68\n",
+  "pids.max": "max\n",
+  "process_names": {
+    "supervisord": 1,
+    "rsync": 1,
+    "sync_share.sh": 2,
+    "caas-prefix-tra": 1,
+    "sites-preview": 1,
+    "codex": 4,
+    "inotifywait": 2,
+    "bwrap": 2,
+    "codex-linux-san": 4,
+    "bash": 2,
+    "cargo": 1,
+    "a2a_governed-0d": 1,
+    "mas-host": 4,
+    "f29a524c11ad808": 1,
+    "python": 1
+  },
+  "process_states": {
+    "S (sleeping)": 25,
+    "R (running)": 3
+  },
+  "rss_kib_by_name": {
+    "supervisord": 23068,
+    "rsync": 2372,
+    "sync_share.sh": 4148,
+    "caas-prefix-tra": 484,
+    "sites-preview": 296,
+    "codex": 160604,
+    "inotifywait": 4940,
+    "bwrap": 1804,
+    "codex-linux-san": 23896,
+    "bash": 4084,
+    "cargo": 31540,
+    "a2a_governed-0d": 33340,
+    "mas-host": 110204,
+    "f29a524c11ad808": 13100,
+    "python": 9184
+  },
+  "threads_by_name": {
+    "supervisord": 1,
+    "rsync": 1,
+    "sync_share.sh": 2,
+    "caas-prefix-tra": 1,
+    "sites-preview": 1,
+    "codex": 33,
+    "inotifywait": 2,
+    "bwrap": 2,
+    "codex-linux-san": 4,
+    "bash": 2,
+    "cargo": 2,
+    "a2a_governed-0d": 4,
+    "mas-host": 11,
+    "f29a524c11ad808": 1,
+    "python": 1
+  }
+}

@@ -1,0 +1,70 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running unittests src/lib.rs (target/debug/deps/mas_host_core-61c6c7c8827fdbf4)
+
+running 63 tests
+test governance::runtime::boundary::tests::exact_native_ack_envelope_limits_preserve_small_completion_receipt ... ok
+test governance::runtime::exposure_adversarial_tests::aborting_execute_transition_cannot_strand_a_pending_prepared_acquisition ... ok
+test governance::runtime::exposure_adversarial_tests::acquired_restriction_denies_empty_lineage_action_before_preparation ... ok
+test governance::runtime::exposure_adversarial_tests::acquisition_callback_cannot_act_before_reporting_its_source_completion ... ok
+test governance::runtime::exposure_adversarial_tests::ancestor_beyond_thirty_two_still_constrains_the_current_action ... ok
+test governance::runtime::exposure_adversarial_tests::cached_effect_payload_obeys_recipient_sources_even_when_descriptor_is_permitted ... ok
+test governance::runtime::exposure_adversarial_tests::closure_beyond_sixty_four_holds_without_reexecuting_known_completion ... ok
+test governance::runtime::exposure_adversarial_tests::every_source_metadata_component_is_bound_and_missing_ancestors_hold ... ok
+test governance::runtime::exposure_adversarial_tests::frozen_child_reply_obeys_recipient_sources_acquired_after_input_freeze ... ok
+test governance::runtime::exposure_adversarial_tests::identical_acquisition_with_baseline_source_policy_keeps_action_permitted ... ok
+test governance::runtime::exposure_adversarial_tests::inherited_inspection_denial_stops_the_detector_before_child_persistence ... ok
+test governance::runtime::exposure_adversarial_tests::invalid_stored_inspection_receipt_cannot_hide_behind_source_projection ... ok
+test governance::runtime::exposure_adversarial_tests::missing_or_edited_exposure_manifest_cannot_become_an_empty_scope ... ok
+test governance::runtime::exposure_adversarial_tests::parallel_children_keep_frozen_input_but_parent_accumulates_returned_exposure ... ok
+test governance::runtime::exposure_adversarial_tests::registered_source_permissions_apply_before_acquisition_execute ... ok
+test governance::runtime::exposure_adversarial_tests::renewing_current_grant_cannot_extend_original_source_expiry ... ok
+test governance::runtime::exposure_adversarial_tests::source_projection_cannot_reconstruct_discarded_original_bytes ... ok
+test governance::runtime::exposure_adversarial_tests::source_reader_rejects_foreign_namespace_actor_and_current_revocation ... ok
+test governance::runtime::exposure_adversarial_tests::source_restriction_survives_restart_and_does_not_refetch ... ok
+test governance::runtime::exposure_adversarial_tests::v1_configuration_rejects_v2_policy_selection_instead_of_ignoring_it ... ok
+test governance::runtime::inspection::tests::all_numeric_and_empty_values_have_no_unchecked_text ... ok
+test governance::runtime::inspection::tests::decoded_keys_and_values_are_exact_bounded_text_sources ... ok
+test governance::runtime::inspection_adversarial_tests::detector_failure_after_external_completion_retains_known_withheld_fact ... ok
+test governance::runtime::inspection_adversarial_tests::incomplete_or_late_detector_results_cannot_release_the_projection ... ok
+test governance::runtime::inspection_adversarial_tests::inspected_private_originals_keep_distinct_commitments_after_equal_projection ... ok
+test governance::runtime::inspection_adversarial_tests::inspection_requires_processing_authority_before_the_callback ... ok
+test governance::runtime::inspection_adversarial_tests::inspector_configuration_and_destination_are_part_of_retained_namespace_identity ... ok
+test governance::runtime::inspection_adversarial_tests::policy_byte_scope_includes_inspection_receipt_before_persistence ... ok
+test governance::runtime::inspection_adversarial_tests::revocation_during_final_inspection_callback_prevents_input_persistence ... ok
+test governance::runtime::inspection_adversarial_tests::same_policy_grant_epoch_refresh_replays_under_stable_inspected_namespace ... ok
+test governance::runtime::inspection_adversarial_tests::stale_source_tokens_and_substituted_detector_results_cannot_authorise_input ... ok
+test governance::runtime::resolver_adversarial_tests::authorised_parent_absence_does_not_certify_external_non_execution ... ok
+test governance::runtime::resolver_adversarial_tests::completed_host_settlement_never_promotes_unknown_external_execution ... ok
+test governance::runtime::resolver_adversarial_tests::completed_payload_inspection_outage_preserves_authorised_host_facts ... ok
+test governance::runtime::resolver_adversarial_tests::conflicting_or_missing_completion_receipts_fail_without_repairing_storage ... ok
+test governance::runtime::resolver_adversarial_tests::copied_journal_under_another_run_name_cannot_rebind_the_namespace ... ok
+test governance::runtime::resolver_adversarial_tests::execution_authority_does_not_grant_resolution_or_query_processing ... ok
+test governance::runtime::resolver_adversarial_tests::foreign_namespace_parent_actor_and_denied_queries_share_one_public_failure ... ok
+test governance::runtime::resolver_adversarial_tests::live_owner_reads_are_exact_read_only_and_do_not_recover_executing_effects ... ok
+test governance::runtime::resolver_adversarial_tests::nonobject_retained_descriptor_cannot_bypass_current_payload_schemas ... ok
+test governance::runtime::resolver_adversarial_tests::oversized_multibyte_retained_text_is_rejected_by_bytes_before_decoding ... ok
+test governance::runtime::resolver_adversarial_tests::read_snapshot_is_released_before_privacy_callbacks ... ok
+test governance::runtime::resolver_adversarial_tests::resolution_byte_limit_covers_the_entire_envelope_and_metadata_fallback ... ok
+test governance::runtime::resolver_adversarial_tests::revocation_during_payload_callback_denies_the_entire_view ... ok
+test governance::runtime::resolver_adversarial_tests::root_helper_and_explicit_parent_select_the_same_bound_effect ... ok
+test governance::runtime::resolver_adversarial_tests::substituted_valid_descriptor_and_missing_admission_commitment_are_unavailable ... ok
+test governance::runtime::resolver_adversarial_tests::total_query_inspection_outage_denies_even_known_completion_metadata ... ok
+test governance::runtime::resolver_tests::completion_reader_rejects_missing_or_extra_untrusted_payload_fields ... ok
+test governance::runtime::resolver_tests::completion_truth_requires_matching_retained_receipt_dimensions ... ok
+test governance::runtime::resolver_tests::withheld_completion_preserves_exact_host_marker_without_reported_payloads ... ok
+test governance::runtime::source_resolver_tests::absent_and_unfinished_source_views_do_not_infer_non_execution ... ok
+test governance::runtime::source_resolver_tests::completed_withheld_source_preserves_certainty_without_returning_original ... ok
+test governance::runtime::source_resolver_tests::exact_source_projection_has_closed_shape_and_read_only_restart_identity ... ok
+test governance::runtime::source_resolver_tests::root_delivery_reloads_exposure_and_rebinds_payload_beyond_small_status_marker ... ok
+test governance::runtime::tests::accepted_output_and_evidence_are_projected_once_for_ack_replay_and_both_stores ... ok
+test governance::runtime::tests::application_schema_exception_requires_exact_host_unavailable_marker ... ok
+test governance::runtime::tests::completion_policy_limit_covers_evidence_and_receipt_not_only_output ... ok
+test governance::runtime::tests::credential_rotation_preserves_identity_while_policy_or_key_change_requires_migration ... ok
+test governance::runtime::tests::governed_namespace_has_no_ordinary_or_revision_bypass ... ok
+test governance::runtime::tests::known_completion_with_withheld_payload_survives_restart_without_fresh_permission ... ok
+test governance::runtime::tests::revocation_blocks_new_work_and_delivery_but_preserves_observed_completion ... ok
+test governance::runtime::tests::structured_projection_hides_originals_but_preserves_conflicts ... ok
+test governance::runtime::tests::trusted_credential_callback_is_checked_at_every_boundary_and_free_text_is_rejected ... ok
+
+test result: ok. 63 passed; 0 failed; 0 ignored; 0 measured; 48 filtered out; finished in 262.37s
+

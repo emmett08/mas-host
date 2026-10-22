@@ -1,0 +1,92 @@
+{
+  "recorded_utc": "2026-10-22T20:10:14.941836+00:00",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "commands": [
+    {
+      "command": [
+        "rustc",
+        "-Vv"
+      ],
+      "stdout": "rustc 1.99.0 (b940084d7 2026-09-28)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.0\nLLVM version: 23.1.1\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "cargo",
+        "-V"
+      ],
+      "stdout": "cargo 1.99.0 (5f94df478 2026-08-27)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "go",
+        "version"
+      ],
+      "stdout": "go version go1.24.0 linux/amd64\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "--version"
+      ],
+      "stdout": "v24.19.0\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "npm",
+        "--version"
+      ],
+      "stdout": "11.9.0\n",
+      "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n"
+    },
+    {
+      "command": [
+        "python3",
+        "--version"
+      ],
+      "stdout": "Python 3.12.14\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "--version"
+      ],
+      "stdout": "Python 3.12.3\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "c++",
+        "--version"
+      ],
+      "stdout": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "cc",
+        "--version"
+      ],
+      "stdout": "cc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "spin",
+        "-V"
+      ],
+      "stdout": "Spin Version 6.5.1 -- 20 December 2019\n",
+      "stderr": ""
+    }
+  ],
+  "environment": {
+    "RUSTUP_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/rustup",
+    "CARGO_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/cargo",
+    "CARGO_INCREMENTAL": "0",
+    "GOFLAGS": "-buildvcs=false"
+  }
+}

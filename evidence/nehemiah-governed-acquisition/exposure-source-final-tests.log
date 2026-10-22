@@ -1,0 +1,12 @@
+   Compiling mas-host-core v0.1.0 (/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.24s
+     Running unittests src/lib.rs (target/debug/deps/mas_host_core-61c6c7c8827fdbf4)
+
+running 4 tests
+test governance::runtime::source_resolver_tests::absent_and_unfinished_source_views_do_not_infer_non_execution ... ok
+test governance::runtime::source_resolver_tests::completed_withheld_source_preserves_certainty_without_returning_original ... ok
+test governance::runtime::source_resolver_tests::exact_source_projection_has_closed_shape_and_read_only_restart_identity ... ok
+test governance::runtime::source_resolver_tests::root_delivery_reloads_exposure_and_rebinds_payload_beyond_small_status_marker ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 108 filtered out; finished in 9.03s
+

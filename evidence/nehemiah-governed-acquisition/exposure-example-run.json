@@ -1,0 +1,27 @@
+{
+  "command": [
+    "python3",
+    "examples/governed-acquisition/verify.py",
+    "--host",
+    "target/debug/mas-host"
+  ],
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "return_code": 0,
+  "started_at_utc": "2026-10-22T20:36:14.872962+00:00",
+  "elapsed_seconds": 171.2223925110011,
+  "source_sha256": {
+    "examples/governed-acquisition/application.py": "4c4f02560e1965d1e4d4ebac4fb86a36017079466d97fdfc913614fc83d8005f",
+    "examples/governed-acquisition/fixture_inspector.py": "e006601836accce1840e190367942467a1df173ee1052ca2e3402c87cc32df21",
+    "examples/governed-acquisition/prepare.py": "df856e7d6044ecd5c95ca0ac46d082c4207c773f48866b89540644b952e42c82",
+    "examples/governed-acquisition/verify.py": "497e78870596a0c7de66f9560bc580feb4ab58238b05d937c2c778e099927560",
+    "examples/governed-acquisition/README.md": "4758b1f79ed55a583b0d92aeb9c650c36661879ce01777bb5a8775d041951697",
+    "crates/mas-host-cli/tests/governed_acquisition.rs": "dde775d8a67ee0fb5fa6112a7a762cd67fb0843cef04d51ef948be778152f0aa"
+  },
+  "source_unchanged_during_e2e": true,
+  "host_binary_sha256_before": "802f663081ef9313da898e1d682f063dfc93f422be20c3b8b0b7ce6cddf681b4",
+  "host_binary_sha256_after": "802f663081ef9313da898e1d682f063dfc93f422be20c3b8b0b7ce6cddf681b4",
+  "log": "validation/exposure-example-focused.log",
+  "stdout_json": "validation/exposure-example-stdout.json"
+}

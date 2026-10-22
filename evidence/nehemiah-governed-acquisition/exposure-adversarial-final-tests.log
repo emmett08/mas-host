@@ -1,0 +1,27 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.03s
+     Running unittests src/lib.rs (target/debug/deps/mas_host_core-61c6c7c8827fdbf4)
+
+running 20 tests
+test governance::runtime::exposure_adversarial_tests::aborting_execute_transition_cannot_strand_a_pending_prepared_acquisition ... ok
+test governance::runtime::exposure_adversarial_tests::acquired_restriction_denies_empty_lineage_action_before_preparation ... ok
+test governance::runtime::exposure_adversarial_tests::acquisition_callback_cannot_act_before_reporting_its_source_completion ... ok
+test governance::runtime::exposure_adversarial_tests::ancestor_beyond_thirty_two_still_constrains_the_current_action ... ok
+test governance::runtime::exposure_adversarial_tests::cached_effect_payload_obeys_recipient_sources_even_when_descriptor_is_permitted ... ok
+test governance::runtime::exposure_adversarial_tests::closure_beyond_sixty_four_holds_without_reexecuting_known_completion ... ok
+test governance::runtime::exposure_adversarial_tests::earlier_retained_effect_and_source_cannot_bypass_later_invocation_resolve_denial ... ok
+test governance::runtime::exposure_adversarial_tests::every_source_metadata_component_is_bound_and_missing_ancestors_hold ... ok
+test governance::runtime::exposure_adversarial_tests::frozen_child_reply_obeys_recipient_sources_acquired_after_input_freeze ... ok
+test governance::runtime::exposure_adversarial_tests::identical_acquisition_with_baseline_source_policy_keeps_action_permitted ... ok
+test governance::runtime::exposure_adversarial_tests::inherited_inspection_denial_stops_the_detector_before_child_persistence ... ok
+test governance::runtime::exposure_adversarial_tests::invalid_stored_inspection_receipt_cannot_hide_behind_source_projection ... ok
+test governance::runtime::exposure_adversarial_tests::missing_or_edited_exposure_manifest_cannot_become_an_empty_scope ... ok
+test governance::runtime::exposure_adversarial_tests::parallel_children_keep_frozen_input_but_parent_accumulates_returned_exposure ... ok
+test governance::runtime::exposure_adversarial_tests::registered_source_permissions_apply_before_acquisition_execute ... ok
+test governance::runtime::exposure_adversarial_tests::renewing_current_grant_cannot_extend_original_source_expiry ... ok
+test governance::runtime::exposure_adversarial_tests::source_projection_cannot_reconstruct_discarded_original_bytes ... ok
+test governance::runtime::exposure_adversarial_tests::source_reader_rejects_foreign_namespace_actor_and_current_revocation ... ok
+test governance::runtime::exposure_adversarial_tests::source_restriction_survives_restart_and_does_not_refetch ... ok
+test governance::runtime::exposure_adversarial_tests::v1_configuration_rejects_v2_policy_selection_instead_of_ignoring_it ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 92 filtered out; finished in 149.13s
+

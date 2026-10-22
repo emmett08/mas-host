@@ -1,0 +1,23 @@
+{
+  "current_files": [
+    {
+      "name": "nehemiah-pii-detection-response-plan.md",
+      "library_file_id": "libfile_800f3bb933fc8191ae9ec940b34eca74",
+      "version": null,
+      "snapshot_sha256": "8dd7b7a97b8ce2248e754d8c84a5dca2e89a55e6734ffbc7c0575c12de45b1f5"
+    },
+    {
+      "name": "nehemiah-enterprise-scaling-plan.md",
+      "library_file_id": "libfile_fad701f1c4d08191885e5b8190efd765",
+      "version": "1",
+      "snapshot_sha256": "4c7f7368ed9b245d1a435e302df53b3f488172a9a824d90d28bf6d8ac56788ad"
+    },
+    {
+      "name": "nehemiah-extensibility-data-use-plan.md",
+      "library_file_id": "libfile_60793a693e088191b7a4640f914f72a5",
+      "version": "1",
+      "snapshot_sha256": "e14410bab61418e2e2739ac4deb0c7cc13b096d18f3fb8ad7f50098db48e7854"
+    }
+  ],
+  "snapshot_normalisation": "Library read omits one final LF. Restoring that LF exactly matches all previous authoritative byte-sized snapshots; substantive content unchanged."
+}

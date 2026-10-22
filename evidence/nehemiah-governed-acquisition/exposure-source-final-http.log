@@ -1,0 +1,16 @@
+   Compiling mas-host v0.1.0 (/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.13s
+     Running tests/a2a_governed.rs (target/debug/deps/a2a_governed-0d9f41785ddd140f)
+
+running 8 tests
+test retained_source::nested_native_consumer_cannot_remove_inherited_restrictions_with_empty_lineage ... ok
+test retained_source::source_expiry_survives_same_epoch_grant_renewal_and_old_delivery_methods ... ok
+test retained_source::source_reader_delivers_exact_projection_and_complete_metadata_without_mutating_history ... ok
+test retained_source::source_reader_hides_foreign_tasks_and_rejects_user_selected_scope_or_paths ... ok
+test retained_source::source_reader_preserves_known_withholding_and_authorised_absence_without_refetch ... ok
+test retained_source::source_reader_preserves_more_than_thirty_two_ancestors_and_rejects_missing_parent ... ok
+test retained_source::source_reader_rechecks_current_authority_and_same_scope_credential_rotation ... ok
+test retained_source::source_reader_requires_activation_and_advertises_only_for_source_enabled_profiles ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 19 filtered out; finished in 107.91s
+

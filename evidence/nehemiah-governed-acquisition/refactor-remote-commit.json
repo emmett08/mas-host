@@ -1,0 +1,35 @@
+{
+  "sha": "5f9ff2eaeb130fa15ba9cecb1daf40652c1b112c",
+  "node_id": "C_kwDOVLc9LdoAKDVmOWZmMmVhZWIxMzBmYTE1YmE5Y2VjYjFkYWY0MDY1MmMxYjExMmM",
+  "url": "https://api.github.com/repos/emmett08/mas-host/git/commits/5f9ff2eaeb130fa15ba9cecb1daf40652c1b112c",
+  "html_url": "https://github.com/emmett08/mas-host/commit/5f9ff2eaeb130fa15ba9cecb1daf40652c1b112c",
+  "author": {
+    "name": "Emmett Miller",
+    "email": "emmett.miller@sky.uk",
+    "date": "2026-10-22T20:24:36Z"
+  },
+  "committer": {
+    "name": "Emmett Miller",
+    "email": "emmett.miller@sky.uk",
+    "date": "2026-10-22T20:24:36Z"
+  },
+  "tree": {
+    "sha": "6f5f7acd4d7bd18a891e414fe09e234845a041d3",
+    "url": "https://api.github.com/repos/emmett08/mas-host/git/trees/6f5f7acd4d7bd18a891e414fe09e234845a041d3"
+  },
+  "message": "Refactor owned retained-read request and task selection\n\nExtract the existing parameter validation and owned task association for reuse by governed readers. Preserve retained-effect permissions, errors, query order and run-path derivation.",
+  "parents": [
+    {
+      "sha": "c84feb406eff46e9c2857b5ad92a817ab4bc12ec",
+      "url": "https://api.github.com/repos/emmett08/mas-host/git/commits/c84feb406eff46e9c2857b5ad92a817ab4bc12ec",
+      "html_url": "https://github.com/emmett08/mas-host/commit/c84feb406eff46e9c2857b5ad92a817ab4bc12ec"
+    }
+  ],
+  "verification": {
+    "verified": false,
+    "reason": "unsigned",
+    "signature": null,
+    "payload": null,
+    "verified_at": null
+  }
+}

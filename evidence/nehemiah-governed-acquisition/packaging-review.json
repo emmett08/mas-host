@@ -1,0 +1,213 @@
+{
+  "schema": "nehemiah-acquisition-packaging-review/1",
+  "reviewed_at_utc": "2026-10-22T21:07:43.977070+00:00",
+  "reviewer": "/root/governance_formal",
+  "status": "ACCEPTED_GUARDS_PENDING_FINAL_GATES",
+  "scope": "Outer packaging guard review and extension only; no repository/production/formal source changes, heavy tests, package execution or publication by this reviewer.",
+  "script_sha256": {
+    "package_acquisition_evidence.py": "7fe81e61f0a1c0e79d91812977dd7e32017365c466126b5a4ff6cf907c3d3ff0",
+    "validate_acquisition_command.py": "d9b0a160b76c41acfab67b60076a2f92ec38d7f3796245981f2baae8f8c1558f",
+    "prepare_acquisition_source.py": "4f8cec842b23c7ac22386e8c5566344c39ff6c8bcefb1ad1bce365eefb905c7e",
+    "prepare_acquisition_refactor.py": "22385034f1383b98750ab9648f5fb9f7aeabf3b41b0418245b13ce6f42e5633e"
+  },
+  "syntax": "All four scripts parsed successfully without executing their mutating entry points.",
+  "findings_repaired": [
+    {
+      "finding": "Final gate names could overstate a focused or wrong command",
+      "confirmed": "Packager requires exact workspace/acceptance/provider/formal argv, matching labels, exit0, PASS, common base and no source drift."
+    },
+    {
+      "finding": "Added current files could escape rehash of an old inventory",
+      "confirmed": "Complete current inventory+content must equal the common cut; published staged/source tree inventory and blob contents must also equal it."
+    },
+    {
+      "finding": "Pre-staged paths could bypass source preparation scope",
+      "confirmed": "Source preparer rejects pre-existing index changes, validates all cached names against allowed prefixes, compares staged/selected sets and runs cached whitespace check."
+    },
+    {
+      "finding": "Refactor and feature parent/tree claims were not enforced",
+      "confirmed": "Packager binds remote feature parent/tree, refactor remote parent/tree, parent_tree/refactor_tree equality and exact refactor characterization command/log/no-drift/whole-tree source hashes."
+    },
+    {
+      "finding": "Counts alone do not identify all formal obligations",
+      "confirmed": "Packager requires all224 unique current CASES signatures,32 complete zero-error searches,192 expected counterexamples, current runner/model hashes and no drift."
+    },
+    {
+      "finding": "Historical review hashes could be mistaken for final source hashes",
+      "confirmed": "Only explicit final review source maps are compared with the final cut; historical/intermediate maps remain diagnostic."
+    },
+    {
+      "finding": "Second failed fixture cut or test-harness change could be hidden as an unchanged-source retry",
+      "confirmed": "Both failed make receipts independently bind their own full295-file cuts, exact sole failed-test lines, remote source trees/parent and verbatim logs; only the two explicit fixture paths and CI profile can differ before final44."
+    },
+    {
+      "finding": "Lower test concurrency or focused output could overstate qualification",
+      "confirmed": "Final workspace/acceptance receipts must record RUST_TEST_THREADS=2; workflow must have job env2 and timeout30 and differ from the preserved pre-profile source only by that env block. Default21/6 failure remains a non-gate diagnostic; explicit2-thread27 PASS has during/after16-file observations only. No high-parallel, causal capacity or hosted CI PASS is claimed."
+    }
+  ],
+  "refactor_check": {
+    "status": "VERIFIED_REFACTOR_CHARACTERIZATION_ONLY",
+    "base_commit": "c84feb406eff46e9c2857b5ad92a817ab4bc12ec",
+    "local_test_commit": "c4510f00e543d37fe2075caf963bd876b2042763",
+    "remote_commit": "5f9ff2eaeb130fa15ba9cecb1daf40652c1b112c",
+    "tree": "6f5f7acd4d7bd18a891e414fe09e234845a041d3",
+    "all_non_evidence_blob_count": 277,
+    "entire_tested_blob_map_matches_tree": true,
+    "test_count": 8,
+    "test_failures": 0,
+    "source_drift": [],
+    "log_sha256": "84053349b648c8d978d228fcde26be318f43ca45f98713070999a926152c7f20",
+    "remote_commit_receipt_sha256": "b14d18feb5337818e3bd012dc7b27645fbd921dabb91685a54474d4c84b5f611",
+    "receipt_sha256": "634e9c06fa5e0e94e06c263a561f201aae5a5f2342dc5b88fcf89eec0b70a05b",
+    "behaviour_preservation_basis": "Manual extraction correspondence review plus the eight pre-existing retained-reader HTTP tests on the isolated refactor tree; no feature overlay."
+  },
+  "prototype_diagnostics": {
+    "configured_archive_inputs": [
+      "acquisition-formal-final",
+      "exposure-lineage"
+    ],
+    "historical_runs_preserved_under": "exposure-lineage",
+    "interpretation": "Prototype/older-source/resource-timeout runs are diagnostics and are not accepted as final-source gates."
+  },
+  "pending_gates": {
+    "identified_feature_source_publication": "VERIFIED_IMMUTABLE_SOURCE_OBJECT_ONLY; no final gate inferred",
+    "final_workspace_acceptance_provider": "PENDING_ROOT_FINAL_GATES",
+    "final_default_formal224": "PENDING_ROOT_FINAL_GATE",
+    "full_package_execution": "NOT_EXECUTED_BY_REVIEWER"
+  },
+  "expected_default_formal_counts": {
+    "cases": 224,
+    "complete_zero_error_searches": 32,
+    "expected_replayed_counterexamples": 192
+  },
+  "limits": "This accepts the reviewed guards, not unexecuted final gates, publication or a formal proof of the packager. Command source binding covers tracked/nonignored regular-file bytes; source tree identities additionally bind the published Git tree.",
+  "review_refreshes": [
+    {
+      "at_utc": "2026-10-22T20:46:57.746287+00:00",
+      "script": "package_acquisition_evidence.py",
+      "previous_sha256": "372e16e48039003ec4ac6ba2877ba305ad0d99d673d1c87e096a00e5e47dabba",
+      "current_sha256": "c2e483f980392d7b8474b0fd04acab1d608bbbb40fb69a810c1fa0b7eed456eb",
+      "delta": "Copy-list-only expansion: include the package recipe, actual intermediate example/static logs and early HTTP/32-budget diagnostics. Reviewed exact-source/refactor/gate/case guard logic is unchanged.",
+      "verdict": "Retain ACCEPTED_GUARDS_PENDING_FINAL_GATES; this refresh makes no final gate or publication PASS claim."
+    },
+    {
+      "at_utc": "2026-10-22T20:54:12.663397+00:00",
+      "script": "package_acquisition_evidence.py",
+      "previous_sha256": "c2e483f980392d7b8474b0fd04acab1d608bbbb40fb69a810c1fa0b7eed456eb",
+      "current_sha256": "48cd3045a35e717e42de9f61db61d2a0e64b79a4f644946c42ad60dd14ddb581",
+      "delta": "Added failed initial-workspace/source-cut guards and preservation of the two repair logs. Reviewed FAIL/nonzero/exact command+label/base/no-drift/log hash, old remote tree/parent/full source map, identical path inventory and ONLY a2a_governed.rs changed before final run. Existing authoritative final PASS/common-cut/224 guards remain required.",
+      "verdict": "Accepted diagnostic guards; retain ACCEPTED_GUARDS_PENDING_FINAL_GATES. Final make rerun and default224 are not accepted or inferred here."
+    },
+    {
+      "at_utc": "2026-10-22T21:07:43.977070+00:00",
+      "scripts": [
+        "package_acquisition_evidence.py",
+        "validate_acquisition_command.py"
+      ],
+      "previous_sha256": {
+        "package_acquisition_evidence.py": "48cd3045a35e717e42de9f61db61d2a0e64b79a4f644946c42ad60dd14ddb581",
+        "validate_acquisition_command.py": "d915947c3f13bc96219dbcb92681df1936297b4264a5db23f6927cecf0db8816"
+      },
+      "current_sha256": {
+        "package_acquisition_evidence.py": "7fe81e61f0a1c0e79d91812977dd7e32017365c466126b5a4ff6cf907c3d3ff0",
+        "validate_acquisition_command.py": "d9b0a160b76c41acfab67b60076a2f92ec38d7f3796245981f2baae8f8c1558f"
+      },
+      "delta": "Extended guards/copies/metadata for second failed workspace source cut and fixture review, CI-only profile delta from intermediate f4 source object, narrow CI review, explicit RUST_TEST_THREADS=2 workspace/acceptance gate environments and focused HTTP diagnostic/observation resource and source-capture limitations. Wrapper now records RUST_TEST_THREADS. Existing complete-cut, exact final command, no-drift, refactor and224-case guards remain mandatory.",
+      "verdict": "ACCEPTED_GUARDS_PENDING_FINAL_GATES; no package entry point or authoritative final gates executed by reviewer."
+    }
+  ],
+  "initial_failed_workspace_review": {
+    "status": "VERIFIED_DIAGNOSTIC_PRESERVATION_NOT_FINAL_GATE",
+    "initial_source_commit": "36a5949b186e3f24c3fc9faefdf85d9fc9f31a97",
+    "initial_source_tree": "985d0f9162345d61c51ccf52e48d5a675b706293",
+    "new_source_commit": "b7580d4615317f4a2df03c35f2e142af671e810c",
+    "new_source_tree": "ac1dd7d4d499a86fa62be3ba0701f3c366c706a6",
+    "common_parent": "5f9ff2eaeb130fa15ba9cecb1daf40652c1b112c",
+    "source_file_count": 295,
+    "only_changed_path": "crates/mas-host-cli/tests/a2a_governed.rs",
+    "initial_run_status": "FAIL",
+    "initial_run_exit_code": 2,
+    "initial_log_sha256": "14a18fd49f90c353713299509c1d081e0754d5f15a3efb1016ba67f54a8d8706",
+    "sole_reported_failed_test": "lost_effect_response_keeps_uncertainty_and_authorised_recovery_ids",
+    "observed_mismatch": "working after blocking response deadline; expected unknown",
+    "repair_review": "Exact tree diff changes only this test: bounded GetTask polling of the SAME task until unknown; existing project.calls()==1 and no-redispatch/restart assertions remain. No production/formal source changed between these cuts.",
+    "guard_scope": "Final packaging still requires an independently successful complete set of gates on the new source; earlier partial passes are diagnostics and are not combined with final tests."
+  },
+  "diagnostic_chain_review": {
+    "status": "VERIFIED_DIAGNOSTIC_PRESERVATION_AND_HARNESS_GUARDS_NOT_FINAL_GATES",
+    "source_file_count_per_complete_cut": 295,
+    "common_parent": "5f9ff2eaeb130fa15ba9cecb1daf40652c1b112c",
+    "initial": {
+      "commit": "36a5949b186e3f24c3fc9faefdf85d9fc9f31a97",
+      "tree": "985d0f9162345d61c51ccf52e48d5a675b706293",
+      "receipt_sha256": "6a489494577e1a927ca6c0a7726622ebba7ed74d10918b3272c742ddb76c1b6f",
+      "log_sha256": "14a18fd49f90c353713299509c1d081e0754d5f15a3efb1016ba67f54a8d8706",
+      "failed_test": "lost_effect_response_keeps_uncertainty_and_authorised_recovery_ids"
+    },
+    "expiry": {
+      "commit": "b7580d4615317f4a2df03c35f2e142af671e810c",
+      "tree": "ac1dd7d4d499a86fa62be3ba0701f3c366c706a6",
+      "receipt_sha256": "ff196c505036d755da16246f4aa99494a76a675d126e8406d2244d337a77958f",
+      "log_sha256": "967a607206fecc5367a032308b0a109c044586e8fd6ad7eda2defccd01916105",
+      "failed_test": "retained_source::source_expiry_survives_same_epoch_grant_renewal_and_old_delivery_methods"
+    },
+    "pre_ci_intermediate_object": {
+      "commit": "f4fa293fc81acbaa0c74819fad91768f4daf2c6a",
+      "tree": "93b21932e26bc14269e13b4d1c2667be2a7fb117",
+      "is_gate": false
+    },
+    "final_source_object": {
+      "commit": "44b1fab0c50f96d36731faeaaa734fce51b5860a",
+      "tree": "7a7732474f4517946b7773adcade7b667797335c",
+      "source_identity_sha256": "b70a2ee39e7257e32f39f13ff32e39d3d04e38d34b1e4ec209c5afd59f5c19c4",
+      "remote_commit_receipt_sha256": "31c425d46a04a05d35daf944e02062ca72afa3bd6b9917b76b3d96cf79b03ab8"
+    },
+    "verified_transitions": {
+      "initial_to_expiry": [
+        "crates/mas-host-cli/tests/a2a_governed.rs"
+      ],
+      "expiry_to_final": [
+        ".github/workflows/ci.yml",
+        "crates/mas-host-cli/tests/a2a_governed/retained_source.rs"
+      ],
+      "initial_to_final": [
+        ".github/workflows/ci.yml",
+        "crates/mas-host-cli/tests/a2a_governed.rs",
+        "crates/mas-host-cli/tests/a2a_governed/retained_source.rs"
+      ],
+      "pre_ci_to_final": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    "production_or_formal_delta_between_diagnostic_cuts": [],
+    "fixture_timing_cause": "Expiry-startup explanation is an inference from observed unauthorised failure and fixture schedule, not an isolated timing/capacity experiment.",
+    "final_review_source_maps_verified": {
+      "exposure-independent-review.json": 31,
+      "exposure-cli-review.json": 16,
+      "exposure-core-review.json": 12,
+      "exposure-example-review.json": 6,
+      "exposure-lineage/review.json": 11,
+      "exposure-fixture-review.json": 2,
+      "exposure-ci-review.json": 1
+    },
+    "focused_diagnostics": {
+      "default_launch": {
+        "receipt_sha256": "c375cf61e979d07d45d27c0a01ea8eeb5d9a9853dd32571307928a4c1d6bc1f7",
+        "status": "FAIL-non-gate-diagnostic",
+        "passed": 21,
+        "failed": 6,
+        "source_capture_limit": "Post-exit16-file map only; process environment and exact thread count not captured."
+      },
+      "explicit_two_threads": {
+        "receipt_sha256": "53aca36f69c0519ec1ace30e7abfec4c7d869c0d54de68098618e8dc8e262d91",
+        "status": "PASS-focused-pending-root-full-gates",
+        "passed": 27,
+        "failed": 0,
+        "seconds": 141.34,
+        "source_capture_limit": "During/after16-file maps only; no complete before-start source map."
+      },
+      "promoted_to_final_gate": false
+    },
+    "helper_preflight": "PASS: parsed four scripts; directly exercised read-only tree/cut/diagnostic/profile/focused/review helpers against all actual receipts and295-file cuts. Package main was not executed, no evidence archive/output created."
+  }
+}

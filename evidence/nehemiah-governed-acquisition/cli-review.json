@@ -1,0 +1,253 @@
+{
+  "version": "nehemiah-exposure-cli-review/1",
+  "reviewed_at_utc": "2026-10-22T21:03:47.455836+00:00",
+  "status": "focused-accepted-pending-root-full-gates",
+  "base_revision": "c84feb406eff46e9c2857b5ad92a817ab4bc12ec",
+  "branch": "feat/nehemiah-exposure-lineage",
+  "source_cut": "Uncommitted final increment; source_sha256 is the exact reviewed file map. Root owns the final commit/full gates.",
+  "source_sha256": {
+    "crates/mas-host-cli/src/a2a/configuration.rs": "a1dcf084539205652ad48636689e8841292b7562cc39f19b96778694ddd5c9db",
+    "crates/mas-host-cli/src/a2a/governed.rs": "394146dae9a490af4a0b4108d29e30dfda5a709be649aacc05bbe25beb5d50fd",
+    "crates/mas-host-cli/src/a2a/http.rs": "e699e648aa2160b8d46fd19d77312dd7b5c0fb90db5ae4225b4977000b144b0f",
+    "crates/mas-host-cli/src/a2a/mod.rs": "4b0ffa8c1eb74b88400bb8b6297a20451587ae37333737c1d70e680177de4783",
+    "crates/mas-host-cli/src/a2a/retained.rs": "c9230b9f2f0549d62e474e43ccd74164ed2a307b01f01dc5e27cd1fab84ee2a9",
+    "crates/mas-host-cli/src/a2a/retained_effect.rs": "672fcf26b053f3f0fb019b29b44d7c7cbbe89032a8092d8b59f13e16b49b1cc9",
+    "crates/mas-host-cli/src/a2a/retained_source.rs": "ae2ffb93558d78dabf86d80353f634d78cbc5082d905b81481dcac5765a1d830",
+    "crates/mas-host-cli/tests/a2a_governed.rs": "b1dd7d1f7f6e94355bcfd9c10e5b074f2ea1ae7c6064d1ee02f783ef09fe72f8",
+    "crates/mas-host-cli/tests/a2a_governed/retained_source.rs": "ca4c863f8dbe076ccda937fd3823110dcbe4e3c0a9950b1b0d56f8d2e5adbeaa",
+    "crates/mas-host-core/src/governance/mod.rs": "d7efc19426c0d8e097d12fe206c802f32e4fd0a0649b1b180ccab5bae66309d2",
+    "crates/mas-host-core/src/governance/runtime/mod.rs": "ab9886a7c5ffc22e843b20594d42cd379d7b6c655f2729b45dffae07cbec8705",
+    "crates/mas-host-core/src/governance/runtime/resolver.rs": "590fcd4399a8efa7b11005475e13d8cf64db251a55e5593d3c79ef3f9c00cd4b",
+    "crates/mas-host-core/src/governance/runtime/source_resolver.rs": "15a5a45babd06564006f2b67a73ee7cb26095bee6ddf7b1a24385a3e753ce8ae",
+    "crates/mas-host-core/src/governance/runtime/source_resolver_tests.rs": "70401f45bf1cfb87c8bd850d2bad07fcf97e27d7e129a21753b7325681372cb6",
+    "docs/a2a.md": "3f0d9f3b53c5000f9f744870fc8186e2a584866ee9a9d805e14f258ce566d129",
+    "docs/a2a-source-pin.json": "9e2155afb1458f7686e364f4b27ad477f09a2890633c0a0a2eada0dde59a9918"
+  },
+  "binary": {
+    "path": "target/debug/mas-host",
+    "sha256": "c333c08154d802883bc52416c34f976e9e7b5c03272be537c52d1c68c5f55723",
+    "status": "Frozen final CLI; post-HTTP SHA unchanged."
+  },
+  "scope": [
+    "Opt-in mas-governed-local/2 source associations and complete bounded host exposure, reused through the existing journal and authority owner.",
+    "Authenticated GetRetainedSource{id,key} for the exact owned task root, returning only retained structured projection and selected-source ancestry.",
+    "Source-sensitive existing task delivery, completed submission replay and retained-effect reads conjoin the full current parent invocation exposure."
+  ],
+  "profile_compatibility": [
+    "mas-governed-local/1 and ordinary A2A1 keep their previous configuration, wire and retained-effect view contract; v1 rejects new source fields.",
+    "Source URI urn:mas:host-governed-source-read:1 is advertised/activated only for governance local/2; task-service URI remains required, effect URI independent.",
+    "A2A wire remains1.0, with the existing immutable official source pin in docs/a2a-source-pin.json; supported activated URIs alone are acknowledged.",
+    "Governance profile/baseline/effect source refs participate in the existing namespace fingerprint. Existing incompatible journals require a fresh namespace/migration; no historical source synthesis."
+  ],
+  "reader_contract": [
+    "No user-selected actor, parent invocation, run path or source id: service owner/current export/fingerprint lookup precedes constructing the existing run directory.",
+    "Source absence is explicit unavailable/not-recorded; known completion/withholding retains certainty. raw_source_disposition is always not-retained.",
+    "Available projection validates exact original completion, descriptor/output/evidence schemas and existing N2 inspection receipt; no raw-original owner or refetch is introduced.",
+    "Selected-source provenance remains its exact ancestry, separate from the full task exposure union used for admission.",
+    "Query and full metadata/payload gates apply original plus current policy. Pending acquisition, incomplete/missing/cyclic/corrupt closure and expired original source fail closed.",
+    "Read-only snapshots release SQLite before authentication/authority/inspection callbacks. Final pure namespace/root/source/full-exposure and expiry verification follows the last callback.",
+    "Core sessions already contain the exact AuthenticationLease callback: no redundant v2 CLI callback follows the final pure reader/root-delivery check. The historical v1 retained-effect postcheck remains.",
+    "No Engine::open, execution-owner lock, recovery, task-state refresh or effect dispatch is used by the read APIs."
+  ],
+  "admission_and_delivery": [
+    "New local/2 immediate SendMessage returns the authorised submitted/no-payload admission snapshot captured before worker launch, with exact current lease checked before delivery.",
+    "Duplicate submissions and later working/unknown/failed/completed task views use the full root source closure; admission-only submitted status has baseline authority.",
+    "Root-delivery refreshes closure after inspection, reauthorises actual payload as well as possibly smaller status/retention markers, then performs a pure final context/expiry guard.",
+    "Cached/native effect and child deliveries use the receiver full current exposure, including empty worker lineage; existing completion truth is retained when release is withheld."
+  ],
+  "bounds": {
+    "source_closure_count": 64,
+    "source_closure_bytes": 65536,
+    "response_bytes": 65536,
+    "inspection": "Existing bounded pinned offline N1 owner; at most the existing two per-request boundary budgets. No new scanner implementation or quality qualification.",
+    "large_http_fixture": "33 completed effect-output sources plus retained request ancestry; explicit existing max_calls40, unchanged wall_seconds60/source64/65536 bounds.",
+    "processing_errors": "Content-free uniform unavailable; authentication ingress failures retain exact HTTP401 unauthorised response."
+  },
+  "final_focused_evidence": [
+    {
+      "command": "cargo test --locked --offline -p mas-host-core source_resolver_tests:: -- --test-threads=1",
+      "result": "4PASS",
+      "test_or_build_seconds": 9.03,
+      "log": "exposure-source-final-tests.log",
+      "log_sha256": "bfaf9138f179da1d25c721a73e5e5622a7c6e47d290037d7b998624ce93252c6"
+    },
+    {
+      "command": "cargo test --locked --offline -p mas-host-core exposure_adversarial_tests:: -- --test-threads=1",
+      "result": "20PASS",
+      "test_or_build_seconds": 149.13,
+      "log": "exposure-adversarial-final-tests.log",
+      "log_sha256": "afb09a052a4a521c96e925a1ead3999b9053dbfbb63dac3e710d528849a8e4fb"
+    },
+    {
+      "command": "cargo clippy --locked --offline -p mas-host -p mas-host-core --all-targets -- -D warnings",
+      "result": "PASS",
+      "test_or_build_seconds": 1.7,
+      "log": "exposure-cli-final-clippy.log",
+      "log_sha256": "9d3ee31d72098c287ef53a510e069fd82a9c5f6753d726742256b2f6a99bc1c4",
+      "environment": {
+        "RUST_TEST_THREADS": "2"
+      }
+    },
+    {
+      "command": "cargo build --locked --offline -p mas-host",
+      "result": "PASS",
+      "test_or_build_seconds": 17.35,
+      "log": "exposure-cli-final-build.log",
+      "log_sha256": "575d0b491f2d4a65ba684e79b74ca25999f729b5601f070d1eeca2c7ce17541a"
+    },
+    {
+      "command": "cargo test --locked --offline -p mas-host --test a2a_governed retained_source:: -- --test-threads=1",
+      "result": "8PASS",
+      "test_or_build_seconds": 107.91,
+      "log": "exposure-source-final-http.log",
+      "log_sha256": "df67aecf9345b3d6a3102a90cbab56c7db1d296c827074e5ba03054f0d7e3c01",
+      "qualification": "Before the legacy uncertainty observation assertion repair; all8 repeated successfully within final27 normal-parallel HTTP suite."
+    },
+    {
+      "command": "cargo test --locked --offline -p mas-host --test a2a_governed lost_effect_response_keeps_uncertainty_and_authorised_recovery_ids",
+      "result": "1PASS",
+      "test_or_build_seconds": 7.29,
+      "log": "exposure-legacy-uncertainty-target.log",
+      "log_sha256": "6398ac0cd88c8947174df93a6752c0daf1182e134924e5072eb0d6f4cf891515"
+    },
+    {
+      "command": "RUST_TEST_THREADS=2 cargo test --locked --offline -p mas-host --test a2a_governed",
+      "result": "27PASS",
+      "test_or_build_seconds": 141.34,
+      "log": "exposure-governed-http-parallel-final.log",
+      "log_sha256": "08ad917a5a0826ee9a9cb2ea5510133c1ca283b0701fdad004e15a90be5fb8da",
+      "environment": {
+        "RUST_TEST_THREADS": "2"
+      }
+    },
+    {
+      "command": "cargo test --locked --offline -p mas-host --test a2a_governed source_expiry_survives_same_epoch_grant_renewal_and_old_delivery_methods",
+      "result": "1PASS",
+      "test_or_build_seconds": 32.46,
+      "log": "exposure-source-expiry-target.log",
+      "log_sha256": "f9cbcad1b85144e49861acc81f0150c913b3563532433b4a6747fc053dd8f05f"
+    }
+  ],
+  "http_evidence": {
+    "status": "PASS-focused",
+    "command": "RUST_TEST_THREADS=2 cargo test --locked --offline -p mas-host --test a2a_governed",
+    "environment": {
+      "RUST_TEST_THREADS": "2"
+    },
+    "result": "27PASS;0FAIL",
+    "test_seconds": 141.34,
+    "parallelism": "Explicit two-thread execution; default/high-parallel qualification is not claimed.",
+    "log": "exposure-governed-http-parallel-final.log",
+    "log_sha256": "08ad917a5a0826ee9a9cb2ea5510133c1ca283b0701fdad004e15a90be5fb8da",
+    "focused_receipt": "exposure-governed-http-threads2-focused.json",
+    "focused_receipt_sha256": "53aca36f69c0519ec1ace30e7abfec4c7d869c0d54de68098618e8dc8e262d91",
+    "binary_sha256_before_and_after": "c333c08154d802883bc52416c34f976e9e7b5c03272be537c52d1c68c5f55723",
+    "source_fixture_sha256": "ca4c863f8dbe076ccda937fd3823110dcbe4e3c0a9950b1b0d56f8d2e5adbeaa"
+  },
+  "historical_and_diagnostic_evidence": [
+    {
+      "log": "exposure-runtime-diagnostic.log",
+      "result": "63PASS262.37s",
+      "qualification": "Source changed afterwards; historical broad diagnostic, not final source-bound acceptance. The process naturally completed before a requested interruption."
+    },
+    {
+      "log": "exposure-source-http-diagnostic.log",
+      "result": "6PASS2FAIL105.21s",
+      "qualification": "Intermediate first attempt: exact authentication expectation and omitted fixture call budget corrected; no runtime limit increase."
+    },
+    {
+      "log": "exposure-source-32-call-diagnostic.log",
+      "result": "Expected targeted FAIL19.71s",
+      "qualification": "Confirmed32 completed effects/32callbacks+1rejected; static call_budget_exceeded at declared max_calls32, wall_seconds60, elapsed17.748s."
+    },
+    {
+      "log": "exposure-cli-intermediate-clippy.log",
+      "result": "PASS2.75s",
+      "qualification": "Before redundant v2 CLI callback removal; superseded by final CLI checks."
+    },
+    {
+      "log": "exposure-cli-intermediate-build.log",
+      "result": "PASS6.92s, binary802f6630",
+      "qualification": "N3 first acquisition E2E passed171.222s on this intermediate host; root full make reruns the example on final CLI."
+    },
+    {
+      "receipt": "acquisition-workspace-initial-failed.json",
+      "receipt_sha256": "6a489494577e1a927ca6c0a7726622ebba7ed74d10918b3272c742ddb76c1b6f",
+      "log": "acquisition-workspace-initial-failed.log",
+      "log_sha256": "14a18fd49f90c353713299509c1d081e0754d5f15a3efb1016ba67f54a8d8706",
+      "result": "make test FAIL after100.892s; governedHTTP26PASS1FAIL in55.96s",
+      "candidate": "Initial parent source36; no source changes during checks.",
+      "failure": "lost_effect_response_keeps_uncertainty_and_authorised_recovery_ids: immediate GetTask state working was compared with unknown at line774, although SendMessage may return at its5s observation deadline.",
+      "qualification": "Preserved failed candidate evidence. Only this legacy test observation assertion changed; no production, runtime timeout, call budget, detector or closure change."
+    },
+    {
+      "receipt": "acquisition-workspace-expiry-failed.json",
+      "receipt_sha256": "ff196c505036d755da16246f4aa99494a76a675d126e8406d2244d337a77958f",
+      "log": "acquisition-workspace-expiry-failed.log",
+      "log_sha256": "967a607206fecc5367a032308b0a109c044586e8fd6ad7eda2defccd01916105",
+      "result": "Second make test FAIL96.666s; governedHTTP26PASS1FAIL61.60s",
+      "qualification": "Source-expiry fixture started8s lease before server startup; completed helper saw unauthorised after real lease expiry. No source changes occurred during that failed gate. Preserved parent source/remote identity receipts also retained."
+    },
+    {
+      "log": "exposure-governed-http-before-expiry-fix.log",
+      "log_sha256": "76c0d780aa399d92a6db35c65b8993a41ee9c0956a9d4f4943fb5cd00f863c5f",
+      "result": "Prior defaultparallel27PASS59.16s",
+      "qualification": "Before expiry fixture repair. Historical observation only; later defaultparallel run failed and no defaultparallel/capacity qualification is claimed."
+    },
+    {
+      "receipt": "exposure-governed-http-default-diagnostic.json",
+      "receipt_sha256": "c375cf61e979d07d45d27c0a01ea8eeb5d9a9853dd32571307928a4c1d6bc1f7",
+      "log": "exposure-governed-http-expiry-followup-diagnostic.log",
+      "log_sha256": "2b38cb1d538ed0e7408f48c93690019f88cbf8ede7ca3e5c030600b68e42ae62",
+      "result": "Defaultparallel21PASS6FAIL73.64s",
+      "qualification": "Five existing10s client read bounds and one malformed-mode5s elapsed assertion failed. Resource observations retained; contention is consistent with these results, not causally isolated. No timeout/assertion relaxation."
+    }
+  ],
+  "http_coverage": [
+    "local2-only discovery/activation, required base URI and canonical acknowledgements",
+    "exact15-field projection/provenance, stable fresh admission, pinned N1 partial-payload/query failure, restored projection and restart without refetch",
+    "known withholding and authorised absence preserve completion certainty",
+    "cross-owner/path/forged-scope and bounded selectors",
+    "current authority outage/withdrawal and same-scope credential rotation",
+    "original source expiry after grant renewal blocks GetTask and GetRetainedEffect bypasses",
+    "both native inheritance directions with empty worker lineage: negative policy denial and compatible positive controls, replay no repeat",
+    "more than32 ancestors with complete parents, unchanged read-only journal and missing-parent denial"
+  ],
+  "limits": [
+    "Trusted local owner/profile only; no hostile native-worker isolation, shared subscriber or managed multitenant profile claim.",
+    "Structured projection/provenance only; no exact per-component detector assessment/span custody, discarded-original reconstruction or arbitrary unstructured release.",
+    "File-backed snapshot authority semantics; no distributed linearisation or whole-database anti-rollback/tamperproof guarantee.",
+    "Source associations do not establish external freshness or detector quality.",
+    "Full make/acceptance/provider and default SPIN224 gates remain root-owned and pending; focused checks are bounded evidence, not a formal refinement proof.",
+    "Default/high-parallel fixture capacity remains unqualified after the preserved21PASS6FAIL diagnostic; focused and final validation use explicitRUST_TEST_THREADS2 without changing assertions or timeouts."
+  ],
+  "legacy_uncertainty_test_repair": {
+    "file": "crates/mas-host-cli/tests/a2a_governed.rs",
+    "before_sha256": "ce5685aa102a624fb10b66d15ad1ec07aab00cc1be3397dabfe745269017739f",
+    "after_sha256": "b1dd7d1f7f6e94355bcfd9c10e5b074f2ea1ae7c6064d1ee02f783ef09fe72f8",
+    "contract": "Poll only the same authorised recovery task with existing30s observation allowance; exactHTTP200 and noRPCerror required. Only submitted/working may precede mandatoryunknown; completed/failed/malformed state are rejected.",
+    "preserved": [
+      "Original response carries authorised recovery taskId and excludes private marker.",
+      "Effect callback count remains1.",
+      "Restart/replay never redispatches uncertain external work.",
+      "Current revocation denies task read and reveals no recovery data.",
+      "Private marker absence remains checked before/after restart."
+    ],
+    "read_only_diff_review": "Child next_path_review accepted exact patch; no edits/tests by reviewer.",
+    "production_change": false
+  },
+  "source_expiry_fixture_repair": {
+    "file": "crates/mas-host-cli/tests/a2a_governed/retained_source.rs",
+    "before_sha256": "f9098425ad380a22d9e70ea9f9724413e2905c2b2abb0b8a71fec6467362b080",
+    "after_sha256": "ca4c863f8dbe076ccda937fd3823110dcbe4e3c0a9950b1b0d56f8d2e5adbeaa",
+    "change": "Start server with normal long grant, then set originalexpiry=now+30000 immediately before freshsubmit.",
+    "preserved": [
+      "Exact retained source original expiry equals the shortened original grant expiry.",
+      "Wait for real wall expiry before sameepoch current grant renewal.",
+      "Source, oldGetTask and oldGetRetainedEffect all deny without result after original expiry.",
+      "Retained journal unchanged, effectcallback count1 and private marker absence."
+    ],
+    "read_only_diff_review": "next_path_review accepted exact two fixture changes.",
+    "production_change": false
+  }
+}

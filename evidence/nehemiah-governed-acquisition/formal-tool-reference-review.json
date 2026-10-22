@@ -1,0 +1,29 @@
+{
+  "schema": "mas-exposure-formal-tool-review/1",
+  "reviewed_at_utc": "2026-10-22T19:59:50.587881+00:00",
+  "spin": "Spin Version 6.5.1 -- 20 December 2019",
+  "compiler": "cc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "official_references": [
+    {
+      "url": "https://spinroot.com/spin/Man/Pan.html",
+      "semantics": "Default exhaustive full-state DFS; -a acceptance cycles; -b depth exhaustion errors; -m depth and -w hash table; -DNOREDUCE disables POR; safety retains assertions."
+    },
+    {
+      "url": "https://spinroot.com/spin/Man/ltl.html",
+      "semantics": "Inline LTL properties are positive specifications automatically negated; -N selects claim; no X used, so stutter-invariant formula supports POR."
+    },
+    {
+      "url": "https://spinroot.com/spin/Man/atomic.html",
+      "semantics": "Atomic sequence indivisible while executable; blocking loses atomicity. Model atomic journal commits contain only executable bounded operations."
+    }
+  ],
+  "tool_source": "existing pinned SPIN binary; no installation or compiler/resource flag changes",
+  "limits": {
+    "seconds_per_command": 30,
+    "address_space_bytes": 536870912,
+    "pan_MEMLIM_MiB": 512,
+    "search_depth": 100000,
+    "hash_table_width": 20
+  },
+  "scope": "Current official manual review establishes command/model semantics, not source refinement or unbounded verification."
+}

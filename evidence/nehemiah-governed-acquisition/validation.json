@@ -1,0 +1,385 @@
+{
+  "schema": "nehemiah-governed-acquisition-evidence/1",
+  "status": "PASS",
+  "repository": "emmett08/mas-host",
+  "base_commit": "c84feb406eff46e9c2857b5ad92a817ab4bc12ec",
+  "base_tree": "dd1de335ae645d42220dc4938ee9c6a71a14903c",
+  "parent_commit": "5f9ff2eaeb130fa15ba9cecb1daf40652c1b112c",
+  "parent_tree": "6f5f7acd4d7bd18a891e414fe09e234845a041d3",
+  "refactor_commit": "5f9ff2eaeb130fa15ba9cecb1daf40652c1b112c",
+  "refactor_tree": "6f5f7acd4d7bd18a891e414fe09e234845a041d3",
+  "source_tree": "7a7732474f4517946b7773adcade7b667797335c",
+  "changed_source_sha256": {
+    ".github/workflows/ci.yml": "dc79271fae4453839dc1fbcba0aa9656f7563ab1334b35b88b5c6ab726a72fa2",
+    "crates/mas-host-cli/src/a2a/configuration.rs": "a1dcf084539205652ad48636689e8841292b7562cc39f19b96778694ddd5c9db",
+    "crates/mas-host-cli/src/a2a/governed.rs": "394146dae9a490af4a0b4108d29e30dfda5a709be649aacc05bbe25beb5d50fd",
+    "crates/mas-host-cli/src/a2a/http.rs": "e699e648aa2160b8d46fd19d77312dd7b5c0fb90db5ae4225b4977000b144b0f",
+    "crates/mas-host-cli/src/a2a/mod.rs": "4b0ffa8c1eb74b88400bb8b6297a20451587ae37333737c1d70e680177de4783",
+    "crates/mas-host-cli/src/a2a/retained.rs": "c9230b9f2f0549d62e474e43ccd74164ed2a307b01f01dc5e27cd1fab84ee2a9",
+    "crates/mas-host-cli/src/a2a/retained_effect.rs": "672fcf26b053f3f0fb019b29b44d7c7cbbe89032a8092d8b59f13e16b49b1cc9",
+    "crates/mas-host-cli/src/a2a/retained_source.rs": "ae2ffb93558d78dabf86d80353f634d78cbc5082d905b81481dcac5765a1d830",
+    "crates/mas-host-cli/tests/a2a_governed.rs": "b1dd7d1f7f6e94355bcfd9c10e5b074f2ea1ae7c6064d1ee02f783ef09fe72f8",
+    "crates/mas-host-cli/tests/a2a_governed/retained_source.rs": "ca4c863f8dbe076ccda937fd3823110dcbe4e3c0a9950b1b0d56f8d2e5adbeaa",
+    "crates/mas-host-cli/tests/governed_acquisition.rs": "dde775d8a67ee0fb5fa6112a7a762cd67fb0843cef04d51ef948be778152f0aa",
+    "crates/mas-host-core/src/effects.rs": "252b194c4a498cee856269e7940fc1597f3c6f98c7e917ef7cd7651a445eba34",
+    "crates/mas-host-core/src/execution.rs": "9d14f44255d43d4ebe75c4c5e46fc06206a2b61f0c3e8f89d3c09b256e9dca9a",
+    "crates/mas-host-core/src/governance/mod.rs": "d7efc19426c0d8e097d12fe206c802f32e4fd0a0649b1b180ccab5bae66309d2",
+    "crates/mas-host-core/src/governance/runtime/authorization.rs": "a3caa40691c071bc3f83b050474ef58fb3b5853258a2f6c3b10b3e5bd9672be1",
+    "crates/mas-host-core/src/governance/runtime/boundary.rs": "6e09be3cd57b9b97c62e6c11ec8742d7b9f69dab98f4b71c555c6f250a54e368",
+    "crates/mas-host-core/src/governance/runtime/exposure.rs": "7286073d8deb36e9fe3b0b3d64f08858439cc05166b641b9b172e71044d21487",
+    "crates/mas-host-core/src/governance/runtime/exposure_adversarial_tests.rs": "08dd19d1dcaba70fa46c88dd553358770823c68fdd12d392ad2da3d8597c300b",
+    "crates/mas-host-core/src/governance/runtime/exposure_authorization.rs": "1476a21d08d005bf2d25b1b8f243ddd0edeaa3bb1a7dd1c85d6dc46d898f0389",
+    "crates/mas-host-core/src/governance/runtime/inspection.rs": "29607f1cdb62c382f72a607b57d6ad88695430159cad621c3d71c0ea56e57594",
+    "crates/mas-host-core/src/governance/runtime/lineage.rs": "a435ba14cf29ba115f5998f393d2042949354eee56c5811a2e22669cf5035e27",
+    "crates/mas-host-core/src/governance/runtime/mod.rs": "ab9886a7c5ffc22e843b20594d42cd379d7b6c655f2729b45dffae07cbec8705",
+    "crates/mas-host-core/src/governance/runtime/resolver.rs": "590fcd4399a8efa7b11005475e13d8cf64db251a55e5593d3c79ef3f9c00cd4b",
+    "crates/mas-host-core/src/governance/runtime/session.rs": "34939af7400c0d9188113832a11f34cc7efeb14d36e57cad9b98f480c3598e59",
+    "crates/mas-host-core/src/governance/runtime/source.rs": "8ca976179f279f32cfad757aad1acf3e1b3c238ebce34b5e0aa7da3be1897414",
+    "crates/mas-host-core/src/governance/runtime/source_resolver.rs": "15a5a45babd06564006f2b67a73ee7cb26095bee6ddf7b1a24385a3e753ce8ae",
+    "crates/mas-host-core/src/governance/runtime/source_resolver_tests.rs": "70401f45bf1cfb87c8bd850d2bad07fcf97e27d7e129a21753b7325681372cb6",
+    "crates/mas-host-core/src/governance/runtime/storage.rs": "e6929a1bba0e966568fb8dd02b25bfe04569874f06fbae41cf6258499a7455fa",
+    "crates/mas-host-core/src/lib.rs": "07e384fcbcb85b4ba72b5682594c5ad05e339dce81ff57b1b5076dd501d4ace5",
+    "docs/a2a.md": "3f0d9f3b53c5000f9f744870fc8186e2a584866ee9a9d805e14f258ce566d129",
+    "docs/governed-acquisition.md": "e8f20c825b517bdaa057686e28420c0b9ef0a09ec6c7aca7dfffded7b3fabf4f",
+    "docs/nehemiah-implementation.md": "6063345ade26a2cfd9bebd9a0ea2b6fcd977249015e252edfd969b57cb83883b",
+    "examples/governed-acquisition/README.md": "4758b1f79ed55a583b0d92aeb9c650c36661879ce01777bb5a8775d041951697",
+    "examples/governed-acquisition/application.py": "4c4f02560e1965d1e4d4ebac4fb86a36017079466d97fdfc913614fc83d8005f",
+    "examples/governed-acquisition/fixture_inspector.py": "e006601836accce1840e190367942467a1df173ee1052ca2e3402c87cc32df21",
+    "examples/governed-acquisition/prepare.py": "df856e7d6044ecd5c95ca0ac46d082c4207c773f48866b89540644b952e42c82",
+    "examples/governed-acquisition/verify.py": "497e78870596a0c7de66f9560bc580feb4ab58238b05d937c2c778e099927560",
+    "formal/README.md": "eaddd0854c8994264d3d8d760b9a18f998742530d186188a51950340e7de58d1",
+    "formal/exposure-lineage.md": "3021d8ca66664a0c541980175a845131bd98caa9d0fc40c76e9e01b404515790",
+    "formal/exposure-lineage.pml": "30a3aeb03e9495e69dadc38e423273c91ad4b1a3a3f3862d146281d74b68096c",
+    "formal/verify.py": "1350201b825b548d1505bcc11afae82f0e93447bf1627c1d67739d8c285aa18b"
+  },
+  "source_commit": "44b1fab0c50f96d36731faeaaa734fce51b5860a",
+  "validation_source_identity": "All four final command receipts contain identical hashes for every non-evidence source. Their base is the local parent HEAD during execution. Source and evidence are separate commits.",
+  "plans": {
+    "current_files": [
+      {
+        "name": "nehemiah-pii-detection-response-plan.md",
+        "library_file_id": "libfile_800f3bb933fc8191ae9ec940b34eca74",
+        "version": null,
+        "snapshot_sha256": "8dd7b7a97b8ce2248e754d8c84a5dca2e89a55e6734ffbc7c0575c12de45b1f5"
+      },
+      {
+        "name": "nehemiah-enterprise-scaling-plan.md",
+        "library_file_id": "libfile_fad701f1c4d08191885e5b8190efd765",
+        "version": "1",
+        "snapshot_sha256": "4c7f7368ed9b245d1a435e302df53b3f488172a9a824d90d28bf6d8ac56788ad"
+      },
+      {
+        "name": "nehemiah-extensibility-data-use-plan.md",
+        "library_file_id": "libfile_60793a693e088191b7a4640f914f72a5",
+        "version": "1",
+        "snapshot_sha256": "e14410bab61418e2e2739ac4deb0c7cc13b096d18f3fb8ad7f50098db48e7854"
+      }
+    ],
+    "snapshot_normalisation": "Library read omits one final LF. Restoring that LF exactly matches all previous authoritative byte-sized snapshots; substantive content unchanged."
+  },
+  "commands": {
+    "workspace": {
+      "command": [
+        "make",
+        "test"
+      ],
+      "environment": {
+        "CARGO_INCREMENTAL": "0",
+        "GOFLAGS": "-buildvcs=false",
+        "RUSTUP_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/rustup",
+        "CARGO_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/cargo",
+        "RUST_TEST_THREADS": "2"
+      },
+      "status": "PASS",
+      "seconds": 1195.672,
+      "exit_code": 0,
+      "log_sha256": "2757d2a2ac031533206d29b2c7df80f28b2c1057a68695776cba9bead09d4508",
+      "source_changes_during_checks": []
+    },
+    "acceptance": {
+      "command": [
+        "make",
+        "acceptance"
+      ],
+      "environment": {
+        "CARGO_INCREMENTAL": "0",
+        "GOFLAGS": "-buildvcs=false",
+        "RUSTUP_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/rustup",
+        "CARGO_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/cargo",
+        "RUST_TEST_THREADS": "2"
+      },
+      "status": "PASS",
+      "seconds": 27.629,
+      "exit_code": 0,
+      "log_sha256": "8acd3829ab9719e603909891e785f0d626bc9fa9f25d81c815def9c217d4b525",
+      "source_changes_during_checks": []
+    },
+    "provider": {
+      "command": [
+        "make",
+        "provider-test"
+      ],
+      "environment": {
+        "CARGO_INCREMENTAL": "0",
+        "GOFLAGS": "-buildvcs=false",
+        "RUSTUP_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/rustup",
+        "CARGO_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/cargo",
+        "RUST_TEST_THREADS": "2"
+      },
+      "status": "PASS",
+      "seconds": 0.398,
+      "exit_code": 0,
+      "log_sha256": "6b258b4795ac89f190330d9d02eeb8bb3d2cbb2baf2011ec9dc698ece31d28f4",
+      "source_changes_during_checks": []
+    },
+    "formal": {
+      "command": [
+        "python3",
+        "formal/verify.py",
+        "--out",
+        "/workspace/scratch/1ad2c1661ab9/validation/acquisition-formal-final"
+      ],
+      "environment": {
+        "CARGO_INCREMENTAL": "0",
+        "GOFLAGS": "-buildvcs=false",
+        "RUSTUP_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/rustup",
+        "CARGO_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/cargo",
+        "RUST_TEST_THREADS": "2"
+      },
+      "status": "PASS",
+      "seconds": 677.066,
+      "exit_code": 0,
+      "log_sha256": "2850b4984119347360b6877a9a8a7ff4b097ddd767cfec3638d7c98071882499",
+      "source_changes_during_checks": []
+    }
+  },
+  "test_counts": {
+    "workspace_rust_passed": 328,
+    "workspace_rust_ignored": 3,
+    "workspace_rust_ignored_names": [
+      "code_only_apps_and_real_effect_recovery",
+      "worker_entry",
+      "tests::guardian_entry"
+    ],
+    "workspace_python_passed": 146,
+    "python_suite_counts": [
+      6,
+      59,
+      14,
+      15,
+      13,
+      39
+    ],
+    "native_acceptance_additional": 1,
+    "provider_node_tests_additional": 5,
+    "counting_rule": "Workspace summaries only; focused independent and example checks overlap and are not added again."
+  },
+  "formal": {
+    "status": "PASS",
+    "checks": 224,
+    "new_checks": 40,
+    "unchanged_previous_checks": 184,
+    "complete_zero_error_searches": 32,
+    "expected_replayed_counterexamples": 192,
+    "limits": {
+      "seconds_per_command": 30,
+      "memory_bytes": 536870912,
+      "search_depth": 100000
+    },
+    "seconds": 676.8096456459971,
+    "archive_sha256": "1f30df90d1a52e9fe239fd020540fda3c77a02a8c9a6a205d13f70d17b66568f",
+    "scope": "Finite control verification with implementation correspondence. No Rust/SQLite refinement, arbitrary graph theorem, detector quality or distributed revocation linearisation claim."
+  },
+  "contract": [
+    "Opt-in local/2 selects operator-owned baseline templates and additional registered source templates; local/1 remains closed and retains historical all-template decisions.",
+    "Original source policies govern acquisition before fetch and detector processing before callbacks. Pending exposure and executing state commit atomically before execute permission.",
+    "Host-sealed complete ancestry and exposure manifests bind source, step, payload, original expiry and policy selection in the existing execution journal.",
+    "Children inherit exposure before persistence/dispatch; parallel children use one frozen parent snapshot and received results monotonically constrain subsequent commands.",
+    "Complete closure is bounded to 64 sources and 65536 representation bytes. A restrictive 33rd ancestor participates. Excessive, missing, cyclic or inconsistent lineage denies without truncation.",
+    "Owned-task GetRetainedSource reads an exact retained projection under current resolve and complete original policy closure. Discarded raw bytes are not retained.",
+    "Existing task, replay and effect delivery paths enforce local/2 closure and original expiry. New SendMessage returns a pre-worker admission snapshot.",
+    "Read-only snapshots release the database before callbacks and perform no recovery or execution. Known host settlement remains independent of payload access and external certainty."
+  ],
+  "fixture_profile": "Synthetic structured Deployment point, deterministic recognisers, fixture neural responses and loopback HTTP; exact offline-worker assets/executable pins. No actual neural inference or live Kubernetes/provider/notification call.",
+  "workspace_diagnostics": [
+    {
+      "status": "FAIL",
+      "kind": "initial-lost-response",
+      "source_commit": "36a5949b186e3f24c3fc9faefdf85d9fc9f31a97",
+      "source_tree": "985d0f9162345d61c51ccf52e48d5a675b706293",
+      "seconds": 100.892,
+      "next_source_commit": "b7580d4615317f4a2df03c35f2e142af671e810c",
+      "changed_files_before_next_cut": [
+        "crates/mas-host-cli/tests/a2a_governed.rs"
+      ],
+      "reason": "An existing lost-response test observed working immediately after the blocking deadline. Its only repair polls the SAME task for terminal unknown with a bounded deadline while preserving no-redispatch assertions.",
+      "promoted_to_final_gate": false
+    },
+    {
+      "status": "FAIL",
+      "kind": "expiry-fixture-startup",
+      "source_commit": "b7580d4615317f4a2df03c35f2e142af671e810c",
+      "source_tree": "ac1dd7d4d499a86fa62be3ba0701f3c366c706a6",
+      "seconds": 96.666,
+      "next_source_commit": "44b1fab0c50f96d36731faeaaa734fce51b5860a",
+      "changed_files_before_next_cut": [
+        ".github/workflows/ci.yml",
+        "crates/mas-host-cli/tests/a2a_governed/retained_source.rs"
+      ],
+      "reason": "The new expiry test armed an eight-second fixture lease before server startup and observed unauthorised. Startup consuming the fixture lease is an inference from the failure and schedule. The fixture repair starts the server before arming a thirty-second lease; original-expiry, read-denial and no-redispatch assertions remain. The separate CI harness change fixes test threads at two.",
+      "promoted_to_final_gate": false
+    }
+  ],
+  "failed_cut_transitions": {
+    "initial_to_expiry": [
+      "crates/mas-host-cli/tests/a2a_governed.rs"
+    ],
+    "expiry_to_final": [
+      ".github/workflows/ci.yml",
+      "crates/mas-host-cli/tests/a2a_governed/retained_source.rs"
+    ],
+    "initial_to_final": [
+      ".github/workflows/ci.yml",
+      "crates/mas-host-cli/tests/a2a_governed.rs",
+      "crates/mas-host-cli/tests/a2a_governed/retained_source.rs"
+    ],
+    "production_or_formal_changes": []
+  },
+  "rust_test_harness_profile": {
+    "RUST_TEST_THREADS": "2",
+    "ci_job_timeout_minutes": 30,
+    "required_gate_environments": [
+      "workspace",
+      "acceptance"
+    ],
+    "pre_ci_source_commit": "f4fa293fc81acbaa0c74819fad91768f4daf2c6a",
+    "pre_ci_source_tree": "93b21932e26bc14269e13b4d1c2667be2a7fb117",
+    "pre_ci_to_final_changed_files": [
+      ".github/workflows/ci.yml"
+    ],
+    "pre_ci_source_object_is_gate": false,
+    "qualification": "Explicit two-thread local Rust test harness profile; no default/high-parallel capacity or hosted CI PASS claim."
+  },
+  "focused_http_observations": {
+    "default_launch": {
+      "status": "FAIL-non-gate-diagnostic",
+      "result": {
+        "exit_code": 101,
+        "passed": 21,
+        "failed": 6,
+        "test_seconds": 73.64
+      },
+      "parallelism": {
+        "profile": "Normal Rust test default; no test-thread override in launch command.",
+        "RUST_TEST_THREADS": "Not set in launch command; process environment was not snapshotted before exit.",
+        "exact_thread_count": "Not captured; visible CPU count and quota are in resource snapshot."
+      },
+      "source_provenance": {
+        "source_sha256_capture": "Captured after process exit; no complete paired pre/post source map was captured for this diagnostic. Parent maintained source freeze; this remains non-gate evidence.",
+        "parent_reported_staged_tree_after_run": "93b21932e26bc14269e13b4d1c2667be2a7fb117",
+        "production_binary_sha256": "c333c08154d802883bc52416c34f976e9e7b5c03272be537c52d1c68c5f55723"
+      },
+      "interpretation": "Five existing client socket bounds and one elapsed assertion failed under default concurrent fixture load. This is consistent with contention but is not an isolated causal performance measurement. Source expiry and legacy uncertain-completion tests passed in this run."
+    },
+    "explicit_two_threads": {
+      "status": "PASS-focused-pending-root-full-gates",
+      "result": {
+        "exit_code": 0,
+        "passed": 27,
+        "failed": 0,
+        "test_seconds": 141.34
+      },
+      "environment": {
+        "RUST_TEST_THREADS": "2",
+        "CARGO_INCREMENTAL": "0"
+      },
+      "source_provenance": {
+        "map_capture": "Complete owned16-file source map captured during execution, then compared after completion; no before-start complete map was captured.",
+        "during_observation": "exposure-http-threads2-source-during.json",
+        "during_observation_sha256": "7656d078e396b6f57995ac3bab2272ff1b4705a7201d637b5fcd3bf62eced0dd",
+        "source_changes_between_during_and_after": [],
+        "parallel_parent_change": "Parent changed only CI workflow to explicitRUST_TEST_THREADS2; workflow is outside this owned source map. Root final gates bind the complete repository source cut.",
+        "binary_sha256_after": "c333c08154d802883bc52416c34f976e9e7b5c03272be537c52d1c68c5f55723"
+      }
+    },
+    "promoted_to_final_gates": false,
+    "source_binding_limit": "Default diagnostic has a post-exit16-file map only; focused explicit-two-thread observation has during/after16-file maps, not a before-start complete map. The four final gates independently bind the complete source cut."
+  },
+  "remaining_plan_work": [
+    "Exact per-component assessment custody and source-byte adjudication",
+    "Governed revision and full inference connection qualification",
+    "Shared subscribers and dynamic credential lifecycle",
+    "E4 deletion/restore and E5 isolation",
+    "N3 durable scheduling, retry/escalation and reconciliation",
+    "Detector quality and deployment/capacity qualification"
+  ],
+  "publication": {
+    "merged": false,
+    "deployed": false,
+    "manual_workflow_dispatches": 0,
+    "external_notifications_sent": 0,
+    "live_external_provider_calls": 0
+  },
+  "artifact_sha256": {
+    "formal-summary.json": "a23d5ccbf78bbb18a386880884f851baf022563b2b9c3f7c6e8aedd31c0ed603",
+    "formal-checks.tar.xz": "1f30df90d1a52e9fe239fd020540fda3c77a02a8c9a6a205d13f70d17b66568f",
+    "validate-command.py": "d9b0a160b76c41acfab67b60076a2f92ec38d7f3796245981f2baae8f8c1558f",
+    "package-evidence.py": "7fe81e61f0a1c0e79d91812977dd7e32017365c466126b5a4ff6cf907c3d3ff0",
+    "toolchain.json": "43df44c770b9ad190757001d7065012cd09468ceff4eea589cf6dc7be6fddb6a",
+    "plan-snapshots.json": "841b16e18207783a1c9e8d948728877a781818dd6aa2082597c0011bb73367ec",
+    "acceptance-contract.json": "1570a78828cb55cd95e540304baeceb2338970d09ed497b70030e3721d11c7d0",
+    "independent-review.json": "df57b3e49756ec9ffbc4362061d6352f814681dcb0af1525d50cc3f2fcd3ab1d",
+    "cli-review.json": "bbcabe61a2347afb4942a537c3161af269b01d03dc5185df0470b11fc131bb0f",
+    "core-architecture-review.json": "cd3f9823ccb420b6cc3913dc0b41d8d686fcdd5299e6f76ec357a681ebe2cf30",
+    "example-review.json": "8304b83663ca4ce84fe422911b2173a47a19d4ce8abc8387df65a52feb599409",
+    "fixture-review.json": "bb3f8d6f66732d018f67932ec934338943f68e35fb1d93002e312caf67950966",
+    "ci-profile-review.json": "083c13f32b62ecb349ee6b95d7aa695a509f458a16c6aaa36f5ab39d76344088",
+    "formal-review.json": "d4901ee90d5170425679e5c0e52b679b8a00ccc3084370e436934232f4e9e51f",
+    "formal-tool-reference-review.json": "06e7540222b39facfb93c932bb8c36fa95d4394ee72124b9ed770cd07d9a6b0b",
+    "refactor-characterization.json": "634e9c06fa5e0e94e06c263a561f201aae5a5f2342dc5b88fcf89eec0b70a05b",
+    "refactor-characterization.log": "84053349b648c8d978d228fcde26be318f43ca45f98713070999a926152c7f20",
+    "refactor-identity.json": "06558e01e7ac5ca7cc869e615a96651f352df74ff76320385f5f3678a921864f",
+    "refactor-remote-commit.json": "b14d18feb5337818e3bd012dc7b27645fbd921dabb91685a54474d4c84b5f611",
+    "source-remote-commit.json": "31c425d46a04a05d35daf944e02062ca72afa3bd6b9917b76b3d96cf79b03ab8",
+    "ci-budget-basis.json": "7ca05dbb132e88bec68f7add1f9c9d09ac6d0aa79b5a4a47cc6a70d435987b49",
+    "exposure-cli-final-clippy.log": "9d3ee31d72098c287ef53a510e069fd82a9c5f6753d726742256b2f6a99bc1c4",
+    "exposure-source-final-tests.log": "bfaf9138f179da1d25c721a73e5e5622a7c6e47d290037d7b998624ce93252c6",
+    "exposure-adversarial-final-tests.log": "afb09a052a4a521c96e925a1ead3999b9053dbfbb63dac3e710d528849a8e4fb",
+    "exposure-source-final-http.log": "df67aecf9345b3d6a3102a90cbab56c7db1d296c827074e5ba03054f0d7e3c01",
+    "exposure-source-http-diagnostic.log": "9c6a383b56d481d58558d89990c2bc1eaf2a1a9ee01fb433e2b2e472a56b1ad9",
+    "exposure-source-32-call-diagnostic.log": "edfd7ea8a16a91e4f2c278b9148ec5dbb3021b71d98c2c49279c9d9491ace648",
+    "exposure-example-focused.log": "a2dfc528e72af6b703b23bda464a8b5e3ab8e184c511274dc516a994c72dc45e",
+    "exposure-example-stdout.json": "a6a1a0ac0e902219af4037959662ccc5697ba42e1364e7b920f40faf103b67b9",
+    "exposure-example-run.json": "dd66ea62f5b2efc48a19c8b32bb0c31301a0acf1c67654de7fd7d8fb8e65bca3",
+    "exposure-example-static.log": "2aad0fcd8f5371858f21abf1fdac520c0b1004b8f3698b58c4c23eebf0f3c616",
+    "exposure-runtime-diagnostic.log": "97380af49c01258de1d95481711c1e1ed743f3337c8376ddf7183bfa7d0e80fa",
+    "packaging-review.json": "10788163abf64a4040c2ea0e3165ca669ed6f69977784a6a05544fccd9234479",
+    "workspace-initial-failed.json": "6a489494577e1a927ca6c0a7726622ebba7ed74d10918b3272c742ddb76c1b6f",
+    "workspace-initial-failed.log": "14a18fd49f90c353713299509c1d081e0754d5f15a3efb1016ba67f54a8d8706",
+    "source-initial-identity.json": "776d614a78a273b73a4c60f01bea7dded0ffeb667fbdeee7ed6d089acb5aa7ee",
+    "source-initial-remote-commit.json": "80b84a44b4e0043879303cc406c5b265abda91408fe4e3c2742c03b7758d79fc",
+    "workspace-expiry-failed.json": "ff196c505036d755da16246f4aa99494a76a675d126e8406d2244d337a77958f",
+    "workspace-expiry-failed.log": "967a607206fecc5367a032308b0a109c044586e8fd6ad7eda2defccd01916105",
+    "source-expiry-identity.json": "cc8a5bb40d6c2d995cd390cb231bd09bf17c508f104c6f2ee25b85b6e8927273",
+    "source-expiry-remote-commit.json": "0a6b1d6aa82422dfbcf338cece1112a8e5a5d90f084259ef847225814ae9f81e",
+    "source-pre-ci-profile-identity.json": "5ed8d45d3ffba44d049cdbe8ec4109a1e219443dafdccb6000b7ae853662fe3d",
+    "source-pre-ci-profile-remote-commit.json": "36145834889a958590b0bad07568766fd0454df7972be8527de92f68db9dce30",
+    "exposure-legacy-uncertainty-target.log": "6398ac0cd88c8947174df93a6752c0daf1182e134924e5072eb0d6f4cf891515",
+    "exposure-source-expiry-target.log": "f9cbcad1b85144e49861acc81f0150c913b3563532433b4a6747fc053dd8f05f",
+    "exposure-governed-http-parallel-final.log": "08ad917a5a0826ee9a9cb2ea5510133c1ca283b0701fdad004e15a90be5fb8da",
+    "exposure-governed-http-threads2-focused.json": "53aca36f69c0519ec1ace30e7abfec4c7d869c0d54de68098618e8dc8e262d91",
+    "exposure-http-threads2-source-during.json": "7656d078e396b6f57995ac3bab2272ff1b4705a7201d637b5fcd3bf62eced0dd",
+    "exposure-governed-http-default-diagnostic.json": "c375cf61e979d07d45d27c0a01ea8eeb5d9a9853dd32571307928a4c1d6bc1f7",
+    "exposure-governed-http-expiry-followup-diagnostic.log": "2b38cb1d538ed0e7408f48c93690019f88cbf8ede7ca3e5c030600b68e42ae62",
+    "exposure-http-resource-diagnostic.json": "3ffcc377ae0362242e226a4cc28384c98f217e716faabec4595032d77ec796f0",
+    "workspace-run.json": "b65065041822af1ac7423c1421979da1b13a1a33b1b2e0b16f727da35bf8eaa1",
+    "workspace-run.log": "2757d2a2ac031533206d29b2c7df80f28b2c1057a68695776cba9bead09d4508",
+    "acceptance-run.json": "2a7047a5ea1f70fbc0bdab8a2400f5258b720805058d9e1a89de571cec6fc031",
+    "acceptance-run.log": "8acd3829ab9719e603909891e785f0d626bc9fa9f25d81c815def9c217d4b525",
+    "provider-run.json": "00ad9fab8a55d729f838857bbbe9507f8a5f94aab79f47d4b60c80095831fb81",
+    "provider-run.log": "6b258b4795ac89f190330d9d02eeb8bb3d2cbb2baf2011ec9dc698ece31d28f4",
+    "formal-run.json": "691f4532038d57ce670ed15f703fad0674eba953c69fab12762078ac4439d5ac",
+    "formal-run.log": "2850b4984119347360b6877a9a8a7ff4b097ddd767cfec3638d7c98071882499",
+    ".gitattributes": "8c3226e4f41716217348e88d5ab2dde28d53456be15c8739ef43aa0e3cff08df"
+  }
+}

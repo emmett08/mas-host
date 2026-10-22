@@ -1,0 +1,101 @@
+{
+  "version": "mas-governed-acquisition-fixture-independent-review/1",
+  "reviewer": "/root/formal_independent_review",
+  "created_at_utc": "2026-10-22T21:00:00.038262+00:00",
+  "verdict": "ACCEPTED_TEST_ONLY_CORRECTIONS_PENDING_FINAL_FULL_GATES",
+  "scope": "Read-only review of two fixture timing corrections; production source and prior31-file review receipt unchanged.",
+  "preserved_failed_source_cuts": [
+    {
+      "status": "FAIL_RETAINED_NOT_ACCEPTED_AS_FINAL_GATE",
+      "source_identity_artifact": "validation/acquisition-source-initial-identity.json",
+      "source_identity_sha256": "776d614a78a273b73a4c60f01bea7dded0ffeb667fbdeee7ed6d089acb5aa7ee",
+      "source_commit": "36a5949b186e3f24c3fc9faefdf85d9fc9f31a97",
+      "source_tree": "985d0f9162345d61c51ccf52e48d5a675b706293",
+      "source_hashes_match_preserved_run": true,
+      "run_metadata": "validation/acquisition-workspace-initial-failed.json",
+      "run_metadata_sha256": "6a489494577e1a927ca6c0a7726622ebba7ed74d10918b3272c742ddb76c1b6f",
+      "log": "validation/acquisition-workspace-initial-failed.log",
+      "log_sha256": "14a18fd49f90c353713299509c1d081e0754d5f15a3efb1016ba67f54a8d8706",
+      "command": [
+        "make",
+        "test"
+      ],
+      "exit_code": 2,
+      "source_changes_during_checks": [],
+      "diagnosis": "The immediate GetTask assertion observed working rather than unknown. The correction waits for the same task to settle without admitting another task/effect."
+    },
+    {
+      "status": "FAIL_RETAINED_NOT_ACCEPTED_AS_FINAL_GATE",
+      "source_identity_artifact": "validation/acquisition-source-expiry-identity.json",
+      "source_identity_sha256": "cc8a5bb40d6c2d995cd390cb231bd09bf17c508f104c6f2ee25b85b6e8927273",
+      "source_commit": "b7580d4615317f4a2df03c35f2e142af671e810c",
+      "source_tree": "ac1dd7d4d499a86fa62be3ba0701f3c366c706a6",
+      "source_hashes_match_preserved_run": true,
+      "run_metadata": "validation/acquisition-workspace-expiry-failed.json",
+      "run_metadata_sha256": "ff196c505036d755da16246f4aa99494a76a675d126e8406d2244d337a77958f",
+      "log": "validation/acquisition-workspace-expiry-failed.log",
+      "log_sha256": "967a607206fecc5367a032308b0a109c044586e8fd6ad7eda2defccd01916105",
+      "command": [
+        "make",
+        "test"
+      ],
+      "exit_code": 2,
+      "source_changes_during_checks": [],
+      "diagnosis": "The acquisition-completion poll observed unauthorised under the original eight-second grant measured before server startup. Moving startup outside a thirty-second real lease retains the original-expiry assertions; the timing diagnosis is an inference from the failure and fixture schedule."
+    }
+  ],
+  "corrections": [
+    {
+      "file": "crates/mas-host-cli/tests/a2a_governed.rs",
+      "test": "lost_effect_response_keeps_uncertainty_and_authorised_recovery_ids",
+      "change": "Replace one immediate expected-unknown observation with a bounded thirty-second GetTask poll on the same authorised recovery task ID.",
+      "preserved_assertions": [
+        "HTTP200 and no GetTask error are required while polling.",
+        "Only submitted or working may precede the required unknown state; completed, failed and other states fail.",
+        "Exactly one recorded external call before restart.",
+        "Restart replays the exact original SendMessage, requires an error, and external call count stays one.",
+        "Revoked authority hides task/recovery metadata and still cannot cause another external call.",
+        "Private original text remains absent."
+      ],
+      "assessment": "The poll accommodates asynchronous settlement without accepting success, arbitrary states, a new task or redispatch."
+    },
+    {
+      "file": "crates/mas-host-cli/tests/a2a_governed/retained_source.rs",
+      "test": "source_expiry_survives_same_epoch_grant_renewal_and_old_delivery_methods",
+      "change": "Start the server before defining the short grant; extend the real admission lease from eight to thirty seconds.",
+      "preserved_assertions": [
+        "Shorten the grant before submitting the actual acquisition.",
+        "A positive initial source read is required and source_metadata.expires_at_ms must equal the exact original short expiry.",
+        "Wait until wall time exceeds that same original expiry.",
+        "Renew only the same-epoch current grant expiry to original_expiry+300000; original source metadata is not rewritten.",
+        "Source, task and existing retained-effect delivery methods all deny afterward without a result payload.",
+        "Journal content equals its pre-expiry snapshot and exactly one external call is recorded.",
+        "Private original text remains absent."
+      ],
+      "assessment": "The thirty-second window remains a real expiry test. Startup no longer consumes the fixture admission lease; no assertion accepts renewed source expiry or redispatch.",
+      "timing_limit": "This checks the declared local real-time schedule, not a deployment latency guarantee or immunity to arbitrary clock adjustment/load."
+    }
+  ],
+  "unchanged_production_review": {
+    "path": "validation/exposure-independent-review.json",
+    "sha256": "df57b3e49756ec9ffbc4362061d6352f814681dcb0af1525d50cc3f2fcd3ab1d",
+    "reviewed_file_count": 31,
+    "all_prior_reviewed_hashes_still_match": true,
+    "edited_by_this_review": false
+  },
+  "validation_status": {
+    "full_final_workspace": "PENDING",
+    "full_final_acceptance_provider_http_example": "PENDING_PARENT_FINAL_RECEIPTS",
+    "final_corrected_source_commit": null,
+    "binding_owner": "parent",
+    "failed_runs_not_relabelled": true,
+    "no_new_pass_claim_from_fixture_source_review": true
+  },
+  "reviewer_source_edits": false,
+  "reviewer_test_reruns": false,
+  "existing_production_receipt_edited": false,
+  "source_sha256": {
+    "crates/mas-host-cli/tests/a2a_governed.rs": "b1dd7d1f7f6e94355bcfd9c10e5b074f2ea1ae7c6064d1ee02f783ef09fe72f8",
+    "crates/mas-host-cli/tests/a2a_governed/retained_source.rs": "ca4c863f8dbe076ccda937fd3823110dcbe4e3c0a9950b1b0d56f8d2e5adbeaa"
+  }
+}

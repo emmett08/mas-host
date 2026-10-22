@@ -1,0 +1,35 @@
+{
+  "sha": "b7580d4615317f4a2df03c35f2e142af671e810c",
+  "node_id": "C_kwDOVLc9LdoAKGI3NTgwZDQ2MTUzMTdmNGEyZGYwM2MzNWYyZTE0MmFmNjcxZTgxMGM",
+  "url": "https://api.github.com/repos/emmett08/mas-host/git/commits/b7580d4615317f4a2df03c35f2e142af671e810c",
+  "html_url": "https://github.com/emmett08/mas-host/commit/b7580d4615317f4a2df03c35f2e142af671e810c",
+  "author": {
+    "name": "Emmett Miller",
+    "email": "emmett.miller@sky.uk",
+    "date": "2026-10-22T20:51:42Z"
+  },
+  "committer": {
+    "name": "Emmett Miller",
+    "email": "emmett.miller@sky.uk",
+    "date": "2026-10-22T20:51:42Z"
+  },
+  "tree": {
+    "sha": "ac1dd7d4d499a86fa62be3ba0701f3c366c706a6",
+    "url": "https://api.github.com/repos/emmett08/mas-host/git/trees/ac1dd7d4d499a86fa62be3ba0701f3c366c706a6"
+  },
+  "message": "Add governed acquisition, source exposure and authorised task-scoped reads\n\nIntroduce opt-in mas-governed-local/2 source policy associations, sealed complete ancestry and durable pending exposure in the existing execution journal. Enforce inherited restrictions before execution and processing, through native replies and all retained delivery paths. Add a read-only source projection endpoint, adversarial/runtime examples and forty bounded SPIN controls.",
+  "parents": [
+    {
+      "sha": "5f9ff2eaeb130fa15ba9cecb1daf40652c1b112c",
+      "url": "https://api.github.com/repos/emmett08/mas-host/git/commits/5f9ff2eaeb130fa15ba9cecb1daf40652c1b112c",
+      "html_url": "https://github.com/emmett08/mas-host/commit/5f9ff2eaeb130fa15ba9cecb1daf40652c1b112c"
+    }
+  ],
+  "verification": {
+    "verified": false,
+    "reason": "unsigned",
+    "signature": null,
+    "payload": null,
+    "verified_at": null
+  }
+}

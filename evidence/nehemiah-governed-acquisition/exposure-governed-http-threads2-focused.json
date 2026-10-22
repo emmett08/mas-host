@@ -1,0 +1,58 @@
+{
+  "version": "nehemiah-governed-http-focused/1",
+  "recorded_at_utc": "2026-10-22T21:03:47.455836+00:00",
+  "status": "PASS-focused-pending-root-full-gates",
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "-p",
+    "mas-host",
+    "--test",
+    "a2a_governed"
+  ],
+  "environment": {
+    "RUST_TEST_THREADS": "2",
+    "CARGO_INCREMENTAL": "0"
+  },
+  "result": {
+    "exit_code": 0,
+    "passed": 27,
+    "failed": 0,
+    "test_seconds": 141.34
+  },
+  "log": "exposure-governed-http-parallel-final.log",
+  "log_sha256": "08ad917a5a0826ee9a9cb2ea5510133c1ca283b0701fdad004e15a90be5fb8da",
+  "source_sha256": {
+    "crates/mas-host-cli/src/a2a/configuration.rs": "a1dcf084539205652ad48636689e8841292b7562cc39f19b96778694ddd5c9db",
+    "crates/mas-host-cli/src/a2a/governed.rs": "394146dae9a490af4a0b4108d29e30dfda5a709be649aacc05bbe25beb5d50fd",
+    "crates/mas-host-cli/src/a2a/http.rs": "e699e648aa2160b8d46fd19d77312dd7b5c0fb90db5ae4225b4977000b144b0f",
+    "crates/mas-host-cli/src/a2a/mod.rs": "4b0ffa8c1eb74b88400bb8b6297a20451587ae37333737c1d70e680177de4783",
+    "crates/mas-host-cli/src/a2a/retained.rs": "c9230b9f2f0549d62e474e43ccd74164ed2a307b01f01dc5e27cd1fab84ee2a9",
+    "crates/mas-host-cli/src/a2a/retained_effect.rs": "672fcf26b053f3f0fb019b29b44d7c7cbbe89032a8092d8b59f13e16b49b1cc9",
+    "crates/mas-host-cli/src/a2a/retained_source.rs": "ae2ffb93558d78dabf86d80353f634d78cbc5082d905b81481dcac5765a1d830",
+    "crates/mas-host-cli/tests/a2a_governed.rs": "b1dd7d1f7f6e94355bcfd9c10e5b074f2ea1ae7c6064d1ee02f783ef09fe72f8",
+    "crates/mas-host-cli/tests/a2a_governed/retained_source.rs": "ca4c863f8dbe076ccda937fd3823110dcbe4e3c0a9950b1b0d56f8d2e5adbeaa",
+    "crates/mas-host-core/src/governance/mod.rs": "d7efc19426c0d8e097d12fe206c802f32e4fd0a0649b1b180ccab5bae66309d2",
+    "crates/mas-host-core/src/governance/runtime/mod.rs": "ab9886a7c5ffc22e843b20594d42cd379d7b6c655f2729b45dffae07cbec8705",
+    "crates/mas-host-core/src/governance/runtime/resolver.rs": "590fcd4399a8efa7b11005475e13d8cf64db251a55e5593d3c79ef3f9c00cd4b",
+    "crates/mas-host-core/src/governance/runtime/source_resolver.rs": "15a5a45babd06564006f2b67a73ee7cb26095bee6ddf7b1a24385a3e753ce8ae",
+    "crates/mas-host-core/src/governance/runtime/source_resolver_tests.rs": "70401f45bf1cfb87c8bd850d2bad07fcf97e27d7e129a21753b7325681372cb6",
+    "docs/a2a.md": "3f0d9f3b53c5000f9f744870fc8186e2a584866ee9a9d805e14f258ce566d129",
+    "docs/a2a-source-pin.json": "9e2155afb1458f7686e364f4b27ad477f09a2890633c0a0a2eada0dde59a9918"
+  },
+  "source_provenance": {
+    "map_capture": "Complete owned16-file source map captured during execution, then compared after completion; no before-start complete map was captured.",
+    "during_observation": "exposure-http-threads2-source-during.json",
+    "during_observation_sha256": "7656d078e396b6f57995ac3bab2272ff1b4705a7201d637b5fcd3bf62eced0dd",
+    "source_changes_between_during_and_after": [],
+    "parallel_parent_change": "Parent changed only CI workflow to explicitRUST_TEST_THREADS2; workflow is outside this owned source map. Root final gates bind the complete repository source cut.",
+    "binary_sha256_after": "c333c08154d802883bc52416c34f976e9e7b5c03272be537c52d1c68c5f55723"
+  },
+  "limits": [
+    "Two-thread fixture execution only; no high-parallel or production capacity qualification.",
+    "All existing per-request socket/inspection, wall, source count and byte bounds are unchanged.",
+    "Root full gates remain required and authoritative."
+  ]
+}

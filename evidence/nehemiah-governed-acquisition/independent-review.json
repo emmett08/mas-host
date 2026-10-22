@@ -1,0 +1,416 @@
+{
+  "version": "mas-governed-acquisition-independent-review/1",
+  "reviewer": "/root/formal_independent_review",
+  "created_at_utc": "2026-10-22T20:28:11.403970+00:00",
+  "scope": "Independent adversarial core tests and finite-control/source correspondence for opt-in structured acquisition/exposure and owned retained projection reads.",
+  "verdict": "SOURCE_AND_FINITE_MODEL_ACCEPTED_FOR_DECLARED_LOCAL_SLICE_PENDING_FINAL_IMPLEMENTATION_GATES",
+  "source_identity": {
+    "checkout_head_at_review": "c84feb406eff46e9c2857b5ad92a817ab4bc12ec",
+    "final_source_commit": null,
+    "final_source_commit_binding_owner": "parent",
+    "reviewed_file_sha256": {
+      "crates/mas-host-core/src/lib.rs": "07e384fcbcb85b4ba72b5682594c5ad05e339dce81ff57b1b5076dd501d4ace5",
+      "crates/mas-host-core/src/execution.rs": "9d14f44255d43d4ebe75c4c5e46fc06206a2b61f0c3e8f89d3c09b256e9dca9a",
+      "crates/mas-host-core/src/effects.rs": "252b194c4a498cee856269e7940fc1597f3c6f98c7e917ef7cd7651a445eba34",
+      "crates/mas-host-core/src/protocol.rs": "c6bfc69e019498f8c7eb97d1f048aa07785769f5665b420e593af63fddd46ba1",
+      "crates/mas-host-core/src/governance/mod.rs": "d7efc19426c0d8e097d12fe206c802f32e4fd0a0649b1b180ccab5bae66309d2",
+      "crates/mas-host-core/src/governance/runtime/mod.rs": "ab9886a7c5ffc22e843b20594d42cd379d7b6c655f2729b45dffae07cbec8705",
+      "crates/mas-host-core/src/governance/runtime/session.rs": "34939af7400c0d9188113832a11f34cc7efeb14d36e57cad9b98f480c3598e59",
+      "crates/mas-host-core/src/governance/runtime/source.rs": "8ca976179f279f32cfad757aad1acf3e1b3c238ebce34b5e0aa7da3be1897414",
+      "crates/mas-host-core/src/governance/runtime/exposure.rs": "7286073d8deb36e9fe3b0b3d64f08858439cc05166b641b9b172e71044d21487",
+      "crates/mas-host-core/src/governance/runtime/exposure_authorization.rs": "1476a21d08d005bf2d25b1b8f243ddd0edeaa3bb1a7dd1c85d6dc46d898f0389",
+      "crates/mas-host-core/src/governance/runtime/lineage.rs": "a435ba14cf29ba115f5998f393d2042949354eee56c5811a2e22669cf5035e27",
+      "crates/mas-host-core/src/governance/runtime/boundary.rs": "6e09be3cd57b9b97c62e6c11ec8742d7b9f69dab98f4b71c555c6f250a54e368",
+      "crates/mas-host-core/src/governance/runtime/inspection.rs": "29607f1cdb62c382f72a607b57d6ad88695430159cad621c3d71c0ea56e57594",
+      "crates/mas-host-core/src/governance/runtime/authorization.rs": "a3caa40691c071bc3f83b050474ef58fb3b5853258a2f6c3b10b3e5bd9672be1",
+      "crates/mas-host-core/src/governance/runtime/storage.rs": "e6929a1bba0e966568fb8dd02b25bfe04569874f06fbae41cf6258499a7455fa",
+      "crates/mas-host-core/src/governance/runtime/resolver.rs": "590fcd4399a8efa7b11005475e13d8cf64db251a55e5593d3c79ef3f9c00cd4b",
+      "crates/mas-host-core/src/governance/runtime/resolver_record.rs": "715ddaa62dd12c5c6a8febb523c1c3c48ffdd28dcd55c6008897f3766ce619fd",
+      "crates/mas-host-core/src/governance/runtime/source_resolver.rs": "15a5a45babd06564006f2b67a73ee7cb26095bee6ddf7b1a24385a3e753ce8ae",
+      "crates/mas-host-core/src/governance/runtime/exposure_adversarial_tests.rs": "08dd19d1dcaba70fa46c88dd553358770823c68fdd12d392ad2da3d8597c300b",
+      "crates/mas-host-core/src/governance/runtime/source_resolver_tests.rs": "70401f45bf1cfb87c8bd850d2bad07fcf97e27d7e129a21753b7325681372cb6",
+      "crates/mas-host-cli/src/a2a/retained.rs": "c9230b9f2f0549d62e474e43ccd74164ed2a307b01f01dc5e27cd1fab84ee2a9",
+      "crates/mas-host-cli/src/a2a/retained_source.rs": "ae2ffb93558d78dabf86d80353f634d78cbc5082d905b81481dcac5765a1d830",
+      "docs/governed-acquisition.md": "e8f20c825b517bdaa057686e28420c0b9ef0a09ec6c7aca7dfffded7b3fabf4f",
+      "docs/nehemiah-implementation.md": "6063345ade26a2cfd9bebd9a0ea2b6fcd977249015e252edfd969b57cb83883b",
+      "formal/exposure-lineage.pml": "30a3aeb03e9495e69dadc38e423273c91ad4b1a3a3f3862d146281d74b68096c",
+      "formal/exposure-lineage.md": "3021d8ca66664a0c541980175a845131bd98caa9d0fc40c76e9e01b404515790",
+      "formal/verify.py": "1350201b825b548d1505bcc11afae82f0e93447bf1627c1d67739d8c285aa18b",
+      "formal/README.md": "eaddd0854c8994264d3d8d760b9a18f998742530d186188a51950340e7de58d1",
+      "crates/mas-host-cli/src/a2a/retained_effect.rs": "672fcf26b053f3f0fb019b29b44d7c7cbbe89032a8092d8b59f13e16b49b1cc9",
+      "crates/mas-host-cli/src/a2a/mod.rs": "4b0ffa8c1eb74b88400bb8b6297a20451587ae37333737c1d70e680177de4783",
+      "crates/mas-host-cli/src/a2a/governed.rs": "394146dae9a490af4a0b4108d29e30dfda5a709be649aacc05bbe25beb5d50fd"
+    }
+  },
+  "reviewed_claims": [
+    "Version2 requires operator-owned baseline/source selections pinned to namespace identity; version1 retains its closed configuration and historical semantics.",
+    "Complete original policy closure is conjoined over host exposure, including empty or narrower worker-declared lineage; actual 35-node ancestry tests reject the restrictive late ancestor rather than truncating at32.",
+    "Closure over64 or representation/decision over65536 denies without inventing a separate HOLD record or erasing a known completion.",
+    "Frozen parallel input contexts remain immutable while recipient exposure grows monotonically before reply.",
+    "Pending acquisition and executing state are atomic before execute; unknown work is not redispatched.",
+    "Observed known completion is retained independently of current payload, inspection, lineage and delivery availability.",
+    "Registered source policies govern real descriptor and result processing before the detector or external execute callback.",
+    "Original source expiry and identity survive replay and grant renewal; source construction within journal transactions is pure.",
+    "Native and cached payload delivery uses current recipient policy union, independent of descriptor/input admissibility.",
+    "Owned effect/source reads use complete current task exposure plus original selected ancestry; pending acquisition blocks older views.",
+    "Selected source provenance is separate from current task admission; discarded raw originals are not reconstructed or fetched.",
+    "Readers acquire no execution owner lock, perform no recovery/redispatch and use coherent read-only SQLite snapshots released before callbacks.",
+    "All final callbacks precede pure namespace/context/pending/expiry checks. These define admission snapshots, with later authority/exposure/expiry changes possible before I/O.",
+    "Version2 CLI wrappers rely on the exact ingress AuthenticationLease already checked inside the core, avoiding another authentication callback after the final pure context check; version1 retained-effect post-check is preserved."
+  ],
+  "findings_and_repairs": [
+    {
+      "id": "EXPOSURE-01",
+      "kind": "design challenge",
+      "finding": "Policy references, parents and original expiry require integrity independent of the projection commitment. Missing associations must not become an empty scope.",
+      "repair": "Whole immutable source body determines keyed source identity; sealed context/invocation manifests bind complete closure, frontier, count and pending membership. Exact step/kind/actor/payload mapping is checked.",
+      "evidence": [
+        "every_source_metadata_component_is_bound_and_missing_ancestors_hold",
+        "missing_or_edited_exposure_manifest_cannot_become_an_empty_scope"
+      ],
+      "status": "SOURCE_REPAIR_REVIEWED_FINAL_GATE_PENDING"
+    },
+    {
+      "id": "EXPOSURE-02",
+      "kind": "adverse schedule",
+      "finding": "An acquisition callback could issue native work before reporting its acquired source. A pending/prepared transaction gap could also strand resumable work.",
+      "repair": "Pending obligation, manifest and executing transition commit atomically before execute; rollback leaves prepared without pending. Pending blocks new work/reads and persists for unknown after restart.",
+      "evidence": [
+        "acquisition_callback_cannot_act_before_reporting_its_source_completion",
+        "aborting_execute_transition_cannot_strand_a_pending_prepared_acquisition"
+      ],
+      "status": "SOURCE_REPAIR_REVIEWED_FINAL_GATE_PENDING"
+    },
+    {
+      "id": "EXPOSURE-03",
+      "kind": "processing boundary challenge",
+      "finding": "Registered and inherited source processing policies must precede detector callbacks; descriptor admissibility alone cannot authorise processing.",
+      "repair": "Inspect boundary receives full inherited/registered policy scope before callback and rechecks current authorisation afterward.",
+      "evidence": [
+        "inherited_inspection_denial_stops_the_detector_before_child_persistence",
+        "registered_source_permissions_apply_before_acquisition_execute"
+      ],
+      "status": "SOURCE_REPAIR_REVIEWED_FINAL_GATE_PENDING"
+    },
+    {
+      "id": "EXPOSURE-04",
+      "kind": "source reader implementation defect",
+      "finding": "Draft payload view omitted completed/available discriminants, skipping shared payload schema and inspection-receipt validation.",
+      "repair": "Supply the exact discriminants and run existing validate_payload; malformed stored inspection receipt withholds the projection without erasing completion.",
+      "evidence": [
+        "invalid_stored_inspection_receipt_cannot_hide_behind_source_projection"
+      ],
+      "status": "SOURCE_REPAIR_REVIEWED_FINAL_GATE_PENDING"
+    },
+    {
+      "id": "EXPOSURE-05",
+      "kind": "expiry challenge",
+      "finding": "Current grant renewal during acquisition must not extend the original source admission expiry.",
+      "repair": "Capture admitted expiry before journal lock; pending freezes it; completion and replay retain original minimum across policy/grant/ancestor expiry.",
+      "evidence": [
+        "renewing_current_grant_cannot_extend_original_source_expiry"
+      ],
+      "status": "SOURCE_REPAIR_REVIEWED_FINAL_GATE_PENDING"
+    },
+    {
+      "id": "EXPOSURE-06",
+      "kind": "lock/callback source defect",
+      "finding": "Cached delivery retained the journal guard across final scanner checks; source constructors also consulted current authority within transactions.",
+      "repair": "Release journal guards before all session/current/inspection callbacks. In-transaction source/pending constructors use pure MAC, immutable templates and pre-admitted expiry; locked context equality rejects callback-driven growth before execute.",
+      "evidence": [
+        "effects.rs::begin_effect",
+        "lineage.rs::begin_governed_effect",
+        "source.rs::Source::create_at",
+        "exposure.rs::begin_pending"
+      ],
+      "status": "SOURCE_REPAIR_REVIEWED_FINAL_GATE_PENDING"
+    },
+    {
+      "id": "EXPOSURE-07",
+      "kind": "root delivery implementation defect",
+      "finding": "Post-callback union authorised a small status marker but could omit authorisation of the separately delivered larger payload.",
+      "repair": "Rebind both same inspected payload and status under full current union, then pure namespace/context/pending/expiry verification after final callbacks.",
+      "evidence": [
+        "source_resolver_tests::root_delivery_reloads_exposure_and_rebinds_payload_beyond_small_status_marker"
+      ],
+      "status": "SOURCE_REPAIR_REVIEWED_FINAL_GATE_PENDING"
+    },
+    {
+      "id": "EXPOSURE-08",
+      "kind": "cached/native delivery implementation defect",
+      "finding": "Reply checks used only retained source ancestry and could miss restrictions already accumulated by the recipient, despite a permitted descriptor or frozen child input.",
+      "repair": "Authorise source plus full recipient union before inspection; expose before reply; final no-scan payload admission and pure unchanged-context/expiry check follow callbacks.",
+      "evidence": [
+        "cached_effect_payload_obeys_recipient_sources_even_when_descriptor_is_permitted",
+        "frozen_child_reply_obeys_recipient_sources_acquired_after_input_freeze"
+      ],
+      "status": "SOURCE_REPAIR_REVIEWED_FINAL_GATE_PENDING"
+    },
+    {
+      "id": "EXPOSURE-09",
+      "kind": "owned retained-view implementation defect",
+      "finding": "Selecting an earlier baseline effect/source could bypass a later restriction or pending acquisition on the same owned task.",
+      "repair": "Version2 policy scope conjoins full parent exposure with selected ancestry; selected-source lineage remains exact provenance. All metadata/available returns verify a final pure ReadBinding and expiry; version1 remains unchanged.",
+      "evidence": [
+        "earlier_retained_effect_and_source_cannot_bypass_later_invocation_resolve_denial"
+      ],
+      "status": "SOURCE_REPAIR_REVIEWED_FINAL_GATE_PENDING"
+    },
+    {
+      "id": "EXPOSURE-10",
+      "kind": "native acknowledgement integrity hardening",
+      "finding": "Native ACK needed explicit consistency between stored completion and step output/evidence before trusted receipt use.",
+      "repair": "Existing validate_completion checks exact effect/settlement/certainty/disposition/output against retained step before v2 ACK admission.",
+      "evidence": [
+        "invalid_stored_inspection_receipt_cannot_hide_behind_source_projection"
+      ],
+      "status": "SOURCE_REPAIR_REVIEWED_FINAL_GATE_PENDING"
+    },
+    {
+      "id": "EXPOSURE-11",
+      "kind": "formal property/mechanism defects",
+      "finding": "Early replay expiry and source-binding mutations did not alter the actual admission mechanism; Unknown call count and several witnesses could be too weak.",
+      "repair": "Mutate real cached guard/binding branch; compare Unknown retry count to captured pre-crash count; require live policy-specific witnesses and actual cached return. Add explicit child target and full recipient reply gates, atomic pending commit, rollback, and separate final snapshot/reply I/O.",
+      "evidence": [
+        "formal/exposure-lineage.pml",
+        "validation/exposure-lineage/accepted-final/summary.json"
+      ],
+      "status": "SOURCE_REPAIR_REVIEWED_FINAL_GATE_PENDING"
+    }
+  ],
+  "independent_core_tests": {
+    "file": "crates/mas-host-core/src/governance/runtime/exposure_adversarial_tests.rs",
+    "registered_final_tests": 20,
+    "test_names": [
+      "acquired_restriction_denies_empty_lineage_action_before_preparation",
+      "source_restriction_survives_restart_and_does_not_refetch",
+      "v1_configuration_rejects_v2_policy_selection_instead_of_ignoring_it",
+      "identical_acquisition_with_baseline_source_policy_keeps_action_permitted",
+      "acquisition_callback_cannot_act_before_reporting_its_source_completion",
+      "source_projection_cannot_reconstruct_discarded_original_bytes",
+      "every_source_metadata_component_is_bound_and_missing_ancestors_hold",
+      "missing_or_edited_exposure_manifest_cannot_become_an_empty_scope",
+      "ancestor_beyond_thirty_two_still_constrains_the_current_action",
+      "source_reader_rejects_foreign_namespace_actor_and_current_revocation",
+      "aborting_execute_transition_cannot_strand_a_pending_prepared_acquisition",
+      "inherited_inspection_denial_stops_the_detector_before_child_persistence",
+      "registered_source_permissions_apply_before_acquisition_execute",
+      "invalid_stored_inspection_receipt_cannot_hide_behind_source_projection",
+      "parallel_children_keep_frozen_input_but_parent_accumulates_returned_exposure",
+      "renewing_current_grant_cannot_extend_original_source_expiry",
+      "closure_beyond_sixty_four_holds_without_reexecuting_known_completion",
+      "cached_effect_payload_obeys_recipient_sources_even_when_descriptor_is_permitted",
+      "frozen_child_reply_obeys_recipient_sources_acquired_after_input_freeze",
+      "earlier_retained_effect_and_source_cannot_bypass_later_invocation_resolve_denial"
+    ],
+    "final_source_bound_result": "PASS_FOR_FINAL_FROZEN_CORE_FILTER",
+    "earlier_observations": [
+      {
+        "result": "PASS",
+        "tests": 17,
+        "failed": 0,
+        "ignored": 0,
+        "filtered_out": 91,
+        "reported_seconds": 65.74,
+        "execution_session": 9879,
+        "command": "cargo test --locked --offline -p mas-host-core exposure_adversarial_tests -- --nocapture",
+        "standalone_raw_log": null,
+        "limitation": "Exploratory run; compilation overlapped lineage/exposure_authorization extraction. Predates late recipient/read/ACK changes and cycle variant. Not a final-source gate."
+      },
+      {
+        "result": "PASS",
+        "tests": 2,
+        "reported_seconds": 3.95,
+        "executor": "/root/n2_cli_inspector",
+        "log": "validation/exposure-recipient-tests.log",
+        "log_sha256": "eb07d551af98831c4d9ad21ccf9dc15c7f3e8a41049894167500f5a8b9d8cab2",
+        "limitation": "Both exact cached/native recipient regressions passed before later public-reader and ACK refinements; not the final20 source-bound gate."
+      },
+      {
+        "result": "PASS_INTERMEDIATE_DIAGNOSTIC",
+        "tests": 63,
+        "reported_seconds": 262.37,
+        "log": "validation/exposure-runtime-diagnostic.log",
+        "log_sha256": "97380af49c01258de1d95481711c1e1ed743f3337c8376ddf7183bfa7d0e80fa",
+        "limitation": "Explicitly superseded intermediate runtime cut; predates final20/public-reader/ACK refinements. No final-source claim."
+      }
+    ],
+    "anti_vacuity": [
+      "Identical acquisition using baseline-only source policy permits the same downstream action.",
+      "Late-ancestor test compares restricted and baseline-only actual chains.",
+      "Cached payload is positively returned before later source restriction; its descriptor remains admissible afterward.",
+      "Same child reply is positively delivered before later recipient restriction; frozen sibling input remains admissible.",
+      "Both older public views are available before later pending/restriction."
+    ],
+    "cycle_test_limit": "Self-cycle metadata edit under unchanged keyed identity demonstrates fail-closed authenticated corruption; it is not a valid-MAC arbitrary-cycle construction proof.",
+    "final_focused_run": {
+      "result": "PASS",
+      "executor": "/root/n2_cli_inspector",
+      "tests": 20,
+      "passed": 20,
+      "failed": 0,
+      "ignored": 0,
+      "filtered_out": 92,
+      "reported_seconds": 149.13,
+      "log": "validation/exposure-adversarial-final-tests.log",
+      "log_sha256": "afb09a052a4a521c96e925a1ead3999b9053dbfbb63dac3e710d528849a8e4fb",
+      "binding": "Core and owned20 test hashes match this receipt before and after the reported frozen-source run. Subsequent CLI-only cleanup is reviewed separately; parent full final-source gate remains required.",
+      "command_family": "cargo test --locked --offline -p mas-host-core exposure_adversarial_tests",
+      "exact_argv_retained_in_log": false,
+      "exact_final_full_gate_command_owner": "parent"
+    },
+    "reader_auxiliary_run": {
+      "result": "PASS",
+      "tests": 4,
+      "reported_seconds": 9.03,
+      "executor": "/root/n2_cli_inspector",
+      "log": "validation/exposure-source-final-tests.log",
+      "log_sha256": "bfaf9138f179da1d25c721a73e5e5622a7c6e47d290037d7b998624ce93252c6",
+      "scope": "Exact source shape/read-only restart, absent/unfinished uncertainty, withheld certainty and callback-growth payload-versus-status admission."
+    }
+  },
+  "formal_review": {
+    "verdict": "ACCEPTED_FINITE_CONTROL_AND_SOURCE_CORRESPONDENCE",
+    "model": "formal/exposure-lineage.pml",
+    "model_sha256": "30a3aeb03e9495e69dadc38e423273c91ad4b1a3a3f3862d146281d74b68096c",
+    "runner_sha256": "1350201b825b548d1505bcc11afae82f0e93447bf1627c1d67739d8c285aa18b",
+    "documentation_sha256": "3021d8ca66664a0c541980175a845131bd98caa9d0fc40c76e9e01b404515790",
+    "focused_run": {
+      "directory": "validation/exposure-lineage/accepted-final",
+      "status": "PASS",
+      "checks": 40,
+      "complete_zero_error_searches": 4,
+      "mechanism_mutations": 18,
+      "reachability_witnesses": 17,
+      "stall_controls": 1,
+      "all_expected_counterexamples_replayed": true,
+      "source_changed_during_verification": [],
+      "elapsed_seconds": 164.2045488069998,
+      "positive_search_states": {
+        "exposure-lineage-safety": 3102497,
+        "exposure-lineage-safety-no-reduction": 3527041,
+        "exposure-lineage-progress": 2733421,
+        "exposure-lineage-progress-no-reduction": 3173589
+      },
+      "artifact_sha256": {
+        "summary.json": "0d83c2f8f0caf3d13a4992f11f5f0e3b5a152650b66ef588f82c265d91a5aad6",
+        "commands.json": "e2cb123aac7203e3f6291f2d60388ff8db1eef29635baae4041aee1bfd06fbe4",
+        "counterexamples.zip": "f445e5c09ccb1108c35c24333241a774a86afb07ff114fff990e464574123d42"
+      },
+      "spin": "Spin Version 6.5.1 -- 20 December 2019",
+      "compiler": "cc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+      "limits": {
+        "seconds_per_command": 30,
+        "memory_bytes": 536870912,
+        "search_depth": 100000
+      },
+      "replay_check": "Independently read all36 replay records: exit0,35 intended assertion violations and one START OF CYCLE; commands retained."
+    },
+    "model_bounds": {
+      "parents": 1,
+      "parallel_children": 2,
+      "acquisition_effects": 1,
+      "downstream_effects": 1,
+      "nested_pending_attempts": 1,
+      "source_policy_bits": 2,
+      "child_target_classes": 2,
+      "effect_target_classes": 2,
+      "result_disclosure_tuple_classes": 2,
+      "closure_classes": 6,
+      "closure_size_classes": [
+        1,
+        33,
+        65
+      ],
+      "actual_closure_limit": 64,
+      "traversed_late_ancestor": 33,
+      "source_expiry_classes": [
+        2,
+        3
+      ],
+      "authority_or_time_updates": 1,
+      "crashes": 1,
+      "execute_transaction_rollbacks": 1,
+      "prepared_admission_retries": 1,
+      "explicit_cached_retries": 1
+    },
+    "accepted_mapping": [
+      "Complete closure classes and late33 traversal",
+      "Frozen parallel child inputs and current inherited child targets",
+      "Source processing before descriptor/result inspectors",
+      "Atomic pending+Executing and failed transaction retry",
+      "Blocked nested work and Unknown retries",
+      "Known completion retained on inspection/source failure",
+      "Recipient exposure before reply and final full-recipient payload admission",
+      "Exact cached identity/original expiry",
+      "Separate final snapshot and subsequent reply I/O"
+    ],
+    "limits": [
+      "Finite control abstraction, not a refinement proof of Rust, SQLite, cryptography, schemas, detectors, arbitrary DAGs or semantic information flow.",
+      "Closure classes Basic/Late33/Missing/Cycle/Conflict/Oversize abstract actual graph topology and MAC validation; exact65536-byte policy/encoding bounds are implementation checks.",
+      "One parent, two children, one acquisition, one downstream action, one authority-or-time update, one crash, one rollback/prepared retry and one cached retry.",
+      "File authority and final recipient exposure checks are snapshots; no linearisation with later I/O or sibling growth.",
+      "Same-invocation descriptor callback growth is guarded by a reviewed locked source-ID/frontier comparison; no executed named regression is claimed for that specific branch.",
+      "Retained-effect coherent snapshot/current whole-view abstraction and exposure model are separate; no joint arbitrary readergraph refinement proof."
+    ],
+    "constructor_receipt": "validation/exposure-lineage/review.json",
+    "constructor_receipt_sha256": "d4901ee90d5170425679e5c0e52b679b8a00ccc3084370e436934232f4e9e51f"
+  },
+  "parent_full_validation": {
+    "status": "PENDING_AT_RECEIPT_CREATION",
+    "owner": "parent",
+    "final_core_tests": 20,
+    "planned_default_formal_checks": 224,
+    "no_full_workspace_acceptance_http_or_provider_pass_claim": true,
+    "required_binding": "Parent final validation must bind the accepted source hashes/final commit to completed implementation, HTTP/example, acceptance/provider and default formal gates. Historical test results cannot substitute for changed-source checks.",
+    "core_focused_status": "20_PASS_FINAL_FROZEN_CORE_FILTER",
+    "source_reader_focused_status": "4_PASS",
+    "final_cli_full_gate": "PENDING_PARENT_FINAL_BINARY_GATES"
+  },
+  "remaining_scope": {
+    "E3": [
+      "Larger and shared multi-principal/subscriber ancestry/readership qualification",
+      "Exact original-source bytes and detector assessment custody/adjudication",
+      "Protected revision and any authorised declassification/retention/deletion/restore profile"
+    ],
+    "N2": [
+      "Cross-field/conversational and numeric identifier handling",
+      "Arbitrary free-text quality qualification",
+      "Remaining acquisition/inference/revision and managed/shared deployment boundaries"
+    ],
+    "N3": [
+      "Authorised exact assessment/source resolution for adjudication beyond retained projection",
+      "Durable queue/timed retry/escalation and provider reconciliation",
+      "Shared case ownership and endpoint/deployment qualification"
+    ],
+    "trust_limits": [
+      "Trusted local storage/configuration/native-worker profile; source seals do not provide whole-database anti-rollback or worker isolation.",
+      "Deterministic fixture inspection establishes conformance, not neural detector quality, external collector behavior or deployment capacity.",
+      "No whole-plan completion claim; governed revision remains unsupported and inference restrictions stay enforced.",
+      "Unavailable or withheld reads confer no execution/retry authority; total configured query-inspector outage can deny retained fact readability without deleting those facts."
+    ]
+  },
+  "production_edits_by_reviewer": false,
+  "reviewer_owned_test_file": "crates/mas-host-core/src/governance/runtime/exposure_adversarial_tests.rs",
+  "source_edits_during_receipt_creation": false,
+  "test_reruns_during_receipt_creation": false,
+  "remote_mutations_by_reviewer": false,
+  "applied_skill": "skill://plugins_6acc9dcaa1b081919a82f4b0a9132159/create-mas-protocol/SKILL.md",
+  "cli_final_cleanup_review": {
+    "reviewed_at_utc": "2026-10-22T20:40:40.174898+00:00",
+    "verdict": "ACCEPTED_SOURCE_REVIEW",
+    "changes": [
+      "retained_source returns after core ReadBinding verification without a later principal.current callback.",
+      "retained_effect retains the historical post-current check for version1 and skips it only for version2.",
+      "execute version2 output-admission closure returns after read_governed_root_delivery without a later caller.current callback."
+    ],
+    "lease_correspondence": [
+      "GovernedIngress::authenticate clones the exact AuthenticationLease record, authentication-file path, export set and commitment-key identity into session.with_authentication_check before inspector attachment.",
+      "GovernedSession::current invokes that lease callback before authority reads; result/core final current checks precede pure context/expiry verification.",
+      "AuthenticationLease::check rejects changed key identity or missing/different exact active credential record.",
+      "Owned task/principal/actor/fingerprint checks still precede run path selection; removing the redundant post-core callback does not grant another identity or bypass the core lease."
+    ],
+    "validation_limit": "No tests rerun for this cleanup review. Root final workspace/example/HTTP gates must bind the final CLI binary; direct N3 results on an earlier host remain intermediate."
+  },
+  "receipt_updated_at_utc": "2026-10-22T20:40:40.174915+00:00"
+}
