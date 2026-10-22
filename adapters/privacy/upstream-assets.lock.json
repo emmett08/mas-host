@@ -1,0 +1,31 @@
+{
+  "code_revision": "f7f00ca7fb869683eb732c010299d901457f19c3",
+  "model_revision": "7ffa9a043d54d1be65afb281eddf0ffbe629385b",
+  "assets": {
+    "checkpoint/model.safetensors": {
+      "url": "https://huggingface.co/openai/privacy-filter/resolve/7ffa9a043d54d1be65afb281eddf0ffbe629385b/original/model.safetensors",
+      "sha256": "9c262cbe68a0c8a50590a648ef8341a2b7d3be1fa11dfb79893fe0b03ce57b5c",
+      "bytes": 2798984088
+    },
+    "checkpoint/config.json": {
+      "url": "https://huggingface.co/openai/privacy-filter/resolve/7ffa9a043d54d1be65afb281eddf0ffbe629385b/original/config.json",
+      "sha256": "048a20604a3622de208d30df57cd5424bb583639b9ba20ddd7da593d3f89a248",
+      "bytes": 707
+    },
+    "checkpoint/viterbi_calibration.json": {
+      "url": "https://huggingface.co/openai/privacy-filter/resolve/7ffa9a043d54d1be65afb281eddf0ffbe629385b/original/viterbi_calibration.json",
+      "sha256": "bbc8611ef08a55ed72d64856cbbbb9a91db8dfa881f0a92e2afbad6e4bbc775a",
+      "bytes": 372
+    },
+    "checkpoint/dtypes.json": {
+      "url": "https://huggingface.co/openai/privacy-filter/resolve/7ffa9a043d54d1be65afb281eddf0ffbe629385b/original/dtypes.json",
+      "sha256": "e936acb3d039b35ec55438af2fffd424a53c7685b895775c186b26c7df79fcc7",
+      "bytes": 4108
+    },
+    "tiktoken/o200k_base.tiktoken": {
+      "url": "https://openaipublic.blob.core.windows.net/encodings/o200k_base.tiktoken",
+      "sha256": "446a9538cb6c348e3516120d7c08b09f57c36495e2acfffe59a5bf8b0cfb1a2d",
+      "bytes": 3613922
+    }
+  }
+}

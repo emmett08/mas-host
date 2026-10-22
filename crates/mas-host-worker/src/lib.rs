@@ -6,10 +6,12 @@
 //! trusted worker's process group. Workers are not security-sandboxed: the
 //! existing MAS guardian supervises cooperative application processes.
 //!
-//! This initial profile clears the inherited environment, uses a 2 GiB address
+//! The default profile clears the inherited environment, uses a 2 GiB address
 //! space ceiling (including Go's virtual-memory reservation), a CPU limit equal
 //! to the remaining wall-time ceiling, and a 64 MiB file-size ceiling. Standard
 //! output and error are discarded by the guardian; they never carry frames.
+//! Trusted callers can select a bounded address-space ceiling explicitly without
+//! changing the deadline, file-size, core-dump or descendant-cleanup contract.
 
 #![cfg(target_os = "linux")]
 
@@ -30,7 +32,47 @@ use serde_json::Value;
 
 pub const MAX_FRAME_BYTES: usize = 65_536;
 const MEMORY_BYTES: u64 = 2 * 1024 * 1024 * 1024;
+const MIN_MEMORY_BYTES: u64 = 256 * 1024 * 1024;
+const MAX_MEMORY_BYTES: u64 = 64 * 1024 * 1024 * 1024;
 const FILE_BYTES: u64 = 64 * 1024 * 1024;
+
+/// Explicit resource allowance for a trusted registered worker. This bounds
+/// virtual address space, not measured resident memory or available capacity.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct WorkerLimits {
+    max_address_space_bytes: u64,
+}
+
+impl WorkerLimits {
+    /// Select 256 MiB through 64 GiB of address space. Larger model workers
+    /// require an explicit allowance; ordinary workers retain the 2 GiB default.
+    pub fn new(max_address_space_bytes: u64) -> Result<Self, String> {
+        let limits = Self {
+            max_address_space_bytes,
+        };
+        limits.validate()?;
+        Ok(limits)
+    }
+
+    pub fn max_address_space_bytes(self) -> u64 {
+        self.max_address_space_bytes
+    }
+
+    fn validate(self) -> Result<(), String> {
+        if !(MIN_MEMORY_BYTES..=MAX_MEMORY_BYTES).contains(&self.max_address_space_bytes) {
+            return Err("worker address-space ceiling must be 256 MiB through 64 GiB".into());
+        }
+        Ok(())
+    }
+}
+
+impl Default for WorkerLimits {
+    fn default() -> Self {
+        Self {
+            max_address_space_bytes: MEMORY_BYTES,
+        }
+    }
+}
 
 /// One trusted native worker and its guardian. Call `stop` and check its result
 /// before recording successful application completion. `Drop` also revokes the
@@ -75,6 +117,32 @@ impl Worker {
         environment: &BTreeMap<String, String>,
         working_directory: Option<&Path>,
     ) -> Result<Self, String> {
+        Self::spawn_scoped_with_limits(
+            executable,
+            start,
+            deadline_ms,
+            ownership_fd,
+            arguments,
+            environment,
+            working_directory,
+            WorkerLimits::default(),
+        )
+    }
+
+    /// Start a trusted registered worker with an explicit address-space ceiling.
+    /// Other resource and lifetime limits remain the ordinary worker contract.
+    /// This opt-in allowance supplies neither isolation nor execution authority.
+    #[allow(clippy::too_many_arguments)] // Additive API preserves existing scoped callers.
+    pub fn spawn_scoped_with_limits(
+        executable: &Path,
+        start: &Value,
+        deadline_ms: u64,
+        ownership_fd: RawFd,
+        arguments: &[String],
+        environment: &BTreeMap<String, String>,
+        working_directory: Option<&Path>,
+        limits: WorkerLimits,
+    ) -> Result<Self, String> {
         Self::spawn_scoped_with_launcher(
             executable,
             start,
@@ -82,6 +150,7 @@ impl Worker {
             ownership_fd,
             arguments,
             environment,
+            limits,
             |command, args| {
                 if let Some(directory) = working_directory {
                     command.current_dir(directory);
@@ -106,10 +175,12 @@ impl Worker {
             ownership_fd,
             &[],
             &BTreeMap::new(),
+            WorkerLimits::default(),
             configure,
         )
     }
 
+    #[allow(clippy::too_many_arguments)] // The test launcher exercises the same bounded launch path.
     fn spawn_scoped_with_launcher(
         executable: &Path,
         start: &Value,
@@ -117,8 +188,10 @@ impl Worker {
         ownership_fd: RawFd,
         arguments: &[String],
         environment: &BTreeMap<String, String>,
+        limits: WorkerLimits,
         configure: impl FnOnce(&mut Command, &[String]),
     ) -> Result<Self, String> {
+        limits.validate()?;
         if !executable.is_absolute() {
             return Err("worker executable must be an absolute registered path".into());
         }
@@ -140,7 +213,7 @@ impl Worker {
             inherited[0].to_string(),
             inherited[1].to_string(),
             deadline_ms.to_string(),
-            MEMORY_BYTES.to_string(),
+            limits.max_address_space_bytes.to_string(),
             cpu_seconds.to_string(),
             FILE_BYTES.to_string(),
             inherited[2].to_string(),
@@ -594,6 +667,7 @@ mod tests {
             lock.as_raw_fd(),
             &["configured-argument".into()],
             &environment,
+            WorkerLimits::default(),
             |command, args| {
                 command
                     .args([
@@ -625,6 +699,113 @@ mod tests {
             observed,
             "configured-argument\ndeclared-value\nunset\n/usr/local/bin:/usr/bin:/bin\n"
         );
+        drop(lock);
+        fs::remove_dir_all(directory).unwrap();
+    }
+
+    #[test]
+    fn resource_bounds_are_validated_before_launch_or_descriptor_access() {
+        assert_eq!(
+            WorkerLimits::default().max_address_space_bytes(),
+            MEMORY_BYTES
+        );
+        assert!(WorkerLimits::new(MIN_MEMORY_BYTES).is_ok());
+        assert!(WorkerLimits::new(MAX_MEMORY_BYTES).is_ok());
+        for bytes in [0, MIN_MEMORY_BYTES - 1, MAX_MEMORY_BYTES + 1, u64::MAX] {
+            assert!(WorkerLimits::new(bytes).is_err());
+            let result = Worker::spawn_scoped_with_launcher(
+                Path::new("/not-a-worker"),
+                &serde_json::json!({"type":"start"}),
+                unix_ms_now() + 5_000,
+                -1,
+                &[],
+                &BTreeMap::new(),
+                WorkerLimits {
+                    max_address_space_bytes: bytes,
+                },
+                |_, _| panic!("invalid limits reached process configuration"),
+            );
+            assert!(result.err().unwrap().contains("address-space ceiling"));
+        }
+    }
+
+    #[test]
+    fn guardian_applies_selected_address_space_and_disables_core_dumps() {
+        let _launch_guard = GUARDIAN_TEST_LOCK.lock().unwrap();
+        let directory = std::env::temp_dir().join(format!(
+            "mas-worker-limits-{}-{}",
+            std::process::id(),
+            unix_ms_now()
+        ));
+        fs::create_dir(&directory).unwrap();
+        let lock = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create_new(true)
+            .open(directory.join("owner.lock"))
+            .unwrap();
+        assert_eq!(
+            unsafe { libc::flock(lock.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) },
+            0
+        );
+        let result_path = directory.join("limits");
+        let executable = directory.join("worker");
+        fs::write(
+            &executable,
+            format!(
+                "#!/bin/sh\n{{ ulimit -v; ulimit -c; }} > '{}'\n/bin/sleep 5\n",
+                result_path.display()
+            ),
+        )
+        .unwrap();
+        fs::set_permissions(&executable, fs::Permissions::from_mode(0o700)).unwrap();
+        for limits in [
+            WorkerLimits::default(),
+            WorkerLimits::new(4 * MEMORY_BYTES).unwrap(),
+        ] {
+            let _ = fs::remove_file(&result_path);
+            let mut worker = Worker::spawn_scoped_with_launcher(
+                &executable,
+                &serde_json::json!({"type":"start"}),
+                unix_ms_now() + 5_000,
+                lock.as_raw_fd(),
+                &[],
+                &BTreeMap::new(),
+                limits,
+                |command, args| {
+                    command
+                        .args([
+                            "--exact",
+                            "tests::guardian_entry",
+                            "--ignored",
+                            "--nocapture",
+                        ])
+                        .env(
+                            "MAS_TEST_GUARDIAN_ARGS",
+                            serde_json::to_string(args).unwrap(),
+                        );
+                },
+            )
+            .unwrap();
+            let observed = (0..200)
+                .find_map(|_| {
+                    let value = fs::read_to_string(&result_path).ok();
+                    if value
+                        .as_ref()
+                        .is_some_and(|value| value.lines().count() == 2)
+                    {
+                        return value;
+                    }
+                    thread::sleep(Duration::from_millis(5));
+                    None
+                })
+                .expect("worker did not report installed kernel limits");
+            worker.stop().unwrap();
+            assert_eq!(
+                observed,
+                format!("{}\n0\n", limits.max_address_space_bytes() / 1024)
+            );
+        }
         drop(lock);
         fs::remove_dir_all(directory).unwrap();
     }

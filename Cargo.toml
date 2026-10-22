@@ -23,3 +23,4 @@ mas-host-providers = { path = "crates/mas-host-providers" }
 mas-host-workflow = { path = "crates/mas-host-workflow" }
 mas-host-process = { path = "crates/mas-host-process" }
 mas-host-schema = { path = "crates/mas-host-schema" }
+mas-host-privacy = { path = "crates/mas-host-privacy" }
