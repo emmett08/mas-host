@@ -1,6 +1,9 @@
 //! Expose local detector inspection without admitting or persisting a protected operation.
 mod config;
+mod governed;
 mod runner;
+
+pub(crate) use governed::GovernedInspector;
 
 use mas_host_privacy::{
     CombinedAssessment, ExecutionCertainty, HandlingContext, HandlingProfile, Limits,

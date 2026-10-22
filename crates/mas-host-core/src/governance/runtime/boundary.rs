@@ -46,8 +46,12 @@ fn available_completion(
     certainty: &str,
     output: Value,
     evidence: Value,
+    inspection: Option<Value>,
 ) -> Result<(Value, Value, Value)> {
-    let values = completion_values(effect_id, certainty, output, Some(evidence));
+    let mut values = completion_values(effect_id, certainty, output, Some(evidence));
+    if let Some(inspection) = inspection {
+        values.1["inspection"] = inspection;
+    }
     if !valid_completion_ack(&values.2) {
         return Err("governed-completion-limit".into());
     }
@@ -163,8 +167,18 @@ impl Inner {
             if projected_evidence.as_object().is_none_or(|o| o.is_empty()) {
                 return Err("governed-evidence-empty".into());
             }
-            let (safe_output, safe_evidence, completion) =
-                available_completion(&step.id, certainty, projected_output, projected_evidence)?;
+            let inspection = session.inspect_boundary(
+                &step.actor,
+                &json!([output, evidence]),
+                &json!([projected_output, projected_evidence]),
+            )?;
+            let (safe_output, safe_evidence, completion) = available_completion(
+                &step.id,
+                certainty,
+                projected_output,
+                projected_evidence,
+                inspection,
+            )?;
             // Bind every retained/disclosed value, including supporting
             // evidence and host receipt metadata, to the current policy.
             session.authorize(
@@ -215,11 +229,14 @@ mod tests {
         );
         assert_eq!(body.to_string().len(), 65_536);
         assert!(!valid_completion_ack(&body));
-        let values =
-            available_completion(&id, "completed", output, json!({"execution":"completed"}))
-                .unwrap_or_else(|_| {
-                    completion_values(&id, "completed", unavailable("completed"), None)
-                });
+        let values = available_completion(
+            &id,
+            "completed",
+            output,
+            json!({"execution":"completed"}),
+            None,
+        )
+        .unwrap_or_else(|_| completion_values(&id, "completed", unavailable("completed"), None));
         assert_eq!(values.2["host_settlement"], "completed");
         assert_eq!(values.2["external_execution"], "completed");
         assert_eq!(values.2["payload_disposition"], "withheld");
@@ -229,8 +246,13 @@ mod tests {
         for _ in 0..31 {
             deep = json!({"nested":deep});
         }
-        assert!(
-            available_completion(&id, "completed", deep, json!({"execution":"completed"})).is_err()
-        );
+        assert!(available_completion(
+            &id,
+            "completed",
+            deep,
+            json!({"execution":"completed"}),
+            None
+        )
+        .is_err());
     }
 }

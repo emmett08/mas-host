@@ -13,6 +13,7 @@ import resource
 import shutil
 import subprocess
 import tempfile
+import time
 import zipfile
 
 ROOT = Path(__file__).resolve().parent
@@ -22,7 +23,9 @@ MEMORY_BYTES = 512 * 1024 * 1024
 CASES = []
 for model, claim in (("revision", "settles"), ("disclosure", "context_finishes"),
                      ("delegation", "delegation_finishes"),
-                     ("provider-results", "provider_results_settle")):
+                     ("provider-results", "provider_results_settle"),
+                     ("governed-local", "governed_local_settles"),
+                     ("privacy-response", "privacy_response_settles")):
     for ltl in (False, True):
         for no_reduce in (False, True):
             CASES.append((model, f"{'progress' if ltl else 'safety'}{'-no-reduction' if no_reduce else ''}",
@@ -111,6 +114,74 @@ for name, macro, assertion in (
     CASES.append(("provider-results", name, macro, None, False, assertion))
 CASES.append(("provider-results", "stalled-provider", "BUG_STALL", "provider_results_settle",
               False, "acceptance cycle"))
+for name, macro, assertion in (
+    ("raw-input", "BUG_RAW_INPUT", "journal_input!=Raw"),
+    ("raw-completion", "BUG_RAW_COMPLETION", "journal_output!=Raw"),
+    ("raw-protocol", "BUG_RAW_PROTOCOL", "protocol_output!=Raw"),
+    ("stale-effect-authority", "BUG_STALE_EFFECT_AUTHORITY", "!(effect_check)"),
+    ("stale-delivery-authority", "BUG_STALE_DELIVERY_AUTHORITY", "!(delivery_check)"),
+    ("certainty-promotion", "BUG_CERTAINTY_PROMOTION", "retained_certainty==observed_certainty"),
+    ("erase-completion", "BUG_ERASE_COMPLETION", "receipt&&(effect_state==Completed)"),
+    ("borrowed-receipt", "BUG_BORROWED_RECEIPT", "forwarded_certainty==0"),
+    ("foreign-tenant", "BUG_FOREIGN_TENANT", "attempt_tenant==1"),
+    ("original-rebind", "BUG_ORIGINAL_REBIND", "bound_original==1"),
+    ("unknown-retry", "BUG_UNKNOWN_RETRY", "calls==sealed_calls"),
+    ("completed-retry", "BUG_COMPLETED_RETRY", "calls<=1"),
+    ("inspection-coverage", "BUG_INSPECTION_COVERAGE", "inspection_complete"),
+    ("inspection-binding", "BUG_INSPECTION_BINDING", "inspection_exact"),
+    ("inspection-finding", "BUG_INSPECTION_FINDING", "inspection_clean"),
+    ("inspection-revocation", "BUG_INSPECTION_REVOCATION", "!(inspection_postcheck)"),
+    ("outbound-inspection", "BUG_OUTBOUND_INSPECTION", "outbound_inspected"),
+    ("available-witness", "WITNESS_AVAILABLE", "terminal==Delivered"),
+    ("withheld-witness", "WITNESS_WITHHELD", "retained_certainty==1"),
+    ("replay-witness", "WITNESS_REPLAY", "!(replayed)"),
+    ("unknown-witness", "WITNESS_UNKNOWN", "!(unknown_seen)"),
+    ("restart-repair-witness", "WITNESS_RESTART_REPAIR", "protocol_completed"),
+    ("revoked-completion-witness", "WITNESS_REVOKED_COMPLETION", "!(completed_while_revoked)"),
+    ("input-conflict-witness", "WITNESS_INPUT_CONFLICT", "!(input_conflict)"),
+    ("foreign-denial-witness", "WITNESS_FOREIGN_DENIAL", "!(foreign_denied)"),
+    ("snapshot-race-witness", "WITNESS_SNAPSHOT_RACE", "!(check_action_race)"),
+    ("epoch-refresh-witness", "WITNESS_EPOCH_REFRESH", "epoch_refreshed"),
+    ("positive-original-witness", "WITNESS_POSITIVE_ORIGINAL", "positive_original_projected"),
+    ("inspection-denial-witness", "WITNESS_INSPECTION_DENIAL", "!(inspection_denied)"),
+    ("inspection-withholding-witness", "WITNESS_INSPECTION_WITHHOLDING", "inspection_withheld"),
+    ("unknown-retry-witness", "WITNESS_UNKNOWN_RETRY", "!(unknown_retry_blocked)"),
+):
+    CASES.append(("governed-local", name, macro, None, False, assertion))
+CASES.append(("governed-local", "stalled-external", "BUG_STALL", "governed_local_settles",
+              False, "acceptance cycle"))
+for name, macro, assertion in (
+    ("untrusted-route", "BUG_UNTRUSTED_ROUTE", "route==required_route"),
+    ("intent-order", "BUG_INTENT_ORDER", "intent_receipt&&intent_exposed"),
+    ("withheld-intent", "BUG_WITHHELD_INTENT", "intent_receipt&&intent_exposed"),
+    ("revoked-notification", "BUG_REVOKED_NOTIFY", "!(admission_check)"),
+    ("unknown-retry", "BUG_UNKNOWN_RETRY", "notification_calls==sealed_notification_calls"),
+    ("completed-retry", "BUG_COMPLETED_RETRY", "notification_calls<=1"),
+    ("withheld-retry", "BUG_WITHHELD_RETRY", "notification_calls<=1"),
+    ("throttled-retry", "BUG_THROTTLE_RETRY", "notification_calls<=1"),
+    ("throttled-success", "BUG_THROTTLED_SUCCESS", "provider_outcome==sealed_outcome"),
+    ("recipient-certainty", "BUG_RECIPIENT_CERTAINTY", "!(recipient_delivery_known)"),
+    ("event-rebind", "BUG_EVENT_REBIND", "frozen_event==1"),
+    ("destination-rebind", "BUG_DESTINATION_REBIND", "frozen_destination==1"),
+    ("replay-identity", "BUG_REPLAY_IDENTITY", "attempt_tenant==1"),
+    ("accepted-witness", "WITNESS_ACCEPTED", "provider_outcome==Accepted"),
+    ("refused-witness", "WITNESS_REFUSED", "provider_outcome==Refused"),
+    ("throttled-witness", "WITNESS_THROTTLED", "provider_outcome==Throttled"),
+    ("unknown-witness", "WITNESS_UNKNOWN", "notification_state!=Unknown"),
+    ("between-effects-witness", "WITNESS_BETWEEN_EFFECTS", "crashed_between_effects"),
+    ("withheld-completion-witness", "WITNESS_WITHHELD_COMPLETION", "payload_withheld"),
+    ("withheld-intent-witness", "WITNESS_WITHHELD_INTENT", "notification_calls==0"),
+    ("revocation-witness", "WITNESS_REVOCATION", "!(revoked_before_notification)"),
+    ("replay-witness", "WITNESS_REPLAY", "terminal==Settled"),
+    ("event-conflict-witness", "WITNESS_EVENT_CONFLICT", "!(conflict_rejected)"),
+    ("foreign-denial-witness", "WITNESS_FOREIGN_DENIAL", "!(foreign_rejected)"),
+    ("not-sent-witness", "WITNESS_NOT_SENT", "provider_outcome==NotSent"),
+    ("destination-conflict-witness", "WITNESS_DESTINATION_CONFLICT", "!(destination_conflict)"),
+    ("unknown-retry-witness", "WITNESS_UNKNOWN_RETRY", "!(unknown_retry_blocked)"),
+):
+    CASES.append(("privacy-response", name, macro, None, False, assertion))
+CASES.append(("privacy-response", "stalled-endpoint", "BUG_STALL", "privacy_response_settles",
+              False, "acceptance cycle"))
 
 
 def bounded() -> None:
@@ -118,10 +189,19 @@ def bounded() -> None:
 
 
 def command(argv: list[str], cwd: Path, logs: list[dict]) -> str:
-    result = subprocess.run(argv, cwd=cwd, text=True, capture_output=True,
-                            timeout=SECONDS, preexec_fn=bounded)
+    started = time.monotonic()
+    entry = {"argv": argv}
+    logs.append(entry)
+    try:
+        result = subprocess.run(argv, cwd=cwd, text=True, capture_output=True,
+                                timeout=SECONDS, preexec_fn=bounded)
+    except subprocess.TimeoutExpired as error:
+        entry.update(exit_code=None, timed_out=True, elapsed_seconds=time.monotonic() - started,
+                     output=str(error.stdout or "") + str(error.stderr or ""))
+        raise
     output = result.stdout + result.stderr
-    logs.append({"argv": argv, "exit_code": result.returncode, "output": output})
+    entry.update(exit_code=result.returncode, output=output,
+                 elapsed_seconds=time.monotonic() - started)
     if result.returncode:
         raise RuntimeError(f"{argv[0]} exited {result.returncode}")
     return output
@@ -132,8 +212,11 @@ def sha(path: Path) -> str:
 
 
 def main() -> int:
+    started = time.monotonic()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, default=ROOT / "evidence")
+    parser.add_argument("--model", action="append", choices=sorted({case[0] for case in CASES}),
+                        help="check only this model; repeat to select several")
     args = parser.parse_args()
     output = args.out.resolve()
     output.mkdir(parents=True, exist_ok=True)
@@ -155,7 +238,24 @@ def main() -> int:
                           "provider_results": {"inference_effects": 1, "messages": 3,
                                                "downstream_effects": 1,
                                                "retained_earlier_peers": [0, 1],
-                                               "crashes": 1, "terminal_replays": 1}},
+                                               "crashes": 1, "terminal_replays": 1},
+                          "governed_local": {"invocations": 1, "mediated_effects": 1,
+                                             "tenants": 2, "original_classes": 2,
+                                             "request_channel_capacity": 1,
+                                             "result_channel_capacity": 1,
+                                             "authority_updates": 1, "crashes": 1,
+                                             "explicit_core_retries": 1,
+                                             "crash_recovery_cached_passes": 1,
+                                             "maximum_cached_passes": 2},
+                          "privacy_response": {"case_intents": 1, "notification_effects": 1,
+                                               "tenants": 2, "event_classes": 2,
+                                               "destination_classes": 2,
+                                               "route_classes": 3,
+                                               "endpoint_request_channel_capacity": 1,
+                                               "endpoint_reply_channel_capacity": 1,
+                                               "revocations": 1, "crashes": 1,
+                                               "explicit_retries": 1,
+                                               "maximum_cached_passes": 2}},
                "assumptions": [
                    "One host owner serialises this run and immutable journal writes are atomic",
                    "A provider invocation terminates or reaches its fixed external deadline",
@@ -166,6 +266,12 @@ def main() -> int:
                    "Disclosure applies only to host-managed inputs under the trusted-worker boundary",
                    "Provider result values abstract exact parsed JSON; schema and request admissibility are separate inputs",
                    "Provider result admission covers one current logical decision, not semantic deduplication across turns",
+                   "Governed local authority checks are file-snapshot checks, not linearised with later commits or dispatch",
+                   "Governed replay is an explicit core retry; the A2A service does not automatically resume unknown tasks",
+                   "Governed representation classes abstract JSON projection, exact HMAC/tenant comparisons and native framing",
+                   "Privacy response routes and safe event classes abstract the bounded adapter parser and trusted configuration",
+                   "Notification endpoint acceptance establishes submission only; recipient delivery remains unknown",
+                   "Privacy response has no automated retry/reconciliation/escalation scheduler or shared case owner",
                    "No unmediated files, provider memory, traffic timing, hash collision or storage adversary",
                    "No fairness options, approximate hashing or disabled bounds/assertion checks",
                    "This is finite control checking plus implementation correspondence, not a refinement proof",
@@ -185,7 +291,9 @@ def main() -> int:
     archive_path = Path(archive_workspace.name) / "counterexamples.zip"
     with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_DEFLATED):
         pass
-    for model, name, macro, claim, no_reduce, expected in CASES:
+    selected_cases = [case for case in CASES if not args.model or case[0] in args.model]
+    summary["selected_models"] = sorted({case[0] for case in selected_cases})
+    for model, name, macro, claim, no_reduce, expected in selected_cases:
         key = f"{model}-{name}"
         entries = logs[key] = []
         check = {"name": key, "model": f"{model}.pml", "macro": macro,
@@ -258,6 +366,7 @@ def main() -> int:
     if sha(Path(__file__)) != summary["runner_sha256"]:
         changed.append("verify.py")
     summary["source_changed_during_verification"] = changed
+    summary["elapsed_seconds"] = time.monotonic() - started
     summary["status"] = "PASS" if not changed and all(
         item["result"] != "FAILED_OR_INCOMPLETE" for item in summary["checks"]) else "FAIL"
     with zipfile.ZipFile(archive_path) as archive:

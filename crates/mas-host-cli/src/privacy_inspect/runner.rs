@@ -13,6 +13,15 @@ pub(super) fn inspect(
     source: &Source,
     limits: Limits,
 ) -> Result<NeuralAssessment, &'static str> {
+    inspect_deadline(config, source, limits, u64::MAX)
+}
+
+pub(super) fn inspect_deadline(
+    config: &Config,
+    source: &Source,
+    limits: Limits,
+    boundary_deadline_ms: u64,
+) -> Result<NeuralAssessment, &'static str> {
     let request = config
         .pins
         .request(source, limits)
@@ -45,9 +54,14 @@ pub(super) fn inspect(
     .into_iter()
     .map(|(k, v)| (k.into(), v.into()))
     .collect();
-    let deadline = mas_host_process::unix_ms()
+    let now = mas_host_process::unix_ms();
+    let deadline = now
         .checked_add(config.timeout_ms)
-        .ok_or("worker-unavailable")?;
+        .ok_or("worker-unavailable")?
+        .min(boundary_deadline_ms);
+    if now >= deadline {
+        return Err("worker-timeout");
+    }
     let mut worker = Worker::spawn_scoped_with_limits(
         &config.python,
         &request,
@@ -62,6 +76,9 @@ pub(super) fn inspect(
     let response = worker.read();
     // No response is accepted until the same guardian confirms descendant cleanup.
     worker.stop().map_err(|_| "worker-cleanup-failed")?;
+    if mas_host_process::unix_ms() >= deadline {
+        return Err("worker-timeout");
+    }
     NeuralAssessment::from_value(
         &response.map_err(|_| "worker-incomplete")?,
         source,

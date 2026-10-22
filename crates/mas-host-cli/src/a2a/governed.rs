@@ -26,6 +26,7 @@ pub(super) struct GovernedIngress {
     session_config: Value,
     key_file: PathBuf,
     key_digest: String,
+    privacy_inspector: Option<crate::privacy_inspect::GovernedInspector>,
 }
 
 fn identifier(value: &Value, key: &str) -> Result<String> {
@@ -59,11 +60,18 @@ impl GovernedIngress {
                 .ok_or("commitment key path required")?,
         );
         let key_digest = key_identity(&key_file)?;
+        let privacy_inspector = config
+            .get("privacy_inspector_file")
+            .map(|_| {
+                crate::privacy_inspect::GovernedInspector::load(&path("privacy_inspector_file")?)
+            })
+            .transpose()?;
         Ok(Self {
             authentication_file,
             session_config,
             key_file,
             key_digest,
+            privacy_inspector,
         })
     }
 
@@ -126,6 +134,10 @@ impl GovernedIngress {
         };
         let revalidation = lease.clone();
         let session = session.with_authentication_check(Arc::new(move || revalidation.check()));
+        let session = match &self.privacy_inspector {
+            Some(inspector) => inspector.attach(session).ok()?,
+            None => session,
+        };
         Some(Caller {
             owner,
             session: Some(session),
@@ -139,8 +151,16 @@ impl GovernedIngress {
     }
 
     pub fn identity(&self) -> Value {
-        json!({"version":"mas-governed-ingress/1", "configuration":self.session_config,
-            "authentication_file":self.authentication_file,"commitment_key_fingerprint":self.key_digest})
+        let mut identity = json!({"version":"mas-governed-ingress/1", "configuration":self.session_config,
+            "authentication_file":self.authentication_file,"commitment_key_fingerprint":self.key_digest});
+        if let Some(inspector) = &self.privacy_inspector {
+            identity["privacy_inspector"] = inspector.identity();
+        }
+        identity
+    }
+
+    pub(super) fn inspection_timeout_ms(&self) -> Option<u64> {
+        self.privacy_inspector.as_ref().map(|i| i.timeout_ms())
     }
 }
 

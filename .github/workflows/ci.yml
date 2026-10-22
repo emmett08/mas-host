@@ -38,7 +38,7 @@ jobs:
         run: make test
       - name: Native applications and effect recovery
         run: make acceptance
-      - name: Check bounded revision and disclosure with SPIN
+      - name: Check host control and governed recovery with SPIN
         run: |
           sudo apt-get update
           sudo apt-get install -y spin

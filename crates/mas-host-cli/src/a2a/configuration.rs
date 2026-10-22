@@ -36,6 +36,14 @@ fn bound(value: &Value, key: &str, default: u64, maximum: u64) -> Result<usize> 
     Ok(v as usize)
 }
 impl Configuration {
+    pub(super) fn connection_timeout(&self) -> std::time::Duration {
+        connection_timeout(
+            self.governed
+                .as_ref()
+                .and_then(|g| g.inspection_timeout_ms()),
+        )
+    }
+
     pub fn parse(value: &Value, descriptor: &Value, bundle: &Value) -> Result<Self> {
         let governed = match value["version"].as_str() {
             Some("mas-host-a2a/1") => None,
@@ -48,12 +56,11 @@ impl Configuration {
         } else {
             required.push("principals");
         }
-        crate::config::fields(
-            value,
-            &required,
-            &["max_active", "max_tasks"],
-            "A2A configuration",
-        )?;
+        let mut optional = vec!["max_active", "max_tasks"];
+        if governed.is_some() {
+            optional.push("privacy_inspector_file");
+        }
+        crate::config::fields(value, &required, &optional, "A2A configuration")?;
         let listen: SocketAddr = string(value, "listen", 100)?
             .parse()
             .map_err(|_| "invalid listen address")?;
@@ -228,5 +235,26 @@ impl Configuration {
                     "params":{"descriptor":projection,"methods":["SendMessage","GetTask","CancelTask"],"cancellation":"intent-only; pending cancellation returns TaskNotCancelableError","restart":"unfinished accepted work becomes unknown; no automatic redispatch"}}]},
             "securitySchemes":{"bearer":{"httpAuthSecurityScheme":{"scheme":"Bearer"}}},"securityRequirements":[{"schemes":{"bearer":{"list":[]}}}],
             "defaultInputModes":["application/json"],"defaultOutputModes":["application/json"],"skills":skills})
+    }
+}
+
+fn connection_timeout(inspection_timeout_ms: Option<u64>) -> std::time::Duration {
+    // A completed SendMessage replay can inspect its input and its retained
+    // result. The synchronous observation loop reaches at most one payload
+    // inspection; earlier polls contain host-generated state only.
+    std::time::Duration::from_millis(
+        inspection_timeout_ms.map_or(10_000, |limit| limit * 2 + 10_000),
+    )
+}
+
+#[cfg(test)]
+mod timeout_tests {
+    use super::connection_timeout;
+
+    #[test]
+    fn only_configured_inspection_adds_two_bounded_rpc_scan_budgets() {
+        assert_eq!(connection_timeout(None).as_millis(), 10_000);
+        assert_eq!(connection_timeout(Some(50)).as_millis(), 10_100);
+        assert_eq!(connection_timeout(Some(120_000)).as_millis(), 250_000);
     }
 }

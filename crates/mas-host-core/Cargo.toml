@@ -10,6 +10,7 @@ mas-protocol-codec.workspace = true
 mas-host-worker.workspace = true
 mas-host-process.workspace = true
 mas-host-schema.workspace = true
+mas-host-privacy.workspace = true
 serde_json.workspace = true
 sha2.workspace = true
 rusqlite.workspace = true

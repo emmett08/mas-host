@@ -366,7 +366,9 @@ task already has a declared actor against which its pending status is checked.
 
 The HTTP service allows 32 connections and 32 headers, with a 16,384-byte parse
 buffer. Header and body reads each have a three-second deadline. A whole
-connection, including response writing, has a ten-second deadline. Synchronous
+connection, including response writing, has a ten-second deadline. An explicitly
+configured [privacy inspector](governed-privacy.md) adds two bounded inspection
+budgets to that connection deadline, up to 250 seconds. Synchronous
 `SendMessage` observation waits at most five seconds. These response deadlines
 do not cancel accepted execution. The bundle's original run budget and deadline
 remain authoritative. `max_active` defaults to 4 and is at most 16.

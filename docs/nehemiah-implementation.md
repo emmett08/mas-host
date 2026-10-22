@@ -16,7 +16,10 @@ current plan snapshots.
 | Extensibility E1 | Explicitly approved command capability packages, retained implementation/schema/runtime closure, TypeScript and Python structured evidence examples | Managed activation, attestation verification when required, broader package forms and deployment closure qualification |
 | PII N0/N1 | Exact-source assessments, deterministic fixtures, pinned local neural adapter and supervised inspection | Labelled deployment-domain quality thresholds and qualification; inspection never grants unstructured release |
 | E2/E3 and N2 first structured slice | Authenticated A2A2/core sessions, pre-persistence projection, keyed original-request conflicts, current admission/delivery checks, safe effect completion and replay | Complete N2 coverage, shared acquisition/subscribers, general evidence lineage/resolution, revision integration, dynamic runtime credentials and unstructured handling |
-| E4/E5 and N3–N5 | Required capabilities stay explicit and unsupported paths reject | Deletion/expiry/restore, worker isolation, durable cases/notifications, consumer and deployment qualification |
+| N2 detector mediation | Optional operator-pinned local inspection at structured ingress, invocation, effect arguments, result/evidence retention and retained payload delivery; exact-source coverage, current processing authority and version-bound receipts | Cross-field/conversational inspection, numeric identifiers, arbitrary text qualification and remaining acquisition/inference/revision paths |
+| N3 first response slice | Trusted native safe-case intent and separately admitted notification through existing effects; bounded memory fixture and HTTPS incident-submission adapter | Full case lifecycle, restricted resolver, adjudication, durable queue, timed retry/escalation, provider reconciliation and endpoint/deployment qualification |
+| Independent P9a | Connection-profile consumption is published in [CSO PR #381](https://github.com/emmett08/catalog-sync-operator-monograph/pull/381), stacked on PR #379, at `65de861aa7c71fae3eaf4dcea825b66e7ebe4d1b` | Consumer merge and the separately selected PR #380 integration; broader dynamic credential/privacy qualification |
+| E4/E5 and N4/N5 | Required capabilities stay explicit and unsupported paths reject | Deletion/expiry/restore, worker isolation, consumer and measured deployment qualification |
 
 The first governed path is a single-owner trusted-local implementation. Its
 schemas allow closed objects, enumerated strings, bounded integers/arrays,
@@ -39,6 +42,23 @@ The privacy crate and pinned local Python adapter retain source/coverage and
 inspection responsibilities. The new structured gate does not interpret neural
 success as permission to release arbitrary text. The workload harness remains
 separate from capacity claims.
+
+The detector integration reuses that adapter through the existing guardian. A
+separate processing permission precedes each inspection boundary. Exact JSON
+keys and decoded string values are checked as individual UTF-8 sources. A
+complete positive finding in removed input can coexist with an approved clean
+structured projection. Incomplete inspection and findings in retained components
+stop admission or withhold the completed result. This component extraction does
+not establish coverage of cross-field narratives or numeric identifiers.
+
+The response example derives a generic handling-withheld event from a retained
+host marker. Its safe case intent precedes the notification effect. Opaque case
+and action identities derive from the host invocation, event and fixed route.
+The notification descriptor also binds the configured destination contract.
+Credential rotation retains that destination identity. Endpoint acceptance,
+known refusal, uncertain submission and recipient delivery remain distinct.
+The example supplies one event and one bounded notification attempt per
+invocation. Full N3 lifecycle and scheduling remain subsequent work.
 
 The selected design adds explicit A2A2 and `Engine::open_governed` entry points.
 Existing local APIs and configuration versions retain their behavior. A
@@ -82,6 +102,17 @@ capacity, deletion guarantee or shared takeover result follows from these tests.
 N1 actual-model receipts remain bound to their original implementation; model
 qualification is not silently transferred to later source revisions.
 
+The new [governed control model](../formal/governed-local.md) composes snapshot
+authority checks, exact-source inspection, completion withholding and recovery.
+The separate [privacy response model](../formal/privacy-response.md) checks safe
+intent ordering and notification effect outcomes. Both use exhaustive finite
+SPIN searches, mechanism mutations and replayed reachability witnesses. The
+existing models remain regression checks. Model results and implementation
+conformance have separate source-bound receipts under
+`evidence/nehemiah-privacy-mediation/`. These finite models abstract parsing,
+cryptography and detector behaviour, and establish no implementation refinement,
+population detector quality or distributed revocation linearisation theorem.
+
 ## Next dependent increments
 
 1. Complete N2/E2 across the remaining supported acquisition, inference,
@@ -91,20 +122,26 @@ qualification is not silently transferred to later source revisions.
    subscriber delivery; qualify revocation and resolver-failure cases, including
    more than 32 consumers/ancestors. Complete dynamic credential lifecycle before
    protected sharing.
-3. Add N3 safe cases and permitted notification operations through the existing
-   effect owner. Preserve known completion and reconcile lost acknowledgements
-   under the original action identity.
+3. Extend the N3 response slice with the restricted case resolver, adjudication,
+   durable queue, permitted retry/escalation and provider reconciliation. A lost
+   acknowledgement currently remains uncertain under its original action
+   identity and prevents redispatch.
 4. Qualify E4 deletion/expiry/restore and E5 worker isolation before managed
    release. Shared authority/scheduling remain P5/P6 dependencies.
 5. Complete P0 on an identified reference deployment before P1 performance
-   claims. P9a connection-profile work can proceed on its independently selected
-   consumer base.
+   claims. Preserve P9a's independently selected consumer base and producer pin
+   until its qualified consumer migration.
 
 The CSO application's host pin and integration base remain separate decisions.
+The current P9a review matched all twelve implementation/evidence files to
+PR #381's remote blobs. Its source-bound historical receipt records 72 passes,
+one Vue dependency skip and ten passing connection-profile cases. That review
+did not rerun those tests or transfer their evidence to the new governed path.
 This increment does not change consumer branches or release state. No production
 notifications, provider calls, deployments or manual workflow dispatches form
 part of local validation.
 
 See [capability packaging](capabilities.md), [governed local usage](governed-local.md),
+[detector mediation](governed-privacy.md),
 [contract preflight](nehemiah-governance.md), [local detector usage](privacy-detector.md)
 and [workload usage](workload-baseline.md) for executable entry points.
