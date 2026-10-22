@@ -1,8 +1,11 @@
 //! Bind trusted identities to one closed structured policy and commitment key.
 #[path = "authorization.rs"]
 mod authorization;
+#[path = "exposure_authorization.rs"]
+mod exposure_authorization;
 use super::{
     authority::{self, Snapshot},
+    exposure::Exposure,
     inspection::InspectionGate,
     schema,
 };
@@ -10,7 +13,7 @@ use hmac::{Hmac, KeyInit, Mac};
 use serde_json::{json, Value};
 use sha2::Sha256;
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, BTreeSet},
     fs::OpenOptions,
     io::Read,
     os::unix::fs::{OpenOptionsExt, PermissionsExt},
@@ -20,11 +23,12 @@ use std::{
 type Result<T> = std::result::Result<T, String>;
 
 #[derive(Clone)]
-pub(super) struct Effect {
+pub(crate) struct Effect {
     pub destination: String,
     pub descriptor_schema: Value,
     pub output_schema: Value,
     pub evidence_schema: Value,
+    pub source_policy_refs: BTreeSet<String>,
 }
 
 #[derive(Clone)]
@@ -50,6 +54,10 @@ struct Session {
     location: String,
     fingerprint: String,
     agents: BTreeMap<String, AgentPolicy>,
+    baseline_policy_refs: BTreeSet<String>,
+    v2: bool,
+    policy_template_ids: BTreeSet<String>,
+    policy_template_expiry: BTreeMap<String, u64>,
 }
 
 /// Trusted-local structured execution session. Construction consumes identities
@@ -95,6 +103,22 @@ fn key(path: &Path) -> Result<[u8; 32]> {
     Ok(key)
 }
 
+fn policy_refs(value: &Value, snapshot: &Snapshot) -> Result<BTreeSet<String>> {
+    let values = value
+        .as_array()
+        .filter(|v| !v.is_empty() && v.len() <= 64)
+        .ok_or("governed-config-policy-refs")?;
+    let mut refs = BTreeSet::new();
+    for value in values {
+        let name = value.as_str().ok_or("governed-config-policy-refs")?;
+        id(&json!({"id":name}), "id")?;
+        if !refs.insert(name.to_owned()) || !snapshot.policies.iter().any(|p| p["id"] == name) {
+            return Err("governed-config-policy-refs".into());
+        }
+    }
+    Ok(refs)
+}
+
 impl GovernedSession {
     pub fn from_value(
         config: &Value,
@@ -103,9 +127,14 @@ impl GovernedSession {
         purpose: &str,
         grant_ref: &str,
     ) -> Result<Self> {
+        let v2 = config["version"] == "mas-governed-local/2";
         super::super::record(
             config,
-            "mas-governed-local/1",
+            if v2 {
+                "mas-governed-local/2"
+            } else {
+                "mas-governed-local/1"
+            },
             &[
                 "version",
                 "authority_file",
@@ -114,7 +143,7 @@ impl GovernedSession {
                 "location",
                 "agents",
             ],
-            &[],
+            if v2 { &["baseline_policy_refs"] } else { &[] },
         )
         .map_err(|_| "governed-config-invalid")?;
         for value in [tenant, principal, purpose, grant_ref] {
@@ -122,6 +151,11 @@ impl GovernedSession {
         }
         let authority_file = path(config, "authority_file")?;
         let snapshot = authority::read(&authority_file, tenant, principal, grant_ref)?;
+        let baseline_policy_refs = if v2 {
+            policy_refs(&config["baseline_policy_refs"], &snapshot)?
+        } else {
+            BTreeSet::new()
+        };
         let key_file = path(config, "commitment_key_file")?;
         let key = key(&key_file)?;
         let key_id = id(config, "commitment_key_id")?;
@@ -163,7 +197,7 @@ impl GovernedSession {
                         "output_schema",
                         "evidence_schema",
                     ],
-                    &[],
+                    if v2 { &["source_policy_refs"] } else { &[] },
                 )
                 .map_err(|_| "governed-config-effect")?;
                 for name in ["descriptor_schema", "output_schema", "evidence_schema"] {
@@ -177,6 +211,11 @@ impl GovernedSession {
                             descriptor_schema: effect["descriptor_schema"].clone(),
                             output_schema: effect["output_schema"].clone(),
                             evidence_schema: effect["evidence_schema"].clone(),
+                            source_policy_refs: if effect.get("source_policy_refs").is_some() {
+                                policy_refs(&effect["source_policy_refs"], &snapshot)?
+                            } else {
+                                BTreeSet::new()
+                            },
                         },
                     )
                     .is_some()
@@ -214,10 +253,27 @@ impl GovernedSession {
                 grant_ref: grant_ref.into(),
                 epoch: snapshot.grant["grant_epoch"].as_u64().unwrap(),
                 policy_version: snapshot.grant["policy_version"].as_str().unwrap().into(),
+                policy_template_expiry: snapshot
+                    .policies
+                    .iter()
+                    .map(|p| {
+                        (
+                            p["id"].as_str().unwrap().to_owned(),
+                            p["expires_at_ms"].as_u64().unwrap(),
+                        )
+                    })
+                    .collect(),
+                policy_template_ids: snapshot
+                    .policies
+                    .iter()
+                    .map(|p| p["id"].as_str().unwrap().to_owned())
+                    .collect(),
                 policy_digest: snapshot.policy_digest,
                 location,
                 fingerprint,
                 agents,
+                baseline_policy_refs,
+                v2,
             }),
             None,
             None,
@@ -319,6 +375,104 @@ impl GovernedSession {
             .collect())
     }
 
+    pub fn is_v2(&self) -> bool {
+        self.0.v2
+    }
+
+    pub(crate) fn baseline_refs(&self) -> &BTreeSet<String> {
+        &self.0.baseline_policy_refs
+    }
+
+    pub(crate) fn validate_source_refs(&self, refs: &BTreeSet<String>) -> Result<()> {
+        if refs.is_empty()
+            || !self.0.baseline_policy_refs.is_subset(refs)
+            || !refs.is_subset(&self.0.policy_template_ids)
+        {
+            return Err("governed-source-policy-unavailable".into());
+        }
+        Ok(())
+    }
+
+    pub(crate) fn source_template_expiry(&self, refs: &BTreeSet<String>) -> Result<u64> {
+        self.validate_source_refs(refs)?;
+        refs.iter()
+            .map(|id| {
+                self.0
+                    .policy_template_expiry
+                    .get(id)
+                    .copied()
+                    .ok_or_else(|| "governed-source-policy-unavailable".into())
+            })
+            .collect::<Result<Vec<_>>>()?
+            .into_iter()
+            .min()
+            .ok_or_else(|| "governed-source-policy-unavailable".into())
+    }
+    pub(crate) fn source_expiry(&self, refs: &BTreeSet<String>) -> Result<u64> {
+        let templates = self.source_template_expiry(refs)?;
+        let snapshot = self.current()?;
+        Ok(snapshot.grant["expires_at_ms"]
+            .as_u64()
+            .ok_or("governed-grant-invalid")?
+            .min(templates))
+    }
+    pub(crate) fn admitted_expiry(decision: &Value) -> Result<u64> {
+        decision.get("disclosure").unwrap_or(decision)["expires_at_ms"]
+            .as_u64()
+            .ok_or_else(|| "governed-admission-expiry-unavailable".into())
+    }
+
+    pub(crate) fn authorize_delivery_without_inspection(
+        &self,
+        source_actor: &str,
+        recipient_actor: &str,
+        value: &Value,
+        exposure: &Exposure,
+    ) -> Result<()> {
+        if recipient_actor == "client" {
+            self.authorize_exposure(
+                source_actor,
+                "deliver",
+                &self.0.principal,
+                "client",
+                value,
+                value,
+                exposure,
+            )
+            .map(|_| ())
+        } else {
+            self.authorize_exposure(
+                source_actor,
+                "invoke",
+                &format!("worker:{recipient_actor}"),
+                &self.agent(recipient_actor)?.destination,
+                value,
+                value,
+                exposure,
+            )
+            .map(|_| ())
+        }
+    }
+
+    pub(crate) fn authorize_request_admission(
+        &self,
+        actor: &str,
+        value: &Value,
+        exposure: &Exposure,
+    ) -> Result<()> {
+        let policy = self.agent(actor)?;
+        self.authorize_exposure(
+            actor,
+            "invoke",
+            &format!("worker:{actor}"),
+            &policy.destination,
+            value,
+            value,
+            exposure,
+        )
+        .map(|_| ())
+    }
+
     pub fn check_current(&self) -> Result<()> {
         self.current().map(|_| ())
     }
@@ -360,11 +514,20 @@ impl GovernedSession {
     }
 
     pub(super) fn prepare_request(&self, actor: &str, value: &Value) -> Result<(Value, Value)> {
+        self.prepare_request_with_exposure(actor, value, &Exposure::default())
+    }
+
+    pub(crate) fn prepare_request_with_exposure(
+        &self,
+        actor: &str,
+        value: &Value,
+        exposure: &Exposure,
+    ) -> Result<(Value, Value)> {
         self.commitment(value)?;
         let policy = self.agent(actor)?;
         let projected = schema::project(&policy.input_schema, value)?;
-        let inspection = self.inspect_boundary(actor, value, &projected)?;
-        let decision = self.authorize_inspected(
+        let inspection = self.inspect_boundary_with_exposure(actor, value, &projected, exposure)?;
+        let decision = self.authorize_inspected_with_exposure(
             actor,
             "invoke",
             &format!("worker:{actor}"),
@@ -372,20 +535,48 @@ impl GovernedSession {
             value,
             &projected,
             inspection,
+            exposure,
         )?;
         Ok((projected, decision))
     }
 
-    pub(super) fn prepare_effect(&self, actor: &str, value: &Value) -> Result<(Value, Value)> {
+    pub(crate) fn prepare_effect_with_exposure(
+        &self,
+        actor: &str,
+        value: &Value,
+        exposure: &Exposure,
+    ) -> Result<(Value, Value)> {
         self.commitment(value)?;
         let format = value["format"].as_str().ok_or("governed-effect-format")?;
         let policy = self.effect(actor, format)?;
+        let augmented = if self.is_v2() && !policy.source_policy_refs.is_empty() {
+            let refs = self
+                .baseline_refs()
+                .union(&policy.source_policy_refs)
+                .cloned()
+                .collect();
+            let source = super::source::Source::create(
+                self,
+                "boundary-effect",
+                "effect-input",
+                actor,
+                value,
+                &exposure.roots,
+                &refs,
+                exposure.expiry(),
+                true,
+            )?;
+            exposure.with_source(source)?
+        } else {
+            exposure.clone()
+        };
+        let exposure = &augmented;
         let projected = schema::project(&policy.descriptor_schema, value)?;
         if projected != *value {
             return Err("governed-effect-input-must-already-be-minimised".into());
         }
-        let inspection = self.inspect_boundary(actor, value, &projected)?;
-        let decision = self.authorize_inspected(
+        let inspection = self.inspect_boundary_with_exposure(actor, value, &projected, exposure)?;
+        let decision = self.authorize_inspected_with_exposure(
             actor,
             "effect",
             &format!("operation:{format}"),
@@ -393,11 +584,12 @@ impl GovernedSession {
             value,
             &projected,
             inspection,
+            exposure,
         )?;
         Ok((projected, decision))
     }
 
-    pub(super) fn effect(&self, actor: &str, format: &str) -> Result<&Effect> {
+    pub(crate) fn effect(&self, actor: &str, format: &str) -> Result<&Effect> {
         self.agent(actor)?
             .effects
             .get(format)
@@ -405,6 +597,15 @@ impl GovernedSession {
     }
 
     pub fn check_delivery(&self, actor: &str, value: &Value) -> Result<()> {
+        self.check_delivery_with_exposure(actor, value, &Exposure::default())
+    }
+
+    pub(crate) fn check_delivery_with_exposure(
+        &self,
+        actor: &str,
+        value: &Value,
+        exposure: &Exposure,
+    ) -> Result<()> {
         if !is_unavailable(value) {
             let projected = schema::project(&self.agent(actor)?.output_schema, value)?;
             if projected != *value {
@@ -414,9 +615,9 @@ impl GovernedSession {
         let inspection = if is_unavailable(value) {
             None
         } else {
-            self.inspect_boundary(actor, value, value)?
+            self.inspect_boundary_with_exposure(actor, value, value, exposure)?
         };
-        self.authorize_inspected(
+        self.authorize_inspected_with_exposure(
             actor,
             "deliver",
             &self.0.principal,
@@ -424,6 +625,7 @@ impl GovernedSession {
             value,
             value,
             inspection,
+            exposure,
         )
         .map(|_| ())
     }
@@ -437,11 +639,12 @@ impl GovernedSession {
             .map(|_| ())
     }
 
-    pub(crate) fn check_effect_delivery(
+    pub(crate) fn check_effect_delivery_with_exposure(
         &self,
         actor: &str,
         format: &str,
         value: &Value,
+        exposure: &Exposure,
     ) -> Result<()> {
         if !is_unavailable(value) {
             let projected = schema::project(&self.effect(actor, format)?.output_schema, value)?;
@@ -452,9 +655,9 @@ impl GovernedSession {
         let inspection = if is_unavailable(value) {
             None
         } else {
-            self.inspect_boundary(actor, value, value)?
+            self.inspect_boundary_with_exposure(actor, value, value, exposure)?
         };
-        self.authorize_inspected(
+        self.authorize_inspected_with_exposure(
             actor,
             "invoke",
             &format!("worker:{actor}"),
@@ -462,18 +665,24 @@ impl GovernedSession {
             value,
             value,
             inspection,
+            exposure,
         )
         .map(|_| ())
     }
 
-    pub(super) fn project_output(&self, actor: &str, value: &Value) -> Result<Value> {
+    pub(crate) fn project_output_with_exposure(
+        &self,
+        actor: &str,
+        value: &Value,
+        exposure: &Exposure,
+    ) -> Result<Value> {
         if is_unavailable(value) {
             self.check_current()?;
             return Ok(unavailable("unknown"));
         }
         let output = schema::project(&self.agent(actor)?.output_schema, value)?;
-        let inspection = self.inspect_boundary(actor, value, &output)?;
-        self.authorize_inspected(
+        let inspection = self.inspect_boundary_with_exposure(actor, value, &output, exposure)?;
+        self.authorize_inspected_with_exposure(
             actor,
             "invoke",
             &format!("worker:{actor}"),
@@ -481,6 +690,7 @@ impl GovernedSession {
             value,
             &output,
             inspection,
+            exposure,
         )?;
         Ok(output)
     }
@@ -491,15 +701,29 @@ impl GovernedSession {
         recipient_actor: &str,
         value: &Value,
     ) -> Result<()> {
+        self.request_delivery_with_exposure(
+            source_actor,
+            recipient_actor,
+            value,
+            &Exposure::default(),
+        )
+    }
+    pub(crate) fn request_delivery_with_exposure(
+        &self,
+        source_actor: &str,
+        recipient_actor: &str,
+        value: &Value,
+        exposure: &Exposure,
+    ) -> Result<()> {
         if recipient_actor == "client" {
-            return self.check_delivery(source_actor, value);
+            return self.check_delivery_with_exposure(source_actor, value, exposure);
         }
         let inspection = if is_unavailable(value) {
             None
         } else {
-            self.inspect_boundary(source_actor, value, value)?
+            self.inspect_boundary_with_exposure(source_actor, value, value, exposure)?
         };
-        self.authorize_inspected(
+        self.authorize_inspected_with_exposure(
             source_actor,
             "invoke",
             &format!("worker:{recipient_actor}"),
@@ -507,6 +731,7 @@ impl GovernedSession {
             value,
             value,
             inspection,
+            exposure,
         )
         .map(|_| ())
     }

@@ -41,27 +41,6 @@ impl GovernedSession {
         .map(|_| ())
     }
 
-    pub(in crate::governance::runtime) fn authorize_resolution_payload(
-        &self,
-        actor: &str,
-        view: &Value,
-        payload: &Value,
-    ) -> Result<()> {
-        self.agent(actor)?;
-        self.authorize(actor, "resolve", &self.0.principal, "client", view, view)?;
-        let inspection = self.inspect_boundary(actor, payload, payload)?;
-        self.authorize_inspected(
-            actor,
-            "resolve",
-            &self.0.principal,
-            "client",
-            view,
-            view,
-            inspection,
-        )
-        .map(|_| ())
-    }
-
     pub(in crate::governance::runtime) fn authorize(
         &self,
         actor: &str,
@@ -93,6 +72,18 @@ impl GovernedSession {
         projection: &Value,
         retained_bytes: usize,
     ) -> Result<Value> {
+        if self.is_v2() {
+            return self.authorize_exposure_sized(
+                actor,
+                operation,
+                recipient,
+                destination,
+                original,
+                projection,
+                retained_bytes,
+                &crate::governance::runtime::exposure::Exposure::default(),
+            );
+        }
         let snapshot = self.current()?;
         let now = crate::now_ms().map_err(|_| "governed-clock-unavailable")?;
         let binding = self.boundary_binding(original)?;

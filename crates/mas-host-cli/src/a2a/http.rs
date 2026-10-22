@@ -118,6 +118,15 @@ async fn handle(service: Arc<Service>, request: Request<Incoming>) -> Response<B
                 v.split(',')
                     .any(|x| x.trim() == super::retained_effect::PROFILE)
             });
+    let source_extension = service.configuration.source_reads_supported()
+        && request
+            .headers()
+            .get("a2a-extensions")
+            .and_then(|v| v.to_str().ok())
+            .is_some_and(|v| {
+                v.split(',')
+                    .any(|x| x.trim() == super::retained_source::PROFILE)
+            });
     let collected = tokio::time::timeout(
         Duration::from_secs(3),
         Limited::new(request.into_body(), 65_536).collect(),
@@ -166,7 +175,13 @@ async fn handle(service: Arc<Service>, request: Request<Incoming>) -> Response<B
     let caller = principal.clone();
     let body = request.clone();
     let mut result = match tokio::task::spawn_blocking(move || {
-        cloned.rpc(&caller, &body, extension, effect_extension)
+        cloned.rpc(
+            &caller,
+            &body,
+            extension,
+            effect_extension,
+            source_extension,
+        )
     })
     .await
     {
@@ -230,14 +245,21 @@ async fn handle(service: Arc<Service>, request: Request<Incoming>) -> Response<B
                 tokio::task::spawn_blocking(move || {
                     let task = cloned.task(&caller, &task_id)?;
                     if let Some(session) = &caller.session {
-                        session
-                            .check_status_value(
-                                task["metadata"]["mas"]["agent"]
-                                    .as_str()
-                                    .ok_or(super::RpcError(-32603, "status_unavailable"))?,
+                        let actor = task["metadata"]["mas"]["agent"]
+                            .as_str()
+                            .ok_or(super::RpcError(-32603, "status_unavailable"))?;
+                        if session.is_v2() {
+                            mas_host_core::governance::read_governed_root_delivery(
+                                &cloned.state.join("runs").join(&task_id),
+                                session,
+                                actor,
+                                None,
                                 &projection,
                             )
-                            .map_err(|_| super::RpcError(-32603, "status_unavailable"))?;
+                        } else {
+                            session.check_status_value(actor, &projection)
+                        }
+                        .map_err(|_| super::RpcError(-32603, "status_unavailable"))?;
                     }
                     Ok::<(), super::RpcError>(())
                 })
@@ -250,14 +272,16 @@ async fn handle(service: Arc<Service>, request: Request<Incoming>) -> Response<B
     }
     let mut response = response(StatusCode::OK, result);
     if extension {
-        let extensions = if effect_extension {
-            format!("{PROFILE}, {}", super::retained_effect::PROFILE)
-        } else {
-            PROFILE.to_owned()
-        };
+        let mut extensions = vec![PROFILE];
+        if effect_extension {
+            extensions.push(super::retained_effect::PROFILE);
+        }
+        if source_extension {
+            extensions.push(super::retained_source::PROFILE);
+        }
         response.headers_mut().insert(
             "a2a-extensions",
-            hyper::header::HeaderValue::from_str(&extensions).unwrap(),
+            hyper::header::HeaderValue::from_str(&extensions.join(", ")).unwrap(),
         );
     }
     response

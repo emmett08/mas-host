@@ -2,6 +2,7 @@
 use super::{
     checked_object, digest, effect_evidence, finish_effect, lock, read_step, Inner, Result, Step,
 };
+use crate::governance::runtime::exposure;
 use serde_json::{json, Value};
 
 impl Inner {
@@ -24,13 +25,37 @@ impl Inner {
         if matches!(step.state.as_str(), "completed" | "resolved") {
             finish_effect(&mut *lock(&self.protocol)?, &self.run_id, &step)?;
             if let Some(session) = &self.governance {
-                session.check_effect_delivery(
+                let context = if session.is_v2() {
+                    let db = lock(&self.journal)?;
+                    let source =
+                        exposure::load_step_source(&db, session, &step.id, "effect-output")?;
+                    drop(db);
+                    self.governed_recipient_exposure(&invocation.id, &source)?
+                } else {
+                    exposure::Exposure::default()
+                };
+                session.check_effect_delivery_with_exposure(
                     &step.actor,
                     step.input["format"]
                         .as_str()
                         .ok_or("governed-effect-format")?,
                     step.output.as_ref().ok_or("governed-result-unavailable")?,
+                    &context,
                 )?;
+                if session.is_v2() {
+                    let mut db = lock(&self.journal)?;
+                    let tx = db.transaction().map_err(super::error)?;
+                    exposure::expose(&tx, session, &invocation.id, &context)?;
+                    tx.commit().map_err(super::error)?;
+                    drop(db);
+                    self.final_governed_delivery(
+                        &step.actor,
+                        &step.actor,
+                        &invocation.id,
+                        step.output.as_ref().unwrap(),
+                        &context,
+                    )?;
+                }
             }
             return Ok(json!({"type":"effect","state":"cached","output":step.output}));
         }
@@ -76,7 +101,9 @@ impl Inner {
         if let Some(session) = &self.governance {
             session.check_current()?;
         }
-        self.set_state(&step.id, "executing", None, None)?;
+        if !self.begin_governed_effect(invocation, &step)? {
+            self.set_state(&step.id, "executing", None, None)?;
+        }
         Ok(json!({"type":"effect","state":"execute","invocation_id":step.id}))
     }
     pub(crate) fn complete_effect(
@@ -147,6 +174,19 @@ impl Inner {
                 ],
             )
             .map_err(super::error)?;
+            if session.is_v2() {
+                tx.execute_batch("SAVEPOINT governed_lineage")
+                    .map_err(super::error)?;
+                if self
+                    .bind_governed_effect_output(&tx, invocation, &step, &completion)
+                    .is_err()
+                {
+                    tx.execute_batch("ROLLBACK TO governed_lineage")
+                        .map_err(super::error)?;
+                }
+                tx.execute_batch("RELEASE governed_lineage")
+                    .map_err(super::error)?;
+            }
             tx.commit().map_err(super::error)?;
             drop(db);
             return finish_effect(&mut *lock(&self.protocol)?, &self.run_id, &step);

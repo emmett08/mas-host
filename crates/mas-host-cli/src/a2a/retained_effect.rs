@@ -18,7 +18,9 @@ impl Service {
         let view =
             mas_host_core::governance::read_governed_root_effect(&directory, session, &actor, key)
                 .map_err(|_| unavailable())?;
-        principal.current().map_err(|_| unavailable())?;
+        if !session.is_v2() {
+            principal.current().map_err(|_| unavailable())?;
+        }
         Ok(view)
     }
 }

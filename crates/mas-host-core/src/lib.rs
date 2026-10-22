@@ -513,7 +513,21 @@ impl Engine {
                 } else {
                     step["actor"].as_str().unwrap()
                 };
-                session.check_status_value(actor, &value)?;
+                if session.is_v2() {
+                    let db = lock(&self.inner.journal)?;
+                    let id = step["id"].as_str().ok_or("governed-status-invalid")?;
+                    let invocation = if step["kind"] == "effect" {
+                        step["parent"].as_str().ok_or("governed-status-invalid")?
+                    } else {
+                        id
+                    };
+                    let exposure =
+                        governance::runtime::exposure::load_invocation(&db, session, invocation)?;
+                    drop(db);
+                    session.authorize_status_with_exposure(actor, &value, &exposure)?;
+                } else {
+                    session.check_status_value(actor, &value)?;
+                }
             }
         }
         Ok(value)
@@ -621,6 +635,19 @@ impl Inner {
         target: &str,
         input: &Value,
     ) -> Result<Step> {
+        self.prepare_with_exposure(parent, key, kind, actor, target, input, None)
+    }
+    #[allow(clippy::too_many_arguments)]
+    fn prepare_with_exposure(
+        &self,
+        parent: &str,
+        key: &str,
+        kind: &str,
+        actor: &str,
+        target: &str,
+        input: &Value,
+        frozen: Option<&governance::runtime::exposure::Exposure>,
+    ) -> Result<Step> {
         checked_object(
             input,
             if kind == "effect" {
@@ -629,9 +656,17 @@ impl Inner {
                 "input"
             },
         )?;
-        let governed = self.governed_input(kind, actor, target, input)?;
-        let input = governed.as_ref().map(|v| &v.0).unwrap_or(input);
         let id = self.step_id(parent, key, kind);
+        let (context, permission_context) = self.governed_context(parent, &id, frozen)?;
+        let governed = self.governed_input(kind, actor, target, input, &permission_context)?;
+        let admitted_expiry = if self.governance.as_ref().is_some_and(|s| s.is_v2()) {
+            governance::GovernedSession::admitted_expiry(
+                &governed.as_ref().ok_or("governed-admission-unavailable")?.2,
+            )?
+        } else {
+            0
+        };
+        let input = governed.as_ref().map(|v| &v.0).unwrap_or(input);
         let storage_key = if let Some(session) = &self.governance {
             session.identity_commitment(&json!([parent, key]))?
         } else {
@@ -672,6 +707,7 @@ impl Inner {
         tx.execute("INSERT INTO steps(id,parent,key,kind,actor,target,input,state) VALUES(?,?,?,?,?,?,?,'prepared')",
             params![id,parent,storage_key,kind,actor,target,input.to_string()]).map_err(error)?;
         let step = read_step(&tx, &id)?.ok_or("checkpoint missing after insertion")?;
+        self.bind_governed_step(&tx, &id, kind, target, input, &context, admitted_expiry)?;
         tx.commit().map_err(error)?;
         Ok(step)
     }
@@ -705,6 +741,12 @@ impl Inner {
     // Serialise completion with cancellation intent in the same journal. A
     // cancellation committed before this transaction prevents durable success.
     fn commit_completed(&self, id: &str, output: &Value) -> Result<()> {
+        let admitted_expiry = if let Some(session) = self.governance.as_ref().filter(|s| s.is_v2())
+        {
+            session.source_expiry(session.baseline_refs())?
+        } else {
+            0
+        };
         let mut db = lock(&self.journal)?;
         let tx = db
             .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
@@ -727,6 +769,7 @@ impl Inner {
             params![output.to_string(), id],
         )
         .map_err(error)?;
+        self.bind_governed_request_output(&tx, id, output, admitted_expiry)?;
         tx.commit().map_err(error)
     }
 }

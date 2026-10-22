@@ -36,6 +36,12 @@ fn bound(value: &Value, key: &str, default: u64, maximum: u64) -> Result<usize> 
     Ok(v as usize)
 }
 impl Configuration {
+    pub(super) fn source_reads_supported(&self) -> bool {
+        self.governed
+            .as_ref()
+            .is_some_and(GovernedIngress::source_reads_supported)
+    }
+
     pub(super) fn connection_timeout(&self) -> std::time::Duration {
         connection_timeout(
             self.governed
@@ -244,6 +250,16 @@ impl Configuration {
                     "requestFields":["id","key"],"additionalRequestFields":false,"maxKeyUtf8Bytes":128,
                     "resultVersion":"mas-governed-effect-view/1", "scope":"owned-task-root-workflow-effects",
                     "semantics":"read-only snapshot; no dispatch, settlement or reconciliation"}
+            }));
+        }
+        if self.source_reads_supported() {
+            card["capabilities"]["extensions"].as_array_mut().unwrap().push(json!({
+                "uri":super::retained_source::PROFILE,"required":false,
+                "description":"Resolve an owned task's exact retained source projection with its complete policy ancestry.",
+                "params":{"requires":[PROFILE],"methods":["GetRetainedSource"],
+                    "requestFields":["id","key"],"additionalRequestFields":false,"maxKeyUtf8Bytes":128,
+                    "resultVersion":"mas-governed-source-view/1","scope":"owned-task-root-workflow-sources",
+                    "semantics":"read-only snapshot; discarded raw originals are not retained"}
             }));
         }
         card
