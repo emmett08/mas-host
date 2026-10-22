@@ -1,0 +1,200 @@
+{
+  "schema": "nehemiah-privacy-mediation-evidence/1",
+  "status": "PASS",
+  "repository": "emmett08/mas-host",
+  "source_commit": "48f72886e59a5971020f668813381393fce1d9e4",
+  "source_tree": "d2dbe7826c041ef011a645aed7f354abaf37b469",
+  "parent_commit": "2f334a8226317adaed6e19076149765a4794757f",
+  "toolchain": {
+    "rust": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+    "go": "go version go1.24.0 linux/amd64",
+    "node": "v24.19.0",
+    "python": "Python 3.12.14",
+    "system_python": "Python 3.12.3",
+    "spin": "Spin Version 6.5.1 -- 20 December 2019",
+    "cc": "cc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0"
+  },
+  "changed_source_sha256": {
+    ".github/workflows/ci.yml": "4ab48e95714b20e79670942c416e6f925b92756326b8094cf4ff04fc7bcfcdcc",
+    "Cargo.lock": "b0d25e946f744d6cca6c5a5de49bad555d19169393c7b6f03083d1bcb8819d16",
+    "Makefile": "fee6081cb57bd8d479ef42f32e06a2ade83bbfaecd70d1c1ec82cc337e230b15",
+    "adapters/notifications/README.md": "44d9e8a29883ba37db2acf858f3c2d8122ceeb5eaa34265f01248508309f4410",
+    "adapters/notifications/privacy_response/__init__.py": "5db14c3fb00713eb47c2e816bb70852148df7bd619fb333ac9f38406ba2b8165",
+    "adapters/notifications/privacy_response/contracts.py": "a717e7522be2b1995fca8d67453effe7a787159f573e41ac490ec3586e50886c",
+    "adapters/notifications/privacy_response/handler.py": "fedc173cb07d61977aa0e1dd107abc251de6788262a13fac0a2d8a90b43e5377",
+    "adapters/notifications/privacy_response/notifier.py": "3784e5122d4a3fcf9710ad1755686160dc5d04f411b0acd4032f6e24e4b19333",
+    "adapters/notifications/tests/test_boundary_adversarial.py": "fa53998aaa4e1d9b5f782e5e71a1334684c9d9041b5914adba8dde5a426aec73",
+    "adapters/notifications/tests/test_response.py": "48d693fd9ec4e461bca776f693db94672b68feeb23d66d7d6d3c9105fd855e5e",
+    "crates/mas-host-cli/src/a2a/configuration.rs": "f312363eb0e1312c43b7f3522c5d5e0886d5133963d9fd5a2c6f4f2e3e821f90",
+    "crates/mas-host-cli/src/a2a/governed.rs": "9ef91a8ec8fa378b65114e031e541d98409bcbce08e7c7b0e77e69ba4d049840",
+    "crates/mas-host-cli/src/a2a/http.rs": "df3d149762ec7d87ff83af3705a6bdda6285871b484beaefc45d35c3deb1aaae",
+    "crates/mas-host-cli/src/privacy_inspect/governed.rs": "aec575daa52dc5a2a2bf4113ef0b5b55c9a533fea3b1aa5c72d0d186d059a18f",
+    "crates/mas-host-cli/src/privacy_inspect/mod.rs": "6f840c94190e28a31d24e95017cf2936effc96d2c7d4c1e681f9ec46647cca59",
+    "crates/mas-host-cli/src/privacy_inspect/runner.rs": "50aadf2cc6503da1daf8a23605377cc03fd6f3b6152b2f943335482479583b1f",
+    "crates/mas-host-cli/tests/a2a_governed.rs": "efdfc941a90719f22a58dbb2bd6dfef631185c9f1ace308973ef77b6592c81c3",
+    "crates/mas-host-cli/tests/privacy_response.rs": "efb5cbbb35a60bebedd2986ea4dfaaa81e808fae0546fa47ecfd08ef3203414f",
+    "crates/mas-host-core/Cargo.toml": "9b903c95f95a9889dc245cead678f29b17c8c433cb3203bb5c40b69734bb7edc",
+    "crates/mas-host-core/src/governance/mod.rs": "c296a8b4a85efe38b8c5e0a7da173a05ace70f80110fc59920cbc1bbaf987710",
+    "crates/mas-host-core/src/governance/runtime/authorization.rs": "dc5da6434257a875eea0a2ed8d562e322afb62982267c325c1bd4664af4c6db1",
+    "crates/mas-host-core/src/governance/runtime/boundary.rs": "0acb740fdf3e9172bac427933be3038c0c6104a3eb7021df1ea6832e07e31798",
+    "crates/mas-host-core/src/governance/runtime/inspection.rs": "e054e82f803bd59982c0f7737e6fe5ffe263511115645239936493c7c8322581",
+    "crates/mas-host-core/src/governance/runtime/inspection_adversarial_tests.rs": "dadd74df0f0453c6707a82d76563780546613c390849217697356a6f73a69758",
+    "crates/mas-host-core/src/governance/runtime/inspection_tests.rs": "3c1de506b54d774d16be3b6e83bde4be847455d75c6d622f4484d4316328b5a6",
+    "crates/mas-host-core/src/governance/runtime/mod.rs": "49a9ee32275551834526264883a48f991c2c9ec824b87bf7ff230ccc1082a544",
+    "crates/mas-host-core/src/governance/runtime/session.rs": "200f44a04a5325a35c6833b1081eb5320502ddfb35a879add9be1f25bfbd6a90",
+    "docs/a2a.md": "0f0b5338abaf2cb9bb16f277a0d4664c712260d4afb1331306e2aaa554bebf71",
+    "docs/governed-local.md": "d5b01ec1e3de1719efd71ebf47eaa49c61b399f98726d77e84b36dd88f7f52df",
+    "docs/governed-privacy.md": "576f7c6295e242e6ad7db8c4e9dce68ba6109ddc01421a75c8bbee534cc8d788",
+    "docs/nehemiah-implementation.md": "9e98a142150be1e1a12e3fe2fcdc5b0b31785d0afb0fea71f00d4f055644d7c3",
+    "examples/privacy-response/README.md": "826d9ed2601b7b9ab7d827db032305bf8f921c093a4f8763bce1a4110535b9c7",
+    "examples/privacy-response/application.py": "9cd99eb3137529d6ef822203d4c5a9023e8b1b830c0f499244f0a0c3d72078b2",
+    "examples/privacy-response/fixture_inspector.py": "1cc69a01da794267f5909938b49a805075520a2d83822abc31fff3a26befe9a0",
+    "examples/privacy-response/prepare.py": "38fe359566a5ebc6a431aaccb76a081f4574ebccc06d0406aa0e8a9b744cc938",
+    "examples/privacy-response/verify.py": "c9a30f3a19930b51baec8330e90091d7328abfeb7209f1d2c2accc1d6597d3f2",
+    "formal/README.md": "eac59b501f9734bb009243d3d94cc2fa3cc8eca9aff86a81e4041a3d7a6d2b39",
+    "formal/governed-local.md": "4456c89e4984f26d0a181af3d5c2c766e7693d9a69379e26c9f8631d3ab32fb0",
+    "formal/governed-local.pml": "11ec2c10b733b7a3ba3ea4dd891e02b1f3c9b9f210240d2e2a6562687990ab06",
+    "formal/privacy-response.md": "788b16b34d08c6a057baf0b8f371717a1daa1f05f738d53242d755db855dedf2",
+    "formal/privacy-response.pml": "f53d96b35ed38e3bcd55bedfeeb6841d07574b16f14830fc66cbc8e79f24993f",
+    "formal/verify.py": "6dc7bec2500ec570fe9318072cb2da5177e06093ef66283157dca127a6b44855"
+  },
+  "validation_source_identity": "All three command receipts contain the same full non-evidence source hashes; base records the local parent HEAD during execution. They match source_commit's source tree. Evidence is committed separately.",
+  "plans": {
+    "PII detection, response and MAS integration": {
+      "snapshot_sha256": "8dd7b7a97b8ce2248e754d8c84a5dca2e89a55e6734ffbc7c0575c12de45b1f5",
+      "version": null
+    },
+    "Enterprise scaling": {
+      "snapshot_sha256": "4c7f7368ed9b245d1a435e302df53b3f488172a9a824d90d28bf6d8ac56788ad",
+      "version": "1"
+    },
+    "Extensibility and data use": {
+      "snapshot_sha256": "e14410bab61418e2e2739ac4deb0c7cc13b096d18f3fb8ad7f50098db48e7854",
+      "version": "1"
+    }
+  },
+  "formal_requirement": "Enterprise plan section 6 requires small finite models for changed ownership/admission transitions, controlled implementation schedules and independent black-box history checks, with deliberate guard-removal controls.",
+  "commands": {
+    "workspace": {
+      "command": [
+        "make",
+        "test"
+      ],
+      "status": "PASS",
+      "seconds": 387.244,
+      "exit_code": 0,
+      "log_sha256": "6b7e985170a2c41fb3136ead98cf39c17540f31cd23bbd01cec69d0d84332a96",
+      "source_changes_during_checks": []
+    },
+    "acceptance": {
+      "command": [
+        "make",
+        "acceptance"
+      ],
+      "status": "PASS",
+      "seconds": 41.529,
+      "exit_code": 0,
+      "log_sha256": "594db64fe6c417d339539b06e80a357c405eefffa76e47a33699385faf9f5844",
+      "source_changes_during_checks": []
+    },
+    "provider": {
+      "command": [
+        "make",
+        "provider-test"
+      ],
+      "status": "PASS",
+      "seconds": 0.486,
+      "exit_code": 0,
+      "log_sha256": "422564fb67995e42b2a92cc737e955fe33e7fd349a1e9c7afa17c187e7b0337f",
+      "source_changes_during_checks": []
+    }
+  },
+  "test_counts": {
+    "workspace_rust_passed": 268,
+    "workspace_rust_ignored": 3,
+    "workspace_rust_ignored_names": [
+      "code_only_apps_and_real_effect_recovery",
+      "worker_entry",
+      "tests::guardian_entry"
+    ],
+    "workspace_python_passed": 130,
+    "python_suite_counts": [
+      6,
+      59,
+      14,
+      15,
+      13,
+      23
+    ],
+    "counting_rule": "Unique suite results from the workspace log. Independent review and focused response tests are overlapping subsets; do not add them again."
+  },
+  "formal": {
+    "checks": 154,
+    "complete_zero_error_searches": 24,
+    "expected_replayed_counterexamples": 130,
+    "seconds": 516.3140628940018,
+    "archive_sha256": "949c5c9c71945c7c516ff6244abfc67cca9fb01c8773119148b5b4b5a85bdb5c",
+    "scope": "Finite control abstractions plus implementation correspondence, not a Rust/Python refinement proof or detector-quality assessment."
+  },
+  "actual_neural": {
+    "status": "PASS",
+    "host_sha256": "7853e96d90dbf56990329b125eb64cec5b5463153661b3da0fe0be56204429e7",
+    "seconds": 138.779,
+    "handler_dispatches": 1,
+    "quality_qualified": false,
+    "detector": {
+      "adapter": "mas-privacy-opf/1",
+      "backend": "opf-cpu-bfloat16/1",
+      "bundle_sha256": "832d463c76ab3417966a854cb8b67c8f7922ab9f3b4da05770c80374147cc4a5",
+      "code_revision": "f7f00ca7fb869683eb732c010299d901457f19c3",
+      "model_revision": "7ffa9a043d54d1be65afb281eddf0ffbe629385b"
+    },
+    "scope": "Minimal real pinned-model governed SendMessage, GetTask and identical SendMessage replay with a synthetic integer observation; distinct from fake-scanner response conformance."
+  },
+  "diagnostics": [
+    "First workspace run failed three response scenarios under repeated hashing of the 30.9 MB analysis interpreter. The standard-library synthetic scanner now explicitly selects and validates an 8 MB system Python. All executable identity checks and production deadlines remain unchanged.",
+    "A subsequent run failed because a task-created checkpoint transfer staging directory filled the filesystem. Retired that unused staging path and removed unused reproducible incremental cache. Source did not change; final workspace receipt is authoritative.",
+    "Two preliminary neural attempts correctly withheld before task creation because transfer staging files invalidated the exact approved asset closure. The accepted run used only the existing manifest-approved files in a separate clean asset tree; no approval check was relaxed."
+  ],
+  "remaining_plan_work": [
+    "Complete N2 acquisition, inference, revision and diagnostic mediation; cross-field, conversational, numeric and unstructured coverage and quality qualification.",
+    "E3 governed resolver, lineage and shared subscribers, dynamic credential lifecycle and more-than-32-consumer/ancestor qualification.",
+    "N3 authorised case resolver/adjudication, durable bounded scheduling, retry/escalation and provider reconciliation; the current trusted example handles one explicit event and attempt per invocation.",
+    "E4 deletion/expiry/restore, E5 isolation, N4 consumer integration and N5 measured deployment/quality/capacity; managed and shared profiles remain closed.",
+    "P0 identified reference deployment and shared P5/P6 dependencies. P9a already exists independently in CSO PR381 and is reviewed, not duplicated or rebased."
+  ],
+  "publication": {
+    "merged": false,
+    "deployed": false,
+    "manual_workflow_dispatches": 0,
+    "external_notifications_sent": 0,
+    "live_external_provider_calls": 0
+  },
+  "artifact_sha256": {
+    "README.md": "8a3e40eca9ea26e2bcac560378b50093bd89e20e14498c4c8ebcea8f1d39d59d",
+    "formal-summary.json": "6a959edecc74632fecbe4e3f92efd33654b3778d713dc5bacaaebb579a61cbdb",
+    "formal-checks.tar.xz": "949c5c9c71945c7c516ff6244abfc67cca9fb01c8773119148b5b4b5a85bdb5c",
+    "independent-review.json": "b804152fb676d79c4a3d626379f7a740d23e743edc4ea1a11dda7702e6176ad7",
+    "actual-neural-smoke.json": "3f480d30786b87356f931ca6b985b39bd8d5067278a7108751cc4a38e12edcf2",
+    "actual-neural-smoke.py": "1dde99ab58b0dc20f9664cee92bdac9b1b51e1be3a2fdde49285cf9e31bcd264",
+    "actual-neural-smoke.log": "614ca805b1a66e0f79933e6507dc91dd9993467c154264c30d244856b84ef488",
+    "p9a-review.json": "3144a62bf248bdeca3ff472bf6fa4f789fbbee2da964285f9604e30cc831792d",
+    "response-review.json": "924d5326b6515fc82f8ab86b4d01d0d6733a4bd6da1c6f61feae0aa54ce6c48f",
+    "response-focused.log": "17aa8f92e7b8396246b35d726320eb5da8a8ecf5c4b607d1bf802bbbc0aed460",
+    "fixture-profile-diagnostic.json": "e128982bb894abf3d941ffb1fb5a2d83a6d76fd64493788ec0a96ddc1378cd9e",
+    "workspace-fixture-failure.json": "a40d15cce012089ccf52e5bcbd3a4b1b0be658bd4044f2a7c213b79e663da298",
+    "workspace-fixture-failure.log": "4a33c8bb3fa17807838abb63275475b02efce29b91928277f76b2701932f20b3",
+    "workspace-disk-full.json": "bc952eac922565b4ef7705b62c7342235773286496d7e3193d092f41cb752623",
+    "workspace-disk-full.log": "aedac57348eb29d2d896af63c7cf67264ad964d37ed3656fecaae22e8d304666",
+    "validate-command.py": "d41600da010694378d0ded5d806e6fc818db615ad17cc5cda291d122ca6a4b72",
+    "toolchain.json": "b054d0154cc548a97410cec075e86dc0860baa3f03f2f74914fadc51337a0cb2",
+    "workspace-run.json": "d13458c02341913937466559be214ea5ae5e2bf0731e1c31069d8fa0ce5abc82",
+    "workspace-run.log": "6b7e985170a2c41fb3136ead98cf39c17540f31cd23bbd01cec69d0d84332a96",
+    "acceptance-run.json": "640b51bdd644ea4fc9688ddfa2a42ee94e19ca360d91d73c44218b28d8a3df7a",
+    "acceptance-run.log": "594db64fe6c417d339539b06e80a357c405eefffa76e47a33699385faf9f5844",
+    "provider-run.json": "9373dcb97490d031599c9e4ceff2e79e5b85a419b30262d1445c8307da0869b6",
+    "provider-run.log": "422564fb67995e42b2a92cc737e955fe33e7fd349a1e9c7afa17c187e7b0337f",
+    ".gitattributes": "3188911374bde5dd4c6430f49ce0c4342e9d92b201672c028070267acc2c8fbf"
+  }
+}

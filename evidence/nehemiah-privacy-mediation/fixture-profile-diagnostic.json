@@ -1,0 +1,27 @@
+{
+  "version": "mas-n2-cli-diagnostic/1",
+  "mode": "one-accepted-synthetic-N3-scenario-primary-interpreter",
+  "status": "PASS",
+  "interpreter_bytes": 30894944,
+  "config_calls": 108,
+  "interpreter_hash_ms": {
+    "sum": 108658,
+    "median": 817.5,
+    "max": 3345
+  },
+  "worker_calls": 106,
+  "worker_phase_ms": {
+    "spawn": 331,
+    "read": 6464,
+    "stop": 153
+  },
+  "busy_count": 0,
+  "reasons": {
+    "complete": 106
+  },
+  "diagnostic_source_sha256": {
+    "runner.rs": "086cb61c74fbaedfe944573ae0052b52764365c98de55f4f3ce11ce7a7a691dd",
+    "governed.rs": "122c9f2663ac2e21b88cd182eeb168624dbf34c54adb558b3e4b5dfc52b56c10"
+  },
+  "interpretation": "Repeated exact interpreter hashing dominates synthetic scanner work in the debug host. This is diagnostic evidence, not an accepted production-source validation run."
+}

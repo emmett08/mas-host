@@ -1,0 +1,11 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.17s
+     Running tests/privacy_response.rs (target/debug/deps/privacy_response-50dc6169e40c3596)
+
+running 4 tests
+test revocation_after_safe_intent_blocks_fresh_notification_admission ... ok
+test lost_notification_acknowledgement_retains_intent_and_original_unknown_without_redispatch ... ok
+test completed_withheld_collection_creates_safe_case_and_one_notification_across_restart ... ok
+test throttling_remains_refused_with_retry_eligibility_and_replay_does_not_resend ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 58.62s
+
