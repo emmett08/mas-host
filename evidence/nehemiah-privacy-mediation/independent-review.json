@@ -1,0 +1,333 @@
+{
+  "version": "mas-privacy-mediation-independent-review/1",
+  "reviewer": "/root/formal_independent_review",
+  "status": "ACCEPTED_WITH_EXPLICIT_SCOPE_LIMITS",
+  "reviewed_at_utc": "2026-10-22T17:54:22.707714+00:00",
+  "repository": "emmett08/mas-host",
+  "base_revision": "2f334a8226317adaed6e19076149765a4794757f",
+  "reviewed_files_sha256": {
+    "formal/governed-local.pml": "11ec2c10b733b7a3ba3ea4dd891e02b1f3c9b9f210240d2e2a6562687990ab06",
+    "formal/privacy-response.pml": "f53d96b35ed38e3bcd55bedfeeb6841d07574b16f14830fc66cbc8e79f24993f",
+    "formal/verify.py": "6dc7bec2500ec570fe9318072cb2da5177e06093ef66283157dca127a6b44855",
+    "formal/governed-local.md": "4456c89e4984f26d0a181af3d5c2c766e7693d9a69379e26c9f8631d3ab32fb0",
+    "formal/privacy-response.md": "788b16b34d08c6a057baf0b8f371717a1daa1f05f738d53242d755db855dedf2",
+    "crates/mas-host-core/src/lib.rs": "34405bd78004f1d54644e59eb97c8d2564091d051ae443895fc3d5e0ef45a67a",
+    "crates/mas-host-core/src/effects.rs": "444164c092c66c6b9119588f21c31dcf3c08b0171943dc4da5e6677e25adb6c1",
+    "crates/mas-host-core/src/execution.rs": "2e0382cf344ab5248796c9a62df7a62da95c93497bab4071e8b8abee803d0172",
+    "crates/mas-host-core/src/protocol.rs": "c6bfc69e019498f8c7eb97d1f048aa07785769f5665b420e593af63fddd46ba1",
+    "crates/mas-host-core/src/governance/runtime/session.rs": "200f44a04a5325a35c6833b1081eb5320502ddfb35a879add9be1f25bfbd6a90",
+    "crates/mas-host-core/src/governance/runtime/boundary.rs": "0acb740fdf3e9172bac427933be3038c0c6104a3eb7021df1ea6832e07e31798",
+    "crates/mas-host-core/src/governance/runtime/authority.rs": "410b5c854dda60f869dc15467f46fac61ec61ea7208e46e6e38a4533fb2499a0",
+    "crates/mas-host-core/src/governance/runtime/authorization.rs": "dc5da6434257a875eea0a2ed8d562e322afb62982267c325c1bd4664af4c6db1",
+    "crates/mas-host-core/src/governance/runtime/storage.rs": "c6ff9af0b3b0d7e428ef736c3aa113502f9ee8f9339a3d6c6f48bc697a830940",
+    "crates/mas-host-core/src/governance/runtime/inspection.rs": "e054e82f803bd59982c0f7737e6fe5ffe263511115645239936493c7c8322581",
+    "crates/mas-host-cli/src/a2a/governed.rs": "9ef91a8ec8fa378b65114e031e541d98409bcbce08e7c7b0e77e69ba4d049840",
+    "crates/mas-host-cli/src/a2a/mod.rs": "038e395922b78198883ff649774fa388bb3bc330dcd575732d58ecc8efede0b0",
+    "crates/mas-host-cli/src/a2a/configuration.rs": "f312363eb0e1312c43b7f3522c5d5e0886d5133963d9fd5a2c6f4f2e3e821f90",
+    "crates/mas-host-cli/src/privacy_inspect/governed.rs": "aec575daa52dc5a2a2bf4113ef0b5b55c9a533fea3b1aa5c72d0d186d059a18f",
+    "crates/mas-host-cli/src/privacy_inspect/config.rs": "b8d35150e4935f8a52a638deb8ee09a980156a03b66306c013ff9664d850d9f1",
+    "crates/mas-host-cli/src/privacy_inspect/runner.rs": "50aadf2cc6503da1daf8a23605377cc03fd6f3b6152b2f943335482479583b1f",
+    "adapters/notifications/privacy_response/contracts.py": "a717e7522be2b1995fca8d67453effe7a787159f573e41ac490ec3586e50886c",
+    "adapters/notifications/privacy_response/handler.py": "fedc173cb07d61977aa0e1dd107abc251de6788262a13fac0a2d8a90b43e5377",
+    "adapters/notifications/privacy_response/notifier.py": "3784e5122d4a3fcf9710ad1755686160dc5d04f411b0acd4032f6e24e4b19333",
+    "examples/privacy-response/application.py": "9cd99eb3137529d6ef822203d4c5a9023e8b1b830c0f499244f0a0c3d72078b2",
+    "examples/privacy-response/prepare.py": "38fe359566a5ebc6a431aaccb76a081f4574ebccc06d0406aa0e8a9b744cc938",
+    "examples/privacy-response/verify.py": "c9a30f3a19930b51baec8330e90091d7328abfeb7209f1d2c2accc1d6597d3f2",
+    "crates/mas-host-cli/tests/privacy_response.rs": "efb5cbbb35a60bebedd2986ea4dfaaa81e808fae0546fa47ecfd08ef3203414f",
+    "crates/mas-host-core/src/governance/runtime/inspection_adversarial_tests.rs": "dadd74df0f0453c6707a82d76563780546613c390849217697356a6f73a69758",
+    "adapters/notifications/tests/test_boundary_adversarial.py": "fa53998aaa4e1d9b5f782e5e71a1334684c9d9041b5914adba8dde5a426aec73"
+  },
+  "review_method": [
+    "Independent source and property review separate from model construction and production implementation.",
+    "Inspect real journal/transaction and authority boundaries, challenge mutation mechanisms and reachability, and add adversarial implementation tests.",
+    "Read final formal summary and command/trail inventory; verify exact model/runner hashes and retained archive digest."
+  ],
+  "accepted_claims": [
+    "The named safety and finite-settlement properties hold for the declared finite Promela models under their recorded assumptions.",
+    "Governed completion receipt and execution-step completion share one SQLite transaction; protocol completion is separately repaired from retained safe state.",
+    "Current-authority checks occur at the represented admission/delivery boundaries, including after inspection; file checks are not linearised with subsequent effects.",
+    "Bounded component inspection validates exact source, detector/configuration identity, coverage and retained projection; its receipt is included in policy byte admission.",
+    "Known host completion and external certainty survive withheld payloads, while unresolved effects remain non-executable on retry.",
+    "The N3 slice retains safe intent before separately admitting notification, binds event and target, and distinguishes endpoint acceptance, refusal, not-sent and uncertainty from recipient delivery."
+  ],
+  "defects_fixed": [
+    {
+      "id": "F1",
+      "kind": "model",
+      "defect": "Borrowed-receipt mutation inserted an assertion without modelling forwarded certainty.",
+      "repair": "Model the forwarding mechanism; unrelated parent/actor receives unknown certainty."
+    },
+    {
+      "id": "F2",
+      "kind": "model",
+      "defect": "First delivery status was overwritten inside the same atomic transition.",
+      "repair": "Assert delivery authority and owner at the actual delivery event."
+    },
+    {
+      "id": "F3",
+      "kind": "model",
+      "defect": "Hard-coded grant epoch excluded supported same-policy reauthentication.",
+      "repair": "Separate session epoch and stable namespace identity; add epoch-refresh reachability."
+    },
+    {
+      "id": "F4",
+      "kind": "model",
+      "defect": "Outbound inspection and protocol admission rechecks were omitted.",
+      "repair": "Add distinct current-check and inspection phases before their represented transitions."
+    },
+    {
+      "id": "F5",
+      "kind": "model",
+      "defect": "Unknown retry and crash-gap witnesses did not exercise the exact recovery paths.",
+      "repair": "Model an explicit duplicate of unknown work and precise completion/protocol and intent/notification crash gaps."
+    },
+    {
+      "id": "F6",
+      "kind": "model",
+      "defect": "N3 crash during replay could bypass tenant/event/destination checks.",
+      "repair": "Return replayed crash recovery to identity checks and assert all three bindings at settlement."
+    },
+    {
+      "id": "F7",
+      "kind": "model",
+      "defect": "One-replay wording understated a retry interrupted by a crash.",
+      "repair": "Declare one explicit retry plus one crash recovery, allowing at most two cached passes."
+    },
+    {
+      "id": "P1",
+      "kind": "adapter",
+      "defect": "Direct Notification construction admitted unvalidated header identities.",
+      "repair": "Validate exact case/action identifiers, event type and derived action identity at construction."
+    },
+    {
+      "id": "P2",
+      "kind": "adapter",
+      "defect": "TLS setup could exhaust the deadline before a POST still started.",
+      "repair": "Check remaining time before TLS and before send; preserve known not-sent."
+    },
+    {
+      "id": "P3",
+      "kind": "adapter",
+      "defect": "Unusable response metadata discarded a guaranteed 403/429 refusal.",
+      "repair": "Preserve known refusal/throttling with withheld metadata; ambiguous statuses remain unknown."
+    },
+    {
+      "id": "P4",
+      "kind": "adapter",
+      "defect": "Retained notification identity did not bind the configured target.",
+      "repair": "Bind target configuration in both intent and notification descriptors; changed target conflicts."
+    },
+    {
+      "id": "P5",
+      "kind": "adapter",
+      "defect": "Target digest and dispatch fields could differ or change between effects.",
+      "repair": "Hash actual dispatch fields and recheck the captured binding immediately before submission; changes remain not-sent."
+    },
+    {
+      "id": "P6",
+      "kind": "adapter",
+      "defect": "Route mismatch before network activity could become uncertain execution.",
+      "repair": "Return fixed refused/not-sent; rotating only bearer credentials preserves target identity."
+    }
+  ],
+  "formal_execution": {
+    "status": "PASS",
+    "summary_path": "/workspace/scratch/1ad2c1661ab9/validation/privacy-mediation-formal-final/summary.json",
+    "summary_sha256": "6a959edecc74632fecbe4e3f92efd33654b3778d713dc5bacaaebb579a61cbdb",
+    "commands_path": "/workspace/scratch/1ad2c1661ab9/validation/privacy-mediation-formal-final/commands.json",
+    "commands_sha256": "1949f1398ac4564811259f9eca129e252df2b022d4ef95e987a533dcd15cf8f2",
+    "counterexamples_path": "/workspace/scratch/1ad2c1661ab9/validation/privacy-mediation-formal-final/counterexamples.zip",
+    "counterexamples_sha256": "4e919190835b9ee1b1d82bb5948ca206e1b0099f0283cdbdd183eaa148719354",
+    "archive_path": "/workspace/scratch/1ad2c1661ab9/validation/privacy-mediation-formal-final.tar.xz",
+    "archive_sha256": "949c5c9c71945c7c516ff6244abfc67cca9fb01c8773119148b5b4b5a85bdb5c",
+    "checks_total": 154,
+    "complete_zero_error_searches": 24,
+    "expected_counterexamples": 130,
+    "counterexample_replays_observed": 130,
+    "retained_trails_observed": 130,
+    "models": [
+      "delegation",
+      "disclosure",
+      "governed-local",
+      "privacy-response",
+      "provider-results",
+      "revision"
+    ],
+    "spin": "Spin Version 6.5.1 -- 20 December 2019",
+    "compiler": "cc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+    "source_changed_during_verification": [],
+    "limits": {
+      "seconds_per_command": 30,
+      "memory_bytes": 536870912,
+      "search_depth": 100000
+    },
+    "new_model_positive_searches": [
+      {
+        "name": "governed-local-safety",
+        "model": "governed-local.pml",
+        "macro": null,
+        "claim": null,
+        "partial_order_reduction": true,
+        "expected": "zero_errors",
+        "result": "COMPLETE_ZERO_ERRORS",
+        "errors": 0,
+        "stored_states": "2403051",
+        "transitions": "3600918",
+        "depth_reached": "218"
+      },
+      {
+        "name": "governed-local-safety-no-reduction",
+        "model": "governed-local.pml",
+        "macro": null,
+        "claim": null,
+        "partial_order_reduction": false,
+        "expected": "zero_errors",
+        "result": "COMPLETE_ZERO_ERRORS",
+        "errors": 0,
+        "stored_states": "3137249",
+        "transitions": "8060118",
+        "depth_reached": "218"
+      },
+      {
+        "name": "governed-local-progress",
+        "model": "governed-local.pml",
+        "macro": null,
+        "claim": "governed_local_settles",
+        "partial_order_reduction": true,
+        "expected": "zero_errors",
+        "result": "COMPLETE_ZERO_ERRORS",
+        "errors": 0,
+        "stored_states": "1828541",
+        "transitions": "7552972",
+        "depth_reached": "298"
+      },
+      {
+        "name": "governed-local-progress-no-reduction",
+        "model": "governed-local.pml",
+        "macro": null,
+        "claim": "governed_local_settles",
+        "partial_order_reduction": false,
+        "expected": "zero_errors",
+        "result": "COMPLETE_ZERO_ERRORS",
+        "errors": 0,
+        "stored_states": "2522460",
+        "transitions": "15627968",
+        "depth_reached": "298"
+      },
+      {
+        "name": "privacy-response-safety",
+        "model": "privacy-response.pml",
+        "macro": null,
+        "claim": null,
+        "partial_order_reduction": true,
+        "expected": "zero_errors",
+        "result": "COMPLETE_ZERO_ERRORS",
+        "errors": 0,
+        "stored_states": "32951",
+        "transitions": "48123",
+        "depth_reached": "113"
+      },
+      {
+        "name": "privacy-response-safety-no-reduction",
+        "model": "privacy-response.pml",
+        "macro": null,
+        "claim": null,
+        "partial_order_reduction": false,
+        "expected": "zero_errors",
+        "result": "COMPLETE_ZERO_ERRORS",
+        "errors": 0,
+        "stored_states": "40973",
+        "transitions": "91822",
+        "depth_reached": "113"
+      },
+      {
+        "name": "privacy-response-progress",
+        "model": "privacy-response.pml",
+        "macro": null,
+        "claim": "privacy_response_settles",
+        "partial_order_reduction": true,
+        "expected": "zero_errors",
+        "result": "COMPLETE_ZERO_ERRORS",
+        "errors": 0,
+        "stored_states": "22721",
+        "transitions": "88600",
+        "depth_reached": "156"
+      },
+      {
+        "name": "privacy-response-progress-no-reduction",
+        "model": "privacy-response.pml",
+        "macro": null,
+        "claim": "privacy_response_settles",
+        "partial_order_reduction": false,
+        "expected": "zero_errors",
+        "result": "COMPLETE_ZERO_ERRORS",
+        "errors": 0,
+        "stored_states": "28871",
+        "transitions": "146298",
+        "depth_reached": "156"
+      }
+    ]
+  },
+  "independent_implementation_tests": {
+    "counting_rule": "Unique tests only: nine Rust tests and six Python tests. The later one-test deadline rerun is included in the nine. These are subsets of the parent workspace suites and must not be added again to their totals.",
+    "rust": {
+      "path": "crates/mas-host-core/src/governance/runtime/inspection_adversarial_tests.rs",
+      "unique_tests": [
+        "stale_source_tokens_and_substituted_detector_results_cannot_authorise_input",
+        "inspected_private_originals_keep_distinct_commitments_after_equal_projection",
+        "inspection_requires_processing_authority_before_the_callback",
+        "incomplete_or_late_detector_results_cannot_release_the_projection",
+        "revocation_during_final_inspection_callback_prevents_input_persistence",
+        "policy_byte_scope_includes_inspection_receipt_before_persistence",
+        "detector_failure_after_external_completion_retains_known_withheld_fact",
+        "same_policy_grant_epoch_refresh_replays_under_stable_inspected_namespace",
+        "inspector_configuration_and_destination_are_part_of_retained_namespace_identity"
+      ],
+      "status": "PASS",
+      "deadline_test_final_rerun": "PASS after changing synthetic timeout/delay to 1000/1100 ms",
+      "command": "cargo test --locked --offline -p mas-host-core inspection_adversarial_tests -- --nocapture"
+    },
+    "python": {
+      "path": "adapters/notifications/tests/test_boundary_adversarial.py",
+      "unique_tests": [
+        "test_direct_notification_construction_rejects_unvalidated_header_identities",
+        "test_tls_exhausting_deadline_prevents_starting_post",
+        "test_guaranteed_refusal_survives_unusable_response_metadata",
+        "test_changed_endpoint_cannot_reuse_an_earlier_targets_acceptance",
+        "test_target_rotation_after_intent_is_known_unsent_before_dispatch",
+        "test_route_mismatch_is_known_unsent_and_credentials_do_not_rebind_target"
+      ],
+      "status": "PASS",
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=sdk/python:adapters/notifications python3 -m unittest discover -s adapters/notifications/tests -p test_boundary_adversarial.py -v"
+    },
+    "static_checks": "Rustfmt and all-target mas-host-core Clippy with warnings denied passed during independent validation.",
+    "native_integration": "Reviewed the four actual-CLI/A2A test mappings and final fixture source. Their execution evidence is owned by the parent workspace validation and is not double-counted here.",
+    "live_external_notifications_sent": false
+  },
+  "correspondence_limits": [
+    "This is finite model checking plus source correspondence and implementation tests; no formal Rust/Python refinement theorem is claimed.",
+    "Projection, exact JSON/HMAC comparisons, detector/configuration equality and external certainty are abstract classes; code tests establish narrower concrete conformance.",
+    "A current check comprises separate authentication/key/authority file reads. The model permits authority changes between checks and later commits or dispatch.",
+    "Progress assumes bounded returning work or enforced external deadlines and surviving storage; no fairness, wall-clock SLO or eventual reconciliation theorem is supplied.",
+    "The N3 model composes adapter ordering with the host model by correspondence, not a formal cross-model refinement proof.",
+    "The trusted-local native callback can access unmediated resources. These results establish neither malicious-worker confinement nor production data-loss prevention."
+  ],
+  "remaining_plan_scope": {
+    "N2": [
+      "General unstructured release and domain/language detector qualification.",
+      "Cross-field and conversational context, numeric identifiers, extraction/attachment coverage.",
+      "Complete acquisition/inference/revision/diagnostic mediation, general evidence lineage/resolver/shared subscribers and current credential lifecycle."
+    ],
+    "N3": [
+      "Automatic handling-event integration beyond the explicit trusted response workflow.",
+      "Authorised case retrieval/adjudication, escalation and durable bounded notification scheduling.",
+      "Provider-specific reconciliation of unknown submissions, shared flood prioritisation and live endpoint-contract qualification."
+    ],
+    "dependent_release_gates": [
+      "E4 payload deletion/expiry/restore and E5 worker isolation.",
+      "Consumer/CSO integration and measured deployment/capacity qualification.",
+      "Managed/shared profiles remain outside the accepted trusted-local scope."
+    ]
+  },
+  "publication_note": "This internal receipt identifies the reviewed worktree by file hashes. Parent publication must bind it to the final source revision and complete workspace validation."
+}

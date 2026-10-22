@@ -1,0 +1,124 @@
+cargo fmt --all -- --check
+cargo clippy --locked --workspace --all-targets -- -D warnings
+    Checking mas-host v0.1.0 (/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-cli)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.32s
+cd sdk/go && go vet ./...
+cd tests/fixtures/go-release && go vet ./...
+npm --prefix examples/structured-evidence/typescript ci --ignore-scripts
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+added 1 package in 1s
+npm --prefix examples/structured-evidence/typescript run check
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> nehemiah-structured-evidence-fixture@0.1.0 check
+> tsc --noEmit -p tsconfig.json
+
+npm --prefix examples/structured-evidence/typescript run build
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> nehemiah-structured-evidence-fixture@0.1.0 build
+> tsc -p tsconfig.json
+
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s examples/structured-evidence/tests -v
+test_each_changed_target_field_is_rejected (test_collectors.Collectors.test_each_changed_target_field_is_rejected) ... ok
+test_prepared_packages_have_same_contract_with_distinct_approved_implementation (test_collectors.Collectors.test_prepared_packages_have_same_contract_with_distinct_approved_implementation) ... ok
+test_quantities_cannot_be_booleans_fractional_negative_or_unbounded (test_collectors.Collectors.test_quantities_cannot_be_booleans_fractional_negative_or_unbounded) ... ok
+test_same_observation_and_original_application_host_identities (test_collectors.Collectors.test_same_observation_and_original_application_host_identities) ... ok
+test_transport_rejects_duplicate_members_invalid_utf8_and_oversize_input (test_collectors.Collectors.test_transport_rejects_duplicate_members_invalid_utf8_and_oversize_input) ... ok
+test_unknown_fields_and_file_or_endpoint_selection_are_rejected (test_collectors.Collectors.test_unknown_fields_and_file_or_endpoint_selection_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 3.885s
+
+OK
+cargo test --locked --workspace
+   Compiling mas-host v0.1.0 (/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.33s
+     Running unittests src/main.rs (target/debug/deps/mas_host-6657558780f2b3c2)
+
+running 16 tests
+test a2a::configuration::timeout_tests::only_configured_inspection_adds_two_bounded_rpc_scan_budgets ... ok
+test config::authoring::tests::rejects_lossy_toml_values_and_duplicate_keys ... ok
+test config::authoring::tests::non_decimal_toml_integers_are_lossless_beyond_u64 ... ok
+test config::authoring::tests::yaml_core_scalars_and_quoted_values_have_explicit_semantics ... ok
+test config::tests::public_operations_are_explicit_mas_identities ... ok
+test config::authoring::tests::formats_resolve_to_identical_values_with_exact_integers ... ok
+test config::authoring::tests::strict_json_keeps_original_rejections_and_exact_integer_semantics ... ok
+test config::authoring::tests::authoring_integers_obey_protocol_digit_limit ... ok
+test config::bindings::tests::minimum_delegate_calls_is_optional_bounded_and_requires_delegates ... ok
+test config::authoring::tests::rejects_ambiguous_and_unsupported_yaml_before_execution ... ok
+test config::tests::rejects_implicit_permissions_bad_limits_and_unknown_settings ... ok
+test config::tests::requires_current_version_and_explicit_implementation_kind ... ok
+test config::bindings::tests::required_delegates_are_a_unique_subset_with_a_completion_turn ... ok
+test privacy_inspect::governed::tests::occupied_inspector_rejects_concurrent_work_without_a_launch_or_queue ... ok
+test privacy_inspect::governed::tests::revoked_configuration_invalidates_identity_without_launching_a_text_scan ... ok
+test config::authoring::tests::size_and_depth_are_bounded_in_source_and_resolved_values ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/a2a.rs (target/debug/deps/a2a-033f27082a608bad)
+
+running 4 tests
+test descriptor_exposes_contracts_without_execution_configuration ... ok
+test interrupted_task_becomes_unknown_and_retry_does_not_repeat_work ... ok
+test blocking_unknown_outcome_preserves_task_identity_and_negotiated_extension ... ok
+test gateway_enforces_profile_owner_and_exact_retry_and_retains_completed_tasks ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 22.95s
+
+     Running tests/a2a_governed.rs (target/debug/deps/a2a_governed-0d9f41785ddd140f)
+
+running 11 tests
+test changed_governed_detector_implementation_is_rejected_before_dispatch ... ok
+test changed_grant_reference_cannot_reset_request_identity_and_key_changes_stop_use ... ok
+test current_authority_controls_cached_delivery_and_same_policy_credential_rotation ... ok
+test invalid_governed_detector_configuration_prevents_service_startup ... ok
+test governed_ingress_minimises_before_persistence_preserves_original_conflicts_and_replays ... ok
+test authentication_revocation_stops_later_effect_admission ... ok
+test known_effect_completion_with_prohibited_output_survives_withholding_and_restart ... ok
+test governed_detector_output_failure_preserves_effect_completion_across_restart ... ok
+test lost_effect_response_keeps_uncertainty_and_authorised_recovery_ids ... ok
+test faulty_or_incomplete_governed_detector_blocks_before_task_or_effect_storage ... ok
+test governed_detector_runs_before_persistence_and_uses_only_approved_projection ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.01s
+
+     Running tests/acceptance.rs (target/debug/deps/acceptance-e854ad81053043b8)
+
+running 1 test
+test code_only_apps_and_real_effect_recovery ... ignored, requires Go, C++ and Rust toolchains; run make acceptance
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/authoring.rs (target/debug/deps/authoring-4ac87bde8a26deb7)
+
+running 3 tests
+test invalid_authoring_fails_before_build_or_state_creation ... ok
+test toml_yaml_and_json_preserve_bundle_digest_and_resume_input ... FAILED
+test ambiguous_defaults_require_explicit_selection_before_build ... FAILED
+
+failures:
+
+---- toml_yaml_and_json_preserve_bundle_digest_and_resume_input stdout ----
+
+thread 'toml_yaml_and_json_preserve_bundle_digest_and_resume_input' (1069) panicked at crates/mas-host-cli/tests/authoring.rs:72:5:
+{"error":"No space left on device (os error 28)","status":"error"}
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- ambiguous_defaults_require_explicit_selection_before_build stdout ----
+
+thread 'ambiguous_defaults_require_explicit_selection_before_build' (1067) panicked at crates/mas-host-cli/tests/authoring.rs:72:5:
+{"error":"No space left on device (os error 28)","status":"error"}
+
+
+
+failures:
+    ambiguous_defaults_require_explicit_selection_before_build
+    toml_yaml_and_json_preserve_bundle_digest_and_resume_input
+
+test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.90s
+
+error: test failed, to rerun pass `-p mas-host --test authoring`
+make: *** [Makefile:39: test] Error 101

@@ -250,6 +250,7 @@ pub(super) async fn serve(service: Arc<Service>) -> Result<()> {
         .await
         .map_err(super::error)?;
     let slots = Arc::new(tokio::sync::Semaphore::new(32));
+    let connection_timeout = service.configuration.connection_timeout();
     eprintln!(
         "Nehemiah A2A service listening on {}",
         service.configuration.listen
@@ -276,7 +277,7 @@ pub(super) async fn serve(service: Arc<Service>) -> Result<()> {
             // Includes response-body writing, preventing unread responses from
             // holding the finite connection set indefinitely.
             let _ = tokio::time::timeout(
-                Duration::from_secs(10),
+                connection_timeout,
                 http.serve_connection(TokioIo::new(socket), handler),
             )
             .await;

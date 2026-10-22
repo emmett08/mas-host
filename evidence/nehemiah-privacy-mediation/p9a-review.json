@@ -1,0 +1,67 @@
+{
+  "version": "nehemiah-p9a-current-review/1",
+  "repository": "emmett08/catalog-sync-operator-monograph",
+  "pull_request": "https://github.com/emmett08/catalog-sync-operator-monograph/pull/381",
+  "status": "ALREADY_IMPLEMENTED_AND_PUBLISHED",
+  "reviewed_head": "65de861aa7c71fae3eaf4dcea825b66e7ebe4d1b",
+  "reviewed_tree": "cdae160203f0ebc7898fb584f440bbafcd6acea3",
+  "implementation_commit": "c9f9598599fc6c86325249173f3160709ec26a63",
+  "implementation_tree": "ef7d4be8e482b95931aa11685be9dcde474f4066",
+  "base_commit": "7e34b42a62d21c4cafe017476077bc333b2e12bd",
+  "base_branch": "codex/kubernetes-autonomic-20261019",
+  "host_pin": "f3cc7cb1894bebd45c2d708edec27c4b8171be1a",
+  "verified_current_head_git_blobs": {
+    "apps/k8s-autonomic/autonomic/connections.py": "24f81969d2a80b3a9fc0f750a042b6f6aae2607d",
+    "apps/k8s-autonomic/autonomic/host.py": "2588859b68a57213ac78c0ebd90317d689e8cba8",
+    "apps/k8s-autonomic/autonomic/cli.py": "e8245a6436bb7d8adc1fc4b7c56dc4bcfcc75a11",
+    "apps/k8s-autonomic/tests/test_connections.py": "6f05bb04a7856639871234c75fca6a0299a65d2b",
+    "apps/k8s-autonomic/README.md": "b4157f673509f3bb5a493cbed84dd9ce4acbd184",
+    "specs/017-kubernetes-autonomic/spec.md": "7ce4b41977cd194e9a7f09dd2a88db22680a7ae2",
+    "specs/017-kubernetes-autonomic/plan.md": "d34e439b346c969722010d7343f8efae16ead0da",
+    "specs/017-kubernetes-autonomic/tasks.md": "bf367f6e7a15fdc74dcddb323dd4a8c3f51ba72c",
+    "specs/017-kubernetes-autonomic/traceability.yaml": "0ade646361fe0f1495b63c6700314b061508d049",
+    "specs/checks.yaml": "5e436a1075219d0dc1d790b18bf80ead36123d88",
+    "specs/017-kubernetes-autonomic/connection-validation.json": "64fbe62122474593e12cf933debc4afe1b963384",
+    "specs/017-kubernetes-autonomic/evidence/connections-regression.log": "65a6a0fd33a7be13a1c50e29b1066d5c1615f257"
+  },
+  "evidence_commit_changes": [
+    "specs/017-kubernetes-autonomic/traceability.yaml",
+    "specs/017-kubernetes-autonomic/connection-validation.json",
+    "specs/017-kubernetes-autonomic/evidence/connections-regression.log"
+  ],
+  "source_verification": "All tested Python file SHA256 values still match the existing receipt. All implementation file SHA256 values match except traceability.yaml, which was intentionally updated only by the subsequent evidence commit. All twelve current checkpoint files exactly match current remote Git blobs.",
+  "historical_validation": {
+    "application_tests": 73,
+    "passed": 72,
+    "skipped": 1,
+    "focused_profile_cases": 10,
+    "focused_passed": 10,
+    "raw_log_sha256": "d903fc98130dd6b2c0584d302ff82ec6e02693cc5318202382983d56acf574e0",
+    "rerun_this_review": false
+  },
+  "authority": {
+    "mutations": [],
+    "new_commits": [],
+    "workflow_dispatches": 0,
+    "live_provider_calls": 0,
+    "notifications_sent": 0
+  },
+  "preserved": [
+    "native default",
+    "default OpenAI Responses connection",
+    "explicit model",
+    "only selected credential environment references forwarded at runtime",
+    "build/observation processes receive no provider credentials",
+    "normalised profile and credential names join retained build identity",
+    "changed-profile replay rejects",
+    "existing target/action predicates and uncertainty semantics"
+  ],
+  "pending": [
+    "live model quality/cost",
+    "Kubernetes/cloud deployment",
+    "additional provider contracts",
+    "credential/grant epoch migration",
+    "protected multi-tenant enforcement",
+    "PR #380 integration remains separate"
+  ]
+}

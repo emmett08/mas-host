@@ -159,7 +159,9 @@ repeating its external action is safe.
 Hyper parses HTTP. The service allows 32 simultaneous connections, 32 headers,
 a 16 KiB HTTP parsing buffer, a 65,536-byte request body and a 262,144-byte response.
 Header and body reads each have a three-second deadline, and the complete
-connection has a ten-second deadline. Connection loss does not cancel accepted
+connection has a ten-second deadline. An A2A2 service with an explicitly
+configured [privacy inspector](governed-privacy.md) adds two inspection budgets,
+up to 250 seconds, while retaining the header/body bounds. Connection loss does not cancel accepted
 work. `max_active` defaults to four (maximum 16); `max_tasks` defaults to 1,000
 (maximum 10,000). The bundle's original core run budgets apply once its run is
 created. There is one process owner per service state directory.

@@ -1,0 +1,14 @@
+node --test assets/providers/cursor.test.mjs
+✔ Cursor uses the documented text-only SDK contract in a clean temporary workspace (12.980219ms)
+✔ Missing credentials fail before SDK acquisition (0.558335ms)
+✔ A failed send remains unknown and does not reveal or retry errors (5.94437ms)
+✔ Raw output and failed disposal retain separate evidence for Rust validation (2.056992ms)
+✔ Application integers and raw output reach Rust without JavaScript rounding (1.60658ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 185.672739

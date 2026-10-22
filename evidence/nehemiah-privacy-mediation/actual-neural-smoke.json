@@ -1,0 +1,134 @@
+{
+  "checks": [
+    {
+      "http_status": 200,
+      "method": "SendMessage",
+      "response": {
+        "id": "safe-smoke-request",
+        "jsonrpc": "2.0",
+        "result": {
+          "task": {
+            "contextId": "context-a2a-a6353a5c4996e2f444dd2be1ee56a1cedf088fa6082614f9b56c28a3",
+            "id": "a2a-a6353a5c4996e2f444dd2be1ee56a1cedf088fa6082614f9b56c28a3",
+            "metadata": {
+              "mas": {
+                "agent": "collector",
+                "bundleDigest": "f8d56a5dd8e0df58629757b05f3c9f661e845f5696c308b72794b8ede0e69eeb",
+                "cancelRequested": false,
+                "state": "working"
+              }
+            },
+            "status": {
+              "state": "TASK_STATE_WORKING"
+            }
+          }
+        }
+      },
+      "seconds": 41.1091
+    },
+    {
+      "http_status": 200,
+      "method": "GetTask",
+      "response": {
+        "id": "safe-smoke-request",
+        "jsonrpc": "2.0",
+        "result": {
+          "artifacts": [
+            {
+              "artifactId": "a2a-a6353a5c4996e2f444dd2be1ee56a1cedf088fa6082614f9b56c28a3-result",
+              "name": "result",
+              "parts": [
+                {
+                  "data": {
+                    "count": 1
+                  },
+                  "mediaType": "application/json"
+                }
+              ]
+            }
+          ],
+          "contextId": "context-a2a-a6353a5c4996e2f444dd2be1ee56a1cedf088fa6082614f9b56c28a3",
+          "id": "a2a-a6353a5c4996e2f444dd2be1ee56a1cedf088fa6082614f9b56c28a3",
+          "metadata": {
+            "mas": {
+              "agent": "collector",
+              "bundleDigest": "f8d56a5dd8e0df58629757b05f3c9f661e845f5696c308b72794b8ede0e69eeb",
+              "cancelRequested": false,
+              "state": "completed"
+            }
+          },
+          "status": {
+            "state": "TASK_STATE_COMPLETED"
+          }
+        }
+      },
+      "seconds": 9.4502
+    },
+    {
+      "http_status": 200,
+      "method": "SendMessage",
+      "response": {
+        "id": "safe-smoke-request",
+        "jsonrpc": "2.0",
+        "result": {
+          "task": {
+            "artifacts": [
+              {
+                "artifactId": "a2a-a6353a5c4996e2f444dd2be1ee56a1cedf088fa6082614f9b56c28a3-result",
+                "name": "result",
+                "parts": [
+                  {
+                    "data": {
+                      "count": 1
+                    },
+                    "mediaType": "application/json"
+                  }
+                ]
+              }
+            ],
+            "contextId": "context-a2a-a6353a5c4996e2f444dd2be1ee56a1cedf088fa6082614f9b56c28a3",
+            "id": "a2a-a6353a5c4996e2f444dd2be1ee56a1cedf088fa6082614f9b56c28a3",
+            "metadata": {
+              "mas": {
+                "agent": "collector",
+                "bundleDigest": "f8d56a5dd8e0df58629757b05f3c9f661e845f5696c308b72794b8ede0e69eeb",
+                "cancelRequested": false,
+                "state": "completed"
+              }
+            },
+            "status": {
+              "state": "TASK_STATE_COMPLETED"
+            }
+          }
+        }
+      },
+      "seconds": 21.4088
+    }
+  ],
+  "detector": {
+    "adapter": "mas-privacy-opf/1",
+    "backend": "opf-cpu-bfloat16/1",
+    "bundle_sha256": "832d463c76ab3417966a854cb8b67c8f7922ab9f3b4da05770c80374147cc4a5",
+    "code_revision": "f7f00ca7fb869683eb732c010299d901457f19c3",
+    "model_revision": "7ffa9a043d54d1be65afb281eddf0ffbe629385b"
+  },
+  "handler_dispatches": 1,
+  "host_sha256": "7853e96d90dbf56990329b125eb64cec5b5463153661b3da0fe0be56204429e7",
+  "manifest_sha256": "832d463c76ab3417966a854cb8b67c8f7922ab9f3b4da05770c80374147cc4a5",
+  "mode": "actual-pinned-local-model-synthetic-integer-observation",
+  "quality_qualified": false,
+  "retained_tasks": [
+    {
+      "error": null,
+      "id": "a2a-a6353a5c4996e2f444dd2be1ee56a1cedf088fa6082614f9b56c28a3",
+      "output": {
+        "count": 1
+      },
+      "state": "completed"
+    }
+  ],
+  "script_sha256": "1dde99ab58b0dc20f9664cee92bdac9b1b51e1be3a2fdde49285cf9e31bcd264",
+  "seconds": 138.779,
+  "status": "PASS",
+  "version": "mas-governed-neural-smoke/1"
+}

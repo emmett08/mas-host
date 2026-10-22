@@ -1,11 +1,10 @@
 //! Bind trusted identities to one closed structured policy and commitment key.
+#[path = "authorization.rs"]
+mod authorization;
 use super::{
     authority::{self, Snapshot},
+    inspection::InspectionGate,
     schema,
-};
-use crate::governance::{
-    decide_disclosure, CurrentAuthority, DataUsePolicy, DisclosureRequest, GovernedEvidence,
-    InvocationScope,
 };
 use hmac::{Hmac, KeyInit, Mac};
 use serde_json::{json, Value};
@@ -61,6 +60,7 @@ struct Session {
 pub struct GovernedSession(
     Arc<Session>,
     Option<Arc<dyn Fn() -> Result<()> + Send + Sync>>,
+    pub(super) Option<Arc<InspectionGate>>,
 );
 
 fn id(value: &Value, name: &str) -> Result<String> {
@@ -220,6 +220,7 @@ impl GovernedSession {
                 agents,
             }),
             None,
+            None,
         ))
     }
 
@@ -234,7 +235,14 @@ impl GovernedSession {
     }
 
     pub fn fingerprint(&self) -> String {
-        self.0.fingerprint.clone()
+        match &self.2 {
+            Some(gate) => crate::digest(
+                json!([self.0.fingerprint, gate.contract()])
+                    .to_string()
+                    .as_bytes(),
+            ),
+            None => self.0.fingerprint.clone(),
+        }
     }
 
     /// Bind stable transport identities independently of mutable grants/purpose.
@@ -316,6 +324,9 @@ impl GovernedSession {
     }
 
     fn current(&self) -> Result<Snapshot> {
+        if let Some(gate) = &self.2 {
+            gate.check_implementation()?;
+        }
         if let Some(check) = &self.1 {
             check().map_err(|_| "governed-authentication-revoked")?;
         }
@@ -352,13 +363,15 @@ impl GovernedSession {
         self.commitment(value)?;
         let policy = self.agent(actor)?;
         let projected = schema::project(&policy.input_schema, value)?;
-        let decision = self.authorize(
+        let inspection = self.inspect_boundary(actor, value, &projected)?;
+        let decision = self.authorize_inspected(
             actor,
             "invoke",
             &format!("worker:{actor}"),
             &policy.destination,
             value,
             &projected,
+            inspection,
         )?;
         Ok((projected, decision))
     }
@@ -371,13 +384,15 @@ impl GovernedSession {
         if projected != *value {
             return Err("governed-effect-input-must-already-be-minimised".into());
         }
-        let decision = self.authorize(
+        let inspection = self.inspect_boundary(actor, value, &projected)?;
+        let decision = self.authorize_inspected(
             actor,
             "effect",
             &format!("operation:{format}"),
             &policy.destination,
             value,
             &projected,
+            inspection,
         )?;
         Ok((projected, decision))
     }
@@ -396,8 +411,21 @@ impl GovernedSession {
                 return Err("governed-retained-output-invalid".into());
             }
         }
-        self.authorize(actor, "deliver", &self.0.principal, "client", value, value)
-            .map(|_| ())
+        let inspection = if is_unavailable(value) {
+            None
+        } else {
+            self.inspect_boundary(actor, value, value)?
+        };
+        self.authorize_inspected(
+            actor,
+            "deliver",
+            &self.0.principal,
+            "client",
+            value,
+            value,
+            inspection,
+        )
+        .map(|_| ())
     }
 
     pub fn check_status_value(&self, actor: &str, value: &Value) -> Result<()> {
@@ -421,13 +449,19 @@ impl GovernedSession {
                 return Err("governed-retained-output-invalid".into());
             }
         }
-        self.authorize(
+        let inspection = if is_unavailable(value) {
+            None
+        } else {
+            self.inspect_boundary(actor, value, value)?
+        };
+        self.authorize_inspected(
             actor,
             "invoke",
             &format!("worker:{actor}"),
             &self.agent(actor)?.destination,
             value,
             value,
+            inspection,
         )
         .map(|_| ())
     }
@@ -438,13 +472,15 @@ impl GovernedSession {
             return Ok(unavailable("unknown"));
         }
         let output = schema::project(&self.agent(actor)?.output_schema, value)?;
-        self.authorize(
+        let inspection = self.inspect_boundary(actor, value, &output)?;
+        self.authorize_inspected(
             actor,
             "invoke",
             &format!("worker:{actor}"),
             &self.agent(actor)?.destination,
             value,
             &output,
+            inspection,
         )?;
         Ok(output)
     }
@@ -458,71 +494,21 @@ impl GovernedSession {
         if recipient_actor == "client" {
             return self.check_delivery(source_actor, value);
         }
-        self.authorize(
+        let inspection = if is_unavailable(value) {
+            None
+        } else {
+            self.inspect_boundary(source_actor, value, value)?
+        };
+        self.authorize_inspected(
             source_actor,
             "invoke",
             &format!("worker:{recipient_actor}"),
             &self.agent(recipient_actor)?.destination,
             value,
             value,
+            inspection,
         )
         .map(|_| ())
-    }
-
-    pub(super) fn authorize(
-        &self,
-        actor: &str,
-        operation: &str,
-        recipient: &str,
-        destination: &str,
-        original: &Value,
-        projection: &Value,
-    ) -> Result<Value> {
-        let snapshot = self.current()?;
-        let now = crate::now_ms().map_err(|_| "governed-clock-unavailable")?;
-        let binding = self.boundary_binding(original)?;
-        let source_id = format!("source-{binding}");
-        let mut policies = Vec::new();
-        let mut policy_refs = Vec::new();
-        for template in snapshot.policies {
-            let mut association = template;
-            let association_id = format!(
-                "policy-{}",
-                self.commitment(&json!([association, source_id]))?
-            );
-            association["id"] = json!(association_id);
-            association["evidence_refs"] = json!([source_id]);
-            policy_refs.push(association_id);
-            policies.push(
-                DataUsePolicy::from_value(&association).map_err(|_| "governed-policy-invalid")?,
-            );
-        }
-        let expires = snapshot.grant["expires_at_ms"].as_u64().unwrap();
-        let scope=InvocationScope::from_value(&json!({
-            "version":"mas-invocation-scope/1","tenant":self.0.tenant,"principal":self.0.principal,"actor":actor,"producer":"host",
-            "grant_ref":self.0.grant_ref,"grant_epoch":self.0.epoch,"purpose":self.0.purpose,"policy_version":self.0.policy_version,
-            "permitted_operations":[operation],"evidence_refs":[source_id],
-        })).map_err(|_|"governed-scope-invalid")?;
-        let evidence=GovernedEvidence::from_value(&json!({
-            "version":"mas-governed-evidence/1","id":source_id,"payload_ref":format!("inline-{binding}"),"binding_ref":binding,
-            "source_ref":"trusted-local-structured","acquisition_ref":"host-boundary","coverage":"complete","classification":"restricted",
-            "policy_refs":policy_refs,"parents":[],"transformation_ref":"closed-structured-allowlist/1","acquired_at_ms":now,"expires_at_ms":expires,
-        })).map_err(|_|"governed-evidence-invalid")?;
-        let request=DisclosureRequest::from_value(&json!({
-            "version":"mas-disclosure-request/1","invocation_id":"boundary","operation":operation,"recipient":recipient,
-            "destination":destination,"location":self.0.location,"input_binding_ref":binding,"output_binding_ref":self.boundary_binding(projection)?,
-            "evidence_refs":[source_id],"fulfilled_obligations":["inline-retention-approved"],"byte_count":projection.to_string().len(),
-            "now_ms":now,"expires_at_ms":expires,
-        })).map_err(|_|"governed-request-invalid")?;
-        let authority =
-            CurrentAuthority::from_value(&snapshot.grant).map_err(|_| "governed-grant-invalid")?;
-        let decision = decide_disclosure(&scope, &request, &authority, &[evidence], &policies);
-        if decision["disposition"] != "permitted-by-contract"
-            || decision["binding_complete"] != true
-        {
-            return Err("governed-policy-denied".into());
-        }
-        Ok(decision)
     }
 }
 

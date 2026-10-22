@@ -1,0 +1,234 @@
+cargo fmt --all -- --check
+cargo clippy --locked --workspace --all-targets -- -D warnings
+    Checking mas-host-core v0.1.0 (/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-core)
+    Checking mas-host v0.1.0 (/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-cli)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.55s
+cd sdk/go && go vet ./...
+cd tests/fixtures/go-release && go vet ./...
+npm --prefix examples/structured-evidence/typescript ci --ignore-scripts
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+added 1 package in 641ms
+npm --prefix examples/structured-evidence/typescript run check
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> nehemiah-structured-evidence-fixture@0.1.0 check
+> tsc --noEmit -p tsconfig.json
+
+npm --prefix examples/structured-evidence/typescript run build
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> nehemiah-structured-evidence-fixture@0.1.0 build
+> tsc -p tsconfig.json
+
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s examples/structured-evidence/tests -v
+test_each_changed_target_field_is_rejected (test_collectors.Collectors.test_each_changed_target_field_is_rejected) ... ok
+test_prepared_packages_have_same_contract_with_distinct_approved_implementation (test_collectors.Collectors.test_prepared_packages_have_same_contract_with_distinct_approved_implementation) ... ok
+test_quantities_cannot_be_booleans_fractional_negative_or_unbounded (test_collectors.Collectors.test_quantities_cannot_be_booleans_fractional_negative_or_unbounded) ... ok
+test_same_observation_and_original_application_host_identities (test_collectors.Collectors.test_same_observation_and_original_application_host_identities) ... ok
+test_transport_rejects_duplicate_members_invalid_utf8_and_oversize_input (test_collectors.Collectors.test_transport_rejects_duplicate_members_invalid_utf8_and_oversize_input) ... ok
+test_unknown_fields_and_file_or_endpoint_selection_are_rejected (test_collectors.Collectors.test_unknown_fields_and_file_or_endpoint_selection_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 3.945s
+
+OK
+cargo test --locked --workspace
+   Compiling mas-host-core v0.1.0 (/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-core)
+   Compiling mas-host v0.1.0 (/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.81s
+     Running unittests src/main.rs (target/debug/deps/mas_host-6657558780f2b3c2)
+
+running 16 tests
+test a2a::configuration::timeout_tests::only_configured_inspection_adds_two_bounded_rpc_scan_budgets ... ok
+test config::authoring::tests::strict_json_keeps_original_rejections_and_exact_integer_semantics ... ok
+test config::authoring::tests::rejects_lossy_toml_values_and_duplicate_keys ... ok
+test config::authoring::tests::non_decimal_toml_integers_are_lossless_beyond_u64 ... ok
+test config::authoring::tests::rejects_ambiguous_and_unsupported_yaml_before_execution ... ok
+test config::authoring::tests::yaml_core_scalars_and_quoted_values_have_explicit_semantics ... ok
+test config::tests::public_operations_are_explicit_mas_identities ... ok
+test config::tests::rejects_implicit_permissions_bad_limits_and_unknown_settings ... ok
+test config::tests::requires_current_version_and_explicit_implementation_kind ... ok
+test config::authoring::tests::formats_resolve_to_identical_values_with_exact_integers ... ok
+test privacy_inspect::governed::tests::occupied_inspector_rejects_concurrent_work_without_a_launch_or_queue ... ok
+test privacy_inspect::governed::tests::revoked_configuration_invalidates_identity_without_launching_a_text_scan ... ok
+test config::authoring::tests::authoring_integers_obey_protocol_digit_limit ... ok
+test config::bindings::tests::required_delegates_are_a_unique_subset_with_a_completion_turn ... ok
+test config::bindings::tests::minimum_delegate_calls_is_optional_bounded_and_requires_delegates ... ok
+test config::authoring::tests::size_and_depth_are_bounded_in_source_and_resolved_values ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/a2a.rs (target/debug/deps/a2a-033f27082a608bad)
+
+running 4 tests
+test descriptor_exposes_contracts_without_execution_configuration ... ok
+test blocking_unknown_outcome_preserves_task_identity_and_negotiated_extension ... ok
+test interrupted_task_becomes_unknown_and_retry_does_not_repeat_work ... ok
+test gateway_enforces_profile_owner_and_exact_retry_and_retains_completed_tasks ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.41s
+
+     Running tests/a2a_governed.rs (target/debug/deps/a2a_governed-0d9f41785ddd140f)
+
+running 11 tests
+test changed_governed_detector_implementation_is_rejected_before_dispatch ... ok
+test changed_grant_reference_cannot_reset_request_identity_and_key_changes_stop_use ... ok
+test invalid_governed_detector_configuration_prevents_service_startup ... ok
+test current_authority_controls_cached_delivery_and_same_policy_credential_rotation ... ok
+test authentication_revocation_stops_later_effect_admission ... ok
+test governed_ingress_minimises_before_persistence_preserves_original_conflicts_and_replays ... ok
+test known_effect_completion_with_prohibited_output_survives_withholding_and_restart ... ok
+test lost_effect_response_keeps_uncertainty_and_authorised_recovery_ids ... ok
+test governed_detector_output_failure_preserves_effect_completion_across_restart ... ok
+test faulty_or_incomplete_governed_detector_blocks_before_task_or_effect_storage ... ok
+test governed_detector_runs_before_persistence_and_uses_only_approved_projection ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.01s
+
+     Running tests/acceptance.rs (target/debug/deps/acceptance-e854ad81053043b8)
+
+running 1 test
+test code_only_apps_and_real_effect_recovery ... ignored, requires Go, C++ and Rust toolchains; run make acceptance
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/authoring.rs (target/debug/deps/authoring-4ac87bde8a26deb7)
+
+running 3 tests
+test invalid_authoring_fails_before_build_or_state_creation ... ok
+test ambiguous_defaults_require_explicit_selection_before_build ... ok
+test toml_yaml_and_json_preserve_bundle_digest_and_resume_input ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 35.55s
+
+     Running tests/capabilities.rs (target/debug/deps/capabilities-1b032c04b216c1e1)
+
+running 8 tests
+test closed_versions_signature_requirements_and_unsupported_schemas_reject ... ok
+test file_escape_missing_argument_and_changed_argv_cannot_keep_old_approval ... ok
+test same_name_substitution_and_missing_static_requirements_reject_before_publication ... ok
+test aggregate_bundle_limit_preserves_previous_valid_publication ... ok
+test changed_executable_bytes_cannot_reuse_approved_package ... ok
+test changed_runtime_is_rejected_by_cli_and_existing_command_dispatch_gate ... ok
+test retained_package_cannot_switch_implementation_runner_or_schemas ... ok
+test exact_approval_binds_real_collector_and_retained_observation_replay ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 21.15s
+
+     Running tests/commands.rs (target/debug/deps/commands-7ec6221b9c7c58bc)
+
+running 8 tests
+test argv_stdin_environment_and_directory_are_explicit_and_replay_is_cached ... ok
+test absolute_executable_drift_blocks_dispatch_and_failed_spawn_is_known ... ok
+test operation_schemas_apply_to_workflows_and_commands_before_dispatch_and_completion ... ok
+test retained_commands_preserve_configured_names_and_normalise_permissions ... ok
+test interrupted_external_write_requires_resolution_and_is_never_repeated ... ok
+test timeout_and_output_overflow_remain_uncertain_without_retry ... ok
+test retained_script_survives_source_change_and_new_bundle_cannot_resume ... ok
+test invalid_output_is_a_recorded_observation_and_bad_arguments_never_dispatch ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 55.42s
+
+     Running tests/configured.rs (target/debug/deps/configured-4710c3ce75d3d402)
+
+running 14 tests
+test inference_keeps_large_task_input_without_repeating_immutable_configuration ... ok
+test oversized_rebuild_preserves_the_previous_published_bundle ... ok
+test final_turn_does_not_spend_a_peer_call_that_cannot_contribute_to_completion ... ok
+test llm_delegates_to_an_ordinary_cli_with_the_same_admission_and_replay ... ok
+test model_delegation_cannot_bypass_the_frozen_topology ... ok
+test reserved_ingress_cannot_be_a_workflow_or_model_delegate ... ok
+test configured_workflow_runs_llm_peer_requests_through_mas_and_replays_without_calls ... ok
+test required_delegations_gate_provider_schema_until_results_are_recorded_and_replay ... ok
+test known_refusal_and_invalid_output_are_recorded_while_unknown_execution_blocks_replay ... ok
+test prompt_and_schema_drift_cannot_resume_the_original_configured_run ... ok
+test early_completion_is_allowed_by_default_but_required_delegation_failure_is_retained has been running for over 60 seconds
+test early_completion_is_allowed_by_default_but_required_delegation_failure_is_retained ... ok
+test partial_or_repeated_coverage_and_final_turn_requests_fail_without_dispatch_or_retry has been running for over 60 seconds
+test resolved_provider_outputs_cannot_bypass_required_peer_runtime_checks ... ok
+test required_peer_coverage_allows_model_order_and_additional_count_then_replays has been running for over 60 seconds
+test required_peer_coverage_allows_model_order_and_additional_count_then_replays ... ok
+test partial_or_repeated_coverage_and_final_turn_requests_fail_without_dispatch_or_retry ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 106.29s
+
+     Running tests/privacy_inspect.rs (target/debug/deps/privacy_inspect-96df60b872beb20a)
+
+running 7 tests
+test non_utf8_resolved_worker_paths_are_rejected_without_lossy_conversion ... ok
+test changed_worker_is_rejected_before_execution ... ok
+test invalid_encoding_and_oversized_source_have_explicit_safe_outcomes ... ok
+test timeout_and_large_encoded_requests_do_not_release_content ... ok
+test guardian_reaps_classifier_descendants_before_returning_assessment ... ok
+test valid_local_scan_never_admits_release_and_hides_worker_output ... ok
+test faulty_neural_results_preserve_deterministic_positive_findings ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+
+     Running tests/privacy_response.rs (target/debug/deps/privacy_response-50dc6169e40c3596)
+
+running 4 tests
+test lost_notification_acknowledgement_retains_intent_and_original_unknown_without_redispatch ... FAILED
+test throttling_remains_refused_with_retry_eligibility_and_replay_does_not_resend ... FAILED
+test completed_withheld_collection_creates_safe_case_and_one_notification_across_restart has been running for over 60 seconds
+test revocation_after_safe_intent_blocks_fresh_notification_admission has been running for over 60 seconds
+test completed_withheld_collection_creates_safe_case_and_one_notification_across_restart ... ok
+test revocation_after_safe_intent_blocks_fresh_notification_admission ... FAILED
+
+failures:
+
+---- lost_notification_acknowledgement_retains_intent_and_original_unknown_without_redispatch stdout ----
+
+thread 'lost_notification_acknowledgement_retains_intent_and_original_unknown_without_redispatch' (2150) panicked at crates/mas-host-cli/tests/privacy_response.rs:13:5:
+
+Traceback (most recent call last):
+  File "/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-cli/../../examples/privacy-response/verify.py", line 195, in <module>
+    run(str(Path(args.host).resolve()), args.scenario)
+  File "/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-cli/../../examples/privacy-response/verify.py", line 163, in run
+    assert count(project, "collector-calls") == count(project, "notification-calls") == 1
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- throttling_remains_refused_with_retry_eligibility_and_replay_does_not_resend stdout ----
+
+thread 'throttling_remains_refused_with_retry_eligibility_and_replay_does_not_resend' (2152) panicked at crates/mas-host-cli/tests/privacy_response.rs:13:5:
+
+{"committed_effect_states": [["collect", "completed"]]}
+Traceback (most recent call last):
+  File "/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-cli/../../examples/privacy-response/verify.py", line 195, in <module>
+    run(str(Path(args.host).resolve()), args.scenario)
+  File "/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-cli/../../examples/privacy-response/verify.py", line 154, in run
+    task = service.terminal(identity, "unknown" if mode == "unknown" else "completed")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-cli/../../examples/privacy-response/verify.py", line 72, in terminal
+    assert state not in ("completed", "failed", "unknown"), task
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'contextId': 'context-a2a-95df7a4b30b2cc7d1f48165b42b5c3a562e331ffc699334f4b0b8722', 'id': 'a2a-95df7a4b30b2cc7d1f48165b42b5c3a562e331ffc699334f4b0b8722', 'metadata': {'mas': {'agent': 'responder', 'bundleDigest': 'f765b7013e05e21b67677343e714ef561ad179f3c1718e5fdd2194b183a680a3', 'cancelRequested': False, 'state': 'unknown'}}, 'status': {'state': 'TASK_STATE_UNSPECIFIED'}}
+
+
+---- revocation_after_safe_intent_blocks_fresh_notification_admission stdout ----
+
+thread 'revocation_after_safe_intent_blocks_fresh_notification_admission' (2151) panicked at crates/mas-host-cli/tests/privacy_response.rs:13:5:
+
+Traceback (most recent call last):
+  File "/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-cli/../../examples/privacy-response/verify.py", line 195, in <module>
+    run(str(Path(args.host).resolve()), args.scenario)
+  File "/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-cli/../../examples/privacy-response/verify.py", line 133, in run
+    assert time.monotonic() < deadline, states(project)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [('collect', 'completed')]
+
+
+
+failures:
+    lost_notification_acknowledgement_retains_intent_and_original_unknown_without_redispatch
+    revocation_after_safe_intent_blocks_fresh_notification_admission
+    throttling_remains_refused_with_retry_eligibility_and_replay_does_not_resend
+
+test result: FAILED. 1 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 189.07s
+
+error: test failed, to rerun pass `-p mas-host --test privacy_response`
+make: *** [Makefile:39: test] Error 101

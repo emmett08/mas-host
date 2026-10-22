@@ -349,6 +349,7 @@ version = "0.1.0"
 dependencies = [
  "hmac",
  "libc",
+ "mas-host-privacy",
  "mas-host-process",
  "mas-host-schema",
  "mas-host-worker",

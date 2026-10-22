@@ -12,6 +12,14 @@ their original increment. They do not cover the later delegation-policy model.
 Fresh runs write to the ignored output directory and CI retains that directory
 as a workflow artifact.
 
+The [governed local model](governed-local.md) adds snapshot-authorised structured
+admission, exact-source inspection, pre-persistence projection, completion with
+withheld output and crash/replay checks. Its scope and source mapping are
+separate from the historical revision/disclosure checks below.
+The [privacy response adapter model](privacy-response.md) separately checks
+safe-intent ordering, current notification admission, provider certainty and
+duplicate/unknown handling for the initial N3 adapter.
+
 These models check a finite control abstraction. They do not prove that a
 candidate diagnoses an incident correctly, that a model evaluator is reliable,
 or that revision improves outcomes. The experiment in `mas-host-examples`

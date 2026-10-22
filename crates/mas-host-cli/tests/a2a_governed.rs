@@ -248,6 +248,72 @@ handler = "collect"
                 "input":{"mode":mode,"private_note":secret}},"mediaType":"application/json"}]},
             "configuration":{"returnImmediately":true}})
     }
+    fn privacy_inspector(&self, mode: &str, timeout_ms: u64) {
+        let worker = r#"import json,os,socket,struct,time
+s=socket.socket(fileno=int(os.environ['MAS_WORKER_CHANNEL_FD']))
+def read(n):
+    out=b''
+    while len(out)<n:
+        chunk=s.recv(n-len(out))
+        if not chunk: raise RuntimeError('EOF')
+        out+=chunk
+    return out
+r=json.loads(read(struct.unpack('!I',read(4))[0]))
+mode=open('inspection-mode').read()
+with open('inspection-calls','a') as stream: stream.write('x')
+print(r['text'],flush=True)
+os.write(2,r['text'].encode())
+if mode=='wait': time.sleep(20)
+if mode=='after-effect' and os.path.exists('calls'): mode='partial'
+v={'version':'mas-privacy-worker-response/1','source_id':r['source_id'],'source_token':r['source_token'],'input_bytes':r['input_bytes'],'detector':r['detector'],'offset_unit':'unicode-codepoints','completion':'complete','checked_ranges':[{'start':0,'end':len(r['text'])}] if r['text'] else [],'omissions':[],'findings':[]}
+if mode=='partial':
+    v['completion']='partial';v['checked_ranges']=[];v['omissions']=['incomplete-token-coverage']
+if mode=='wrong-source': v['source_token']='0'*64
+if mode=='finding' and r['text']=='available':
+    v['findings']=[{'start':0,'end':len(r['text']),'label':'private_person'}]
+b=b'not-json' if mode=='malformed' else json.dumps(v).encode()
+s.sendall(struct.pack('!I',len(b))+b)
+"#;
+        fs::write(self.root.join("inspection-worker.py"), worker).unwrap();
+        fs::write(self.root.join("inspection-mode"), mode).unwrap();
+        let manifest = json!({"version":"mas-privacy-bundle/1","code_revision":"a".repeat(40),
+            "model_revision":"b".repeat(40),"backend":"opf-cpu-bfloat16/1","adapter":"mas-privacy-opf/1",
+            "worker_sha256":digest(worker),"adapter_files":{},"files":{},"runtime":{},
+            "settings":{"max_input_bytes":16384,"max_response_bytes":65536,"max_findings":128}});
+        let manifest_bytes = serde_json::to_vec(&manifest).unwrap();
+        fs::write(self.root.join("inspection-manifest.json"), &manifest_bytes).unwrap();
+        let python_bytes = fs::read("/usr/bin/python3").unwrap();
+        let hex = |bytes: &[u8]| -> String {
+            Sha256::digest(bytes)
+                .iter()
+                .map(|b| format!("{b:02x}"))
+                .collect()
+        };
+        write(
+            self.root.join("privacy.json"),
+            &json!({"version":"mas-governed-privacy-inspector/1",
+            "python":"/usr/bin/python3","worker":self.root.join("inspection-worker.py"),
+            "manifest":self.root.join("inspection-manifest.json"),"assets":self.root,
+            "detector":{"bundle_sha256":hex(&manifest_bytes),"code_revision":"a".repeat(40),
+                "model_revision":"b".repeat(40),"backend":"opf-cpu-bfloat16/1","adapter":"mas-privacy-opf/1"},
+            "python_sha256":hex(&python_bytes),"destination":"local-detector",
+            "timeout_ms":timeout_ms,"memory_mib":256}),
+        );
+        let mut gateway: Value =
+            serde_json::from_slice(&fs::read(self.root.join("gateway.json")).unwrap()).unwrap();
+        gateway["privacy_inspector_file"] = json!(self.root.join("privacy.json"));
+        write(self.root.join("gateway.json"), &gateway);
+        let mut authority: Value =
+            serde_json::from_slice(&fs::read(self.root.join("authority.json")).unwrap()).unwrap();
+        for policy in authority["policies"].as_array_mut().unwrap() {
+            let mut rule = policy["rules"][0].clone();
+            rule["operation"] = json!("inspect");
+            rule["recipient"] = json!("privacy-inspector");
+            rule["destination"] = json!("local-detector");
+            policy["rules"].as_array_mut().unwrap().push(rule);
+        }
+        write(self.root.join("authority.json"), &authority);
+    }
     fn calls(&self) -> usize {
         fs::read(self.root.join("calls")).unwrap_or_default().len()
     }
@@ -308,7 +374,10 @@ impl Server {
         )
     }
     fn completed(&self, id: &str) -> Value {
-        let deadline = Instant::now() + Duration::from_secs(15);
+        self.completed_within(id, Duration::from_secs(15))
+    }
+    fn completed_within(&self, id: &str, allowance: Duration) -> Value {
+        let deadline = Instant::now() + allowance;
         loop {
             let (_, response) = self.rpc(TOKEN, "GetTask", json!({"id":id}));
             assert!(response.get("error").is_none(), "{response}");
@@ -332,6 +401,167 @@ fn rejected(response: (u16, Value)) {
         "{}",
         response.1
     );
+}
+
+#[test]
+fn governed_detector_runs_before_persistence_and_uses_only_approved_projection() {
+    let project = Project::new();
+    project.privacy_inspector("complete", 10_000);
+    let server = project.start();
+    let (_, accepted) = server.rpc(TOKEN, "SendMessage", project.send("available", PRIVATE));
+    assert!(accepted.get("error").is_none(), "{accepted}");
+    let id = accepted["result"]["task"]["id"].as_str().unwrap();
+    let completed = server.completed_within(id, Duration::from_secs(30));
+    assert_eq!(
+        completed["artifacts"][0]["parts"][0]["data"],
+        json!({"approved":true})
+    );
+    assert!(!fs::read(project.root.join("inspection-calls"))
+        .unwrap()
+        .is_empty());
+    assert_eq!(project.calls(), 1);
+    project.assert_private_absent();
+    drop(server);
+    let restarted = project.start();
+    let (_, replayed) = restarted.rpc(TOKEN, "SendMessage", project.send("available", PRIVATE));
+    assert_eq!(
+        replayed["result"]["task"]["artifacts"],
+        completed["artifacts"]
+    );
+    assert_eq!(project.calls(), 1);
+    project.assert_private_absent();
+}
+
+#[test]
+fn faulty_or_incomplete_governed_detector_blocks_before_task_or_effect_storage() {
+    for mode in ["partial", "wrong-source", "malformed", "finding", "wait"] {
+        let project = Project::new();
+        project.privacy_inspector(mode, if mode == "wait" { 50 } else { 5000 });
+        let server = project.start();
+        let before = Instant::now();
+        rejected(server.rpc(TOKEN, "SendMessage", project.send("available", PRIVATE)));
+        assert!(before.elapsed() < Duration::from_secs(5), "{mode}");
+        let db = rusqlite::Connection::open(project.root.join("state/service.sqlite")).unwrap();
+        let count: i64 = db
+            .query_row("SELECT count(*) FROM tasks", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(count, 0, "{mode}");
+        assert_eq!(project.calls(), 0, "{mode}");
+        project.assert_private_absent();
+    }
+}
+
+#[test]
+fn changed_governed_detector_implementation_is_rejected_before_dispatch() {
+    let project = Project::new();
+    project.privacy_inspector("complete", 5000);
+    let server = project.start();
+    fs::write(
+        project.root.join("inspection-worker.py"),
+        "raise RuntimeError('private-person-4387@example.invalid')",
+    )
+    .unwrap();
+    rejected(server.rpc(TOKEN, "SendMessage", project.send("available", PRIVATE)));
+    assert_eq!(project.calls(), 0);
+    assert!(!project.root.join("inspection-calls").exists());
+    project.assert_private_absent();
+}
+
+#[test]
+fn invalid_governed_detector_configuration_prevents_service_startup() {
+    for mode in [
+        "missing-manifest",
+        "unknown-field",
+        "wrong-pin",
+        "wrong-runtime",
+    ] {
+        let project = Project::new();
+        project.privacy_inspector("complete", 5000);
+        let path = project.root.join("privacy.json");
+        let mut configuration: Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
+        match mode {
+            "missing-manifest" => {
+                fs::remove_file(project.root.join("inspection-manifest.json")).unwrap();
+            }
+            "unknown-field" => configuration["private_note"] = json!(PRIVATE),
+            "wrong-pin" => configuration["detector"]["bundle_sha256"] = json!("0".repeat(64)),
+            "wrong-runtime" => configuration["python_sha256"] = json!("0".repeat(64)),
+            _ => unreachable!(),
+        }
+        write(&path, &configuration);
+        let mut child = Command::new(env!("CARGO_BIN_EXE_mas-host"))
+            .args(["serve-a2a", "--bundle"])
+            .arg(&project.bundle)
+            .arg("--state")
+            .arg(project.root.join("state"))
+            .arg("--config")
+            .arg(project.root.join("gateway.json"))
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .unwrap();
+        let deadline = Instant::now() + Duration::from_secs(5);
+        loop {
+            if child.try_wait().unwrap().is_some() {
+                break;
+            }
+            if Instant::now() >= deadline {
+                let _ = child.kill();
+                let _ = child.wait();
+                panic!("invalid configuration started a service: {mode}");
+            }
+            thread::sleep(Duration::from_millis(20));
+        }
+        let output = child.wait_with_output().unwrap();
+        assert!(!output.status.success(), "{mode}");
+        assert!(!String::from_utf8_lossy(&output.stderr).contains(PRIVATE));
+        assert!(!String::from_utf8_lossy(&output.stdout).contains(PRIVATE));
+        assert_eq!(project.calls(), 0);
+    }
+}
+
+#[test]
+fn governed_detector_output_failure_preserves_effect_completion_across_restart() {
+    let project = Project::new();
+    project.privacy_inspector("after-effect", 10_000);
+    let server = project.start();
+    let request = project.send("available", PRIVATE);
+    let (_, accepted) = server.rpc(TOKEN, "SendMessage", request.clone());
+    assert!(accepted.get("error").is_none(), "{accepted}");
+    let id = accepted["result"]["task"]["id"].as_str().unwrap();
+    let db = rusqlite::Connection::open(project.root.join("state/service.sqlite")).unwrap();
+    let deadline = Instant::now() + Duration::from_secs(20);
+    loop {
+        let state: String = db
+            .query_row("SELECT state FROM tasks WHERE id=?", [id], |r| r.get(0))
+            .unwrap();
+        if state == "completed" {
+            break;
+        }
+        assert!(
+            Instant::now() < deadline,
+            "completion was not retained: {state}"
+        );
+        thread::sleep(Duration::from_millis(20));
+    }
+    assert_eq!(project.calls(), 1);
+    fs::write(project.root.join("inspection-mode"), "complete").unwrap();
+    let task = server.completed(id);
+    assert_eq!(
+        task["artifacts"][0]["parts"][0]["data"]["external_execution"],
+        "completed"
+    );
+    assert_eq!(
+        task["artifacts"][0]["parts"][0]["data"]["payload_disposition"],
+        "withheld"
+    );
+    project.assert_private_absent();
+    drop(server);
+    let restarted = project.start();
+    let (_, replayed) = restarted.rpc(TOKEN, "SendMessage", request);
+    assert_eq!(replayed["result"]["task"]["artifacts"], task["artifacts"]);
+    assert_eq!(project.calls(), 1);
+    project.assert_private_absent();
 }
 
 #[test]
