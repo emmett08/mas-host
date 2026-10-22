@@ -26,6 +26,15 @@ impl Inner {
             self.check_live()?;
             if let Some(session) = &self.governance {
                 session.check_current()?;
+                if session.is_v2() {
+                    let exposure = {
+                        let db = lock(&self.journal)?;
+                        crate::governance::runtime::exposure::load_invocation(
+                            &db, session, &step.id,
+                        )?
+                    };
+                    session.authorize_request_admission(&step.target, &step.input, &exposure)?;
+                }
             }
             let outcome = lock(&self.protocol)?.send_checked(request, &step.actor);
             let Err(failure) = outcome else {
@@ -69,6 +78,19 @@ impl Inner {
         input: &Value,
         depth: usize,
     ) -> Result<Value> {
+        self.request_with_exposure(parent, key, actor, target, input, depth, None)
+    }
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) fn request_with_exposure(
+        self: &Arc<Self>,
+        parent: &str,
+        key: &str,
+        actor: &str,
+        target: &str,
+        input: &Value,
+        depth: usize,
+        frozen: Option<&crate::governance::runtime::exposure::Exposure>,
+    ) -> Result<Value> {
         self.check_live()?;
         if let Some(session) = &self.governance {
             session.check_current()?;
@@ -87,7 +109,8 @@ impl Inner {
             }
         }
         self.check_reply_route(actor, target)?;
-        let step = self.prepare(parent, key, "request", actor, target, input)?;
+        let step =
+            self.prepare_with_exposure(parent, key, "request", actor, target, input, frozen)?;
         let input = &step.input;
         if self.governance.is_some() {
             if let Some(schema) = &agent.input_schema {
@@ -175,6 +198,13 @@ impl Inner {
         }
         if let Some(session) = &self.governance {
             session.check_current()?;
+        }
+        if let Some(session) = self.governance.as_ref().filter(|s| s.is_v2()) {
+            let exposure = {
+                let db = lock(&self.journal)?;
+                crate::governance::runtime::exposure::load_invocation(&db, session, &step.id)?
+            };
+            session.authorize_request_admission(&step.target, &step.input, &exposure)?;
         }
         let mut worker = match Worker::spawn_scoped(
             &agent.executable,
@@ -306,18 +336,31 @@ impl Inner {
                         text(request, "target")?;
                         checked_object(&request["input"], "input")?;
                     }
+                    // One causal snapshot belongs to the entire batch. A sibling's
+                    // completion cannot change an already launched child's inputs.
+                    let frozen =
+                        if let Some(session) = self.governance.as_ref().filter(|s| s.is_v2()) {
+                            let db = lock(&self.journal)?;
+                            Some(crate::governance::runtime::exposure::load_invocation(
+                                &db, session, &step.id,
+                            )?)
+                        } else {
+                            None
+                        };
                     let outcomes = std::thread::scope(|scope| {
                         let handles: Vec<_> = requests
                             .iter()
                             .map(|r| {
+                                let frozen = frozen.as_ref();
                                 scope.spawn(move || {
-                                    self.request(
+                                    self.request_with_exposure(
                                         &step.id,
                                         r["key"].as_str().unwrap(),
                                         &step.target,
                                         r["target"].as_str().unwrap(),
                                         &r["input"],
                                         depth + 1,
+                                        frozen,
                                     )
                                 })
                             })

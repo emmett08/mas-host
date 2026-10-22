@@ -1,0 +1,106 @@
+{
+  "version": "nehemiah-governed-acquisition-example-review/1",
+  "recorded_at_utc": "2026-10-22T20:41:22.230298+00:00",
+  "status": "FOCUSED_PASS_INTERMEDIATE_HOST",
+  "source_sha256": {
+    "examples/governed-acquisition/application.py": "4c4f02560e1965d1e4d4ebac4fb86a36017079466d97fdfc913614fc83d8005f",
+    "examples/governed-acquisition/fixture_inspector.py": "e006601836accce1840e190367942467a1df173ee1052ca2e3402c87cc32df21",
+    "examples/governed-acquisition/prepare.py": "df856e7d6044ecd5c95ca0ac46d082c4207c773f48866b89540644b952e42c82",
+    "examples/governed-acquisition/verify.py": "497e78870596a0c7de66f9560bc580feb4ab58238b05d937c2c778e099927560",
+    "examples/governed-acquisition/README.md": "4758b1f79ed55a583b0d92aeb9c650c36661879ce01777bb5a8775d041951697",
+    "crates/mas-host-cli/tests/governed_acquisition.rs": "dde775d8a67ee0fb5fa6112a7a762cd67fb0843cef04d51ef948be778152f0aa"
+  },
+  "scope": "Six fixture files are final and unchanged during the focused run. The production runtime was the intermediate host802 binary; the parent final workspace gate must rerun this example against the later final CLI source.",
+  "historical_static_checks": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 - (inline AST, prepare(), TOML and authority-size checks)",
+      "checks": [
+        "Parse all four Python files with ast.parse",
+        "Generate a temporary application with validated /usr/bin/python3",
+        "Check config2 baseline/source policy references",
+        "Parse agents.toml and require three native agents",
+        "Require authority.json <=65536 bytes"
+      ],
+      "exit_code": 0,
+      "result": "PASS",
+      "log": "validation/exposure-example-static.log",
+      "log_sha256": "2aad0fcd8f5371858f21abf1fdac520c0b1004b8f3698b58c4c23eebf0f3c616"
+    },
+    {
+      "command": [
+        "rustfmt",
+        "--check",
+        "crates/mas-host-cli/tests/governed_acquisition.rs"
+      ],
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "result": "PASS"
+    }
+  ],
+  "actual_e2e": {
+    "command": [
+      "python3",
+      "examples/governed-acquisition/verify.py",
+      "--host",
+      "target/debug/mas-host"
+    ],
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "return_code": 0,
+    "started_at_utc": "2026-10-22T20:36:14.872962+00:00",
+    "elapsed_seconds": 171.2223925110011,
+    "source_sha256": {
+      "examples/governed-acquisition/application.py": "4c4f02560e1965d1e4d4ebac4fb86a36017079466d97fdfc913614fc83d8005f",
+      "examples/governed-acquisition/fixture_inspector.py": "e006601836accce1840e190367942467a1df173ee1052ca2e3402c87cc32df21",
+      "examples/governed-acquisition/prepare.py": "df856e7d6044ecd5c95ca0ac46d082c4207c773f48866b89540644b952e42c82",
+      "examples/governed-acquisition/verify.py": "497e78870596a0c7de66f9560bc580feb4ab58238b05d937c2c778e099927560",
+      "examples/governed-acquisition/README.md": "4758b1f79ed55a583b0d92aeb9c650c36661879ce01777bb5a8775d041951697",
+      "crates/mas-host-cli/tests/governed_acquisition.rs": "dde775d8a67ee0fb5fa6112a7a762cd67fb0843cef04d51ef948be778152f0aa"
+    },
+    "source_unchanged_during_e2e": true,
+    "host_binary_sha256_before": "802f663081ef9313da898e1d682f063dfc93f422be20c3b8b0b7ce6cddf681b4",
+    "host_binary_sha256_after": "802f663081ef9313da898e1d682f063dfc93f422be20c3b8b0b7ce6cddf681b4",
+    "log": "validation/exposure-example-focused.log",
+    "stdout_json": "validation/exposure-example-stdout.json",
+    "result": "PASS_ON_INTERMEDIATE_HOST_ONLY",
+    "runtime_source_label": "Intermediate CLI/core build before the later removal of redundant config2 post-core authentication callbacks.",
+    "runtime_source_binding": "The exact executable SHA below identifies this focused runtime. This receipt does not transfer that pass to the later CLI source; the parent final full make result is authoritative for final runtime acceptance.",
+    "intermediate_build_log": "validation/exposure-cli-intermediate-build.log",
+    "intermediate_build_log_sha256": "13d1cbd2a27e803f21605a94d361becec6d1517843bda9209bcd59c61c43c7e0",
+    "log_sha256": "a2dfc528e72af6b703b23bda464a8b5e3ab8e184c511274dc516a994c72dc45e",
+    "stdout_json_sha256": "a6a1a0ac0e902219af4037959662ccc5697ba42e1364e7b920f40faf103b67b9",
+    "accepted_stdout": {
+      "scenario": "governed-acquisition",
+      "status": "PASS"
+    }
+  },
+  "verified_fixture_assertions": [
+    "Baseline task actually executes the registered action and blocked peer once before acquisition.",
+    "Restricted acquisition executes once, preserves its approved Deployment point, and denies the same constant action and peer before their counters increase.",
+    "Permitted peer consumes acquired ready_replicas=2 and actually executes.",
+    "Source and legacy effect views share exact namespace/actor/parent/key/effect identity, approved projection and closed source provenance/ancestor metadata.",
+    "Actual N2 receipt reports original findings >0 and projected findings=0; discarded private original bytes are absent from views and execution state.",
+    "Restart and exact original replay retain equal source/effect views and one collection without action/peer redispatch.",
+    "Removing the selected active grant leaves a structurally valid authority file with the grant unavailable; both read APIs, GetTask and SendMessage deny.",
+    "After stopping the restricted service, the original active grant is restored and only source_policy_refs changes to baseline in a fresh state namespace using the same bundle/workflow/assets; acquisition and consumption occur and both formerly blocked operations execute. No extra read/restart is run in that control."
+  ],
+  "limits": [
+    "Trusted local synthetic conformance fixture, one principal and three native actors; not external collector/backend, Kubernetes, detector quality or deployment qualification.",
+    "Fixed in-code structured Deployment point; freshness and assessment remain NOT_RUN. Neural fixture supplies complete responses without model inference; deterministic recognisers still run.",
+    "Closed input/final output schemas, configured 60000ms inspection boundary, 300s task wall, 240s bounded task observation and 150s HTTP timeout.",
+    "Only exact task_not_found is retried as an observation query; initial SendMessage remains strict. Uniform denial is never interpreted as an execution state.",
+    "Small actual source graph only; the 33rd restrictive ancestor, expiry, explicit revocation/outage and larger closure bounds are separate core/HTTP checks.",
+    "Source projection and sealed metadata only. Raw discarded bytes, exact per-component assessment custody, adjudication, dynamic credentials, shared subscribers, deletion/restore and hostile-worker isolation remain outside this fixture.",
+    "No production provider calls, scheduler, automatic retry, new source database or execution owner.",
+    "Focused runtime result overlaps the parent final workspace integration and must not be added as a separate population test count."
+  ]
+}

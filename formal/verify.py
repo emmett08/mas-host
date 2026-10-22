@@ -26,7 +26,8 @@ for model, claim in (("revision", "settles"), ("disclosure", "context_finishes")
                      ("provider-results", "provider_results_settle"),
                      ("governed-local", "governed_local_settles"),
                      ("privacy-response", "privacy_response_settles"),
-                     ("retained-effect", "retained_effect_finishes")):
+                     ("retained-effect", "retained_effect_finishes"),
+                     ("exposure-lineage", "exposure_lineage_finishes")):
     for ltl in (False, True):
         for no_reduce in (False, True):
             CASES.append((model, f"{'progress' if ltl else 'safety'}{'-no-reduction' if no_reduce else ''}",
@@ -213,6 +214,46 @@ for name, macro, assertion in (
     CASES.append(("retained-effect", name, macro, None, False, assertion))
 CASES.append(("retained-effect", "stalled-inspector", "BUG_STALL", "retained_effect_finishes",
               False, "acceptance cycle"))
+for name, macro, assertion in (
+    ("truncate-ancestry", "BUG_TRUNCATE_32", "resolved==expected_root"),
+    ("invalid-closure", "BUG_INVALID_CLOSURE", "graph_valid"),
+    ("live-parallel-context", "BUG_LIVE_PARALLEL_CONTEXT", "child2_context==frozen_batch"),
+    ("child-target", "BUG_CHILD_TARGET", "frozen_batch"),
+    ("dispatch-before-exposure", "BUG_DISPATCH_BEFORE_EXPOSURE", "child1_committed"),
+    ("baseline-inspection", "BUG_BASELINE_INSPECTION", "source_processing_allowed"),
+    ("result-processing", "BUG_RESULT_PROCESSING", "result_processing_allowed"),
+    ("attach-only-at-completion", "BUG_ATTACH_ONLY_AT_COMPLETION", "nested_calls==0"),
+    ("split-pending-commit", "BUG_SPLIT_PENDING_COMMIT", "acquisition!=Prepared"),
+    ("reply-before-exposure", "BUG_REPLY_BEFORE_EXPOSURE", "parent_exposure&expected_parent"),
+    ("overwrite-exposure", "BUG_OVERWRITE_EXPOSURE", "parent_exposure&expected_parent"),
+    ("worker-narrowing", "BUG_WORKER_NARROWING", "expected_parent"),
+    ("result-disclosure", "BUG_RESULT_DISCLOSURE", "expected_parent"),
+    ("source-rebind", "BUG_SOURCE_REBIND", "returned_binding==attempted_binding"),
+    ("unknown-retry", "BUG_UNKNOWN_RETRY", "acquisition_calls==sealed_acquisition_calls"),
+    ("completed-retry", "BUG_COMPLETED_RETRY", "action_calls==sealed_action_calls"),
+    ("replay-expiry", "BUG_REPLAY_EXPIRY", "now<sealed_expiry"),
+    ("erase-completion", "BUG_ERASE_COMPLETION", "action_receipt"),
+    ("approved-witness", "WITNESS_APPROVED", "action_receipt"),
+    ("inherited-denial-witness", "WITNESS_INHERITED_DENIAL", "restriction_denied"),
+    ("late33-witness", "WITNESS_LATE33", "late_ancestor_seen"),
+    ("parallel-freeze-witness", "WITNESS_PARALLEL_FREEZE", "frozen_parallel_seen"),
+    ("pending-block-witness", "WITNESS_PENDING_BLOCK", "nested_blocked"),
+    ("known-withheld-witness", "WITNESS_KNOWN_WITHHELD", "known_withheld"),
+    ("unknown-retry-witness", "WITNESS_UNKNOWN_RETRY", "unknown_retry_blocked"),
+    ("exposure-crash-witness", "WITNESS_EXPOSURE_CRASH", "crash_between_exposure_reply"),
+    ("expiry-witness", "WITNESS_EXPIRY", "expiry_denied"),
+    ("invalid-graph-witness", "WITNESS_INVALID_GRAPH", "invalid_graph_denied"),
+    ("processing-denied-witness", "WITNESS_PROCESSING_DENIED", "processing_denied"),
+    ("current-race-witness", "WITNESS_CURRENT_RACE", "check_action_race"),
+    ("replay-witness", "WITNESS_REPLAY", "replayed"),
+    ("result-withheld-witness", "WITNESS_RESULT_WITHHELD", "child2_payload_withheld"),
+    ("prepared-retry-witness", "WITNESS_PREPARED_RETRY", "prepared_retry_seen"),
+    ("result-inspection-witness", "WITNESS_RESULT_INSPECTION", "result_inspection_withheld"),
+    ("child-denial-witness", "WITNESS_CHILD_DENIAL", "child_target_denied"),
+):
+    CASES.append(("exposure-lineage", name, macro, None, False, assertion))
+CASES.append(("exposure-lineage", "stalled-acquisition", "BUG_STALL", "exposure_lineage_finishes",
+              False, "acceptance cycle"))
 
 
 def bounded() -> None:
@@ -291,7 +332,23 @@ def main() -> int:
                                               "owner_commits": 1, "authority_updates": 1,
                                               "namespace_classes": 2, "parent_classes": 2,
                                               "actor_classes": 2, "logical_key_classes": 2,
-                                              "effect_states": 5, "external_certainties": 4}},
+                                              "effect_states": 5, "external_certainties": 4},
+                          "exposure_lineage": {"parents": 1, "parallel_children": 2,
+                                               "acquisition_effects": 1, "downstream_effects": 1,
+                                               "nested_pending_attempts": 1,
+                                               "source_policy_bits": 2,
+                                               "child_target_classes": 2,
+                                               "effect_target_classes": 2,
+                                               "result_disclosure_tuple_classes": 2,
+                                               "closure_classes": 6,
+                                               "closure_size_classes": [1, 33, 65],
+                                               "actual_closure_limit": 64,
+                                               "traversed_late_ancestor": 33,
+                                               "source_expiry_classes": [2, 3],
+                                               "authority_or_time_updates": 1, "crashes": 1,
+                                               "execute_transaction_rollbacks": 1,
+                                               "prepared_admission_retries": 1,
+                                               "explicit_cached_retries": 1}},
                "assumptions": [
                    "One host owner serialises this run and immutable journal writes are atomic",
                    "A provider invocation terminates or reaches its fixed external deadline",
@@ -311,6 +368,11 @@ def main() -> int:
                    "Retained-effect reads use one SQLite snapshot and release it before inspection or authority callbacks",
                    "The retained-effect reader performs no recovery, storage writes or worker/effect dispatch",
                    "An authorised missing effect is not-recorded; foreign or missing parent and denied reads are unavailable",
+                   "Exposure lineage represents opt-in configuration v2 with baseline plus registered source restrictions",
+                   "A sealed pending acquisition blocks new outbound work before execute permission and survives uncertainty",
+                   "Parallel child input contexts share one immutable parent snapshot; later recipient exposure only grows",
+                   "Exposure graph classes abstract exact DAG/MAC/schema/byte validation; the late restriction is traversed at position 33",
+                   "Source expiry is the original minimum and cached delivery cannot renew it; current authority checks remain snapshots",
                    "No unmediated files, provider memory, traffic timing, hash collision or storage adversary",
                    "No fairness options, approximate hashing or disabled bounds/assertion checks",
                    "This is finite control checking plus implementation correspondence, not a refinement proof",

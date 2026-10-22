@@ -162,6 +162,10 @@ impl GovernedIngress {
     pub(super) fn inspection_timeout_ms(&self) -> Option<u64> {
         self.privacy_inspector.as_ref().map(|i| i.timeout_ms())
     }
+
+    pub(super) fn source_reads_supported(&self) -> bool {
+        self.session_config["version"] == "mas-governed-local/2"
+    }
 }
 
 fn key_identity(path: &std::path::Path) -> Result<String> {

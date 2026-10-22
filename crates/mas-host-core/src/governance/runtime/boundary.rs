@@ -1,5 +1,8 @@
 //! Apply the structured gate at existing request/effect completion boundaries.
+#[path = "lineage.rs"]
+mod lineage;
 use super::{
+    exposure::{self, Exposure},
     schema,
     session::{is_unavailable, unavailable},
     storage,
@@ -69,6 +72,12 @@ pub(super) fn valid_completion_ack(completion: &Value) -> bool {
 }
 
 impl Inner {
+    pub(crate) fn parent_id(&self, id: &str) -> Result<String> {
+        lock(&self.journal)?
+            .query_row("SELECT parent FROM steps WHERE id=?", [id], |r| r.get(0))
+            .map_err(|_| "governed-step-unavailable".into())
+    }
+
     pub(crate) fn validate_worker_output(&self, actor: &str, output: &Value) -> Result<()> {
         if self.governance.is_some() && is_unavailable(output) {
             return Ok(());
@@ -90,14 +99,15 @@ impl Inner {
         actor: &str,
         target: &str,
         input: &Value,
+        exposure: &Exposure,
     ) -> Result<Option<(Value, String, Value)>> {
         let Some(session) = &self.governance else {
             return Ok(None);
         };
         let original = session.commitment(input)?;
         let (projection, decision) = match kind {
-            "request" => session.prepare_request(target, input)?,
-            "effect" => session.prepare_effect(actor, input)?,
+            "request" => session.prepare_request_with_exposure(target, input, exposure)?,
+            "effect" => session.prepare_effect_with_exposure(actor, input, exposure)?,
             _ => return Err("governed-step-kind-unsupported".into()),
         };
         Ok(Some((projection, original, decision)))
@@ -119,8 +129,16 @@ impl Inner {
                     }
                     return unavailable("unknown");
                 }
-                session
-                    .project_output(&step.target, output)
+                let context = if session.is_v2() {
+                    lock(&self.journal)
+                        .and_then(|db| exposure::load_invocation(&db, session, &step.id))
+                } else {
+                    Ok(Exposure::default())
+                };
+                context
+                    .and_then(|context| {
+                        session.project_output_with_exposure(&step.target, output, &context)
+                    })
                     .unwrap_or_else(|_| unavailable("unknown"))
             }
         }
@@ -128,7 +146,31 @@ impl Inner {
 
     pub(crate) fn governed_request_delivery(&self, step: &Step, output: &Value) -> Result<()> {
         if let Some(session) = &self.governance {
-            session.request_delivery(&step.target, &step.actor, output)?;
+            if session.is_v2() {
+                let parent = self.parent_id(&step.id)?;
+                let source = {
+                    let db = lock(&self.journal)?;
+                    exposure::load_step_source(&db, session, &step.id, "request-output")?
+                };
+                let context = self.governed_recipient_exposure(&parent, &source)?;
+                session.request_delivery_with_exposure(
+                    &step.target,
+                    &step.actor,
+                    output,
+                    &context,
+                )?;
+                if !parent.is_empty() {
+                    let mut db = lock(&self.journal)?;
+                    let tx = db
+                        .transaction()
+                        .map_err(|_| "governed-lineage-unavailable")?;
+                    exposure::expose(&tx, session, &parent, &context)?;
+                    tx.commit().map_err(|_| "governed-lineage-unavailable")?;
+                }
+                self.final_governed_delivery(&step.target, &step.actor, &parent, output, &context)?;
+            } else {
+                session.request_delivery(&step.target, &step.actor, output)?;
+            }
         }
         Ok(())
     }
@@ -159,6 +201,43 @@ impl Inner {
                     .as_str()
                     .ok_or("governed-effect-format")?,
             )?;
+            let parent = self.parent_id(&step.id)?;
+            let mut context = if session.is_v2() {
+                let db = lock(&self.journal)?;
+                exposure::load_invocation_settling(&db, session, &parent)?
+            } else {
+                Exposure::default()
+            };
+            if session.is_v2() {
+                let refs = session
+                    .baseline_refs()
+                    .union(&policy.source_policy_refs)
+                    .cloned()
+                    .collect();
+                let stamp = {
+                    let db = lock(&self.journal)?;
+                    exposure::load_pending(&db, session, &step.id)?
+                        .ok_or("governed-pending-unavailable")?
+                };
+                let source = super::source::Source::create_at(
+                    session,
+                    &step.id,
+                    "effect-output",
+                    &step.actor,
+                    &json!([output, evidence]),
+                    &context.roots,
+                    &refs,
+                    context.expiry(),
+                    true,
+                    stamp["acquired_at_ms"]
+                        .as_u64()
+                        .ok_or("governed-pending-invalid")?,
+                    stamp["expires_at_ms"]
+                        .as_u64()
+                        .ok_or("governed-pending-invalid")?,
+                )?;
+                context = context.with_source(source)?;
+            }
             let projected_output = schema::project(&policy.output_schema, output)?;
             if is_unavailable(&projected_output) {
                 return Err("governed-reserved-result".into());
@@ -167,10 +246,11 @@ impl Inner {
             if projected_evidence.as_object().is_none_or(|o| o.is_empty()) {
                 return Err("governed-evidence-empty".into());
             }
-            let inspection = session.inspect_boundary(
+            let inspection = session.inspect_boundary_with_exposure(
                 &step.actor,
                 &json!([output, evidence]),
                 &json!([projected_output, projected_evidence]),
+                &context,
             )?;
             let (safe_output, safe_evidence, completion) = available_completion(
                 &step.id,
@@ -181,13 +261,14 @@ impl Inner {
             )?;
             // Bind every retained/disclosed value, including supporting
             // evidence and host receipt metadata, to the current policy.
-            session.authorize(
+            session.authorize_exposure(
                 &step.actor,
                 "invoke",
                 &format!("worker:{}", step.actor),
                 &session.agent(&step.actor)?.destination,
                 &json!([output, evidence]),
                 &json!({"output":safe_output,"evidence":safe_evidence,"completion":completion}),
+                &context,
             )?;
             Ok((safe_output, safe_evidence, completion))
         };
@@ -201,7 +282,40 @@ impl Inner {
         if self.governance.is_none() {
             return Ok(None);
         }
-        storage::completion(&*lock(&self.journal)?, id).map(Some)
+        let session = self.governance.as_ref().unwrap();
+        let (completion, step, context) = {
+            let db = lock(&self.journal)?;
+            let completion = storage::completion(&db, id)?;
+            let step = crate::read_step(&db, id)?.ok_or("governed-completion-unavailable")?;
+            let context = if session.is_v2() {
+                exposure::load_step_source(&db, session, id, "effect-output")?
+            } else {
+                Exposure::default()
+            };
+            (completion, step, context)
+        };
+        if session.is_v2() {
+            super::resolver_record::validate_completion(
+                &step.id,
+                step.output.as_ref().ok_or("governed-result-unavailable")?,
+                step.evidence
+                    .as_ref()
+                    .ok_or("governed-result-unavailable")?,
+                &completion,
+            )?;
+            let parent = self.parent_id(&step.id)?;
+            let context = self.governed_recipient_exposure(&parent, &context)?;
+            session.check_effect_delivery_with_exposure(
+                &step.actor,
+                step.input["format"]
+                    .as_str()
+                    .ok_or("governed-effect-format")?,
+                step.output.as_ref().ok_or("governed-result-unavailable")?,
+                &context,
+            )?;
+            self.final_governed_delivery(&step.actor, &step.actor, &parent, &completion, &context)?;
+        }
+        Ok(Some(completion))
     }
 }
 

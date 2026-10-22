@@ -19,6 +19,8 @@ const EXTENSION: &str = "urn:mas:host-task-service:1";
 
 #[path = "a2a_governed/retained_effect.rs"]
 mod retained_effect;
+#[path = "a2a_governed/retained_source.rs"]
+mod retained_source;
 
 fn object(properties: Value, required: &[&str]) -> Value {
     json!({"type":"object","properties":properties,"required":required,"additionalProperties":false})
@@ -768,8 +770,24 @@ fn lost_effect_response_keeps_uncertainty_and_authorised_recovery_ids() {
         .as_str()
         .expect("authorised recovery id")
         .to_owned();
-    let (_, task) = server.rpc(TOKEN, "GetTask", json!({"id":id}));
-    assert_eq!(task["result"]["metadata"]["mas"]["state"], "unknown");
+    let deadline = Instant::now() + Duration::from_secs(30);
+    loop {
+        let (status, task) = server.rpc(TOKEN, "GetTask", json!({"id":id}));
+        assert_eq!(status, 200);
+        assert!(task.get("error").is_none(), "{task}");
+        let state = task["result"]["metadata"]["mas"]["state"]
+            .as_str()
+            .expect("retained task state");
+        if state == "unknown" {
+            break;
+        }
+        assert!(matches!(state, "submitted" | "working"), "{task}");
+        assert!(
+            Instant::now() < deadline,
+            "uncertain execution did not settle: {state}"
+        );
+        thread::sleep(Duration::from_millis(20));
+    }
     assert_eq!(project.calls(), 1);
     project.assert_private_absent();
     drop(server);

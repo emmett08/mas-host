@@ -1,0 +1,472 @@
+{
+  "schema": "mas-exposure-lineage-review/1",
+  "created_at_utc": "2026-10-22T20:22:23.246172+00:00",
+  "constructed_by": "/root/governance_formal (model owner; records independent reviewer messages)",
+  "source_base_revision": "c84feb406eff46e9c2857b5ad92a817ab4bc12ec",
+  "production_binding": "Parent publication evidence binds the final production source cut; this receipt binds finite models/runner and does not claim a Rust refinement proof.",
+  "source_sha256": {
+    "formal/delegation.pml": "daa6bd2d2d6e869b83dd208f7805f6181fb3fada3d14dacfd9c63958c9af9da1",
+    "formal/disclosure.pml": "87d129c55d13bd74d5b80bb6bd4edc49457857a7fbe7412c47d4e793dbbc0e16",
+    "formal/exposure-lineage.pml": "30a3aeb03e9495e69dadc38e423273c91ad4b1a3a3f3862d146281d74b68096c",
+    "formal/governed-local.pml": "11ec2c10b733b7a3ba3ea4dd891e02b1f3c9b9f210240d2e2a6562687990ab06",
+    "formal/privacy-response.pml": "f53d96b35ed38e3bcd55bedfeeb6841d07574b16f14830fc66cbc8e79f24993f",
+    "formal/provider-results.pml": "789b4d966b9ad90d739bd6d104fc6ab19a4a0e0c70830520c9867191dd836f43",
+    "formal/retained-effect.pml": "bc94bb0751b17bb8f8a2c0489ebb2b73a768e7709522943dc9874314ce13391a",
+    "formal/revision.pml": "bfe4a224e4484050341b7475faca5cac999af8c0f11f40d4cc0f3a9ab2f46f2a",
+    "formal/verify.py": "1350201b825b548d1505bcc11afae82f0e93447bf1627c1d67739d8c285aa18b",
+    "formal/exposure-lineage.md": "3021d8ca66664a0c541980175a845131bd98caa9d0fc40c76e9e01b404515790",
+    "formal/README.md": "eaddd0854c8994264d3d8d760b9a18f998742530d186188a51950340e7de58d1"
+  },
+  "independent_review": {
+    "reviewer": "/root/formal_independent_review",
+    "verdict": "ACCEPTED_FOR_BOUNDED_FINITE_CONTROL_CORRESPONDENCE",
+    "model_sha256": "30a3aeb03e9495e69dadc38e423273c91ad4b1a3a3f3862d146281d74b68096c",
+    "runner_sha256": "1350201b825b548d1505bcc11afae82f0e93447bf1627c1d67739d8c285aa18b",
+    "basis": "Accepted model/control correspondence at30a3aeb0/1350201b, including explicit child-target admission; source-specific descriptor/result processing; pending+Executing transaction/rollback retry; no calls on Unknown including pre-callback crash; independent original expiry oracle with cached guard mutation; actual changed-binding cached-return mutant; full recipient history before/final payload gate; separate final pure snapshot and reply I/O; source-only siblingB\u2192recipientR mutation.",
+    "witness_review": "Expiry observed at original expiry; processing-policy refusal requires live authority; sibling history refusal requires sourceB, recipientR, tuple2, dispatched input and live authority; approved sibling is actually delivered under tuple1; replay requires cached_returned.",
+    "limits": [
+      "Represented closure classes and bounded33 traversal only; no arbitrary DAG/HMAC/schema/refinement proof.",
+      "File authority and final recipient admission are snapshots; later updates can occur before callback or I/O.",
+      "Descriptor callback growth in the same acquiring invocation is outside this finite class; runtime locked-context comparison was reviewed, not claimed executed by a named test.",
+      "Retained-effect snapshot/whole-view policy validity remains a separate model abstraction, not a combined arbitrary-readergraph refinement."
+    ],
+    "subsequent_changes": "Documentation wording corrected an unsupported implementation-test claim and clarified owned-view selected-lineage versus full-parent admission; no PML/runner change after accepted review."
+  },
+  "old_cases": {
+    "count": 184,
+    "tuples_unchanged": true,
+    "canonical_json_sha256": "6c2e8f5aeb9708f4824251e1cb6d2a320a52ff74a1ec73991fb90b2a6234f757"
+  },
+  "old_model_byte_identity": {
+    "formal/delegation.pml": true,
+    "formal/disclosure.pml": true,
+    "formal/governed-local.pml": true,
+    "formal/privacy-response.pml": true,
+    "formal/provider-results.pml": true,
+    "formal/retained-effect.pml": true,
+    "formal/revision.pml": true
+  },
+  "new_cases": {
+    "count": 40,
+    "positive_full_state": 4,
+    "mechanism_assertion_mutations": 18,
+    "reachability_witnesses": 17,
+    "ltl_stall_mutation": 1,
+    "canonical_json_sha256": "8e3b8394c1d68b2732a8e17907d6fe250f369a128b0d7950c1a8dbd3a819c323",
+    "tuples": [
+      [
+        "exposure-lineage",
+        "safety",
+        null,
+        null,
+        false,
+        null
+      ],
+      [
+        "exposure-lineage",
+        "safety-no-reduction",
+        null,
+        null,
+        true,
+        null
+      ],
+      [
+        "exposure-lineage",
+        "progress",
+        null,
+        "exposure_lineage_finishes",
+        false,
+        null
+      ],
+      [
+        "exposure-lineage",
+        "progress-no-reduction",
+        null,
+        "exposure_lineage_finishes",
+        true,
+        null
+      ],
+      [
+        "exposure-lineage",
+        "truncate-ancestry",
+        "BUG_TRUNCATE_32",
+        null,
+        false,
+        "resolved==expected_root"
+      ],
+      [
+        "exposure-lineage",
+        "invalid-closure",
+        "BUG_INVALID_CLOSURE",
+        null,
+        false,
+        "graph_valid"
+      ],
+      [
+        "exposure-lineage",
+        "live-parallel-context",
+        "BUG_LIVE_PARALLEL_CONTEXT",
+        null,
+        false,
+        "child2_context==frozen_batch"
+      ],
+      [
+        "exposure-lineage",
+        "child-target",
+        "BUG_CHILD_TARGET",
+        null,
+        false,
+        "frozen_batch"
+      ],
+      [
+        "exposure-lineage",
+        "dispatch-before-exposure",
+        "BUG_DISPATCH_BEFORE_EXPOSURE",
+        null,
+        false,
+        "child1_committed"
+      ],
+      [
+        "exposure-lineage",
+        "baseline-inspection",
+        "BUG_BASELINE_INSPECTION",
+        null,
+        false,
+        "source_processing_allowed"
+      ],
+      [
+        "exposure-lineage",
+        "result-processing",
+        "BUG_RESULT_PROCESSING",
+        null,
+        false,
+        "result_processing_allowed"
+      ],
+      [
+        "exposure-lineage",
+        "attach-only-at-completion",
+        "BUG_ATTACH_ONLY_AT_COMPLETION",
+        null,
+        false,
+        "nested_calls==0"
+      ],
+      [
+        "exposure-lineage",
+        "split-pending-commit",
+        "BUG_SPLIT_PENDING_COMMIT",
+        null,
+        false,
+        "acquisition!=Prepared"
+      ],
+      [
+        "exposure-lineage",
+        "reply-before-exposure",
+        "BUG_REPLY_BEFORE_EXPOSURE",
+        null,
+        false,
+        "parent_exposure&expected_parent"
+      ],
+      [
+        "exposure-lineage",
+        "overwrite-exposure",
+        "BUG_OVERWRITE_EXPOSURE",
+        null,
+        false,
+        "parent_exposure&expected_parent"
+      ],
+      [
+        "exposure-lineage",
+        "worker-narrowing",
+        "BUG_WORKER_NARROWING",
+        null,
+        false,
+        "expected_parent"
+      ],
+      [
+        "exposure-lineage",
+        "result-disclosure",
+        "BUG_RESULT_DISCLOSURE",
+        null,
+        false,
+        "expected_parent"
+      ],
+      [
+        "exposure-lineage",
+        "source-rebind",
+        "BUG_SOURCE_REBIND",
+        null,
+        false,
+        "returned_binding==attempted_binding"
+      ],
+      [
+        "exposure-lineage",
+        "unknown-retry",
+        "BUG_UNKNOWN_RETRY",
+        null,
+        false,
+        "acquisition_calls==sealed_acquisition_calls"
+      ],
+      [
+        "exposure-lineage",
+        "completed-retry",
+        "BUG_COMPLETED_RETRY",
+        null,
+        false,
+        "action_calls==sealed_action_calls"
+      ],
+      [
+        "exposure-lineage",
+        "replay-expiry",
+        "BUG_REPLAY_EXPIRY",
+        null,
+        false,
+        "now<sealed_expiry"
+      ],
+      [
+        "exposure-lineage",
+        "erase-completion",
+        "BUG_ERASE_COMPLETION",
+        null,
+        false,
+        "action_receipt"
+      ],
+      [
+        "exposure-lineage",
+        "approved-witness",
+        "WITNESS_APPROVED",
+        null,
+        false,
+        "action_receipt"
+      ],
+      [
+        "exposure-lineage",
+        "inherited-denial-witness",
+        "WITNESS_INHERITED_DENIAL",
+        null,
+        false,
+        "restriction_denied"
+      ],
+      [
+        "exposure-lineage",
+        "late33-witness",
+        "WITNESS_LATE33",
+        null,
+        false,
+        "late_ancestor_seen"
+      ],
+      [
+        "exposure-lineage",
+        "parallel-freeze-witness",
+        "WITNESS_PARALLEL_FREEZE",
+        null,
+        false,
+        "frozen_parallel_seen"
+      ],
+      [
+        "exposure-lineage",
+        "pending-block-witness",
+        "WITNESS_PENDING_BLOCK",
+        null,
+        false,
+        "nested_blocked"
+      ],
+      [
+        "exposure-lineage",
+        "known-withheld-witness",
+        "WITNESS_KNOWN_WITHHELD",
+        null,
+        false,
+        "known_withheld"
+      ],
+      [
+        "exposure-lineage",
+        "unknown-retry-witness",
+        "WITNESS_UNKNOWN_RETRY",
+        null,
+        false,
+        "unknown_retry_blocked"
+      ],
+      [
+        "exposure-lineage",
+        "exposure-crash-witness",
+        "WITNESS_EXPOSURE_CRASH",
+        null,
+        false,
+        "crash_between_exposure_reply"
+      ],
+      [
+        "exposure-lineage",
+        "expiry-witness",
+        "WITNESS_EXPIRY",
+        null,
+        false,
+        "expiry_denied"
+      ],
+      [
+        "exposure-lineage",
+        "invalid-graph-witness",
+        "WITNESS_INVALID_GRAPH",
+        null,
+        false,
+        "invalid_graph_denied"
+      ],
+      [
+        "exposure-lineage",
+        "processing-denied-witness",
+        "WITNESS_PROCESSING_DENIED",
+        null,
+        false,
+        "processing_denied"
+      ],
+      [
+        "exposure-lineage",
+        "current-race-witness",
+        "WITNESS_CURRENT_RACE",
+        null,
+        false,
+        "check_action_race"
+      ],
+      [
+        "exposure-lineage",
+        "replay-witness",
+        "WITNESS_REPLAY",
+        null,
+        false,
+        "replayed"
+      ],
+      [
+        "exposure-lineage",
+        "result-withheld-witness",
+        "WITNESS_RESULT_WITHHELD",
+        null,
+        false,
+        "child2_payload_withheld"
+      ],
+      [
+        "exposure-lineage",
+        "prepared-retry-witness",
+        "WITNESS_PREPARED_RETRY",
+        null,
+        false,
+        "prepared_retry_seen"
+      ],
+      [
+        "exposure-lineage",
+        "result-inspection-witness",
+        "WITNESS_RESULT_INSPECTION",
+        null,
+        false,
+        "result_inspection_withheld"
+      ],
+      [
+        "exposure-lineage",
+        "child-denial-witness",
+        "WITNESS_CHILD_DENIAL",
+        null,
+        false,
+        "child_target_denied"
+      ],
+      [
+        "exposure-lineage",
+        "stalled-acquisition",
+        "BUG_STALL",
+        "exposure_lineage_finishes",
+        false,
+        "acceptance cycle"
+      ]
+    ]
+  },
+  "default_case_total": 224,
+  "focused_run": {
+    "directory": "accepted-final",
+    "command": "PATH=/workspace/scratch/1ad2c1661ab9/tooling/spin/bin:$PATH python3 formal/verify.py --model exposure-lineage --out /workspace/scratch/1ad2c1661ab9/validation/exposure-lineage/accepted-final",
+    "status": "PASS",
+    "elapsed_seconds": 164.2045488069998,
+    "result_counts": {
+      "COMPLETE_ZERO_ERRORS": 4,
+      "EXPECTED_COUNTEREXAMPLE": 36
+    },
+    "source_changed_during_verification": [],
+    "raw_sha256": {
+      "summary.json": "0d83c2f8f0caf3d13a4992f11f5f0e3b5a152650b66ef588f82c265d91a5aad6",
+      "commands.json": "e2cb123aac7203e3f6291f2d60388ff8db1eef29635baae4041aee1bfd06fbe4",
+      "counterexamples.zip": "f445e5c09ccb1108c35c24333241a774a86afb07ff114fff990e464574123d42"
+    },
+    "archived_replayed_trails": 36,
+    "all_archived_model_sources_match_frozen_hash": true,
+    "limits": {
+      "seconds_per_command": 30,
+      "memory_bytes": 536870912,
+      "search_depth": 100000
+    },
+    "spin": "Spin Version 6.5.1 -- 20 December 2019",
+    "compiler": "cc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0"
+  },
+  "historical_runs_not_used_for_final_gate": [
+    {
+      "directory": "prototype-1",
+      "status": "PASS",
+      "model_sha256": "154805deb5d004fe969fcfcf8557f5bd0540bd18a1b8ba6f5fa1cd1037842f76",
+      "runner_sha256": "ec5138780dff0c86d6b1c8c6b799322a850099b48c42bf5010c9705de7ebd0f5",
+      "checks": 38,
+      "elapsed_seconds": 154.5969978380017,
+      "limitations": "Historical38-case prototype before explicit child-target guard and later recipient callback/snapshot refinements; not final-source gate.",
+      "source_drift": [],
+      "failures": [],
+      "raw_sha256": {
+        "summary.json": "b8576d1ab660e6596db711e427adfa1ddc9eae5fb2fd4ba6f3dd6ba074cd0d74",
+        "commands.json": "7cd6178bdc93dd79592acaf8f7812db50a0d0602d7e85d27577da27de942e756",
+        "counterexamples.zip": "9eda3baaa18e26d1dce6dfe5d67f12b96f8ba560e1e6ddacbb33a96d1895ee11"
+      }
+    },
+    {
+      "directory": "final",
+      "status": "PASS",
+      "model_sha256": "416dde7731d0393aafc66d63c481997eba9274954fe9fb7437ea5dd56faae5b0",
+      "runner_sha256": "bb9606447b1e12df016ca28d24a28216bc0ab55eee5d8f9c4b4434d1a270d07c",
+      "checks": 40,
+      "elapsed_seconds": 167.9312831710049,
+      "limitations": "Historical40-case PASS before causally qualified witnesses and actual sibling recipient-history gate; not final-source gate.",
+      "source_drift": [],
+      "failures": [],
+      "raw_sha256": {
+        "summary.json": "e41b47ccf75771815927a339681545e7cc5fe8cad35264160737edeb5d2114e1",
+        "commands.json": "c886ec58314606da81aaea8d37c64f61f804637bd98bb8a8f33fa111ff696555",
+        "counterexamples.zip": "401aac0484ef5c90ff3f80e31764adb5cf2019893456c68613337baef0529610"
+      }
+    },
+    {
+      "directory": "qualified-final",
+      "status": "FAIL",
+      "model_sha256": "87377682ba20fed6a540a829e8a4ec18ec712e0aa5e28b5b660cb5d791a2ed22",
+      "runner_sha256": "bb9606447b1e12df016ca28d24a28216bc0ab55eee5d8f9c4b4434d1a270d07c",
+      "checks": 40,
+      "elapsed_seconds": 247.1470062820008,
+      "limitations": "Historical40-case intermediate witness correction, prior to live-authority qualifiers and recipient-history gate; cc compile timeout in late33 witness; not final-source gate.",
+      "source_drift": [],
+      "failures": [
+        {
+          "name": "exposure-lineage-late33-witness",
+          "model": "exposure-lineage.pml",
+          "macro": "WITNESS_LATE33",
+          "claim": null,
+          "partial_order_reduction": true,
+          "expected": "counterexample",
+          "result": "FAILED_OR_INCOMPLETE",
+          "reason": "Command '['/usr/bin/cc', '-O2', '-DMEMLIM=512', '-DSAFETY', '-DNOCLAIM', '-o', 'pan', 'pan.c']' timed out after 30 seconds"
+        }
+      ],
+      "raw_sha256": {
+        "summary.json": "867b094c01b01c3e1c70cb8ea2481b89a6f716a39652afb49a80bc702d97edd9",
+        "commands.json": "d6f0f1d1d3b34ff57f8abad92d52e853631ffb0f5bb0230e88c19d629200bbf3",
+        "counterexamples.zip": "40d9a7f29a972f16bc408f9de9f15df9fcd60068679857bdd28ad59f619a013b"
+      }
+    }
+  ],
+  "tool_reference_review": {
+    "path": "tool-reference-review.json",
+    "sha256": "06e7540222b39facfb93c932bb8c36fa95d4394ee72124b9ed770cd07d9a6b0b"
+  },
+  "formal_files_frozen": true,
+  "full_default_suite": "Not executed by this model owner; parent runs all224 separately after ordinary tests."
+}

@@ -1,0 +1,10 @@
+cargo test --locked -p mas-host --test acceptance -- --ignored --nocapture
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running tests/acceptance.rs (target/debug/deps/acceptance-e854ad81053043b8)
+
+running 1 test
+recovery: preserved 7 completed child steps, one protocol call, one unchanged receipt
+test code_only_apps_and_real_effect_recovery ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 27.41s
+

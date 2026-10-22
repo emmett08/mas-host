@@ -22,6 +22,11 @@ duplicate/unknown handling for the initial N3 adapter.
 The [read-only retained-effect model](retained-effect.md) checks coherent
 snapshots, current whole-view disclosure and retained completion facts while a
 live owner operates, with no reader recovery, journal mutation or dispatch.
+The [structured exposure model](exposure-lineage.md) checks registered source
+restrictions before inspector callbacks, pending acquisition before execute
+permission, immutable parallel inputs, recipient exposure before reply and
+retained source authority on later actions and replay. It adds 40 checks to the
+original seven models' unchanged 184 checks.
 
 These models check a finite control abstraction. They do not prove that a
 candidate diagnoses an incident correctly, that a model evaluator is reliable,

@@ -2,7 +2,9 @@
 mod configuration;
 mod governed;
 mod http;
+mod retained;
 mod retained_effect;
+mod retained_source;
 use configuration::Configuration;
 use governed::Caller;
 use rusqlite::{params, Connection, OptionalExtension};
@@ -193,6 +195,7 @@ impl Service {
                 return Err(RpcError(-32001, "task_not_found"));
             }
         }
+        drop(db);
         let wire = match row.2.as_str() {
             "submitted" => "TASK_STATE_SUBMITTED",
             "working" => "TASK_STATE_WORKING",
@@ -201,18 +204,37 @@ impl Service {
             _ => "TASK_STATE_UNSPECIFIED",
         };
         let mut task = json!({"id":id,"contextId":row.1,"status":{"state":wire},"metadata":{"mas":{"state":row.2,"cancelRequested":row.4,"bundleDigest":self.descriptor["bundle_digest"],"agent":row.0}}});
-        if let Some(output) = row.3 {
-            let output = mas_protocol_codec::parse_json(&output)
-                .map_err(|_| RpcError(-32603, "retained_output_invalid"))?;
-            principal
-                .delivery(&row.0, &output)
-                .map_err(|_| RpcError(-32001, "task_not_found"))?;
+        let output = row
+            .3
+            .as_ref()
+            .map(|output| mas_protocol_codec::parse_json(output))
+            .transpose()
+            .map_err(|_| RpcError(-32603, "retained_output_invalid"))?;
+        if let Some(output) = &output {
+            if !self.configuration.source_reads_supported() {
+                principal
+                    .delivery(&row.0, output)
+                    .map_err(|_| RpcError(-32001, "task_not_found"))?;
+            }
             task["artifacts"] = json!([{"artifactId":format!("{id}-result"),"name":"result","parts":[{"data":output,"mediaType":"application/json"}]}]);
         }
         if let Some(session) = &principal.session {
-            session
-                .check_status_value(&row.0, &task)
+            if self.configuration.source_reads_supported()
+                && (output.is_some() || row.2 != "submitted")
+            {
+                mas_host_core::governance::read_governed_root_delivery(
+                    &self.state.join("runs").join(id),
+                    session,
+                    &row.0,
+                    output.as_ref(),
+                    &task,
+                )
                 .map_err(|_| RpcError(-32001, "task_not_found"))?;
+            } else {
+                session
+                    .check_status_value(&row.0, &task)
+                    .map_err(|_| RpcError(-32001, "task_not_found"))?;
+            }
         }
         Ok(task)
     }
@@ -341,6 +363,19 @@ impl Service {
             .map_err(|_| RpcError(-32603, "admission_outcome_unknown_repeat_original_message"))?;
         self.active.fetch_add(1, Ordering::SeqCst);
         drop(db);
+        // Local/2 returns the exact admission snapshot, before the new worker
+        // can produce source-sensitive execution facts. Replays use task().
+        let admission = if self.configuration.source_reads_supported() {
+            match self.task(principal, &id) {
+                Ok(task) => Some(task),
+                Err(error) => {
+                    self.active.fetch_sub(1, Ordering::SeqCst);
+                    return Err(error);
+                }
+            }
+        } else {
+            None
+        };
         let service = Arc::clone(self);
         let run_id = id.clone();
         let caller = principal.clone();
@@ -356,7 +391,26 @@ impl Service {
                 let _ = db.execute("UPDATE tasks SET state='unknown' WHERE id=?", [&id]);
             }
         }
-        Ok(json!({"task":self.task(principal,&id)?}))
+        let task = match admission {
+            Some(task) => {
+                principal
+                    .current()
+                    .map_err(|_| RpcError(-32001, "task_not_found"))?;
+                let session = principal
+                    .session
+                    .as_ref()
+                    .ok_or_else(retained_source::unavailable)?;
+                let actor = task["metadata"]["mas"]["agent"]
+                    .as_str()
+                    .ok_or(RpcError(-32603, "status_unavailable"))?;
+                session
+                    .check_status_value(actor, &task)
+                    .map_err(|_| RpcError(-32001, "task_not_found"))?;
+                task
+            }
+            None => self.task(principal, &id)?,
+        };
+        Ok(json!({"task":task}))
     }
     fn execute(&self, id: &str, agent: &str, input: &Value, caller: &Caller) {
         struct Active<'a>(&'a AtomicUsize);
@@ -414,6 +468,21 @@ impl Service {
                 mas_host_core::cancel(&run_state, id)?;
             }
             engine.run(agent, input)
+        });
+        let outcome = outcome.and_then(|output| {
+            if self.configuration.source_reads_supported() {
+                let session = caller.session.as_ref().ok_or("governed-session-required")?;
+                let retention =
+                    json!({"version":"mas-governed-a2a-retention/1","state":"completed"});
+                mas_host_core::governance::read_governed_root_delivery(
+                    &run_state.join(id),
+                    session,
+                    agent,
+                    Some(&output),
+                    &retention,
+                )?;
+            }
+            Ok(output)
         });
         // Do not infer no external effect from any error, deadline or lost reply.
         // Unknown remains explicitly operator-reconcilable in the core journal.
@@ -483,6 +552,7 @@ impl Service {
         request: &Value,
         extension: bool,
         effect_extension: bool,
+        source_extension: bool,
     ) -> Value {
         let id = if principal.session.is_some() && !governed::rpc_id_allowed(&request["id"]) {
             Value::Null
@@ -491,7 +561,12 @@ impl Service {
         };
         let result = (|| -> RpcResult<Value> {
             principal.current().map_err(|_| {
-                if self.configuration.governed.is_some() && request["method"] == "GetRetainedEffect"
+                if self.configuration.source_reads_supported()
+                    && request["method"] == "GetRetainedSource"
+                {
+                    retained_source::unavailable()
+                } else if self.configuration.governed.is_some()
+                    && request["method"] == "GetRetainedEffect"
                 {
                     retained_effect::unavailable()
                 } else {
@@ -530,6 +605,12 @@ impl Service {
                         return Err(RpcError(-32008, "required_effect_extension_missing"));
                     }
                     self.retained_effect(principal, params)
+                }
+                "GetRetainedSource" if self.configuration.source_reads_supported() => {
+                    if !source_extension {
+                        return Err(RpcError(-32008, "required_source_extension_missing"));
+                    }
+                    self.retained_source(principal, params)
                 }
                 "CreateTaskPushNotificationConfig"
                 | "GetTaskPushNotificationConfig"

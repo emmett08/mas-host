@@ -1,0 +1,20 @@
+   Compiling mas-host v0.1.0 (/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.11s
+     Running tests/a2a_governed.rs (target/debug/deps/a2a_governed-0d9f41785ddd140f)
+
+running 1 test
+test retained_source::source_reader_preserves_more_than_thirty_two_ancestors_and_rejects_missing_parent ... 
+thread 'retained_source::source_reader_preserves_more_than_thirty_two_ancestors_and_rejects_missing_parent' (46) panicked at crates/mas-host-cli/tests/a2a_governed/retained_source.rs:100:9:
+{"contextId":"context-a2a-5ccbdb1761b7006c72d92047af30efa7a4d3b474c5777277a15ca619","id":"a2a-5ccbdb1761b7006c72d92047af30efa7a4d3b474c5777277a15ca619","metadata":{"mas":{"agent":"collector","bundleDigest":"dd3a20cf6221846b3bf41504bdf4d5794aaf1775050ae101386c417324e913a5","cancelRequested":false,"state":"unknown"}},"status":{"state":"TASK_STATE_UNSPECIFIED"}}
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+bounded graph diagnostic: {"callback_count":32,"effect_states":{"completed":32,"rejected":1},"elapsed_ms":17748,"failure_code":"call_budget_exceeded","max_calls":32,"root_state":"failed","wall_seconds":60}
+FAILED
+
+failures:
+
+failures:
+    retained_source::source_reader_preserves_more_than_thirty_two_ancestors_and_rejects_missing_parent
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 26 filtered out; finished in 19.71s
+
+error: test failed, to rerun pass `-p mas-host --test a2a_governed`

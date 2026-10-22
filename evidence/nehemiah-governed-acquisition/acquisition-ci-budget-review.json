@@ -1,0 +1,633 @@
+{
+  "version": "nehemiah-acquisition-ci-budget-review/1",
+  "reviewer": "/root/governance_formal",
+  "recorded_at_utc": "2026-10-22T21:21:15.741778+00:00",
+  "status": "MEASURED_LOCAL_TOTAL_EXCEEDS_30_MINUTES_STATIC_TIMEOUT_FOLLOWUP_ACCEPTED",
+  "scope": "Read-only CI duration review and preservation of raw observations only; no tests, repository or package-recipe changes, timeout decision or new CI execution.",
+  "baseline": {
+    "repository": "emmett08/mas-host",
+    "run_id": 39840094948,
+    "job_id": 120038530432,
+    "conclusion": "success",
+    "run_url": "https://github.com/emmett08/mas-host/actions/runs/39840094948",
+    "api_head_sha": "c84feb406eff46e9c2857b5ad92a817ab4bc12ec",
+    "actual_checkout_commit": "6950d93c9f5d36b95f3a5e5d6b759c636afaa128",
+    "actual_checkout_tree": "dd1de335ae645d42220dc4938ee9c6a71a14903c",
+    "head_tree": "dd1de335ae645d42220dc4938ee9c6a71a14903c",
+    "checkout_tree_equals_head_tree": true,
+    "identity_interpretation": "The hosted job checked out PR19 merge6950d93, not c84 as a commit. API trees for both are identical, so the complete checked-out file tree equals c84.",
+    "started_at": "2026-10-22T19:26:41Z",
+    "completed_at": "2026-10-22T19:43:41Z",
+    "seconds": 1020.0,
+    "runner_name": "GitHub Actions 1000020059",
+    "runner_labels": [
+      "ubuntu-24.04"
+    ],
+    "make_seconds": 637.0,
+    "acceptance_seconds": 37.0,
+    "spin_and_apt_seconds": 313.0,
+    "other_job_seconds": 33.0,
+    "steps": [
+      {
+        "name": "Set up job",
+        "started_at": "2026-10-22T19:26:42Z",
+        "completed_at": "2026-10-22T19:26:44Z",
+        "seconds": 2.0,
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "started_at": "2026-10-22T19:26:44Z",
+        "completed_at": "2026-10-22T19:26:45Z",
+        "seconds": 1.0,
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e",
+        "started_at": "2026-10-22T19:26:45Z",
+        "completed_at": "2026-10-22T19:26:54Z",
+        "seconds": 9.0,
+        "conclusion": "success"
+      },
+      {
+        "name": "Install pinned Rust",
+        "started_at": "2026-10-22T19:26:54Z",
+        "completed_at": "2026-10-22T19:27:03Z",
+        "seconds": 9.0,
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+        "started_at": "2026-10-22T19:27:03Z",
+        "completed_at": "2026-10-22T19:27:08Z",
+        "seconds": 5.0,
+        "conclusion": "success"
+      },
+      {
+        "name": "Cursor adapter contract without credentials",
+        "started_at": "2026-10-22T19:27:08Z",
+        "completed_at": "2026-10-22T19:27:08Z",
+        "seconds": 0.0,
+        "conclusion": "success"
+      },
+      {
+        "name": "Check Python runtime for SDK and generated workers",
+        "started_at": "2026-10-22T19:27:08Z",
+        "completed_at": "2026-10-22T19:27:08Z",
+        "seconds": 0.0,
+        "conclusion": "success"
+      },
+      {
+        "name": "Format, analyse and test",
+        "started_at": "2026-10-22T19:27:08Z",
+        "completed_at": "2026-10-22T19:37:45Z",
+        "seconds": 637.0,
+        "conclusion": "success"
+      },
+      {
+        "name": "Native applications and effect recovery",
+        "started_at": "2026-10-22T19:37:45Z",
+        "completed_at": "2026-10-22T19:38:22Z",
+        "seconds": 37.0,
+        "conclusion": "success"
+      },
+      {
+        "name": "Check host control and governed recovery with SPIN",
+        "started_at": "2026-10-22T19:38:22Z",
+        "completed_at": "2026-10-22T19:43:35Z",
+        "seconds": 313.0,
+        "conclusion": "success"
+      },
+      {
+        "name": "Retain formal verification evidence",
+        "started_at": "2026-10-22T19:43:35Z",
+        "completed_at": "2026-10-22T19:43:37Z",
+        "seconds": 2.0,
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+        "started_at": "2026-10-22T19:43:37Z",
+        "completed_at": "2026-10-22T19:43:37Z",
+        "seconds": 0.0,
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e",
+        "started_at": "2026-10-22T19:43:37Z",
+        "completed_at": "2026-10-22T19:43:38Z",
+        "seconds": 1.0,
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "started_at": "2026-10-22T19:43:38Z",
+        "completed_at": "2026-10-22T19:43:38Z",
+        "seconds": 0.0,
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "started_at": "2026-10-22T19:43:38Z",
+        "completed_at": "2026-10-22T19:43:38Z",
+        "seconds": 0.0,
+        "conclusion": "success"
+      }
+    ],
+    "integration_suites": {
+      "a2a.rs": {
+        "passed": 4,
+        "failed": 0,
+        "seconds": 24.8
+      },
+      "a2a_governed.rs": {
+        "passed": 19,
+        "failed": 0,
+        "seconds": 55.19
+      },
+      "acceptance.rs": {
+        "passed": 0,
+        "failed": 0,
+        "seconds": 0.0
+      },
+      "authoring.rs": {
+        "passed": 3,
+        "failed": 0,
+        "seconds": 26.8
+      },
+      "capabilities.rs": {
+        "passed": 8,
+        "failed": 0,
+        "seconds": 33.74
+      },
+      "commands.rs": {
+        "passed": 8,
+        "failed": 0,
+        "seconds": 66.99
+      },
+      "configured.rs": {
+        "passed": 14,
+        "failed": 0,
+        "seconds": 149.46
+      },
+      "privacy_inspect.rs": {
+        "passed": 7,
+        "failed": 0,
+        "seconds": 0.13
+      },
+      "privacy_response.rs": {
+        "passed": 4,
+        "failed": 0,
+        "seconds": 127.98
+      },
+      "profile.rs": {
+        "passed": 3,
+        "failed": 0,
+        "seconds": 0.01
+      },
+      "python.rs": {
+        "passed": 1,
+        "failed": 0,
+        "seconds": 5.82
+      },
+      "revision.rs": {
+        "passed": 1,
+        "failed": 0,
+        "seconds": 22.09
+      },
+      "revision_adversarial.rs": {
+        "passed": 4,
+        "failed": 0,
+        "seconds": 6.4
+      },
+      "neural.rs": {
+        "passed": 16,
+        "failed": 0,
+        "seconds": 0.03
+      },
+      "neural_omissions.rs": {
+        "passed": 2,
+        "failed": 0,
+        "seconds": 0.0
+      },
+      "projected_completion.rs": {
+        "passed": 1,
+        "failed": 0,
+        "seconds": 0.06
+      }
+    },
+    "cpu_and_threads": "Actual visible CPU count and test thread count are not recorded. No nproc, lscpu, RUST_TEST_THREADS, --test-threads or CARGO_BUILD_JOBS appears in fetched job logs. Hosted runner label is insufficient to infer actual values.",
+    "raw_files_sha256": {
+      "acquisition-ci-baseline-job.log": "f1bebaf23dada57bd8ff4d193653201c79c108499cf538872a33f7b192b42cb7",
+      "acquisition-ci-baseline-jobs.json": "c96996971b81e64d898158a799a683697a824a43a6cc3f3186e574c1a4880d4f",
+      "acquisition-ci-baseline-steps.json": "1f424321273d96b5ac9385b2f067949f89a1292baef56a9b76f9b016c94c4162",
+      "acquisition-ci-baseline-merge-commit.json": "ed237916e81a0a6b648d2ed6881daad7de9edce451166859a09cc223f88bcc13",
+      "acquisition-ci-baseline-head-commit.json": "e3746e54b3d4293f274c0e262ba64ffc671c1827b91c269b86b5a83e6c762545"
+    },
+    "raw_format": "Decoded UTF-8 job log from GitHub connector; API JSON responses preserved as received with a final newline; step-summary JSON retained separately. These are not original compressed HTTP response bytes.",
+    "api_urls": [
+      "https://api.github.com/repos/emmett08/mas-host/actions/runs/39840094948/jobs",
+      "https://api.github.com/repos/emmett08/mas-host/git/commits/6950d93c9f5d36b95f3a5e5d6b759c636afaa128",
+      "https://api.github.com/repos/emmett08/mas-host/git/commits/c84feb406eff46e9c2857b5ad92a817ab4bc12ec"
+    ],
+    "retrieval_note": "Workflow job logs/steps were fetched through purpose-built GitHub tools. Generic /actions/jobs/{id} fetch was rejected by URL allowlist; permitted run/jobs endpoint supplied the full job with timestamps."
+  },
+  "current_observation": {
+    "source_commit": "44b1fab0c50f96d36731faeaaa734fce51b5860a",
+    "source_tree": "7a7732474f4517946b7773adcade7b667797335c",
+    "command": [
+      "make",
+      "test"
+    ],
+    "receipt_status_at_observation": "RUNNING_OR_INTERRUPTED",
+    "environment": {
+      "CARGO_INCREMENTAL": "0",
+      "GOFLAGS": "-buildvcs=false",
+      "RUSTUP_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/rustup",
+      "CARGO_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/cargo",
+      "RUST_TEST_THREADS": "2"
+    },
+    "elapsed_seconds_at_observation": 1048.24,
+    "log_prefix": "acquisition-ci-budget-workspace-observation.log",
+    "log_prefix_sha256": "88ae4f969cd3600b9ed0cc37f8fcb4acc46a878ccc3f25287be32b3106469ff0",
+    "completed_integration_suites": {
+      "a2a.rs": {
+        "passed": 4,
+        "failed": 0,
+        "seconds": 54.51
+      },
+      "a2a_governed.rs": {
+        "passed": 27,
+        "failed": 0,
+        "seconds": 152.86
+      },
+      "acceptance.rs": {
+        "passed": 0,
+        "failed": 0,
+        "seconds": 0.0
+      },
+      "authoring.rs": {
+        "passed": 3,
+        "failed": 0,
+        "seconds": 31.52
+      },
+      "capabilities.rs": {
+        "passed": 8,
+        "failed": 0,
+        "seconds": 53.64
+      },
+      "commands.rs": {
+        "passed": 8,
+        "failed": 0,
+        "seconds": 100.08
+      },
+      "configured.rs": {
+        "passed": 14,
+        "failed": 0,
+        "seconds": 204.44
+      },
+      "governed_acquisition.rs": {
+        "passed": 1,
+        "failed": 0,
+        "seconds": 150.58
+      },
+      "privacy_inspect.rs": {
+        "passed": 7,
+        "failed": 0,
+        "seconds": 0.24
+      },
+      "privacy_response.rs": {
+        "passed": 4,
+        "failed": 0,
+        "seconds": 196.07
+      },
+      "profile.rs": {
+        "passed": 3,
+        "failed": 0,
+        "seconds": 0.01
+      },
+      "python.rs": {
+        "passed": 1,
+        "failed": 0,
+        "seconds": 11.47
+      },
+      "revision.rs": {
+        "passed": 1,
+        "failed": 0,
+        "seconds": 27.2
+      },
+      "revision_adversarial.rs": {
+        "passed": 4,
+        "failed": 0,
+        "seconds": 10.22
+      }
+    },
+    "suite_comparison": {
+      "a2a.rs": {
+        "baseline": {
+          "passed": 4,
+          "failed": 0,
+          "seconds": 24.8
+        },
+        "current": {
+          "passed": 4,
+          "failed": 0,
+          "seconds": 54.51
+        },
+        "delta_seconds": 29.71
+      },
+      "a2a_governed.rs": {
+        "baseline": {
+          "passed": 19,
+          "failed": 0,
+          "seconds": 55.19
+        },
+        "current": {
+          "passed": 27,
+          "failed": 0,
+          "seconds": 152.86
+        },
+        "delta_seconds": 97.67
+      },
+      "acceptance.rs": {
+        "baseline": {
+          "passed": 0,
+          "failed": 0,
+          "seconds": 0.0
+        },
+        "current": {
+          "passed": 0,
+          "failed": 0,
+          "seconds": 0.0
+        },
+        "delta_seconds": 0.0
+      },
+      "authoring.rs": {
+        "baseline": {
+          "passed": 3,
+          "failed": 0,
+          "seconds": 26.8
+        },
+        "current": {
+          "passed": 3,
+          "failed": 0,
+          "seconds": 31.52
+        },
+        "delta_seconds": 4.72
+      },
+      "capabilities.rs": {
+        "baseline": {
+          "passed": 8,
+          "failed": 0,
+          "seconds": 33.74
+        },
+        "current": {
+          "passed": 8,
+          "failed": 0,
+          "seconds": 53.64
+        },
+        "delta_seconds": 19.9
+      },
+      "commands.rs": {
+        "baseline": {
+          "passed": 8,
+          "failed": 0,
+          "seconds": 66.99
+        },
+        "current": {
+          "passed": 8,
+          "failed": 0,
+          "seconds": 100.08
+        },
+        "delta_seconds": 33.09
+      },
+      "configured.rs": {
+        "baseline": {
+          "passed": 14,
+          "failed": 0,
+          "seconds": 149.46
+        },
+        "current": {
+          "passed": 14,
+          "failed": 0,
+          "seconds": 204.44
+        },
+        "delta_seconds": 54.98
+      },
+      "governed_acquisition.rs": {
+        "baseline": null,
+        "current": {
+          "passed": 1,
+          "failed": 0,
+          "seconds": 150.58
+        },
+        "delta_seconds": 150.58
+      },
+      "privacy_inspect.rs": {
+        "baseline": {
+          "passed": 7,
+          "failed": 0,
+          "seconds": 0.13
+        },
+        "current": {
+          "passed": 7,
+          "failed": 0,
+          "seconds": 0.24
+        },
+        "delta_seconds": 0.11
+      },
+      "privacy_response.rs": {
+        "baseline": {
+          "passed": 4,
+          "failed": 0,
+          "seconds": 127.98
+        },
+        "current": {
+          "passed": 4,
+          "failed": 0,
+          "seconds": 196.07
+        },
+        "delta_seconds": 68.09
+      },
+      "profile.rs": {
+        "baseline": {
+          "passed": 3,
+          "failed": 0,
+          "seconds": 0.01
+        },
+        "current": {
+          "passed": 3,
+          "failed": 0,
+          "seconds": 0.01
+        },
+        "delta_seconds": 0.0
+      },
+      "python.rs": {
+        "baseline": {
+          "passed": 1,
+          "failed": 0,
+          "seconds": 5.82
+        },
+        "current": {
+          "passed": 1,
+          "failed": 0,
+          "seconds": 11.47
+        },
+        "delta_seconds": 5.65
+      },
+      "revision.rs": {
+        "baseline": {
+          "passed": 1,
+          "failed": 0,
+          "seconds": 22.09
+        },
+        "current": {
+          "passed": 1,
+          "failed": 0,
+          "seconds": 27.2
+        },
+        "delta_seconds": 5.11
+      },
+      "revision_adversarial.rs": {
+        "baseline": {
+          "passed": 4,
+          "failed": 0,
+          "seconds": 6.4
+        },
+        "current": {
+          "passed": 4,
+          "failed": 0,
+          "seconds": 10.22
+        },
+        "delta_seconds": 3.82
+      }
+    },
+    "completed_suite_difference_total_seconds": 473.43,
+    "comparison_limits": "Different source/counts, machines, cache states and concurrency. Deltas are observations, not causal attribution to thread count. Current local Clippy/test builds were warm (0.05/0.13s) while baseline hosted dev/test profile builds took18.13/18.40s. Final workspace is still incomplete at this snapshot.",
+    "phase_at_observation": "Privacy response, profile, Python and revision suites completed;112-test core binary has started and is incomplete. Full make result remains pending."
+  },
+  "formal_increment_observation": {
+    "focused40_status": "PASS",
+    "focused40_seconds": 164.2045488069998,
+    "focused40_summary_sha256": "0d83c2f8f0caf3d13a4992f11f5f0e3b5a152650b66ef588f82c265d91a5aad6",
+    "hypothetical_baseline_spin_plus_focused_increment_seconds": 477.205,
+    "interpretation": "Adding the local focused40 duration to baseline hosted184+apt duration is an illustrative mixed-environment sum, not a measured224 default duration or hosted CI prediction."
+  },
+  "budget_assessment": {
+    "configured_job_minutes": 30,
+    "configured_job_seconds": 1800,
+    "baseline_total_minutes": 17,
+    "illustrative_make_budget_seconds_after_baseline_acceptance_overhead_and_new_formal_increment": 1252.795,
+    "assessment": "The completed source44 workspace, acceptance, provider and full224 SPIN commands sum to1900.765s (31m40.8s); workspace+acceptance+formal alone sum to1900.367s. Both exceed the configured1800-second aggregate job budget before CI setup, apt, artifact upload or cold-build uncertainty. A separate40-minute aggregate timeout is a proportionate harness-budget adjustment for the retained env2 qualification; this does not demonstrate a40-minute hosted run will finish.",
+    "recommended_next_evidence": "Preserve identified44 complete PASS evidence first. Then independently parse and compare the separate proposed workflow patch, assert only timeout30\u219240 with env2/pinned actions/commands unchanged and verify whole295-source delta exactlyCI. Keep complete runtime/formal test claims bound44; do not claim changed CI bytes were rerun.",
+    "possible_followup_scope": "If chosen by parent after final measurements, change only hosted aggregate timeout after the identified44 source/evidence gate claim; retain separate YAML/delta review. Per-request runtime bounds, assertions, SPIN30s command/512MiB/depth100000 and runtime code remain unchanged.",
+    "decision": "SEPARATE_40_MINUTE_AGGREGATE_TIMEOUT_PATCH_STATIC_REVIEW_ACCEPTED_NO_HOSTED_EXECUTION_CLAIM",
+    "hosted_current_source_pass_claim": false,
+    "no_capacity_claim": "Neither local env2 passes nor a larger aggregate job budget establish high-parallel, runtime throughput or production capacity.",
+    "local_total_exceeds_current_timeout_by_seconds": 100.367,
+    "proposed_job_minutes": 40,
+    "illustrative_remaining_40_minute_budget_after_local_commands_seconds": 499.633,
+    "residual_limits": "Local/hosted executor speed, warm/cold caches and setup variability remain;40minutes provides about499.6s beyond the measured local workspace+acceptance+formal sum, not a performance guarantee. No assertions or runtime/SPIN command/depth/memory bounds are relaxed."
+  },
+  "updated_at_utc": "2026-10-22T21:39:09.686129+00:00",
+  "final44_measurements": {
+    "source_commit": "44b1fab0c50f96d36731faeaaa734fce51b5860a",
+    "source_tree": "7a7732474f4517946b7773adcade7b667797335c",
+    "non_evidence_source_files": 295,
+    "identical_source_cut_all_four": true,
+    "commands": {
+      "workspace": {
+        "command": [
+          "make",
+          "test"
+        ],
+        "environment": {
+          "CARGO_INCREMENTAL": "0",
+          "GOFLAGS": "-buildvcs=false",
+          "RUSTUP_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/rustup",
+          "CARGO_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/cargo",
+          "RUST_TEST_THREADS": "2"
+        },
+        "status": "PASS",
+        "seconds": 1195.672,
+        "source_changes_during_checks": [],
+        "receipt_sha256": "b65065041822af1ac7423c1421979da1b13a1a33b1b2e0b16f727da35bf8eaa1",
+        "log_sha256": "2757d2a2ac031533206d29b2c7df80f28b2c1057a68695776cba9bead09d4508"
+      },
+      "acceptance": {
+        "command": [
+          "make",
+          "acceptance"
+        ],
+        "environment": {
+          "CARGO_INCREMENTAL": "0",
+          "GOFLAGS": "-buildvcs=false",
+          "RUSTUP_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/rustup",
+          "CARGO_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/cargo",
+          "RUST_TEST_THREADS": "2"
+        },
+        "status": "PASS",
+        "seconds": 27.629,
+        "source_changes_during_checks": [],
+        "receipt_sha256": "2a7047a5ea1f70fbc0bdab8a2400f5258b720805058d9e1a89de571cec6fc031",
+        "log_sha256": "8acd3829ab9719e603909891e785f0d626bc9fa9f25d81c815def9c217d4b525"
+      },
+      "provider": {
+        "command": [
+          "make",
+          "provider-test"
+        ],
+        "environment": {
+          "CARGO_INCREMENTAL": "0",
+          "GOFLAGS": "-buildvcs=false",
+          "RUSTUP_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/rustup",
+          "CARGO_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/cargo",
+          "RUST_TEST_THREADS": "2"
+        },
+        "status": "PASS",
+        "seconds": 0.398,
+        "source_changes_during_checks": [],
+        "receipt_sha256": "00ad9fab8a55d729f838857bbbe9507f8a5f94aab79f47d4b60c80095831fb81",
+        "log_sha256": "6b258b4795ac89f190330d9d02eeb8bb3d2cbb2baf2011ec9dc698ece31d28f4"
+      },
+      "formal": {
+        "command": [
+          "python3",
+          "formal/verify.py",
+          "--out",
+          "/workspace/scratch/1ad2c1661ab9/validation/acquisition-formal-final"
+        ],
+        "environment": {
+          "CARGO_INCREMENTAL": "0",
+          "GOFLAGS": "-buildvcs=false",
+          "RUSTUP_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/rustup",
+          "CARGO_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/cargo",
+          "RUST_TEST_THREADS": "2"
+        },
+        "status": "PASS",
+        "seconds": 677.066,
+        "source_changes_during_checks": [],
+        "receipt_sha256": "691f4532038d57ce670ed15f703fad0674eba953c69fab12762078ac4439d5ac",
+        "log_sha256": "2850b4984119347360b6877a9a8a7ff4b097ddd767cfec3638d7c98071882499"
+      }
+    },
+    "sum_all_four_command_seconds": 1900.765,
+    "ci_commands_without_separate_provider_seconds": 1900.367,
+    "formal_search_seconds": 676.8096456459971,
+    "formal224_status": "PASS",
+    "formal_zero_error_searches": 32,
+    "formal_expected_replayed_counterexamples": 192,
+    "formal_summary_sha256": "a23d5ccbf78bbb18a386880884f851baf022563b2b9c3f7c6e8aedd31c0ed603",
+    "interpretation": "This is the sum of separately executed complete local commands on the identical295-file44source cut, not one hosted CI job measurement. The separate provider command overlaps a check also run in hosted CI; excluding its0.398s still exceeds30minutes."
+  },
+  "followup_static_review": {
+    "review": "acquisition-ci-timeout-review.json",
+    "changed_non_evidence_paths": [
+      ".github/workflows/ci.yml"
+    ],
+    "old_timeout_minutes": 30,
+    "new_timeout_minutes": 40,
+    "RUST_TEST_THREADS": "2",
+    "qualification": "Identified44 complete tests remain unchanged evidence; changed CI bytes were statically reviewed and not rerun."
+  }
+}

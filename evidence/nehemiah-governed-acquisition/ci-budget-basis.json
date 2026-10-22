@@ -1,0 +1,18 @@
+{
+  "version": "nehemiah-acquisition-ci-budget/1",
+  "baseline_commit": "c84feb406eff46e9c2857b5ad92a817ab4bc12ec",
+  "baseline_run": 39840094948,
+  "baseline_url": "https://github.com/emmett08/mas-host/actions/runs/39840094948",
+  "baseline_conclusion": "success",
+  "baseline_started_at": "2026-10-22T19:26:41Z",
+  "baseline_completed_at": "2026-10-22T19:43:41Z",
+  "baseline_seconds": 1020,
+  "previous_job_minutes": 20,
+  "new_job_minutes": 30,
+  "reason": "Baseline required 17 minutes. This increment adds 40 SPIN configurations and acquisition/HTTP/core regressions; leave room for the additional required checks.",
+  "unchanged_formal_limits": {
+    "seconds_per_command": 30,
+    "memory_bytes": 536870912,
+    "search_depth": 100000
+  }
+}

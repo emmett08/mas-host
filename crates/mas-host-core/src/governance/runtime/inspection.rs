@@ -1,4 +1,5 @@
 //! Validate bounded exact-source inspection before the existing structured gate.
+use super::exposure::Exposure;
 use super::GovernedSession;
 use mas_host_privacy::{
     CombinedAssessment, Completion, DetectorPins, Limits, NeuralAssessment, Source,
@@ -95,19 +96,44 @@ impl GovernedSession {
         projection: &Value,
         inspection: Option<Value>,
     ) -> Result<Value> {
+        self.authorize_inspected_with_exposure(
+            actor,
+            operation,
+            recipient,
+            destination,
+            original,
+            projection,
+            inspection,
+            &Exposure::default(),
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) fn authorize_inspected_with_exposure(
+        &self,
+        actor: &str,
+        operation: &str,
+        recipient: &str,
+        destination: &str,
+        original: &Value,
+        projection: &Value,
+        inspection: Option<Value>,
+        exposure: &Exposure,
+    ) -> Result<Value> {
         let Some(inspection) = inspection else {
-            return self.authorize(
+            return self.authorize_exposure(
                 actor,
                 operation,
                 recipient,
                 destination,
                 original,
                 projection,
+                exposure,
             );
         };
         let mut retained_bytes = projection.to_string().len();
         for _ in 0..8 {
-            let disclosure = self.authorize_sized(
+            let disclosure = self.authorize_exposure_sized(
                 actor,
                 operation,
                 recipient,
@@ -115,6 +141,7 @@ impl GovernedSession {
                 original,
                 projection,
                 retained_bytes,
+                exposure,
             )?;
             let record = json!({"version":"mas-governed-boundary-decision/1","disclosure":disclosure,"inspection":inspection});
             let size = super::encoding::canonical(&json!([projection, record]), 65_536)?.len();
@@ -167,6 +194,16 @@ impl GovernedSession {
         original: &Value,
         projection: &Value,
     ) -> Result<Option<Value>> {
+        self.inspect_boundary_with_exposure(actor, original, projection, &Exposure::default())
+    }
+
+    pub(crate) fn inspect_boundary_with_exposure(
+        &self,
+        actor: &str,
+        original: &Value,
+        projection: &Value,
+        exposure: &Exposure,
+    ) -> Result<Option<Value>> {
         let Some(gate) = &self.2 else {
             return Ok(None);
         };
@@ -185,13 +222,14 @@ impl GovernedSession {
         text_units(projection, &mut units)?;
         // Processing raw text is a separate correlated policy tuple. The
         // scanner receives no source before this fresh authority admission.
-        self.authorize(
+        self.authorize_exposure(
             actor,
             "inspect",
             "privacy-inspector",
             &gate.destination,
             &combined,
             &combined,
+            exposure,
         )?;
         let mut original_findings = 0usize;
         let mut projection_findings = 0usize;
@@ -203,6 +241,17 @@ impl GovernedSession {
             }
             gate.check_implementation()?;
             self.check_current()?;
+            if self.is_v2() {
+                self.authorize_exposure(
+                    actor,
+                    "inspect",
+                    "privacy-inspector",
+                    &gate.destination,
+                    &combined,
+                    &combined,
+                    exposure,
+                )?;
+            }
             if let Some(count) = inspected.get(text) {
                 if index < original_count {
                     original_findings += count;
@@ -242,6 +291,17 @@ impl GovernedSession {
         }
         gate.check_implementation()?;
         self.check_current()?;
+        if self.is_v2() {
+            self.authorize_exposure(
+                actor,
+                "inspect",
+                "privacy-inspector",
+                &gate.destination,
+                &combined,
+                &combined,
+                exposure,
+            )?;
+        }
         if started.elapsed() >= duration || crate::now_ms()? >= deadline_ms {
             return Err("governed-inspection-timeout".into());
         }

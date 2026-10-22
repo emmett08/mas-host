@@ -17,8 +17,9 @@ current plan snapshots.
 | PII N0/N1 | Exact-source assessments, deterministic fixtures, pinned local neural adapter and supervised inspection | Labelled deployment-domain quality thresholds and qualification; inspection never grants unstructured release |
 | E2/E3 and N2 first structured slice | Authenticated A2A2/core sessions, pre-persistence projection, keyed original-request conflicts, current admission/delivery checks, safe effect completion and replay | Complete N2 coverage, shared acquisition/subscribers, general evidence lineage/resolution, revision integration, dynamic runtime credentials and unstructured handling |
 | N2 detector mediation | Optional operator-pinned local inspection at structured ingress, invocation, effect arguments, result/evidence retention and retained payload delivery; exact-source coverage, current processing authority and version-bound receipts | Cross-field/conversational inspection, numeric identifiers, arbitrary text qualification and remaining acquisition/inference/revision paths |
-| N2/E3 retained-effect reader | Current-authority, read-only resolution of an exact retained effect, with separate metadata/payload checks and no execution recovery | Complete source ancestry, exposure inheritance, shared subscribers and reader/ancestor qualification |
-| N3 first response slice | Trusted native safe-case intent and separately admitted notification through existing effects; bounded memory fixture, HTTPS incident-submission adapter and authorised retained case-status projection | Exact assessment/source resolution, adjudication, durable queue, timed retry/escalation, provider reconciliation and endpoint/deployment qualification |
+| N2/E3 retained-effect reader | Current-authority, read-only resolution of an exact retained effect, with separate metadata/payload checks and no execution recovery | Broader source/assessment access and shared-reader qualification |
+| E2/E3 structured acquisition | Opt-in version 2 baseline/source-policy association, durable pending acquisition, host-owned ancestry/exposure and authorised retained projection reads through existing journals | Exact assessment custody, source-byte adjudication, protected revision, larger closure and shared-subscriber qualification |
+| N3 first response slice | Trusted native safe-case intent and separately admitted notification through existing effects; bounded memory fixture, HTTPS incident-submission adapter and authorised retained case-status projection | Exact component-assessment/source-byte resolution, adjudication, durable queue, timed retry/escalation, provider reconciliation and endpoint/deployment qualification |
 | Independent P9a | Connection-profile consumption is published in [CSO PR #381](https://github.com/emmett08/catalog-sync-operator-monograph/pull/381), stacked on PR #379, at `65de861aa7c71fae3eaf4dcea825b66e7ebe4d1b` | Consumer merge and the separately selected PR #380 integration; broader dynamic credential/privacy qualification |
 | E4/E5 and N4/N5 | Required capabilities stay explicit and unsupported paths reject | Deletion/expiry/restore, worker isolation, consumer and measured deployment qualification |
 
@@ -69,6 +70,15 @@ then checks current rights before delivering a bounded record. It preserves
 completion and uncertainty without opening an execution engine. The A2A service
 derives the run and root invocation from an authenticated, owned task. This first
 resolver increment supplies no source-lineage or shared-reader qualification.
+
+The opt-in [structured acquisition contract](governed-acquisition.md) now binds
+registered source policies to acquired projections. The host carries complete
+bounded ancestry through invocation assembly and subsequent operations. A
+pending acquisition constrains its native callback before execution permission;
+completion and delivery retain exposure through the existing journal. Current
+task, effect and source readers enforce these inherited restrictions. Discarded
+original bytes remain unavailable. Complete E3 and protected revision retain
+their remaining qualification gates.
 
 The selected design adds explicit A2A2 and `Engine::open_governed` entry points.
 Existing local APIs and configuration versions retain their behavior. A
@@ -129,18 +139,22 @@ completion-preserving withholding rules. Its implementation and formal receipts
 are kept separately under `evidence/nehemiah-governed-reader/`. Case-status
 projection consumes independent effect snapshots and preserves that limitation.
 
+The [exposure model](../formal/exposure-lineage.md) adds source-policy acquisition,
+durable pending obligations, complete bounded ancestry and inherited use.
+Its implementation and formal receipts are kept under
+`evidence/nehemiah-governed-acquisition/`.
+
 ## Next dependent increments
 
 1. Complete N2/E2 across the remaining supported acquisition, inference,
    revision, evidence and diagnostic paths, with version-bound unstructured
    inspection and declared handling outcomes. Keep unsupported paths closed.
-2. Extend E3's retained-effect resolution with complete source ancestry,
-   source-exposure inheritance and shared subscriber delivery; qualify
-   revocation and resolver-failure cases, including
-   more than 32 consumers/ancestors. Complete dynamic credential lifecycle before
-   protected sharing.
-3. Extend N3's case-status reader with authorised exact assessment/source
-   resolution, adjudication, a durable queue, permitted retry/escalation and
+2. Extend E3 beyond the local profile's complete 64-source closure to larger
+   closures and shared subscriber delivery; qualify revocation and
+   resolver-failure cases with more than 32 consumers. Complete dynamic
+   credential lifecycle before protected sharing.
+3. Extend N3's case-status reader with authorised exact component-assessment
+   and source-byte resolution, adjudication, a durable queue, permitted retry/escalation and
    provider reconciliation. A lost
    acknowledgement currently remains uncertain under its original action
    identity and prevents redispatch.

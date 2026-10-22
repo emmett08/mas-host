@@ -1,0 +1,6 @@
+command: PYTHONDONTWRITEBYTECODE=1 python3 examples/governed-acquisition/verify.py --host target/debug/mas-host
+
+return_code: 0
+elapsed_seconds: 171.2223925110011
+example_stdout:
+{"scenario": "governed-acquisition", "status": "PASS"}

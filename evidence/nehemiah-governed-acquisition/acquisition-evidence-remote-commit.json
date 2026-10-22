@@ -1,0 +1,35 @@
+{
+  "sha": "e64d280b3eb0f78d03386f63b04207da3662aae2",
+  "node_id": "C_kwDOVLc9LdoAKGU2NGQyODBiM2ViMGY3OGQwMzM4NmY2M2IwNDIwN2RhMzY2MmFhZTI",
+  "url": "https://api.github.com/repos/emmett08/mas-host/git/commits/e64d280b3eb0f78d03386f63b04207da3662aae2",
+  "html_url": "https://github.com/emmett08/mas-host/commit/e64d280b3eb0f78d03386f63b04207da3662aae2",
+  "author": {
+    "name": "Emmett Miller",
+    "email": "emmett.miller@sky.uk",
+    "date": "2026-10-22T21:37:40Z"
+  },
+  "committer": {
+    "name": "Emmett Miller",
+    "email": "emmett.miller@sky.uk",
+    "date": "2026-10-22T21:37:40Z"
+  },
+  "tree": {
+    "sha": "ecf492c6f89bd663b9bd1acc870bd533e85ab3ca",
+    "url": "https://api.github.com/repos/emmett08/mas-host/git/trees/ecf492c6f89bd663b9bd1acc870bd533e85ab3ca"
+  },
+  "message": "Retain source-bound governed acquisition validation evidence\n\nBind the four complete runtime and formal gates to source 44b1fab0, with 328 Rust and 146 Python passes, native acceptance, five provider tests and 224 SPIN checks. Preserve independent reviews, exact plan/source identities, all formal trails and diagnostic failures without promoting them to final gates.",
+  "parents": [
+    {
+      "sha": "44b1fab0c50f96d36731faeaaa734fce51b5860a",
+      "url": "https://api.github.com/repos/emmett08/mas-host/git/commits/44b1fab0c50f96d36731faeaaa734fce51b5860a",
+      "html_url": "https://github.com/emmett08/mas-host/commit/44b1fab0c50f96d36731faeaaa734fce51b5860a"
+    }
+  ],
+  "verification": {
+    "verified": false,
+    "reason": "unsigned",
+    "signature": null,
+    "payload": null,
+    "verified_at": null
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "version": "mas-governed-acquisition-ci-profile-independent-review/1",
+  "reviewer": "/root/formal_independent_review",
+  "created_at_utc": "2026-10-22T21:04:13.058969+00:00",
+  "verdict": "ACCEPTED_BOUNDED_RUST_TEST_HARNESS_PROFILE_PENDING_FINAL_GATES",
+  "source_sha256": {
+    ".github/workflows/ci.yml": "dc79271fae4453839dc1fbcba0aa9656f7563ab1334b35b88b5c6ab726a72fa2"
+  },
+  "diff_scope": {
+    "prior_ci_without_thread_environment_sha256": "f4d79412c213a5fb6bc2c0440a53e8b37085d873f31772e72d285f49f879d7d3",
+    "changes_from_existing_30_minute_cut": [
+      "linux job env RUST_TEST_THREADS: '2'"
+    ],
+    "earlier_change_from_checkout_base": "timeout-minutes:20 to30",
+    "verified_no_other_workflow_changes_from_checkout_base": true,
+    "runtime_source_changed": false,
+    "existing31_file_review_hashes_still_match": true
+  },
+  "yaml_profile_validation": {
+    "parser": "PyYAML 6.0.3 BaseLoader; preserves on trigger key",
+    "syntax": "PARSED",
+    "job": "linux",
+    "runner": "ubuntu-24.04",
+    "timeout_minutes": 30,
+    "environment": {
+      "RUST_TEST_THREADS": "2"
+    },
+    "environment_scope": "Job-level env inherited by test/acceptance steps and cargo child test harnesses.",
+    "makefile_review": "make test uses cargo test --locked --workspace; make acceptance uses cargo test with ignored/nocapture. Neither supplies a competing --test-threads override.",
+    "pinned_actions_permissions_triggers_commands_unchanged": true,
+    "actionlint": "Not installed; no hosted GitHub Actions schema execution or hosted run claimed."
+  },
+  "preserved_default_parallel_diagnostic": {
+    "metadata": "validation/exposure-governed-http-default-diagnostic.json",
+    "metadata_sha256": "c375cf61e979d07d45d27c0a01ea8eeb5d9a9853dd32571307928a4c1d6bc1f7",
+    "log": "validation/exposure-governed-http-expiry-followup-diagnostic.log",
+    "log_sha256": "2b38cb1d538ed0e7408f48c93690019f88cbf8ede7ca3e5c030600b68e42ae62",
+    "resource_snapshot": "validation/exposure-http-resource-diagnostic.json",
+    "resource_snapshot_sha256": "3ffcc377ae0362242e226a4cc28384c98f217e716faabec4595032d77ec796f0",
+    "status": "FAIL_NON_GATE_DIAGNOSTIC",
+    "passed": 21,
+    "failed": 6,
+    "elapsed_test_seconds": 73.64,
+    "observations": [
+      "Five existing shared RPC client10-second socket reads failed with WouldBlock.",
+      "One existing malformed detector elapsed<5-second assertion failed.",
+      "Source expiry and uncertain-completion fixture assertions passed in this run."
+    ],
+    "provenance_limits": {
+      "profile": "Normal Rust test default; no test-thread override in launch command.",
+      "RUST_TEST_THREADS": "Not set in launch command; process environment was not snapshotted before exit.",
+      "exact_thread_count": "Not captured; visible CPU count and quota are in resource snapshot."
+    },
+    "source_capture_limit": "Diagnostic source map was captured after exit; no complete paired pre/post source map. It is not final source-bound gate evidence.",
+    "capacity_interpretation": "Resource contention is consistent with observed failures and resource snapshot, but this is not an isolated causal performance measurement."
+  },
+  "explicit_two_thread_focused_observation": {
+    "status": "PASS_FOCUSED_ONLY",
+    "tests": 27,
+    "failed": 0,
+    "reported_seconds": 141.34,
+    "log": "validation/exposure-governed-http-parallel-final.log",
+    "log_sha256": "08ad917a5a0826ee9a9cb2ea5510133c1ca283b0701fdad004e15a90be5fb8da",
+    "source_observation": "validation/exposure-http-threads2-source-during.json",
+    "source_observation_sha256": "7656d078e396b6f57995ac3bab2272ff1b4705a7201d637b5fcd3bf62eced0dd",
+    "source_observation_limit": "Captured during execution, not a before-start source map; final common-source gates remain required."
+  },
+  "unchanged_requirements": [
+    "Semantic assertions and existing socket, detector, expiry and fixture timing bounds remain in force.",
+    "Application/runtime concurrency within a test, including independently scheduled native parallel children, is not changed by this harness setting.",
+    "SPIN runner source is unchanged at1350201b825b548d1505bcc11afae82f0e93447bf1627c1d67739d8c285aa18b; per-command30seconds,512MiB and depth100000 remain unchanged.",
+    "The30-minute workflow timeout is an aggregate execution budget, not proof that every hosted environment finishes within it."
+  ],
+  "capacity_limits": [
+    "Qualification is limited to the explicit two-thread Rust test harness profile and recorded local environment.",
+    "No default/high-parallel test capacity, runtime throughput, production deployment capacity or hosted CI PASS is claimed.",
+    "Passing with fewer concurrent test fixtures does not erase the preserved default-profile failures.",
+    "Final workspace, acceptance/provider/example/HTTP and full224 SPIN gates plus final source commit binding remain parent-owned pending."
+  ],
+  "unchanged_reviews": {
+    "production_review": "validation/exposure-independent-review.json",
+    "production_review_sha256": "df57b3e49756ec9ffbc4362061d6352f814681dcb0af1525d50cc3f2fcd3ab1d",
+    "fixture_review": "validation/exposure-fixture-review.json",
+    "fixture_review_sha256": "bb3f8d6f66732d018f67932ec934338943f68e35fb1d93002e312caf67950966"
+  },
+  "reviewer_runtime_or_fixture_edits": false,
+  "reviewer_test_reruns": false,
+  "validation_status": "FINAL_COMMON_SOURCE_GATES_PENDING"
+}

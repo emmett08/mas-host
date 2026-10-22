@@ -1,0 +1,122 @@
+cargo fmt --all -- --check
+cargo clippy --locked --workspace --all-targets -- -D warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s
+cd sdk/go && go vet ./...
+cd tests/fixtures/go-release && go vet ./...
+npm --prefix examples/structured-evidence/typescript ci --ignore-scripts
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+added 1 package in 1s
+npm --prefix examples/structured-evidence/typescript run check
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> nehemiah-structured-evidence-fixture@0.1.0 check
+> tsc --noEmit -p tsconfig.json
+
+npm --prefix examples/structured-evidence/typescript run build
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> nehemiah-structured-evidence-fixture@0.1.0 build
+> tsc -p tsconfig.json
+
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s examples/structured-evidence/tests -v
+test_each_changed_target_field_is_rejected (test_collectors.Collectors.test_each_changed_target_field_is_rejected) ... ok
+test_prepared_packages_have_same_contract_with_distinct_approved_implementation (test_collectors.Collectors.test_prepared_packages_have_same_contract_with_distinct_approved_implementation) ... ok
+test_quantities_cannot_be_booleans_fractional_negative_or_unbounded (test_collectors.Collectors.test_quantities_cannot_be_booleans_fractional_negative_or_unbounded) ... ok
+test_same_observation_and_original_application_host_identities (test_collectors.Collectors.test_same_observation_and_original_application_host_identities) ... ok
+test_transport_rejects_duplicate_members_invalid_utf8_and_oversize_input (test_collectors.Collectors.test_transport_rejects_duplicate_members_invalid_utf8_and_oversize_input) ... ok
+test_unknown_fields_and_file_or_endpoint_selection_are_rejected (test_collectors.Collectors.test_unknown_fields_and_file_or_endpoint_selection_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 3.965s
+
+OK
+cargo test --locked --workspace
+   Compiling mas-host-workflow v0.1.0 (/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-workflow)
+   Compiling mas-host-core v0.1.0 (/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-core)
+   Compiling mas-host-runtime v0.1.0 (/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-runtime)
+   Compiling mas-host-providers v0.1.0 (/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-providers)
+   Compiling mas-host v0.1.0 (/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-cli)
+   Compiling mas-host-privacy v0.1.0 (/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-privacy)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 10.75s
+     Running unittests src/main.rs (target/debug/deps/mas_host-6657558780f2b3c2)
+
+running 16 tests
+test config::authoring::tests::non_decimal_toml_integers_are_lossless_beyond_u64 ... ok
+test a2a::configuration::timeout_tests::only_configured_inspection_adds_two_bounded_rpc_scan_budgets ... ok
+test config::authoring::tests::rejects_lossy_toml_values_and_duplicate_keys ... ok
+test config::authoring::tests::strict_json_keeps_original_rejections_and_exact_integer_semantics ... ok
+test config::authoring::tests::rejects_ambiguous_and_unsupported_yaml_before_execution ... ok
+test config::authoring::tests::formats_resolve_to_identical_values_with_exact_integers ... ok
+test config::authoring::tests::yaml_core_scalars_and_quoted_values_have_explicit_semantics ... ok
+test config::bindings::tests::minimum_delegate_calls_is_optional_bounded_and_requires_delegates ... ok
+test config::tests::public_operations_are_explicit_mas_identities ... ok
+test config::tests::rejects_implicit_permissions_bad_limits_and_unknown_settings ... ok
+test config::tests::requires_current_version_and_explicit_implementation_kind ... ok
+test privacy_inspect::governed::tests::occupied_inspector_rejects_concurrent_work_without_a_launch_or_queue ... ok
+test config::authoring::tests::authoring_integers_obey_protocol_digit_limit ... ok
+test privacy_inspect::governed::tests::revoked_configuration_invalidates_identity_without_launching_a_text_scan ... ok
+test config::bindings::tests::required_delegates_are_a_unique_subset_with_a_completion_turn ... ok
+test config::authoring::tests::size_and_depth_are_bounded_in_source_and_resolved_values ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/a2a.rs (target/debug/deps/a2a-033f27082a608bad)
+
+running 4 tests
+test descriptor_exposes_contracts_without_execution_configuration ... ok
+test blocking_unknown_outcome_preserves_task_identity_and_negotiated_extension ... ok
+test interrupted_task_becomes_unknown_and_retry_does_not_repeat_work ... ok
+test gateway_enforces_profile_owner_and_exact_retry_and_retains_completed_tasks ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 23.67s
+
+     Running tests/a2a_governed.rs (target/debug/deps/a2a_governed-0d9f41785ddd140f)
+
+running 27 tests
+test changed_governed_detector_implementation_is_rejected_before_dispatch ... ok
+test changed_grant_reference_cannot_reset_request_identity_and_key_changes_stop_use ... ok
+test current_authority_controls_cached_delivery_and_same_policy_credential_rotation ... ok
+test invalid_governed_detector_configuration_prevents_service_startup ... ok
+test authentication_revocation_stops_later_effect_admission ... ok
+test retained_effect::authorised_missing_effect_and_unknown_effect_never_become_unsent_or_executable ... ok
+test lost_effect_response_keeps_uncertainty_and_authorised_recovery_ids ... FAILED
+test governed_detector_output_failure_preserves_effect_completion_across_restart ... ok
+test retained_effect::corrupted_completion_or_root_association_returns_uniform_denial_without_repair ... ok
+test known_effect_completion_with_prohibited_output_survives_withholding_and_restart ... ok
+test faulty_or_incomplete_governed_detector_blocks_before_task_or_effect_storage ... ok
+test governed_ingress_minimises_before_persistence_preserves_original_conflicts_and_replays ... ok
+test governed_detector_runs_before_persistence_and_uses_only_approved_projection ... ok
+test retained_effect::live_effect_reader_observes_executing_without_owner_lock_recovery_or_dispatch ... ok
+test retained_effect::retained_reader_hides_foreign_tasks_and_rejects_scope_or_path_substitution ... ok
+test retained_effect::retained_reader_requires_both_extensions_and_advertises_only_on_governed_services ... ok
+test retained_source::source_reader_hides_foreign_tasks_and_rejects_user_selected_scope_or_paths ... ok
+test retained_source::source_expiry_survives_same_epoch_grant_renewal_and_old_delivery_methods ... ok
+test retained_effect::retained_reader_requires_current_resolve_rights_and_supports_same_scope_credential_rotation ... ok
+test retained_source::source_reader_preserves_known_withholding_and_authorised_absence_without_refetch ... ok
+test retained_effect::retained_reader_preserves_completion_withholding_and_read_only_history_after_restart ... ok
+test retained_source::source_reader_rechecks_current_authority_and_same_scope_credential_rotation ... ok
+test retained_effect::current_payload_inspection_failure_withholds_known_facts_but_query_failure_denies_lookup ... ok
+test retained_source::source_reader_requires_activation_and_advertises_only_for_source_enabled_profiles ... ok
+test retained_source::nested_native_consumer_cannot_remove_inherited_restrictions_with_empty_lineage ... ok
+test retained_source::source_reader_preserves_more_than_thirty_two_ancestors_and_rejects_missing_parent ... ok
+test retained_source::source_reader_delivers_exact_projection_and_complete_metadata_without_mutating_history ... ok
+
+failures:
+
+---- lost_effect_response_keeps_uncertainty_and_authorised_recovery_ids stdout ----
+
+thread 'lost_effect_response_keeps_uncertainty_and_authorised_recovery_ids' (1408) panicked at crates/mas-host-cli/tests/a2a_governed.rs:774:5:
+assertion `left == right` failed
+  left: String("working")
+ right: "unknown"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    lost_effect_response_keeps_uncertainty_and_authorised_recovery_ids
+
+test result: FAILED. 26 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 55.96s
+
+error: test failed, to rerun pass `-p mas-host --test a2a_governed`
+make: *** [Makefile:39: test] Error 101

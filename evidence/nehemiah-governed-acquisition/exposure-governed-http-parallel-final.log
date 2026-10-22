@@ -1,0 +1,34 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.06s
+     Running tests/a2a_governed.rs (target/debug/deps/a2a_governed-0d9f41785ddd140f)
+
+running 27 tests
+test changed_governed_detector_implementation_is_rejected_before_dispatch ... ok
+test authentication_revocation_stops_later_effect_admission ... ok
+test changed_grant_reference_cannot_reset_request_identity_and_key_changes_stop_use ... ok
+test current_authority_controls_cached_delivery_and_same_policy_credential_rotation ... ok
+test governed_detector_output_failure_preserves_effect_completion_across_restart ... ok
+test faulty_or_incomplete_governed_detector_blocks_before_task_or_effect_storage ... ok
+test governed_ingress_minimises_before_persistence_preserves_original_conflicts_and_replays ... ok
+test invalid_governed_detector_configuration_prevents_service_startup ... ok
+test governed_detector_runs_before_persistence_and_uses_only_approved_projection ... ok
+test known_effect_completion_with_prohibited_output_survives_withholding_and_restart ... ok
+test retained_effect::authorised_missing_effect_and_unknown_effect_never_become_unsent_or_executable ... ok
+test lost_effect_response_keeps_uncertainty_and_authorised_recovery_ids ... ok
+test retained_effect::corrupted_completion_or_root_association_returns_uniform_denial_without_repair ... ok
+test retained_effect::live_effect_reader_observes_executing_without_owner_lock_recovery_or_dispatch ... ok
+test retained_effect::retained_reader_hides_foreign_tasks_and_rejects_scope_or_path_substitution ... ok
+test retained_effect::current_payload_inspection_failure_withholds_known_facts_but_query_failure_denies_lookup ... ok
+test retained_effect::retained_reader_requires_both_extensions_and_advertises_only_on_governed_services ... ok
+test retained_effect::retained_reader_preserves_completion_withholding_and_read_only_history_after_restart ... ok
+test retained_effect::retained_reader_requires_current_resolve_rights_and_supports_same_scope_credential_rotation ... ok
+test retained_source::nested_native_consumer_cannot_remove_inherited_restrictions_with_empty_lineage ... ok
+test retained_source::source_expiry_survives_same_epoch_grant_renewal_and_old_delivery_methods ... ok
+test retained_source::source_reader_hides_foreign_tasks_and_rejects_user_selected_scope_or_paths ... ok
+test retained_source::source_reader_preserves_known_withholding_and_authorised_absence_without_refetch ... ok
+test retained_source::source_reader_delivers_exact_projection_and_complete_metadata_without_mutating_history ... ok
+test retained_source::source_reader_rechecks_current_authority_and_same_scope_credential_rotation ... ok
+test retained_source::source_reader_requires_activation_and_advertises_only_for_source_enabled_profiles ... ok
+test retained_source::source_reader_preserves_more_than_thirty_two_ancestors_and_rejects_missing_parent ... ok
+
+test result: ok. 27 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 141.34s
+

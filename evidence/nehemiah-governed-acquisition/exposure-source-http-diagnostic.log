@@ -1,0 +1,37 @@
+   Compiling mas-host v0.1.0 (/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.22s
+     Running tests/a2a_governed.rs (target/debug/deps/a2a_governed-0d9f41785ddd140f)
+
+running 8 tests
+test retained_source::nested_native_consumer_cannot_remove_inherited_restrictions_with_empty_lineage ... ok
+test retained_source::source_expiry_survives_same_epoch_grant_renewal_and_old_delivery_methods ... ok
+test retained_source::source_reader_delivers_exact_projection_and_complete_metadata_without_mutating_history ... ok
+test retained_source::source_reader_hides_foreign_tasks_and_rejects_user_selected_scope_or_paths ... ok
+test retained_source::source_reader_preserves_known_withholding_and_authorised_absence_without_refetch ... ok
+test retained_source::source_reader_preserves_more_than_thirty_two_ancestors_and_rejects_missing_parent ... FAILED
+test retained_source::source_reader_rechecks_current_authority_and_same_scope_credential_rotation ... FAILED
+test retained_source::source_reader_requires_activation_and_advertises_only_for_source_enabled_profiles ... ok
+
+failures:
+
+---- retained_source::source_reader_preserves_more_than_thirty_two_ancestors_and_rejects_missing_parent stdout ----
+
+thread 'retained_source::source_reader_preserves_more_than_thirty_two_ancestors_and_rejects_missing_parent' (269) panicked at crates/mas-host-cli/tests/a2a_governed/retained_source.rs:100:9:
+{"contextId":"context-a2a-5ccbdb1761b7006c72d92047af30efa7a4d3b474c5777277a15ca619","id":"a2a-5ccbdb1761b7006c72d92047af30efa7a4d3b474c5777277a15ca619","metadata":{"mas":{"agent":"collector","bundleDigest":"f2cabcff2243ee9efbd76fb5e731eb8e61117b64b118d9bad4f597635bb6115f","cancelRequested":false,"state":"unknown"}},"status":{"state":"TASK_STATE_UNSPECIFIED"}}
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- retained_source::source_reader_rechecks_current_authority_and_same_scope_credential_rotation stdout ----
+
+thread 'retained_source::source_reader_rechecks_current_authority_and_same_scope_credential_rotation' (283) panicked at crates/mas-host-cli/tests/a2a_governed/retained_source.rs:110:5:
+assertion `left == right` failed
+  left: 401
+ right: 200
+
+
+failures:
+    retained_source::source_reader_preserves_more_than_thirty_two_ancestors_and_rejects_missing_parent
+    retained_source::source_reader_rechecks_current_authority_and_same_scope_credential_rotation
+
+test result: FAILED. 6 passed; 2 failed; 0 ignored; 0 measured; 19 filtered out; finished in 105.21s
+
+error: test failed, to rerun pass `-p mas-host --test a2a_governed`

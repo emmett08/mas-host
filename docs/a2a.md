@@ -73,6 +73,7 @@ credentials, and HTTP responses disable caching.
 | `GetTask` | Observe only a task owned by the authenticated principal |
 | `CancelTask` | Persist cancellation intent; return `-32002` while cancellation remains unconfirmed |
 | `GetRetainedEffect` | Governed A2A2 extension: read one root-workflow effect under current resolve authority |
+| `GetRetainedSource` | Governed local/2 extension: resolve one exact retained source projection and its full ancestry |
 
 RPCs use `POST /a2a`, `Content-Type: application/json`, `Authorization: Bearer ...`
 and `A2A-Version: 1.0`. Task methods additionally require:
@@ -216,6 +217,73 @@ Consumers combining case-intent and notification views must require matching
 logical keys, event and destination binding. Each HTTP call observes its own
 snapshot. The [privacy response example](../examples/privacy-response/README.md)
 keeps action state, recipient delivery and payload availability separate.
+
+## Governed retained-source reads
+
+An A2A2 service configured with `mas-governed-local/2` additionally advertises
+`urn:mas:host-governed-source-read:1`. Activate that URI and the required
+task-service URI to call `GetRetainedSource` with exactly `{"id":"TASK_ID",
+"key":"acquire"}`. The key selects an effect in the owned task's root workflow.
+The effect-reader extension is independent. Acknowledgements contain only the
+supported activated URIs. Ordinary services and governed local/1 services do
+not advertise or activate the source extension.
+
+The same authentication, owner, actor, namespace and key bounds apply as for
+`GetRetainedEffect`. Missing activation returns `-32008`
+`required_source_extension_missing`. Missing, denied or corrupt scope returns
+the uniform `-32001` `source_not_found`. Current `resolve` authority is required
+for the query, source metadata, full ancestor closure and returned projection.
+Every original source policy and current applicable policy participates.
+Owned-task source and effect reads also conjoin the complete current parent
+invocation exposure. An earlier source cannot bypass a later restriction or a
+pending acquisition in that task. The response's `lineage` remains only the
+selected source's exact ancestry; unrelated later sources participate in
+admission without being added to that provenance view.
+
+The closed `mas-governed-source-view/1` result contains:
+
+| Fields | Meaning |
+|---|---|
+| `version`, `namespace_ref`, `actor`, `parent_invocation`, `key` | Version and exact owned workflow/source selector |
+| `effect_id`, `state`, `host_settlement`, `external_execution` | Original retained effect identity, settlement and certainty |
+| `source_id`, `source_metadata` | Host-bound source identity and its `mas-governed-source/1` metadata, or null |
+| `lineage` | Complete bounded source metadata closure, including the selected source |
+| `payload_disposition`, `projection` | Available retained effect-output projection, or an explicit unavailable/withheld disposition with null projection |
+| `raw_source_disposition` | Always `not-retained`; discarded original bytes cannot be reconstructed |
+
+An absent or unfinished effect has no retained output source and returns an
+unavailable projection. A known completion with withheld output keeps its
+settlement and certainty. Returned source metadata is a provenance and policy
+association; it does not establish source freshness or detector quality, and
+does not contain a full per-component detection assessment.
+
+The reader uses the existing read-only journal snapshot, source bindings and
+complete ancestor resolver. It does not fetch fresh evidence, open an execution
+engine, acquire the execution-owner lock or change task/effect states. The
+closure limit is 64 sources and 65,536 bytes; an oversized, missing, cyclic or
+invalid closure fails closed. There is no silent truncation. The complete
+response retains the 65,536-byte bound and at most the existing two inspection
+budgets.
+After the final policy and inspection callbacks, a pure read rechecks the exact
+namespace, root and full exposure before returning. Exposure growth or a pending
+acquisition causes uniform denial. Every database snapshot is released before
+callbacks. These checks retain the file-backed profile's snapshot semantics;
+they add no distributed linearisation guarantee.
+
+For local/2, existing task delivery, completed submission replay and effect
+reading also enforce inherited source restrictions. Revoked or expired source
+rights cannot be bypassed by choosing an older endpoint. Queued host status
+before a root invocation exists remains governed by its baseline status policy.
+The first immediate submission response is the authorised, payload-free
+`submitted` admission snapshot captured before worker launch, with current
+authentication checked again before delivery. It reports acceptance at that
+point, rather than a later execution state. Duplicate submissions and later
+task reads use the full retained source closure. While an acquisition remains
+pending, a reader may receive the uniform unavailable error; it cannot infer an
+output or relax the source restrictions. Polling retains its original task ID
+and deadline.
+See [governed acquisition](governed-acquisition.md) for profile configuration,
+source exposure inheritance and the trusted-local limitations.
 
 Streaming, push notifications, `ListTasks`, task continuations, arbitrary file
 parts, remote effect resolution and dynamic membership are outside this profile.

@@ -1,0 +1,48 @@
+{
+  "version": "mas-governed-acquisition-acceptance/1",
+  "base_commit": "c84feb406eff46e9c2857b5ad92a817ab4bc12ec",
+  "branch": "feat/nehemiah-exposure-lineage",
+  "configuration": {
+    "new": "mas-governed-local/2",
+    "required": "baseline_policy_refs",
+    "effect_optional": "source_policy_refs",
+    "authority": "mas-governed-authority/1",
+    "legacy": "mas-governed-local/1 retains all-template semantics"
+  },
+  "ownership": {
+    "authority": "existing operator authority file",
+    "execution_and_effects": "existing execution/protocol journals",
+    "source_associations_and_exposures": "existing execution.sqlite",
+    "payload": "existing approved step input/output"
+  },
+  "acceptance": [
+    "Baseline-only native workflow succeeds at the action/peer that becomes forbidden after restricted acquisition.",
+    "Collector acquisition is admitted before execution; one collection and original effect identity survive restart.",
+    "Registered effect source policy refs are host selected, never worker supplied; exact retained projection and metadata are bound to that effect.",
+    "All source ancestors and original policy references participate in input, target, argument, output and retained-delivery checks.",
+    "Invocation exposure is durably committed before worker dispatch and result delivery; worker omission of lineage cannot reduce it.",
+    "Parallel child dispatch uses a frozen parent exposure snapshot; later admitted results enlarge later-command exposure.",
+    "Expired, missing, cyclic, conflicting, substituted or excessive closure denies; 33rd restrictive ancestor is checked and 65+ explicitly holds.",
+    "Current revocation and policy outage deny new admission/delivery; known completion and unknown execution remain separate from payload access.",
+    "Old GetTask/SendMessage replay/GetRetainedEffect cannot bypass config2 source restrictions or original expiry.",
+    "Owned-task GetRetainedSource returns an authorised projected source or explicit unavailable state; discarded original bytes are never invented.",
+    "No read performs recovery, writes or redispatch; current owner and foreign-scope tests exercise actual storage/HTTP.",
+    "Legacy config1/A2A1 interfaces and ordinary execution retain their declared behaviour."
+  ],
+  "limits": {
+    "closure_sources": 64,
+    "native_representation_bytes": 65536,
+    "larger_closure": "explicit HOLD; no truncation",
+    "multiple_principals": "not qualified"
+  },
+  "remaining": [
+    "Exact per-component assessment custody and source-byte adjudication",
+    "Governed revision and full inference connection qualification",
+    "Shared subscribers and dynamic credential lifecycle",
+    "E4 deletion/restore and E5 isolation",
+    "N3 durable scheduling, retry/escalation and reconciliation",
+    "Detector quality and deployment/capacity qualification"
+  ],
+  "validation_status": "PASS_FOR_IDENTIFIED_SOURCE",
+  "source_commit": "44b1fab0c50f96d36731faeaaa734fce51b5860a"
+}

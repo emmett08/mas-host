@@ -46,6 +46,14 @@ pub(crate) fn open_namespace(db: &Connection, session: Option<&GovernedSession>)
             CREATE TABLE governed_inputs(id TEXT PRIMARY KEY,original_commitment TEXT NOT NULL,decision TEXT NOT NULL);
             CREATE TABLE governed_completions(id TEXT PRIMARY KEY,original_commitment TEXT NOT NULL,body TEXT NOT NULL);")
             .map_err(|_|"governed-storage-unavailable")?;
+        if session.is_v2() {
+            db.execute_batch("CREATE TABLE governed_sources(id TEXT PRIMARY KEY,body TEXT NOT NULL);
+                CREATE TABLE governed_source_steps(step_id TEXT NOT NULL,kind TEXT NOT NULL,source_id TEXT NOT NULL UNIQUE,PRIMARY KEY(step_id,kind));
+                CREATE TABLE governed_exposures(invocation_id TEXT PRIMARY KEY,body TEXT NOT NULL);
+                CREATE TABLE governed_contexts(step_id TEXT PRIMARY KEY,body TEXT NOT NULL);
+                CREATE TABLE governed_pending(invocation_id TEXT NOT NULL,effect_id TEXT PRIMARY KEY,body TEXT NOT NULL);")
+                .map_err(|_|"governed-storage-unavailable")?;
+        }
         db.execute(
             "INSERT INTO governed_run VALUES(1,?)",
             [session.fingerprint()],

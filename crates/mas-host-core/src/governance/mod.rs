@@ -20,7 +20,8 @@ pub use policy::{decide_disclosure, CurrentAuthority, DataUsePolicy, DisclosureR
 pub use profile::check_profile;
 pub use result::validate_result_view;
 pub use runtime::{
-    read_governed_effect, read_governed_root_effect, GovernedSession, PrivacyInspector,
+    read_governed_effect, read_governed_root_delivery, read_governed_root_effect,
+    read_governed_root_source, GovernedSession, PrivacyInspector,
 };
 
 use serde_json::Value;
