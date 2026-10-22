@@ -5,7 +5,11 @@
 //! host's complete persistence/disclosure enforcement path are implemented.
 
 mod assessment;
+mod combined;
 mod handling;
+mod neural;
+mod neural_pins;
+mod record;
 mod scanner;
 mod source;
 mod spans;
@@ -13,10 +17,13 @@ mod spans;
 pub use assessment::{
     Assessment, ByteRange, Category, Completion, DetectorIdentity, Finding, Limits,
 };
+pub use combined::CombinedAssessment;
 pub use handling::{
     decide, Decision, Disposition, ExecutionCertainty, HandlingContext, HandlingProfile,
     NotificationRoute, Reason,
 };
+pub use neural::{NeuralAssessment, NeuralFinding, OpenAiLabel};
+pub use neural_pins::DetectorPins;
 pub use scanner::scan_synthetic;
 pub use source::Source;
 pub use spans::merge_findings;

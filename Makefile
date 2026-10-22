@@ -1,13 +1,17 @@
 SHELL := /bin/bash
 .SHELLFLAGS := -euo pipefail -c
 
-.PHONY: build check test acceptance provider-test python-test workload-test
+.PHONY: build check test acceptance provider-test python-test workload-test privacy-test
 
 python-test:
 	PYTHONPATH=sdk/python python3 -m unittest discover -s sdk/python/tests -v
 
 workload-test:
 	python3 -m unittest discover -s tests/performance -p 'test_*.py' -v
+
+privacy-test:
+	PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=adapters/privacy python3 -m unittest discover -s adapters/privacy/tests -p 'test_*.py' -v
+	PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests/privacy -p 'test_*.py' -v
 
 provider-test:
 	node --test assets/providers/cursor.test.mjs
@@ -31,6 +35,7 @@ test: check
 	target/cpp-conformance
 	$(MAKE) python-test
 	$(MAKE) workload-test
+	$(MAKE) privacy-test
 
 acceptance:
 	cargo test --locked -p mas-host --test acceptance -- --ignored --nocapture

@@ -1,6 +1,11 @@
 //! Validate closed privacy assessment records against the exact in-memory source.
 
-use crate::{source::identifier, Error, Result, Source};
+use crate::{
+    record::{array, number, object, string, string_set},
+    source::identifier,
+    spans::{covered, validate_coverage},
+    Error, Result, Source,
+};
 use serde_json::{json, Map, Value};
 use std::collections::BTreeSet;
 
@@ -51,7 +56,7 @@ pub enum Completion {
 }
 
 impl Completion {
-    fn as_str(self) -> &'static str {
+    pub(crate) fn as_str(self) -> &'static str {
         match self {
             Self::Complete => "complete",
             Self::Partial => "partial",
@@ -72,6 +77,9 @@ pub enum Category {
     AccountIdentifier,
     Credential,
     SensitiveContext,
+    PostalAddress,
+    Url,
+    Date,
 }
 
 impl Category {
@@ -85,6 +93,9 @@ impl Category {
             Self::AccountIdentifier => "account-identifier",
             Self::Credential => "credential",
             Self::SensitiveContext => "sensitive-context",
+            Self::PostalAddress => "postal-address",
+            Self::Url => "url",
+            Self::Date => "date",
         }
     }
 
@@ -307,27 +318,23 @@ impl Assessment {
         for omission in &self.omissions {
             identifier(omission)?;
         }
-        let mut end = 0;
-        for range in &self.checked_ranges {
-            ByteRange::new(source, range.start, range.end)?;
-            if range.start < end {
-                return Err(Error::InvalidRange);
-            }
-            if self.completion == Completion::Complete && range.start != end {
-                return Err(Error::IncompleteCoverage);
-            }
-            end = range.end;
-        }
-        if self.completion == Completion::Complete
-            && (end != source.content().len() || !self.omissions.is_empty())
-        {
-            return Err(Error::IncompleteCoverage);
-        }
+        validate_coverage(
+            source,
+            &self.checked_ranges,
+            self.completion,
+            !self.omissions.is_empty(),
+        )?;
         let mut prior_finding_end = 0;
         for finding in &self.findings {
             ByteRange::new(source, finding.range.start, finding.range.end)?;
             if finding.range.start < prior_finding_end
                 || finding.categories.is_empty()
+                || finding.categories.iter().any(|category| {
+                    matches!(
+                        category,
+                        Category::PostalAddress | Category::Url | Category::Date
+                    )
+                })
                 || finding.recognisers.is_empty()
                 || finding.recognisers.len() > 8
                 || !covered(finding.range, &self.checked_ranges)
@@ -355,62 +362,6 @@ impl std::fmt::Debug for Assessment {
             .field("finding_count", &self.findings.len())
             .finish_non_exhaustive()
     }
-}
-
-fn covered(range: ByteRange, checks: &[ByteRange]) -> bool {
-    let mut cursor = range.start;
-    for check in checks {
-        if check.start > cursor {
-            break;
-        }
-        if check.end > cursor {
-            cursor = check.end;
-        }
-        if cursor >= range.end {
-            return true;
-        }
-    }
-    false
-}
-
-fn object<'a>(value: &'a Value, fields: &[&str]) -> Result<&'a Map<String, Value>> {
-    let record = value.as_object().ok_or(Error::InvalidRecord)?;
-    if record.len() != fields.len() || fields.iter().any(|key| !record.contains_key(*key)) {
-        return Err(Error::InvalidRecord);
-    }
-    Ok(record)
-}
-
-fn string<'a>(record: &'a Map<String, Value>, key: &str) -> Result<&'a str> {
-    record[key].as_str().ok_or(Error::InvalidRecord)
-}
-
-fn number(record: &Map<String, Value>, key: &str) -> Result<usize> {
-    record[key]
-        .as_u64()
-        .and_then(|n| usize::try_from(n).ok())
-        .ok_or(Error::InvalidRecord)
-}
-
-fn array<'a>(record: &'a Map<String, Value>, key: &str, maximum: usize) -> Result<&'a [Value]> {
-    let values = record[key].as_array().ok_or(Error::InvalidRecord)?;
-    if values.len() > maximum {
-        return Err(Error::LimitExceeded);
-    }
-    Ok(values)
-}
-
-fn string_set(record: &Map<String, Value>, key: &str, maximum: usize) -> Result<BTreeSet<String>> {
-    let values = array(record, key, maximum)?;
-    let mut result = BTreeSet::new();
-    for value in values {
-        let value = value.as_str().ok_or(Error::InvalidRecord)?;
-        identifier(value)?;
-        if !result.insert(value.to_string()) {
-            return Err(Error::InvalidRecord);
-        }
-    }
-    Ok(result)
 }
 
 fn range(record: &Map<String, Value>, source: &Source) -> Result<ByteRange> {

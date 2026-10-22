@@ -1,0 +1,40 @@
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=adapters/privacy python3 -m unittest discover -s adapters/privacy/tests -p 'test_*.py' -v
+test_extra_importable_extension_bytecode_and_symlink_fail (test_adapter.Assets.test_extra_importable_extension_bytecode_and_symlink_fail) ... ok
+test_offline_assets_missing_changed_and_path_escape_fail (test_adapter.Assets.test_offline_assets_missing_changed_and_path_escape_fail) ... ok
+test_provisioning_preserves_another_transfers_partial_file (test_adapter.Assets.test_provisioning_preserves_another_transfers_partial_file) ... ok
+test_runtime_unknown_or_missing_version_never_imports_model (test_adapter.Assets.test_runtime_unknown_or_missing_version_never_imports_model) ... ok
+test_worker_rejects_extra_extension_before_first_package_import (test_adapter.Assets.test_worker_rejects_extra_extension_before_first_package_import) ... ok
+test_character_coordinates_preserve_unicode_and_overlap_categories (test_adapter.Contracts.test_character_coordinates_preserve_unicode_and_overlap_categories) ... ok
+test_duplicate_json_nonfinite_truncation_and_surrogates_reject (test_adapter.Contracts.test_duplicate_json_nonfinite_truncation_and_surrogates_reject) ... ok
+test_positive_findings_survive_explicit_limit_as_partial (test_adapter.Contracts.test_positive_findings_survive_explicit_limit_as_partial) ... ok
+test_response_has_only_permitted_correlated_metadata (test_adapter.Contracts.test_response_has_only_permitted_correlated_metadata) ... ok
+test_strict_source_identity_byte_bounds_and_versions (test_adapter.Contracts.test_strict_source_identity_byte_bounds_and_versions) ... ok
+test_decoder_length_failure_cannot_fall_back_to_argmax (test_adapter.CoverageGuards.test_decoder_length_failure_cannot_fall_back_to_argmax) ... ok
+test_missing_final_token_or_nonfinite_scores_cannot_be_complete (test_adapter.CoverageGuards.test_missing_final_token_or_nonfinite_scores_cannot_be_complete) ... ok
+test_model_checks_original_tokens_full_mask_and_exact_output (test_adapter.CoverageGuards.test_model_checks_original_tokens_full_mask_and_exact_output) ... ok
+test_asset_and_model_exception_text_never_leaves_response (test_adapter.FailureAndTransport.test_asset_and_model_exception_text_never_leaves_response) ... ok
+test_private_fd_roundtrip_and_oversized_prefix (test_adapter.FailureAndTransport.test_private_fd_roundtrip_and_oversized_prefix) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.173s
+
+OK
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests/privacy -p 'test_*.py' -v
+test_codepoint_offset_mistaken_for_byte_offset_fails (test_qualification.QualificationTests.test_codepoint_offset_mistaken_for_byte_offset_fails) ... ok
+test_complete_byte_correct_synthetic_result_passes (test_qualification.QualificationTests.test_complete_byte_correct_synthetic_result_passes) ... ok
+test_coverage_check_permits_surrounding_whitespace (test_qualification.QualificationTests.test_coverage_check_permits_surrounding_whitespace) ... ok
+test_different_detector_bundle_is_rejected (test_qualification.QualificationTests.test_different_detector_bundle_is_rejected) ... ok
+test_duplicate_keys_and_nonfinite_json_are_rejected (test_qualification.QualificationTests.test_duplicate_keys_and_nonfinite_json_are_rejected) ... ok
+test_failed_scan_or_missing_coverage_cannot_pass (test_qualification.QualificationTests.test_failed_scan_or_missing_coverage_cannot_pass) ... ok
+test_missing_entity_cannot_pass_with_equal_aggregate_count (test_qualification.QualificationTests.test_missing_entity_cannot_pass_with_equal_aggregate_count) ... ok
+test_outer_cli_deadline_is_bounded_without_model_assets (test_qualification.QualificationTests.test_outer_cli_deadline_is_bounded_without_model_assets) ... ok
+test_partial_progress_remains_running_until_every_case_passes (test_qualification.QualificationTests.test_partial_progress_remains_running_until_every_case_passes) ... ok
+test_policy_release_and_quality_claims_are_rejected (test_qualification.QualificationTests.test_policy_release_and_quality_claims_are_rejected) ... ok
+test_preflight_failure_replaces_a_stale_pass_receipt (test_qualification.QualificationTests.test_preflight_failure_replaces_a_stale_pass_receipt) ... ok
+test_source_leak_is_found_after_json_unescaping (test_qualification.QualificationTests.test_source_leak_is_found_after_json_unescaping) ... ok
+test_stderr_is_rejected (test_qualification.QualificationTests.test_stderr_is_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.066s
+
+OK

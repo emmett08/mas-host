@@ -34,6 +34,48 @@ fn complete(source: &Source) -> Assessment {
 }
 
 #[test]
+fn fixture_taxonomy_roundtrips_its_categories_and_rejects_neural_only_categories() {
+    let source = Source::text("source-taxonomy", "x", 100).unwrap();
+    let limits = Limits::default();
+    let range = ByteRange::new(&source, 0, 1).unwrap();
+    for category in [
+        Category::Person,
+        Category::Location,
+        Category::Organisation,
+        Category::EmailAddress,
+        Category::PhoneNumber,
+        Category::AccountIdentifier,
+        Category::Credential,
+        Category::SensitiveContext,
+    ] {
+        let assessment = Assessment::new(
+            &source,
+            Completion::Complete,
+            vec![Finding::new(range, category, "fixture/1").unwrap()],
+            vec![range],
+            BTreeSet::new(),
+            limits,
+        )
+        .unwrap();
+        assert!(Assessment::from_value(&assessment.metadata(), &source, limits).is_ok());
+    }
+    for category in [Category::PostalAddress, Category::Url, Category::Date] {
+        assert_eq!(
+            Assessment::new(
+                &source,
+                Completion::Complete,
+                vec![Finding::new(range, category, "fixture/1").unwrap()],
+                vec![range],
+                BTreeSet::new(),
+                limits,
+            )
+            .unwrap_err(),
+            Error::InvalidRecord
+        );
+    }
+}
+
+#[test]
 fn deterministic_full_range_still_has_unqualified_neural_coverage() {
     let source = Source::text("source-1", "A harmless synthetic fixture", 100).unwrap();
     let assessment = scan_synthetic(&source, Limits::default()).unwrap();

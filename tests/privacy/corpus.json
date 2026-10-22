@@ -1,0 +1,83 @@
+{
+  "version": "mas-privacy-synthetic-corpus/1",
+  "scope": "Synthetic examples with annotations fixed before running the custom adapter. These cases establish no population privacy quality, language/domain coverage or release authority.",
+  "offset_unit": "utf8-bytes",
+  "cases": [
+    {
+      "id": "english-name-email",
+      "text": "My name is Alice Smith and my email is alice.smith@example.com.",
+      "expected_entities": [
+        {
+          "label": "private_person",
+          "start": 11,
+          "end": 22
+        },
+        {
+          "label": "private_email",
+          "start": 39,
+          "end": 62
+        }
+      ],
+      "minimum_findings": 2,
+      "expect_no_findings": false
+    },
+    {
+      "id": "unicode-name-email",
+      "text": "🙂 Contact José Núñez at jose.nunez@example.com.",
+      "expected_entities": [
+        {
+          "label": "private_person",
+          "start": 13,
+          "end": 26
+        },
+        {
+          "label": "private_email",
+          "start": 30,
+          "end": 52
+        }
+      ],
+      "minimum_findings": 2,
+      "expect_no_findings": false
+    },
+    {
+      "id": "combining-email",
+      "text": "🧪 Contact Álvaro Silva at alvaro.silva@example.com.",
+      "expected_entities": [
+        {
+          "label": "private_email",
+          "start": 31,
+          "end": 55
+        }
+      ],
+      "minimum_findings": 1,
+      "expect_no_findings": false
+    },
+    {
+      "id": "final-token-email",
+      "text": "status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. status checked. Final contact: tail.marker@example.com",
+      "expected_entities": [
+        {
+          "label": "private_email",
+          "start": 1039,
+          "end": 1062
+        }
+      ],
+      "minimum_findings": 1,
+      "expect_no_findings": false
+    },
+    {
+      "id": "benign",
+      "text": "The worker completed three synthetic checks.",
+      "expected_entities": [],
+      "minimum_findings": 0,
+      "expect_no_findings": true
+    },
+    {
+      "id": "empty",
+      "text": "",
+      "expected_entities": [],
+      "minimum_findings": 0,
+      "expect_no_findings": true
+    }
+  ]
+}

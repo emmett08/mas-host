@@ -1,0 +1,244 @@
+{
+  "adapter": "mas-privacy-opf/1",
+  "adapter_files": {
+    "mas_privacy_opf/__init__.py": {
+      "bytes": 77,
+      "sha256": "f59182cc9aae7481926f7eee1fde6a18fef41d0cd0b344268de202aa9de5cb7a"
+    },
+    "mas_privacy_opf/bundle.py": {
+      "bytes": 7267,
+      "sha256": "429e2051d04cffeb79c743e9e9f1164fd20b3193e58e89d34e15afaa919001ae"
+    },
+    "mas_privacy_opf/contracts.py": {
+      "bytes": 4443,
+      "sha256": "711826b7990c4cb96acf5f356f8519b47d1c28d2a616ed041b88bb5f80b0a3f3"
+    },
+    "mas_privacy_opf/inference.py": {
+      "bytes": 5495,
+      "sha256": "6793e77fc131bd14d24f5420fbb6f0537c97f0128bd0ce9a2998aa6f379bc413"
+    },
+    "mas_privacy_opf/service.py": {
+      "bytes": 1495,
+      "sha256": "69214ff4ac1f0435654ec7b2142aec62266ddb21caf352590b3b1e30db799770"
+    },
+    "mas_privacy_opf/transport.py": {
+      "bytes": 845,
+      "sha256": "8ce3c825c3bcbf0a9771b6b8809ae71ed71093fe3da0c8a1d8389b8b90f90954"
+    },
+    "runtime.lock.json": {
+      "bytes": 10355,
+      "sha256": "3b6f4aad17cfdf30d7f8acb6b17408772a52b42a091925b451c2cd972851e99c"
+    },
+    "upstream-assets.lock.json": {
+      "bytes": 1527,
+      "sha256": "ca1765e628c249dabffe0c4b08c84b19cac2b0e1517a21dfc33b16e7cc3902a5"
+    },
+    "upstream-code.lock.json": {
+      "bytes": 4802,
+      "sha256": "e4bb86fe125603b2829b650db92b5943bae78adf69f47930e89c8476f3247bc3"
+    }
+  },
+  "backend": "opf-cpu-bfloat16/1",
+  "code_revision": "f7f00ca7fb869683eb732c010299d901457f19c3",
+  "files": {
+    "checkpoint/config.json": {
+      "bytes": 707,
+      "sha256": "048a20604a3622de208d30df57cd5424bb583639b9ba20ddd7da593d3f89a248"
+    },
+    "checkpoint/dtypes.json": {
+      "bytes": 4108,
+      "sha256": "e936acb3d039b35ec55438af2fffd424a53c7685b895775c186b26c7df79fcc7"
+    },
+    "checkpoint/model.safetensors": {
+      "bytes": 2798984088,
+      "sha256": "9c262cbe68a0c8a50590a648ef8341a2b7d3be1fa11dfb79893fe0b03ce57b5c"
+    },
+    "checkpoint/viterbi_calibration.json": {
+      "bytes": 372,
+      "sha256": "bbc8611ef08a55ed72d64856cbbbb9a91db8dfa881f0a92e2afbad6e4bbc775a"
+    },
+    "source/opf/__init__.py": {
+      "bytes": 1072,
+      "sha256": "f1058b7a2e3184a866707885638905546be4d226deb461b736b3fb2b90dce9a3"
+    },
+    "source/opf/__main__.py": {
+      "bytes": 7366,
+      "sha256": "4cf6f72ab0f3d854653a943913838ac47d6745058c74d5bba333dae0f2698364"
+    },
+    "source/opf/_api.py": {
+      "bytes": 16589,
+      "sha256": "145843b14d967ea287a6f0d40bea8eba2fcfbb9a0a0076ab436e36183e7be52f"
+    },
+    "source/opf/_cli/__init__.py": {
+      "bytes": 28,
+      "sha256": "b8f5982771df2acd1794000aa2e8f780665378c593a5676d59be8bc1044d422a"
+    },
+    "source/opf/_cli/args.py": {
+      "bytes": 3622,
+      "sha256": "190d8d86843e4d4a98141929220d67d442b847ea45b78c0fc0825689a28528c5"
+    },
+    "source/opf/_cli/common.py": {
+      "bytes": 3660,
+      "sha256": "39cad8057ce3cae439f93945318e09ae1bb771609f0c77ce8bbd1ae6f9b6c727"
+    },
+    "source/opf/_cli/render.py": {
+      "bytes": 4090,
+      "sha256": "2e2315af60f4ab44e39242e47e36c49cf4e73976891fcd8a17a07e72e61076f5"
+    },
+    "source/opf/_common/__init__.py": {
+      "bytes": 311,
+      "sha256": "92b9460bb521d8d23d1aae8f1fd462a9ff095fbf6dadcfe79d907d855b574c18"
+    },
+    "source/opf/_common/checkpoint_download.py": {
+      "bytes": 4345,
+      "sha256": "6791a0b40a87d19f59081a61bb45dbc9e469c1dbb775186b31b56b62f073205d"
+    },
+    "source/opf/_common/constants.py": {
+      "bytes": 858,
+      "sha256": "159692102facda9b54e5a58709f79ac90b53f9bd08e6aa2ce5ae283ff6ff06e5"
+    },
+    "source/opf/_common/env.py": {
+      "bytes": 413,
+      "sha256": "13eb9c9176cee0a2c64dba50e1bdb3e66a29b8f7c7358041fb852498a24263b9"
+    },
+    "source/opf/_common/label_space.py": {
+      "bytes": 13948,
+      "sha256": "623571c1936909def62a9c078d6b42658a2563b727b9211800a1df7249addeac"
+    },
+    "source/opf/_common/terminal_colors.py": {
+      "bytes": 1512,
+      "sha256": "9245718042734b0b7126defac81dc23368cd7dfce5b8365661c300cbcdff5074"
+    },
+    "source/opf/_core/__init__.py": {
+      "bytes": 201,
+      "sha256": "e9971043ee5bd492151741b15a50442fa467e22651898b369100863d81f28f30"
+    },
+    "source/opf/_core/decoding.py": {
+      "bytes": 19139,
+      "sha256": "785cc314e62b783bf673fdbed09475125f1975d8f0f5cd8a4ee340257e47c926"
+    },
+    "source/opf/_core/runtime.py": {
+      "bytes": 13176,
+      "sha256": "b3634f13963e551c259cb45a04b2f37e5552a27bc6e333ad8779ad24d3af4dcb"
+    },
+    "source/opf/_core/sequence_labeling.py": {
+      "bytes": 5820,
+      "sha256": "03075733c692c43c4a0a9c08fd03df89d64a4f27e4a93186af22b631ec671c0c"
+    },
+    "source/opf/_core/spans.py": {
+      "bytes": 9903,
+      "sha256": "4f245f345ceb6189ba609a5803b71b4b24c85544ea4dc3efb378d09c808172d6"
+    },
+    "source/opf/_eval/__init__.py": {
+      "bytes": 115,
+      "sha256": "84dd3b4e5ffa8aa5d36f4b5752de2aec5c035ad9b2431600ec9324448de095a9"
+    },
+    "source/opf/_eval/args.py": {
+      "bytes": 6690,
+      "sha256": "c6999f827a204199c17e73a8cd610f21d73e95a3a6d6c304fdeef6e20fba8fa1"
+    },
+    "source/opf/_eval/data.py": {
+      "bytes": 4450,
+      "sha256": "a80578a936af5722808df84fb5bfb9fd3757ac2164332c53a7b36098cb297886"
+    },
+    "source/opf/_eval/metrics.py": {
+      "bytes": 30847,
+      "sha256": "d323800bcd7032bc14e6b99c3b9b4db4a7a1a2abe21e91c5a0de49bcfc54b772"
+    },
+    "source/opf/_eval/preprocess.py": {
+      "bytes": 10906,
+      "sha256": "01e2acf84019bb9573637f8962d6aeac60fb89bb820554e202fd3ff6c6037e0a"
+    },
+    "source/opf/_eval/render.py": {
+      "bytes": 9985,
+      "sha256": "f791a945859f4242b9a21f937addcd01a0a59ae81ef009b633735c77a162ad9a"
+    },
+    "source/opf/_eval/runner.py": {
+      "bytes": 45822,
+      "sha256": "bc83347bd08c8e28de40bf68806a96aca376ae1e54620c1cbe5d440ebb387ad7"
+    },
+    "source/opf/_model/__init__.py": {
+      "bytes": 131,
+      "sha256": "dfa2c0beab0d20a2d2d353970dc39631541c973962434b4e9d90deee8219ccd9"
+    },
+    "source/opf/_model/model.py": {
+      "bytes": 38795,
+      "sha256": "defec4c5e398d948c0cbc09b9429c61f44d4520681250bbae89f0805477dea42"
+    },
+    "source/opf/_model/triton_moe.py": {
+      "bytes": 8511,
+      "sha256": "98fb7ae570e65c9ec20efe2867f9b9745daa22650466b0298fcd5cf10b0b0d56"
+    },
+    "source/opf/_model/weights.py": {
+      "bytes": 7367,
+      "sha256": "ee5097ecfbceaab3a44741f2e2381ebe3ba408a19cbd4376602547c35d3f93b5"
+    },
+    "source/opf/_train/__init__.py": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "source/opf/_train/args.py": {
+      "bytes": 5317,
+      "sha256": "1a0edc55160f1e1dabdce13189f2c22b36179a4cb3e2558e298a3355d74ed00e"
+    },
+    "source/opf/_train/runner.py": {
+      "bytes": 32565,
+      "sha256": "be68f8050c040fdc665140979db2c2c013ea0c211a8aa0843cf9cadea671de35"
+    },
+    "source/pyproject.toml": {
+      "bytes": 461,
+      "sha256": "c4bac98aa799adce29ba0032d45093108c2f277fdb74ba3d1f0d1244637d096d"
+    },
+    "tokenizer-cache/fb374d419588a4632f3f557e76b4b70aebbca790": {
+      "bytes": 3613922,
+      "sha256": "446a9538cb6c348e3516120d7c08b09f57c36495e2acfffe59a5bf8b0cfb1a2d"
+    }
+  },
+  "model_revision": "7ffa9a043d54d1be65afb281eddf0ffbe629385b",
+  "runtime": {
+    "packages": {
+      "anyio": "4.15.1",
+      "certifi": "2026.10.19",
+      "charset-normalizer": "3.5.2",
+      "click": "8.5.0",
+      "filelock": "4.2.4",
+      "fsspec": "2026.9.0",
+      "h11": "0.16.0",
+      "hf-xet": "1.7.0",
+      "httpcore2": "2.16.0",
+      "httpx2": "2.16.0",
+      "huggingface-hub": "2.2.0",
+      "idna": "3.20",
+      "jinja2": "3.1.6",
+      "markupsafe": "3.0.4",
+      "mpmath": "1.3.0",
+      "networkx": "3.7",
+      "numpy": "2.3.5",
+      "packaging": "26.3",
+      "pyyaml": "6.0.3",
+      "regex": "2026.9.29",
+      "requests": "2.34.2",
+      "safetensors": "0.8.0",
+      "setuptools": "84.2.1",
+      "sympy": "1.14.0",
+      "tiktoken": "0.14.0",
+      "torch": "2.14.1+cpu",
+      "tqdm": "4.70.1",
+      "truststore": "0.10.5",
+      "typing-extensions": "4.16.0",
+      "urllib3": "2.8.0"
+    },
+    "python": "3.12.14"
+  },
+  "settings": {
+    "context_tokens": 4096,
+    "decode_mode": "viterbi",
+    "encoding": "o200k_base",
+    "max_findings": 128,
+    "max_input_bytes": 16384,
+    "max_response_bytes": 65536,
+    "trim_whitespace": false
+  },
+  "version": "mas-privacy-bundle/1",
+  "worker_sha256": "d5e88e3f28e4177a8bfce462daa9fbb0ef70d2d575c80d24e777b84c80fb68c0"
+}

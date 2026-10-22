@@ -1,0 +1,206 @@
+{
+  "version": "mas-privacy-local-qualification/1",
+  "status": "PASS",
+  "scope": "synthetic-cli-conformance",
+  "population_quality_qualified": false,
+  "recorded_at": "2026-10-22T15:25:27.528620+00:00",
+  "expected_case_count": 6,
+  "completed_case_count": 6,
+  "cases": [
+    {
+      "id": "english-name-email",
+      "input_sha256": "f27afe336205309033675d5c98c896fc66332eb2375730405809401689eccf75",
+      "input_bytes": 63,
+      "status": "PASS",
+      "completion": "complete",
+      "disposition": "withhold",
+      "release_permitted": false,
+      "neural_finding_count": 2,
+      "combined_finding_count": 2,
+      "expected_entity_checks": [
+        {
+          "label": "private_person",
+          "start": 11,
+          "end": 22,
+          "covered": true
+        },
+        {
+          "label": "private_email",
+          "start": 39,
+          "end": 62,
+          "covered": true
+        }
+      ],
+      "findings": [
+        {
+          "end": 22,
+          "label": "private_person",
+          "start": 10
+        },
+        {
+          "end": 62,
+          "label": "private_email",
+          "start": 38
+        }
+      ],
+      "seconds": 15.8933
+    },
+    {
+      "id": "unicode-name-email",
+      "input_sha256": "63fc14852c16f762b189d45fc9aca9e6a74d97dc4ed21b597dea4938d678c5f0",
+      "input_bytes": 53,
+      "status": "PASS",
+      "completion": "complete",
+      "disposition": "withhold",
+      "release_permitted": false,
+      "neural_finding_count": 2,
+      "combined_finding_count": 2,
+      "expected_entity_checks": [
+        {
+          "label": "private_person",
+          "start": 13,
+          "end": 26,
+          "covered": true
+        },
+        {
+          "label": "private_email",
+          "start": 30,
+          "end": 52,
+          "covered": true
+        }
+      ],
+      "findings": [
+        {
+          "end": 26,
+          "label": "private_person",
+          "start": 12
+        },
+        {
+          "end": 52,
+          "label": "private_email",
+          "start": 29
+        }
+      ],
+      "seconds": 14.0044
+    },
+    {
+      "id": "combining-email",
+      "input_sha256": "fa34a481dc2f5c54028a89870c5047d61070eb49ee6a04ed6256a34ae9f5659e",
+      "input_bytes": 56,
+      "status": "PASS",
+      "completion": "complete",
+      "disposition": "withhold",
+      "release_permitted": false,
+      "neural_finding_count": 2,
+      "combined_finding_count": 2,
+      "expected_entity_checks": [
+        {
+          "label": "private_email",
+          "start": 31,
+          "end": 55,
+          "covered": true
+        }
+      ],
+      "findings": [
+        {
+          "end": 27,
+          "label": "private_person",
+          "start": 12
+        },
+        {
+          "end": 55,
+          "label": "private_email",
+          "start": 30
+        }
+      ],
+      "seconds": 12.6488
+    },
+    {
+      "id": "final-token-email",
+      "input_sha256": "a6aabb36ea703b81967c551701e2ceafb778b64c436c0f90f881a469aa9e0201",
+      "input_bytes": 1062,
+      "status": "PASS",
+      "completion": "complete",
+      "disposition": "withhold",
+      "release_permitted": false,
+      "neural_finding_count": 1,
+      "combined_finding_count": 1,
+      "expected_entity_checks": [
+        {
+          "label": "private_email",
+          "start": 1039,
+          "end": 1062,
+          "covered": true
+        }
+      ],
+      "findings": [
+        {
+          "end": 1062,
+          "label": "private_email",
+          "start": 1038
+        }
+      ],
+      "seconds": 44.5246
+    },
+    {
+      "id": "benign",
+      "input_sha256": "6cd6c6546a550de7b821a4c4625580326a0c2c2325f1f3eeb8ed0c5ae6fecb1c",
+      "input_bytes": 44,
+      "status": "PASS",
+      "completion": "complete",
+      "disposition": "hold",
+      "release_permitted": false,
+      "neural_finding_count": 0,
+      "combined_finding_count": 0,
+      "expected_entity_checks": [],
+      "findings": [],
+      "seconds": 9.3927
+    },
+    {
+      "id": "empty",
+      "input_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "input_bytes": 0,
+      "status": "PASS",
+      "completion": "complete",
+      "disposition": "hold",
+      "release_permitted": false,
+      "neural_finding_count": 0,
+      "combined_finding_count": 0,
+      "expected_entity_checks": [],
+      "findings": [],
+      "seconds": 8.6313
+    }
+  ],
+  "expected_case_ids": [
+    "english-name-email",
+    "unicode-name-email",
+    "combining-email",
+    "final-token-email",
+    "benign",
+    "empty"
+  ],
+  "bindings": {
+    "harness_sha256": "6fb66caf44ae578941569d2fdebad1d28f9e938fab698ccdd5f477fcca537c51",
+    "corpus_sha256": "d428153a2aa54aebb73b4a9f29daa9d34a21737678e38585e6d20173fd508d62",
+    "host_sha256": "d283320c13eca57651637f7f58679ba71d7418afab24c301082e1aeec4221af0",
+    "python_executable_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "worker_sha256": "d5e88e3f28e4177a8bfce462daa9fbb0ef70d2d575c80d24e777b84c80fb68c0",
+    "detector": {
+      "bundle_sha256": "832d463c76ab3417966a854cb8b67c8f7922ab9f3b4da05770c80374147cc4a5",
+      "code_revision": "f7f00ca7fb869683eb732c010299d901457f19c3",
+      "model_revision": "7ffa9a043d54d1be65afb281eddf0ffbe629385b",
+      "backend": "opf-cpu-bfloat16/1",
+      "adapter": "mas-privacy-opf/1"
+    }
+  },
+  "environment": {
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+    "harness_python": "3.12.14"
+  },
+  "limits": {
+    "worker_timeout_ms": 180000,
+    "cli_grace_seconds": 10,
+    "memory_mib": 12288
+  },
+  "max_child_rss_kib": 4269696
+}

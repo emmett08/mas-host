@@ -1,0 +1,281 @@
+{
+  "version": "mas-nehemiah-n1-validation/1",
+  "implementation_commit": "3902bd13b53bb0909975dcf418cf20a82afbb644",
+  "implementation_tree": "9147baf6eaf23f8a6dcbf76e16dd28d4fa52e298",
+  "parent_commit": "dcdd73971aecd8e3962f582937e721b04d6a1379",
+  "scope": "N1 trusted local detector, not protected runtime enforcement or model population qualification",
+  "source_files": {
+    "Cargo.lock": {
+      "sha256": "9993a31028d21f633aa74bc1f1586ad61af8706d4c5871ece2fe6e1a5fa46c5c",
+      "bytes": 20505
+    },
+    "Cargo.toml": {
+      "sha256": "b027adbe08580f9554dd5d3b191b70a135892d884775f07180146f311dc41de4",
+      "bytes": 1036
+    },
+    "Makefile": {
+      "sha256": "f63f8179d9a2ce00f3c8a8ac7f6a49aa2a67fd1ed1f9d16636e049f89f170917",
+      "bytes": 1385
+    },
+    "adapters/privacy/mas_privacy_opf/__init__.py": {
+      "sha256": "f59182cc9aae7481926f7eee1fde6a18fef41d0cd0b344268de202aa9de5cb7a",
+      "bytes": 77
+    },
+    "adapters/privacy/mas_privacy_opf/bundle.py": {
+      "sha256": "429e2051d04cffeb79c743e9e9f1164fd20b3193e58e89d34e15afaa919001ae",
+      "bytes": 7267
+    },
+    "adapters/privacy/mas_privacy_opf/contracts.py": {
+      "sha256": "711826b7990c4cb96acf5f356f8519b47d1c28d2a616ed041b88bb5f80b0a3f3",
+      "bytes": 4443
+    },
+    "adapters/privacy/mas_privacy_opf/inference.py": {
+      "sha256": "6793e77fc131bd14d24f5420fbb6f0537c97f0128bd0ce9a2998aa6f379bc413",
+      "bytes": 5495
+    },
+    "adapters/privacy/mas_privacy_opf/service.py": {
+      "sha256": "69214ff4ac1f0435654ec7b2142aec62266ddb21caf352590b3b1e30db799770",
+      "bytes": 1495
+    },
+    "adapters/privacy/mas_privacy_opf/transport.py": {
+      "sha256": "8ce3c825c3bcbf0a9771b6b8809ae71ed71093fe3da0c8a1d8389b8b90f90954",
+      "bytes": 845
+    },
+    "adapters/privacy/provision.py": {
+      "sha256": "c291b7585c3319cec21c767f07cb0803b50eb419835b94587636ad6f0bf10ed9",
+      "bytes": 4693
+    },
+    "adapters/privacy/runtime.lock.json": {
+      "sha256": "3b6f4aad17cfdf30d7f8acb6b17408772a52b42a091925b451c2cd972851e99c",
+      "bytes": 10355
+    },
+    "adapters/privacy/tests/test_adapter.py": {
+      "sha256": "042f82148efa98f90cfbf11ac3a5b299c12f8ec1e64cd5e5d182d0c743c2b66f",
+      "bytes": 11448
+    },
+    "adapters/privacy/upstream-assets.lock.json": {
+      "sha256": "ca1765e628c249dabffe0c4b08c84b19cac2b0e1517a21dfc33b16e7cc3902a5",
+      "bytes": 1527
+    },
+    "adapters/privacy/upstream-code.lock.json": {
+      "sha256": "e4bb86fe125603b2829b650db92b5943bae78adf69f47930e89c8476f3247bc3",
+      "bytes": 4802
+    },
+    "adapters/privacy/worker.py": {
+      "sha256": "d5e88e3f28e4177a8bfce462daa9fbb0ef70d2d575c80d24e777b84c80fb68c0",
+      "bytes": 2637
+    },
+    "crates/mas-host-cli/Cargo.toml": {
+      "sha256": "c01431979f9479ae4740e12dc6fc990c0d45588bd634c3fd8a9afc273999d959",
+      "bytes": 1105
+    },
+    "crates/mas-host-cli/src/main.rs": {
+      "sha256": "0104c4b3fd6207aac164aa054fe6383b4e46db5b4bd43bc9fce5caa2699fcbd0",
+      "bytes": 9983
+    },
+    "crates/mas-host-cli/src/privacy_inspect/config.rs": {
+      "sha256": "8421b8a96a11c47b5a77e1ff4609e2ba5ea08e537fa2f8a30771e1393107d342",
+      "bytes": 5357
+    },
+    "crates/mas-host-cli/src/privacy_inspect/mod.rs": {
+      "sha256": "8441bf38b7c440f00f1e6b281cdf4771fd5c31d34b077d603c73f10208e5bca7",
+      "bytes": 3058
+    },
+    "crates/mas-host-cli/src/privacy_inspect/runner.rs": {
+      "sha256": "e8524a23fb9fb93d3c65963bea2aacd5b242722208d39e27983875c1ade8e8a4",
+      "bytes": 2969
+    },
+    "crates/mas-host-cli/tests/privacy_inspect.rs": {
+      "sha256": "6a9b096f8504fb75828a78cc314a06b37c9022aeece4bc46b781c0e139cad9eb",
+      "bytes": 7305
+    },
+    "crates/mas-host-privacy/src/assessment.rs": {
+      "sha256": "a32806dc38816a075d6ebbe62720869580fe37c33119c447aa9d206cee2ba920",
+      "bytes": 11993
+    },
+    "crates/mas-host-privacy/src/combined.rs": {
+      "sha256": "58f0d3e0157cb97abf5e545c1c8dca688569de41093de60df5146be38df49cca",
+      "bytes": 3000
+    },
+    "crates/mas-host-privacy/src/handling.rs": {
+      "sha256": "3b5d713f4f34122a9c0e94b174af0a852e8b913fdd9771ad3619fb7d01fbe040",
+      "bytes": 3599
+    },
+    "crates/mas-host-privacy/src/lib.rs": {
+      "sha256": "9f1621c6b8b1544cbdc0d50247ab7e34fc2c9bb9c12ad3835efe74ff8e7b79d1",
+      "bytes": 1368
+    },
+    "crates/mas-host-privacy/src/neural.rs": {
+      "sha256": "0478b0a13b22dbb34a2a5cb9d84e826b47e0dd279e8e9e562b5decbfd343aaa2",
+      "bytes": 11380
+    },
+    "crates/mas-host-privacy/src/neural_pins.rs": {
+      "sha256": "19e1dc195b6979284f716ec104f194cc5327ae04c2974909873e78bdd277013f",
+      "bytes": 2816
+    },
+    "crates/mas-host-privacy/src/record.rs": {
+      "sha256": "8c92cb7cd6f8fe06d51f9567c490491dec666f9ab506a9f27d6b2d75a3dbe3b6",
+      "bytes": 1609
+    },
+    "crates/mas-host-privacy/src/spans.rs": {
+      "sha256": "90df662c159d32ee5b382260b4e5198dda275c44c80cb8d612e4bc413cb2cdb6",
+      "bytes": 2654
+    },
+    "crates/mas-host-privacy/tests/neural.rs": {
+      "sha256": "9879cfef0cfdcfd2c11f23df1c61eb1b6a9af2f664becd7068a9bf5e321aed64",
+      "bytes": 13559
+    },
+    "crates/mas-host-privacy/tests/neural_omissions.rs": {
+      "sha256": "3ea6ff635b84b26b697a13015c75159bf5c93a49ac240e67392c12471f377bfe",
+      "bytes": 1693
+    },
+    "crates/mas-host-worker/src/lib.rs": {
+      "sha256": "e11934a43e08ab8541c445a90d13e152463f7e0483f851118f3b8bdb60f110a4",
+      "bytes": 33374
+    },
+    "docs/nehemiah-implementation.md": {
+      "sha256": "ab54737bc6040ce9cac305eea8ea61435ba51c3288fef120ac9adfd34ab80eed",
+      "bytes": 5819
+    },
+    "docs/privacy-detector.md": {
+      "sha256": "70b8fc0db6415b4d86d750b3fc1445023c57b6f9a2a2c8f4fb2291488bb27538",
+      "bytes": 12994
+    },
+    "tests/privacy/README.md": {
+      "sha256": "25f774ec821f364e2630c40ec9eb2dea7152180f54d78d02774368cdabc50c24",
+      "bytes": 1901
+    },
+    "tests/privacy/corpus.json": {
+      "sha256": "d428153a2aa54aebb73b4a9f29daa9d34a21737678e38585e6d20173fd508d62",
+      "bytes": 3120
+    },
+    "tests/privacy/qualify.py": {
+      "sha256": "6fb66caf44ae578941569d2fdebad1d28f9e938fab698ccdd5f477fcca537c51",
+      "bytes": 11828
+    },
+    "tests/privacy/test_qualification.py": {
+      "sha256": "9e52f0827cb52c63a7e8444ed717218d9675964eeeffa1d0b40fcfe96a4ffc10",
+      "bytes": 6519
+    }
+  },
+  "evidence_files": {
+    "python-tests.log": {
+      "sha256": "6595130fc071d33a3c5a8fe26b95c68c536e8c9d3efb9d0964cd7c0fc065490c",
+      "bytes": 4584
+    },
+    "qualification.json": {
+      "sha256": "21904269a3e796c366ee454b6bfa87e5553f1513f02e83301845476229145cce",
+      "bytes": 5588
+    },
+    "rust-tests.log": {
+      "sha256": "59cb1a7bbf49f7282298b08c6ad8e4ae80699f65776ab4ca1fd76b76211fb549",
+      "bytes": 24407
+    },
+    "qualification.log": {
+      "sha256": "b0d05cd7326dd152a7a162f0947bf6ea794b51bf41baf4c3e3af4aa82310e455",
+      "bytes": 371
+    },
+    "sdk-regression.json": {
+      "sha256": "d792f5a91511e89962466a99fe226f2afbe0aac7aa453caf6a0f6c038c27e5b0",
+      "bytes": 3078
+    },
+    "bundle.json": {
+      "sha256": "832d463c76ab3417966a854cb8b67c8f7922ab9f3b4da05770c80374147cc4a5",
+      "bytes": 8469
+    },
+    "upstream-smoke.json": {
+      "sha256": "ff05aceba53ea5c41f468709caa00a01ac11d8668fc7155fb7b442c0c4c4defd",
+      "bytes": 1464
+    },
+    "acceptance.log": {
+      "sha256": "31fdfb1b057e55d46c765ca9cae7806d46ecb79b5fbf958d7b8f179a66a2f673",
+      "bytes": 480
+    },
+    "sdk-regression.log": {
+      "sha256": "f006a7657eea0c3706df9fa172cb1a96c5869a8da24f5833cc274d4e4a829e4d",
+      "bytes": 14055
+    },
+    "clippy.log": {
+      "sha256": "9edf97a251bc5610710f8938899f25b395660695a4da58b49a24a810434d8c25",
+      "bytes": 164
+    }
+  },
+  "checks": {
+    "rust_workspace": {
+      "passed": 211,
+      "failed": 0,
+      "ignored": 2
+    },
+    "native_acceptance": {
+      "passed": 1,
+      "preserved_child_steps": 7,
+      "protocol_calls": 1,
+      "unchanged_receipts": 1
+    },
+    "python_adapter": {
+      "passed": 15
+    },
+    "python_qualification_harness": {
+      "passed": 13
+    },
+    "python_sdk": {
+      "passed": 58
+    },
+    "workload_harness": {
+      "passed": 14
+    },
+    "node_provider": {
+      "passed": 5
+    },
+    "go_sdk_race": {
+      "passed": 7
+    },
+    "go_fixture_race": {
+      "passed": 1
+    },
+    "go_vet": "PASS",
+    "cpp_conformance": "PASS",
+    "rustfmt": "PASS",
+    "clippy_warnings_denied": "PASS",
+    "actual_local_neural_corpus": {
+      "passed": 6,
+      "failed": 0,
+      "population_quality_qualified": false
+    }
+  },
+  "environment": {
+    "rust": "1.99.0",
+    "go": "1.24.0",
+    "python": "3.12.14",
+    "GOFLAGS": "-buildvcs=false"
+  },
+  "review": {
+    "result": "no unresolved blocking findings for trusted local N1 contract",
+    "repairs_verified": [
+      "strict import inventories include native extensions",
+      "owned provisioning temporary files",
+      "qualification RUNNING checkpoints cannot assert PASS",
+      "preserved default worker memory limits"
+    ],
+    "assumptions": [
+      "immutable approved worker, assets and installed runtime",
+      "cooperative Linux workers preserve supervised process groups",
+      "Python network guard is not OS network isolation"
+    ]
+  },
+  "not_qualified": [
+    "deployment language/domain accuracy or residual disclosure risk",
+    "E2/E3 and N2 complete authenticated persistence/disclosure mediation",
+    "N3 durable cases and notification operations",
+    "E4/E5 deletion, restore and worker isolation",
+    "N4 consumer integration",
+    "N5 measured deployment and capacity"
+  ],
+  "notes": [
+    "Rust sources and tests were unchanged between workspace regression and the implementation tree; qualification harness was finalized and rerun separately.",
+    "Two Rust entries are ignored by the workspace command: native acceptance ran separately; the guardian entry is a subprocess harness.",
+    "GOFLAGS matches the original baseline environment workaround.",
+    "Unexpected temporary asset files in workspace staging were rejected; the same verified manifest passed in a clean staging directory.",
+    "The earlier complete model run is diagnostic only; the accepted receipt binds the corrected final harness."
+  ]
+}

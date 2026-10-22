@@ -38,8 +38,9 @@ versions fail. Its only implemented detector identity is
 covers person, location, organisation, email address, phone number, account
 identifier, credential and sensitive context. The implemented recognisers
 exercise only synthetic email and credential cases. They provide matching
-provenance without invented probabilities. A future neural adapter needs an
-explicit label mapping, score semantics and model/backend qualification.
+provenance without invented probabilities. N1 adds a separate neural record and
+combined taxonomy with an explicit label mapping and score semantics. The N0
+fixture record retains its original eight-category taxonomy.
 
 Ranges use half-open UTF-8 byte offsets. Every boundary must be valid for the
 original text. Complete coverage requires ordered ranges with no gaps, including
@@ -56,8 +57,8 @@ and incomplete inspection or unavailable policy to service operations. These are
 suggested routes for fixture decisions. The caller's trusted configuration owns
 recipient resolution and any eventual notification admission.
 
-The protected profile holds even a complete synthetic assessment because no
-neural adapter or protected host path is qualified. `PermitSynthetic` is available
+The protected profile holds even a complete synthetic assessment because neural
+quality and the protected host path remain unqualified. `PermitSynthetic` is available
 only for explicitly constructed complete synthetic fixtures with current policy
 and authority inputs. It supplies no dispatch or disclosure permission.
 
@@ -75,7 +76,9 @@ JSON field extraction is explicitly unsupported until original-byte mappings
 through unescaping are implemented. PDF, email and archive extraction are also
 unsupported. Input transport must be bounded before parsing into `serde_json::Value`.
 
-N1 model provisioning, neural inference and quality evaluation remain unimplemented.
+N1's pinned local neural adapter and synthetic qualification are implemented.
+See [the local detector guide](../../docs/privacy-detector.md) for provisioning,
+inspection, bounds and retained evidence. Population quality remains unqualified.
 N2 ingress/result persistence enforcement, protected storage, lineage, current
 policy integration, deletion and restart qualification remain unimplemented.
 N3 durable cases and notification operations remain unimplemented. This crate

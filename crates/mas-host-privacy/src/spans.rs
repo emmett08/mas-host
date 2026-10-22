@@ -1,7 +1,7 @@
 //! Validate and merge overlapping byte spans independently of detector implementations.
 
 use crate::source::identifier;
-use crate::{ByteRange, Error, Finding, Limits, Result, Source};
+use crate::{ByteRange, Completion, Error, Finding, Limits, Result, Source};
 
 /// Merge only overlapping ranges. Adjacent findings retain distinct byte spans.
 /// Categories and recogniser identities accumulate without taking a maximum score.
@@ -42,4 +42,43 @@ pub fn merge_findings(
         merged.push(finding);
     }
     Ok(merged)
+}
+
+pub(crate) fn validate_coverage(
+    source: &Source,
+    ranges: &[ByteRange],
+    completion: Completion,
+    has_omissions: bool,
+) -> Result<()> {
+    let mut end = 0;
+    for range in ranges {
+        ByteRange::new(source, range.start, range.end)?;
+        if range.start < end {
+            return Err(Error::InvalidRange);
+        }
+        if completion == Completion::Complete && range.start != end {
+            return Err(Error::IncompleteCoverage);
+        }
+        end = range.end;
+    }
+    if completion == Completion::Complete && (end != source.content().len() || has_omissions) {
+        return Err(Error::IncompleteCoverage);
+    }
+    Ok(())
+}
+
+pub(crate) fn covered(range: ByteRange, checks: &[ByteRange]) -> bool {
+    let mut cursor = range.start;
+    for check in checks {
+        if check.start > cursor {
+            break;
+        }
+        if check.end > cursor {
+            cursor = check.end;
+        }
+        if cursor >= range.end {
+            return true;
+        }
+    }
+    false
 }

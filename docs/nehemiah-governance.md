@@ -92,8 +92,10 @@ cargo run --locked -p mas-host-privacy --example synthetic
 The example uses synthetic text and a deterministic fixture detector. Its output
 contains safe classifications and handling dispositions. The neural detector
 remains unqualified, so the fixture cannot authorise protected unstructured
-disclosure. Model packaging, complete host persistence and retrieval mediation,
-durable privacy cases and notification delivery follow N1–N3 in the PII plan.
+disclosure. N1 local model packaging and supervised inspection are available in
+the [local detector guide](privacy-detector.md). Complete host persistence and
+retrieval mediation, durable privacy cases and notification delivery remain
+subsequent N2–N3 work in the PII plan.
 
 See [implementation status](nehemiah-implementation.md) for dependencies and the
 evidence boundary of this increment.

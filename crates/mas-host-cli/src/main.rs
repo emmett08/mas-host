@@ -2,6 +2,7 @@
 mod a2a;
 mod build;
 mod config;
+mod privacy_inspect;
 use serde_json::{json, Value};
 use std::{
     collections::BTreeMap,
@@ -15,6 +16,7 @@ const HELP: &str = "mas-host: native applications on the MAS protocol\n\n\
   inspect --state DIR --run ID\n\
   describe --bundle FILE\n\
   check-profile --profile FILE\n\
+  privacy-inspect --input FILE|- --python ABS --manifest FILE --assets DIR [--worker FILE] [--timeout-ms N] [--memory-mib N] [--include-details true|false]\n\
   serve-a2a --bundle FILE --state DIR --config FILE\n\
   observe --state DIR --run ID [--include-payloads true|false]\n\
   cancel  --state DIR --run ID\n\
@@ -56,6 +58,22 @@ fn sdk_root(args: &BTreeMap<String, String>) -> PathBuf {
 fn execute(args: &[String]) -> Result<Value, String> {
     let command = args.first().ok_or("missing command (try --help)")?;
     match command.as_str() {
+        "privacy-inspect" => {
+            let args = options(
+                &args[1..],
+                &[
+                    "--input",
+                    "--python",
+                    "--manifest",
+                    "--assets",
+                    "--worker",
+                    "--timeout-ms",
+                    "--memory-mib",
+                    "--include-details",
+                ],
+            )?;
+            privacy_inspect::execute(&args)
+        }
         "check-profile" => {
             let args = options(&args[1..], &["--profile"])?;
             mas_host_core::governance::check_profile(&config::read_json(Path::new(require(

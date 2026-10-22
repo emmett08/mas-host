@@ -68,8 +68,19 @@ pub fn decide(
     limits: Limits,
 ) -> Result<Decision> {
     assessment.validate(source, limits)?;
-    let credential = assessment
-        .findings()
+    Ok(decide_findings(
+        assessment.findings(),
+        assessment.completion(),
+        context,
+    ))
+}
+
+pub(crate) fn decide_findings(
+    findings: &[crate::Finding],
+    completion: Completion,
+    context: HandlingContext,
+) -> Decision {
+    let credential = findings
         .iter()
         .any(|finding| finding.categories.contains(&Category::Credential));
     let (disposition, reason, route) = if context.suspected_exposure {
@@ -86,7 +97,7 @@ pub fn decide(
             Reason::PolicyUnavailable,
             Some(NotificationRoute::ServiceOperations),
         )
-    } else if !assessment.findings().is_empty() && !context.findings_permitted {
+    } else if !findings.is_empty() && !context.findings_permitted {
         (
             Disposition::Withhold,
             Reason::ProhibitedFinding,
@@ -96,7 +107,7 @@ pub fn decide(
                 NotificationRoute::DataOwner
             }),
         )
-    } else if assessment.completion() != Completion::Complete {
+    } else if completion != Completion::Complete {
         (
             Disposition::Hold,
             Reason::IncompleteInspection,
@@ -115,10 +126,10 @@ pub fn decide(
             None,
         )
     };
-    Ok(Decision {
+    Decision {
         disposition,
         reason,
         route,
         execution: context.execution,
-    })
+    }
 }
