@@ -1,8 +1,9 @@
 # Governance contract preflight
 
-The host can now check a deployment's required capabilities before an operator
-attempts to configure it. The check is local, bounded and read-only. It opens no
-execution journal and contacts no provider.
+Use profile preflight to check whether the host implements the capabilities a deployment
+requires before attempting to configure it. The command performs a bounded local
+compatibility check using read-only inputs. Execution journals and providers remain
+outside this check.
 
 ```sh
 mas-host check-profile --profile profile.json
@@ -26,17 +27,18 @@ Success reports the required and implemented capabilities. `activation: "none"`
 means the command has only checked compatibility. Existing `run`, `build`, A2A,
 SDK and bundle contracts retain their trusted local execution behaviour.
 
-`managed-cluster` adds mandatory scope, ingress handling, disclosure, payload
-lifecycle and effect-output requirements. `shared-enterprise` also requires
-shared authority, fenced scheduling and shared quotas. These profiles currently
-fail preflight with the missing capabilities. Requirements supplied in the file
-cannot declare implementation support into existence. An isolation requirement
-also fails until its runtime boundary has been implemented and qualified.
+`managed-cluster` adds mandatory scope, ingress handling, disclosure, payload lifecycle
+and effect-output requirements. `shared-enterprise` also requires shared authority,
+fenced scheduling and shared quotas. These profiles currently fail preflight with the
+missing capabilities. The requirement file declares what the deployment needs. The
+host's implemented capability set determines whether that requirement is met. An
+isolation requirement also fails until its runtime boundary has been implemented and
+qualified.
 
-Unknown versions, fields, capability names, duplicate requirements and malformed
-values fail validation. The profile is a separate `mas-host-profile/1` contract.
-It grants no credentials or authority and is not an activation field in existing
-agent or bundle schemas.
+Unknown versions, fields, capability names, duplicate requirements and malformed values
+fail validation. The profile is a separate `mas-host-profile/1` contract. Execution
+still uses the existing agent and bundle schemas, with credentials and authority
+supplied through their own configured boundaries.
 
 ## Data-use contract
 
@@ -45,11 +47,11 @@ result contracts. Tenant, principal, actor, producer, destination and evidence
 identities remain separate types. A matching actor name in two tenants supplies
 no cross-tenant permission. Wildcard actor readership cannot widen these types.
 
-Disclosure checks preserve each allowed operation, purpose, destination and
-recipient relation as a whole. Combining separately permitted purposes and
-destinations would create additional permissions. Applicable source policies
-instead accumulate through conjunction. Unavailable current authority, revoked
-grants, missing obligations and unsupported records prevent a permit.
+Disclosure checks preserve the relation between an allowed operation, purpose,
+destination and recipient. A purpose allowed for one destination therefore cannot be
+combined with a different permitted destination to invent a wider grant. Applicable
+source policies instead accumulate through conjunction. Unavailable current authority,
+revoked grants, missing obligations and unsupported records prevent a permit.
 
 With `binding_complete: true`, held and permitted decisions retain the exact
 proposed operation, source/output binding references, recipient, scope and
@@ -58,12 +60,12 @@ decisions carry `authority: "none"` and zero admission expiry. The supplied scop
 and requested exposure sets remain separate when they disagree. These records
 contain governed metadata and require an authorised storage and disclosure path.
 
-The assembled decision has a 65,536-byte limit. If the reference closure exceeds
-that limit, the result is `hold` with `reason: "decision-binding-limit"` and
+The assembled decision has a 65,536-byte limit. If the reference closure exceeds that
+limit, the result is `hold` with `reason: "decision-binding-limit"` and
 `binding_complete: false`. It retains the bounded request identity and omits the
-exposure/policy arrays. This outcome cannot be interpreted as a complete empty
-exposure or used as a disclosure permit. `binding_complete` describes retained
-reference coverage; it authenticates none of the supplied facts.
+exposure/policy arrays. This outcome cannot be interpreted as a complete empty exposure
+or used as a disclosure permit. `binding_complete` describes retained reference
+coverage. Authenticating the supplied facts remains a separate integration obligation.
 
 These deterministic functions take authenticated scope and current authority
 from trusted integration code. The [governed local path](governed-local.md) now
@@ -72,11 +74,13 @@ checks and keyed original-content bindings. Complete N2 mediation remains pendin
 Existing workers and callbacks retain the trust boundary documented in
 [the architecture](architecture.md).
 
-The protected result view keeps task state, host settlement, external execution
-certainty, payload availability, evidence freshness and coverage, and application
-assessment separate. A known external completion can have a withheld or deleted
-payload. A completed host settlement can accompany an uncertain external result.
-Neither representation grants another execution attempt.
+Read the protected result view by the question each field answers. Task state describes
+orchestration, host settlement records the durable checkpoint, and external certainty
+records what is known about the action. Payload availability governs delivery. Evidence
+freshness and coverage bound the observations available to an application assessment. A
+known external completion can have a withheld or deleted payload. A completed host
+settlement can accompany an uncertain external result. Another execution attempt still
+requires its separate admission and recovery contract.
 
 ## Privacy fixtures
 
@@ -91,13 +95,10 @@ cargo run --locked -p mas-host-privacy --example synthetic
 ```
 
 The example uses synthetic text and a deterministic fixture detector. Its output
-contains safe classifications and handling dispositions. The neural detector
-remains unqualified, so the fixture cannot authorise protected unstructured
-disclosure. N1 local model packaging and supervised inspection are available in
-the [local detector guide](privacy-detector.md). Complete host persistence and
-retrieval mediation, durable privacy cases and notification delivery remain
-subsequent N2–N3 work in the PII plan. A closed structured subset is available
+contains safe classifications and handling dispositions. The neural detector remains
+unqualified, so the fixture cannot authorise protected unstructured disclosure. N1 local
+model packaging and supervised inspection are available in the [local detector
+guide](privacy-detector.md). The [implementation sequence](nehemiah-implementation.md)
+records the implemented N2–N3 slices and the remaining persistence, retrieval,
+case-lifecycle and notification requirements. A closed structured subset is available
 through [governed local execution](governed-local.md).
-
-See [implementation status](nehemiah-implementation.md) for dependencies and the
-evidence boundary of this increment.

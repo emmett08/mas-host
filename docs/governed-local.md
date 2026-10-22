@@ -1,22 +1,23 @@
 # Governed local structured execution
 
-`mas-host-a2a/2` adds authenticated, current data-use admission to the existing
-durable task service. It supports one bounded **trusted-local** path: an
-operator declares closed structured inputs, outputs and effect evidence, and
-the host projects those values before writing new payload records or delivering
-them. A prohibited result can be withheld while its known effect completion
-remains retained for replay.
+`mas-host-a2a/2` checks current data-use authority before retaining or delivering
+structured application values. The operator declares closed schemas for inputs, outputs
+and effect evidence. The host then projects each value to those schemas before writing
+new payload records. If a completed effect returns prohibited content, the host
+withholds the payload and retains completion for replay.
 
-This path implements part of E2/N2. It does not establish the whole N2 runtime,
-free-text PII release, managed or shared deployment, hostile-worker isolation or
-payload deletion. The existing [A2A wire profile](a2a.md) still applies. The
-version 2 configuration and retention rules below replace that document's
-version 1 inline authentication and complete-submission retention rules.
+This bounded **trusted-local** path implements part of E2/N2. Completing N2, releasing
+free text, enabling managed or shared deployment, isolating hostile workers and deleting
+payloads each require further implementation and qualification. The existing [A2A wire
+profile](a2a.md) still applies. The version 2 configuration and retention rules below
+replace that document's version 1 inline authentication and complete-submission
+retention rules. The opt-in [acquisition contract](governed-acquisition.md) extends
+these boundaries with local/2 source policies and inherited exposure.
 
 ## Operator-owned configuration
 
-The service consumes five separate authorities. Requests and worker output
-cannot supply or widen them.
+The operator supplies five separate authorities. Each constrains a different boundary,
+and all remain outside the request and worker-output contracts.
 
 | File | Contract and responsibility |
 |---|---|
@@ -26,13 +27,12 @@ cannot supply or widen them.
 | Current authority | `mas-governed-authority/1`, active grants and matching policy templates, with validity times in Unix milliseconds |
 | Commitment key | Exactly 32 private bytes in a regular file, with no group or other permission bits and no symlink |
 
-The configuration objects have closed fields and explicit versions. An
-authentication table has at most 128 records, with distinct token digests and
-distinct `(tenant, principal)` pairs. Bearers are 32–512 printable non-space ASCII
-bytes. Authentication identity fields use bounded ASCII identifiers.
-Authentication checks the SHA-256 token digest, then constructs a session from
-the record's identities.
-It does not trust tenant, purpose or grant fields from the submitted data.
+The configuration objects have closed fields and explicit versions. An authentication
+table has at most 128 records, with distinct token digests and distinct `(tenant,
+principal)` pairs. Bearers are 32–512 printable non-space ASCII bytes. Authentication
+identity fields use bounded ASCII identifiers. Authentication checks the SHA-256 token
+digest, then constructs a session from the record's identities. Tenant, purpose and
+grant identity come exclusively from that authenticated record.
 
 Each governed actor declares its worker destination, input/output schemas and
 up to 16 effect contracts. Each effect declares a format, destination,
@@ -249,12 +249,12 @@ even its discarded input field produces `request_identity_conflict`.
 
 ## Projection, identity and current authority
 
-The host commits the original submission with domain-separated HMAC-SHA-256
-before retaining its projected input. The commitment covers the original
-`SendMessage` parameters, including properties removed by projection. It is
-bound to the private key ID, tenant, principal, purpose and grant reference.
-Keyed commitments retain conflict detection without saving the original
-payload or an unkeyed digest vulnerable to simple value enumeration.
+The host commits the original submission with domain-separated HMAC-SHA-256 before
+retaining its projected input. The commitment covers the original `SendMessage`
+parameters, including properties removed by projection. It is bound to the private key
+ID, tenant, principal, purpose and grant reference. Keyed commitments preserve conflict
+detection while keeping the original payload out of retained identity records. Computing
+a candidate value's commitment requires the private key as well as the value.
 
 Task ownership and message identities use a separate commitment domain bound
 to tenant and principal. Changing a purpose or grant reference therefore
@@ -272,31 +272,28 @@ session also rereads the current grant and selected policies, requiring the
 original grant epoch, policy version and policy-template digest. Missing,
 expired, revoked or changed authority denies the boundary.
 
-Updating an operator file should use a complete replacement followed by an
-atomic rename. Removing a principal, replacing its token digest or narrowing
-its actor list invalidates existing leases. A newly authenticated replacement
-token for the same tenant/principal and unchanged policy can retrieve the same
-retained tasks. A changed grant epoch invalidates an old session, while a fresh
-session can preserve retained identity under the same policy. Policy or key
-changes require explicit migration rather than reinterpretation of old state.
-There is no migration command. Key bytes are bound into the service identity,
-so hot replacement fails current use and restarting with a different key
-rejects reuse of that service state.
+Updating an operator file should use a complete replacement followed by an atomic
+rename. An existing lease becomes invalid when the operator removes its principal,
+replaces its token digest or narrows its actor list. A newly authenticated replacement
+token for the same tenant/principal and unchanged policy can retrieve the same retained
+tasks. A changed grant epoch invalidates an old session, while a fresh session can
+preserve retained identity under the same policy. Policy or key changes require explicit
+migration rather than reinterpretation of old state. Migration support remains to be
+implemented. Key bytes are bound into the service identity, so hot replacement fails
+current use and restarting with a different key rejects reuse of that service state.
 
 `GetTask`, identical `SendMessage` replay and `CancelTask` require current
-authentication, task ownership, actor eligibility and the task's retained
-governance fingerprint. Both pending metadata and completed artifacts require
-current delivery admission. Authorisation failures use fixed errors such as
-`task_not_found` without disclosing whether another tenant's task exists.
-Polling recovery identifiers are disclosed only when current task observation
-and the recovery representation are admitted. Raw worker diagnostics are
-replaced with fixed governed errors.
+authentication, task ownership, actor eligibility and the task's retained governance
+fingerprint. Both pending metadata and completed artefacts require current delivery
+admission. Authorisation failures use fixed errors such as `task_not_found` without
+disclosing whether another tenant's task exists. Polling recovery identifiers are
+disclosed only when current task observation and the recovery representation are
+admitted. Raw worker diagnostics are replaced with fixed governed errors.
 
-Revocation is checked at each admission and delivery. It prevents later work
-or disclosure after that check observes the change. It does not terminate an
-already admitted callback, recall an already admitted transmission or prove
-that an external operation did not happen. Separate file reads are local
-snapshots, not a shared atomic revocation/admission transaction.
+Each admission and delivery checks revocation. Once a check observes the change, the
+host denies that boundary. Work or transmission already admitted may still complete and
+requires its original settlement record. Authority files are read as local snapshots, so
+an update can occur between the check and the later action.
 
 ## Completion, withholding and retention
 
@@ -321,30 +318,30 @@ known settlement separately:
 }
 ```
 
-The SDK consumes the host's completion acknowledgement. A repeated known
-completion returns its retained acknowledgement and does not dispatch another
-effect. Withholding the payload therefore does not convert a known completed
-action into permission to retry. `external_execution` records the trusted
-adapter's reported certainty, separately from host settlement and payload
+The SDK consumes the host's completion acknowledgement. A repeated known completion
+returns its retained acknowledgement and does not dispatch another effect. Withholding
+preserves the completed action's identity and replay rule. `external_execution` records
+the trusted adapter's reported certainty, separately from host settlement and payload
 availability. It may instead be `not-sent`, `refused` or `unknown`.
 
 An A2A restart marks unfinished submitted/working tasks `unknown` and does not
-redispatch them. The task's state is a service observation, not proof that its
-effect was absent. Cancellation records intent. Preserve original identities
-and reconcile uncertainty rather than creating another task to force a retry.
+redispatch them. The task state records what the service knows. Its effect may still
+have happened and must be reconciled under the original identity. Cancellation records
+intent. Preserve original identities and reconcile uncertainty rather than creating
+another task to force a retry.
 
-Permitted projections, evidence and safe receipts remain inline in local
-SQLite journals and protocol state. `inline-retention-approved` is a mandatory
-operator policy decision for this path. It provides no deletion, expiry
-purging, cryptographic erasure or retroactive cleaning of historical journals.
-Governed runs use a separate namespace. Ordinary `run`, `inspect`, `observe`,
-`resolve` and revision paths cannot open or bypass that namespace. Authenticated
-core API status and A2A retrieval are the supported observation paths.
+Permitted projections, evidence and safe receipts remain inline in local SQLite journals
+and protocol state. `inline-retention-approved` is a mandatory operator policy decision
+for this path. Deletion, expiry purging, cryptographic erasure and cleaning historical
+journals require a separate payload lifecycle implementation. Governed runs use a
+separate namespace. Ordinary `run`, `inspect`, `observe`, `resolve` and revision paths
+cannot open or bypass that namespace. Authenticated core API status and A2A retrieval
+are the supported observation paths.
 
 ## API, transport and execution limits
 
-All byte counts below measure UTF-8 bytes of the stated JSON representation,
-not Unicode characters, tokens or HTTP-compressed bytes. `max_bytes` is a
+All byte counts below measure UTF-8 bytes of the stated JSON representation. Apply each
+limit to that encoded representation before HTTP compression. `max_bytes` is a
 per-boundary data-use limit, distinct from the transport limits.
 
 | Boundary | Representation checked |
@@ -354,7 +351,7 @@ per-boundary data-use limit, distinct from the transport limits.
 | Available effect completion | Current policy checks the combined projected output, evidence and receipt, then the exact native acknowledgement frame must fit 65,536 bytes |
 | `GovernedSession::check_delivery` | Exact retained output JSON and current delivery policy |
 | `Engine::status()` | Complete core status JSON, checked against delivery rules for the represented actors |
-| A2A task retrieval | Output admission, then exact complete task/status/artifact JSON against delivery policy |
+| A2A task retrieval | Output admission, then exact complete task/status/artefact JSON against delivery policy |
 | HTTP envelope | Request body at most 65,536 bytes and serialised response at most 262,144 bytes |
 
 Core status and A2A task status are different representations. A policy that
@@ -378,28 +375,27 @@ Grant and policy timestamps use Unix milliseconds, while command
 
 ## Trust and verification limits
 
-The local operator, registered implementations, installed runtimes and state
-directory are trusted. The public listener accepts literal loopback addresses.
-Remote access requires an operator-controlled HTTPS proxy preserving bearer,
-version and extension headers. Browser `Origin` requests are rejected.
-Published schemas and descriptions remain explicit operator-approved public
-metadata, not worker-supplied authority.
+The local operator, registered implementations, installed runtimes and state directory
+are trusted. The public listener accepts literal loopback addresses. Remote access
+requires an operator-controlled HTTPS proxy preserving bearer, version and extension
+headers. Browser `Origin` requests are rejected. The operator explicitly approves
+published schemas and descriptions for public disclosure. Runtime authority still comes
+from the configured grants and policies.
 
-Command workers continue through the maintained command adapter. Their
-executable and declared retained `assets` are digest-checked before external
-command admission. [Capability packages](capabilities.md) add explicit approval,
-fixed argument and declared runtime/file bindings. The operator owns the
-completeness and immutability of that dependency closure. A native callback can
-perform direct filesystem or network operations with its process privileges.
-Only operations routed through `Context.effect` receive the host's effect
-admission and settlement contract. Process supervision and immutable byte
-bindings do not establish a hostile-code sandbox.
+Command workers continue through the maintained command adapter. Their executable and
+declared retained `assets` are digest-checked before external command admission.
+[Capability packages](capabilities.md) add explicit approval, fixed argument and
+declared runtime/file bindings. The operator owns the completeness and immutability of
+that dependency closure. A native callback can perform direct filesystem or network
+operations with its process privileges. Only operations routed through `Context.effect`
+receive the host's effect admission and settlement contract. Isolating hostile code
+requires controls beyond process supervision and immutable byte bindings.
 
-The standalone privacy detector and its unqualified neural assessment do not
-grant this path permission to release arbitrary text. Its release mechanism is
-the configured structured allowlist. `check-profile` continues to reject
-`managed-cluster`, `shared-enterprise`, mandatory worker isolation and the
-broader unimplemented governance capabilities. This local path does not change
+The configured structured allowlist determines what this path can release. The
+standalone detector supplies inspection evidence, with arbitrary-text release still
+requiring qualified neural assessments and complete host mediation. `check-profile`
+continues to reject `managed-cluster`, `shared-enterprise`, mandatory worker isolation
+and the broader unimplemented governance capabilities. This local path does not change
 those profile acceptance results.
 
 The focused regression suites exercise projection before persistence,
@@ -412,6 +408,7 @@ cargo test --locked -p mas-host-core governance::runtime
 cargo test --locked -p mas-host --test a2a_governed
 ```
 
-These synthetic checks support the stated local structured contract. Live
-provider quality, complete PII detection, shared scheduling, payload lifecycle
-and hostile-worker isolation require their own implementation and evidence.
+These synthetic checks support the exercised local structured contract. Extending the
+claim to live provider quality or complete PII handling requires separately identified
+evidence. Shared scheduling, payload lifecycle and hostile-worker isolation also require
+their own implementation.

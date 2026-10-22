@@ -1,6 +1,7 @@
 # C++ application SDK
 
-The initial Linux/C++17 profile exposes an application function:
+In the initial Linux/C++17 profile, bind an application function to an agent and let the
+host generate its worker:
 
 ```cpp
 #include "mas.hpp"
@@ -10,22 +11,22 @@ mas::Json Assess(mas::Context&, const mas::Json& input) {
 }
 ```
 
-An agent's `source` names the C++ source file and `handler` names `Assess`.
-`mas-host build` generates `main`, includes the source and SDK, and invokes the
-system `c++` compiler. Application code contains no launcher or transport code.
-This first build profile supports standard-library code, the SDK and application
-headers included from the source. Custom linker flags, external libraries,
-arbitrary build systems and automatic schema extraction are future profiles.
+An agent's `source` names the C++ source file and `handler` names `Assess`. `mas-host
+build` generates `main`, includes the source and SDK, and invokes the system `c++`
+compiler. The generated worker supplies the launcher and transport. This first build
+profile supports standard-library code, the SDK and application headers included from
+the source. Custom linker flags, external libraries, arbitrary build systems and
+automatic schema extraction are future profiles.
 
 `Context::request(key, target, input)` returns a durable child result.
-`Context::parallel({{key,target,input}, ...})` preserves request order. A context
-is non-copyable and serialises channel commands. Application threads must finish
-before their handler returns; they do not become durable workflow steps.
-`Context::effect(key, descriptor, callback)` supplies a stable admitted identity
-to the callback and expects `std::pair<mas::Json,mas::Json>{output,evidence}`.
+`Context::parallel({{key,target,input}, ...})` preserves request order. A context is
+non-copyable and serialises channel commands. Application threads must finish before
+their handler returns. Use named requests for work that needs durable replay
+checkpoints. `Context::effect(key, descriptor, callback)` supplies a stable admitted
+identity to the callback and expects `std::pair<mas::Json,mas::Json>{output,evidence}`.
 Cached effects skip the callback. Failure before acknowledged completion requires
-evidence-based resolution. The host owns admission, deadlines,
-durable state and recovery.
+evidence-based resolution. The host owns admission, deadlines, durable state and
+recovery.
 
 A governed completion returns the host's safe projection, matching cached
 replay. Withheld payloads return the reserved `mas-governed-unavailable/1` object
@@ -36,18 +37,19 @@ ordinary callback output. See the closed versioned acknowledgement, effect
 identity, external certainty and payload disposition in the
 [native contract](../../docs/native-contract.md#external-effects-and-recovery).
 
-`mas::Json` is the vendored nlohmann/json 3.12.0 type. Inputs, outputs,
-descriptors and evidence are objects. The SDK rejects duplicate keys (including
-escaped aliases), invalid Unicode, floats, excessive nesting and frames above
-65,536 bytes. **This C++ profile supports signed and unsigned 64-bit integers.**
-Larger JSON integers are rejected explicitly instead of rounded. Use decimal
-strings when the application needs larger integers, and scaled integers for
-money. This numeric subset is narrower than the MAS protocol's exact-integer
-domain and the Rust SDK; do not send larger numeric values to a C++ handler.
+`mas::Json` is the vendored nlohmann/json 3.12.0 type. Inputs, outputs, descriptors and
+evidence are objects. The SDK rejects duplicate keys (including escaped aliases),
+invalid Unicode, floats, excessive nesting and frames above 65,536 bytes. **This C++
+profile supports signed and unsigned 64-bit integers.** Larger JSON integers are
+rejected explicitly instead of rounded. Use decimal strings when the application needs
+larger integers, and scaled integers for money. This profile accepts a narrower numeric
+domain than the MAS protocol or Rust SDK. Check the 64-bit bound before sending a
+numeric value to a C++ handler.
 
-Application code is trusted, not sandboxed. The private channel, process lifetime
-and worker `main` are supplied by MAS. Ordinary code outside effect boundaries
-must be deterministic and free of external effects if it may be replayed.
+Application code runs with trusted local privileges. MAS supplies the private channel,
+process supervision and worker `main`. Hostile-code isolation requires additional
+deployment controls. Ordinary code outside effect boundaries must be deterministic and
+free of external effects if it may be replayed.
 
 Run SDK conformance tests from the repository root:
 

@@ -1,19 +1,19 @@
 # Animated host architecture
 
-The root README embeds a committed GIF so the animation plays within GitHub's
-repository view. The diagram also has a static [SVG](mas-host-architecture.svg)
-and [PNG](mas-host-architecture.png). Its first GIF frame contains the complete
-overview. The README's `picture` element selects the PNG for a reduced-motion
-preference. GitHub also provides [animated-image accessibility settings](https://docs.github.com/en/account-and-profile/how-tos/account-settings/managing-accessibility-settings).
+The root README embeds the GIF so readers can follow execution within GitHub's
+repository view. Its first frame gives the complete overview. Use the static
+[SVG](mas-host-architecture.svg) or [PNG](mas-host-architecture.png) to inspect the
+relationships at your own pace. The README's `picture` element selects the PNG for a
+reduced-motion preference. GitHub also provides [animated-image accessibility
+settings](https://docs.github.com/en/account-and-profile/how-tos/account-settings/managing-accessibility-settings).
 
-The diagram represents main commit
-`8b535be6d3de18b8288858fdf6ed79f67ce9155e`, which includes
-[PR #19](https://github.com/emmett08/mas-host/pull/19), plus
-[PR #20](https://github.com/emmett08/mas-host/pull/20) at source revision
-`4fd4b536e6589d631f6a475f4ddd68b0d30ffade`.
-Timing, coloured packets and the selected worker choreography are explanatory
-animation. Each worker box represents an implementation kind that an application
-can select. The effect sequence illustrates one provider operation.
+The diagram represents main commit `8b535be6d3de18b8288858fdf6ed79f67ce9155e`, which
+includes [PR #19](https://github.com/emmett08/mas-host/pull/19), plus [PR
+#20](https://github.com/emmett08/mas-host/pull/20) at source revision
+`4fd4b536e6589d631f6a475f4ddd68b0d30ffade`. Follow the coloured packets to see the order
+of operations. Their timing and the chosen worker sequence are illustrative. Each worker
+box represents a selectable implementation kind, and the effect sequence shows one
+provider operation.
 
 ## Follow the flow
 
@@ -68,11 +68,11 @@ can select. The effect sequence illustrates one provider operation.
     independent snapshots. Payload inclusion requires explicit opt-in. Governed
     namespaces retain their separate authorised read contract.
 
-The Linux outline shows process and storage ownership in the trusted-local
-profile. The guardian enforces the original deadline and cleans up the inherited
-process group. Application code runs with the operator's filesystem permissions.
-The diagram's read-only arrows carry observations and confer no execution
-permission. Effect reconciliation remains a separate operator action.
+The Linux outline shows process and storage ownership in the trusted-local profile. The
+guardian enforces the original deadline and cleans up the inherited process group.
+Application code runs with the operator's filesystem permissions. The read-only arrows
+carry observations under the relevant read authority. Executing work or reconciling an
+effect requires its separate admission or operator action.
 
 ## Contracts and source correspondence
 
@@ -112,14 +112,14 @@ python3 -m venv /tmp/mas-host-diagram-venv
 /tmp/mas-host-diagram-venv/bin/python docs/diagrams/render_architecture.py
 ```
 
-Use `--font-dir PATH` for another installation of the same font. Use
-`--output-dir PATH` to render a review copy, or `--contact-sheet PATH` for a
-compact visual review. Font versions can change rasterisation, so regenerate all
-three assets together and inspect them before committing. The host runtime and
-its build have no dependency on this documentation renderer.
+Use `--font-dir PATH` for another installation of the same font. Use `--output-dir PATH`
+to render a review copy, or `--contact-sheet PATH` for a compact visual review. Font
+versions can change rasterisation, so regenerate all three assets together and inspect
+them before committing. The renderer belongs to documentation tooling, with the host
+runtime and build remaining independently usable.
 
-The GIF loops through twelve stages, each with four seconds of motion and a
-two-second reading hold, with a complete overview at the start and end.
-A fixed palette and frame deltas limit its size. Asset review
-should check the README-sized rendering, arrow directions, captions, first
-frame, loop duration, static fallback and source correspondence.
+The GIF loops through twelve stages. Each stage gives four seconds of motion followed by
+a two-second reading hold, and the loop begins and ends with a complete overview. A
+fixed palette and frame deltas limit its size. Asset review should check the
+README-sized rendering, arrow directions, captions, first frame, loop duration, static
+fallback and source correspondence.

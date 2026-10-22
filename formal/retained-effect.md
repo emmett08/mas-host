@@ -1,8 +1,9 @@
 # Read-only retained-effect resolver model
 
-`retained-effect.pml` checks the first governed retained-effect resolver on top of
-the existing local journal. Run `python3 formal/verify.py --model retained-effect`
-for this model or the default command for every host model.
+`retained-effect.pml` checks whether the first governed resolver can read a retained
+effect consistently under current authority while leaving execution unchanged. It uses
+the existing local journal as its source system. Run `python3 formal/verify.py --model
+retained-effect` for this model or the default command for every host model.
 
 ## Supported question and abstraction
 
@@ -12,14 +13,14 @@ preserves the distinctions needed for that question: current permission,
 namespace, parent request, actor, logical effect key, whole returned view,
 retained host settlement, external execution certainty and payload availability.
 
-The source space comprises the existing SQLite namespace, request/effect rows,
-sealed completion row and current governed session. The abstract space uses exact
-identity classes, five effect-state classes, four external-certainty classes and
+The source space comprises the existing SQLite namespace, request/effect rows, sealed
+completion row and current governed session. The abstract space uses exact identity
+classes, five effect-state classes, four external-certainty classes and
 available/withheld/unavailable payload classes. Equality is required for retained
 identity and completion facts. Failed payload inspection conservatively reduces
-availability. It grants no execution permission. Exact JSON encoding, HMAC
-collision resistance, schema/byte validation and policy implementation remain
-separate implementation obligations.
+availability. Execution remains governed by the separate admission and recovery
+contract. Exact JSON encoding, HMAC collision resistance, schema/byte validation and
+policy implementation remain separate implementation obligations.
 
 The finite model pairs query and metadata admission in one fixed permission
 class. Independent byte-limit rejection of a whole metadata view after a smaller
@@ -34,16 +35,16 @@ states are absent, prepared, executing, completed and unknown. An authorised
 absence under a verified parent returns `not-recorded`. A missing or foreign
 parent and denied access produce the same unavailable failure class.
 
-Completed host settlement retains an independently represented external fact:
-unknown, completed, not-sent or refused. In particular, a completed host receipt
-with external certainty unknown is admitted. Withholding preserves both facts.
-The model does not infer that an executing effect was unsent and does not turn
-absence, uncertainty or payload unavailability into permission to dispatch.
+Completed host settlement retains an independently represented external fact: unknown,
+completed, not-sent or refused. In particular, a completed host receipt with external
+certainty unknown is admitted. Withholding preserves both facts. An executing effect
+remains uncertain. Absence and payload unavailability also leave execution authority
+unresolved, preserving the separate dispatch gate.
 
-The model covers a single resolver observation. A consumer combining several
-resolver calls has separate snapshots and requires its own disclosure and
-consistency contract. General evidence-lineage closure, shared subscribers,
-deletion/restore and notification reconciliation remain subsequent work.
+The model covers one resolver observation. A consumer combining several calls must
+account for their separate snapshots through its own disclosure and consistency
+contract. General evidence-lineage closure, shared subscribers, deletion/restore and
+notification reconciliation remain subsequent work.
 
 ## Transitions and source correspondence
 
@@ -76,7 +77,7 @@ explicit authority-race witness preserves that limitation.
 | Authorisation before lookup | `lookup` implies a successful fresh precheck | `read_governed_effect` query resolve/inspection gate before the read-only connection |
 | One coherent snapshot | Step and completion revisions agree | Read-only SQLite transaction containing namespace, parent, effect and completion reads |
 | Release before callbacks | Inspection requires a closed database connection | Transaction commit and connection drop before payload inspection and final resolve |
-| Exact identity | Effect lookup requires verified namespace, parent and actor; returned identities equal the request | Namespace/session fingerprint checks and parent request target before the keyed effect/receipt lookup |
+| Exact identity | Effect lookup requires verified namespace, parent and actor. Returned identities must match the request. | Namespace/session fingerprint checks and parent request target before the keyed effect/receipt lookup |
 | Actual envelope permission | Authorised view identity equals returned view identity | Whole `mas-governed-effect-view/1` resolve decision |
 | Current post-inspection rights | A successful final check observed current authority | Current session and final whole-view authorisation |
 | Conservative handling | Available output requires valid payload permission and complete exact-source clean inspection | Current effect schemas and `PrivacyInspector` assessment validation |
@@ -104,27 +105,30 @@ retains assertions, bounds and invalid-end-state checks. Commands have a
 30-second timeout, 512 MiB address-space limit and search depth 100,000.
 Full-state searches use no approximate hashing or fairness switches.
 
-Fifteen isolated mechanism mutations bypass namespace, parent, actor, key or
-whole-view binding; reuse stale pre-lookup or post-inspection authority; split
-the SQLite snapshot; invoke callbacks before releasing the database; introduce
-reader writes, recovery or dispatch; bypass inspection; erase completed
-settlement after withholding; or promote external certainty. Each must produce
-and replay its intended assertion failure. A stalled-inspector mutation must
-produce a replayed acceptance cycle.
+Fifteen isolated mutations challenge the mechanisms that support the read contract:
+
+- Binding mutations bypass namespace, parent, actor, key or whole-view checks.
+- Authority mutations reuse stale pre-lookup or post-inspection permission.
+- Snapshot mutations split the SQLite read or invoke callbacks before releasing the database.
+- Read-only mutations introduce journal writes, recovery or dispatch.
+- Handling mutations bypass inspection, erase completed settlement after withholding or promote external certainty.
+
+Each mutation must produce and replay its intended assertion failure. A
+stalled-inspector mutation must produce a replayed acceptance cycle.
 
 Ten inverted assertions witness available output, known completion with
-inspection-induced withholding, unknown effects, an authorised not-recorded
-effect, a live owner commit, an older coherent snapshot, revocation after result
-inspection, binding refusal, query-inspection refusal and the permitted final
-authority-check race. A witness counterexample establishes reachability in the
-positive model. It does not identify a defect in the implemented resolver.
+inspection-induced withholding, unknown effects, an authorised not-recorded effect, a
+live owner commit, an older coherent snapshot, revocation after result inspection,
+binding refusal, query-inspection refusal and the permitted final authority-check race.
+A witness counterexample establishes that the named path is reachable in the positive
+model. Defect-detection claims come from the separate mechanism mutations.
 
-The runner records exact model/runner hashes, versions, bounds, commands,
-search completion and replayed trails. It rejects source changes during checking.
-Results establish only the named properties of this finite control abstraction.
-The source mapping and controlled Rust/HTTP tests provide correspondence evidence
-without claiming a formal refinement proof of Rust, SQLite, the policy engine,
-cryptography or detector quality.
+The runner records exact model/runner hashes, versions, bounds, commands, search
+completion and replayed trails. It rejects source changes during checking. Results
+establish only the named properties of this finite control abstraction. The source
+mapping and controlled Rust/HTTP tests provide correspondence evidence. Refinement of
+Rust, SQLite or the policy engine requires separate proof. Cryptographic assumptions and
+detector quality require their own justification.
 
 Execution follows the official [SPIN verifier options](https://spinroot.com/spin/Man/Pan.html),
 [inline LTL semantics](https://spinroot.com/spin/Man/ltl.html) and

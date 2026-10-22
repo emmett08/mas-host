@@ -1,10 +1,10 @@
 # Governed structured acquisition
 
-The opt-in `mas-governed-local/2` contract associates a registered acquisition
-effect with source restrictions. The host retains the resulting structured
-projection in its existing execution journal and carries those restrictions
-through later requests, effects and delivery. This increment supplies a
-trusted-local prerequisite for E3 evidence use and later protected revision.
+Acquiring restricted evidence must constrain the work that follows it. The opt-in
+`mas-governed-local/2` contract binds a registered acquisition effect to its source
+policies. The existing execution journal retains the approved structured projection and
+carries those policies through later requests, effects and delivery. This trusted-local
+path supplies a prerequisite for E3 evidence use and protected revision.
 
 ## Operator-owned policy association
 
@@ -32,12 +32,12 @@ version 2 configuration:
 }
 ```
 
-This fragment shows the association fields. The complete configuration also
-requires the existing authority/key paths, location, destinations and closed
-input/output/evidence schemas. Each policy rule retains its correlated
-operation, actor, principal, recipient, purpose, destination and location tuple.
-Applicable rules accumulate by conjunction. Selecting an allowed purpose from
-one rule and a destination from another cannot create an additional permit.
+This fragment shows the association fields. The complete configuration also requires the
+existing authority/key paths, location, destinations and closed input/output/evidence
+schemas. Each policy rule retains its correlated operation, actor, principal, recipient,
+purpose, destination and location tuple. Every applicable rule must permit the same
+operation and disclosure tuple. Keeping the tuple intact prevents a purpose from one
+rule being combined with a different rule's destination to widen access.
 
 Version 1 retains its all-template policy semantics and closed configuration
 shape. Version 2 binds its explicit selections into the retained namespace
@@ -46,14 +46,14 @@ The existing host-binary and bundle identity checks continue to apply.
 
 ## Acquisition and exposure
 
-Acquisition admission checks the real effect descriptor against the baseline,
-inherited restrictions and registered source policies before returning execution
-permission. The host retains a pending acquisition obligation before granting
-that permission. Pending acquisition prevents admission of new outbound work.
-This covers a callback that tries to request a peer or action before reporting
-its acquired result. Interrupted acquisition preserves the pending obligation
-and its original expiry. Version 2 applies this pending rule to every effect,
-including effects with baseline-only source policies.
+Acquisition admission checks the real effect descriptor against the baseline, inherited
+restrictions and registered source policies before returning execution permission. The
+host retains a pending acquisition obligation before granting that permission. Pending
+acquisition prevents admission of new outbound work. A callback must therefore report
+its acquired result before requesting further peers or actions through the host.
+Interrupted acquisition preserves the pending obligation and its original expiry.
+Version 2 applies this pending rule to every effect, including effects with
+baseline-only source policies.
 
 Completion retains the original effect identity, a source association and the
 recipient's exposure in the existing journal transaction. The source points to
@@ -61,15 +61,15 @@ the approved retained projection. A private value removed during handling stays
 outside that projection. The source's acquisition time and expiry originate at
 admission, and its expiry is bounded by its grant, policies and ancestors.
 
-The source record's `coverage: complete` describes the retained closed structured
-projection and its resolved binding. Detector coverage and quality retain their
-separate receipts and qualification limits.
+Read `coverage: complete` as a statement about the retained closed projection and its
+resolved binding. Detector coverage and quality require their separate receipts and
+qualification.
 
-The host records admitted exposure before a worker receives a value. A child
-inherits its parent's complete source restrictions before input persistence and
-dispatch. A parallel command freezes the parent's exposure for its children;
-results admitted later constrain subsequent commands. Worker-supplied lineage
-cannot reduce this host-maintained history.
+The host records admitted exposure before a worker receives a value. A child inherits
+its parent's complete source restrictions before input persistence and dispatch. A
+parallel command freezes the parent's exposure for its children. Results admitted later
+constrain subsequent commands. Worker-supplied lineage cannot reduce this
+host-maintained history.
 
 The same restrictions govern argument values, target selection, associated
 metadata, returned results and retained delivery. Processing by a configured
@@ -82,18 +82,17 @@ Source associations and invocation exposure belong to `execution.sqlite`.
 Payloads remain in existing step records. The operator's current authority file
 continues to own grants and policy templates.
 
-Every use resolves and validates the complete ancestor closure, original
-bindings, policy references and expiry. Missing, conflicting or cyclic lineage
-prevents admission. An incomplete closure cannot represent an empty history.
-Policy associations can share a template across the sources to which it
-actually applies; every source still contributes its restrictions.
+Every use resolves and validates the complete ancestor closure, original bindings,
+policy references and expiry. Missing, conflicting or cyclic lineage prevents admission.
+Admission requires the complete history. A policy template can apply to several sources,
+with every source still contributing its own restrictions.
 
-The implementation admits at most 64 sources in one complete closure and keeps
-the existing 65,536-byte representation bounds. Either bound can prevent an
-operation; denial creates no separate persisted HOLD record. The 33-ancestor
-fixture checks the restriction on the last ancestor explicitly. This is bounded
-qualification for the tested representation.
-Larger closures and shared multi-principal readership require further work.
+The implementation admits at most 64 sources in one complete closure and keeps the
+existing 65,536-byte representation bounds. Either bound can prevent an operation.
+Denial leaves the existing admission result in force, without creating a separate
+persisted HOLD record. The 33-ancestor fixture checks the restriction on the last
+ancestor explicitly. This is bounded qualification for the tested representation. Larger
+closures and shared multi-principal readership require further work.
 
 ## Read the retained projection
 
@@ -114,21 +113,21 @@ their own retention and authority contracts.
 Existing task and effect readers apply the inherited restrictions for version 2
 namespaces. These readers are scoped to the owned task: they conjoin its current
 complete exposure with the selected source's ancestry. Reading an earlier effect
-therefore cannot bypass restrictions acquired later by that task. The source
-view's `lineage` still describes the selected source's own ancestry; task exposure
-is an additional admission constraint. Pending acquisition blocks these reads.
+therefore cannot bypass restrictions acquired later by that task. The source view's
+`lineage` describes the selected source's own ancestry. Current task exposure adds a
+separate admission constraint. Pending acquisition blocks these reads.
 
-Admission checks use the file-backed profile's authority and journal exposure
-snapshots. The host rechecks recipient exposure after callbacks; a concurrent
-change can still follow the final check before transmission. Authority or expiry
-can change in that interval too. Shared linearised admission requires the
-separately qualified shared authority path.
+Admission checks use the file-backed profile's authority and journal exposure snapshots.
+The host rechecks recipient exposure after callbacks. A concurrent change can still
+occur between the final check and transmission. Authority or expiry can change in that
+interval too. Shared linearised admission requires the separately qualified shared
+authority path.
 
-Pending acquisition can make a status read temporarily unavailable. A new
-version 2 `SendMessage` returns the submitted admission snapshot captured before
-worker launch. Subsequent status and replay responses use the current complete
-exposure. Repeating a status query observes the same task and grants no further
-execution permission.
+Pending acquisition can make a status read temporarily unavailable. A new version 2
+`SendMessage` returns the submitted admission snapshot captured before worker launch.
+Subsequent status and replay responses use the current complete exposure. Repeating a
+status query observes the same task. Further execution requires its separate admission
+and recovery contract.
 
 ## Verification and next work
 
@@ -148,11 +147,12 @@ corresponding exposure and admission transitions in Promela. Evidence is tied
 to the source revision that runs those checks under
 `evidence/nehemiah-governed-acquisition/`.
 
-The existing single-owner journal keeps execution ownership. This design extends
-its source associations rather than introducing another evidence authority.
-Leaving the per-value synthetic source model unchanged cannot represent the
-new source-specific restriction. A separate evidence service would introduce
-credential, consistency and migration obligations beyond this local increment.
+The existing single-owner journal keeps execution ownership. This design extends its
+source associations rather than introducing another evidence authority. Source-specific
+restrictions require history across invocations, which the earlier per-value synthetic
+source model leaves unrepresented. Extending the existing journal keeps that history
+under the current execution owner. A separate evidence service would add credential,
+consistency and migration obligations.
 
 The supported profile remains trusted-local and structured. Exact assessment
 custody, protected revision, dynamic credentials, shared subscribers, deletion
