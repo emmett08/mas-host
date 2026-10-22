@@ -1,0 +1,14 @@
+COMMAND ["cargo", "fmt", "--all", "--", "--check"]
+COMMAND ["cargo", "test", "--locked", "-p", "mas-host", "--test", "a2a"]
+   Compiling mas-host v0.1.0 (/workspace/scratch/1ad2c1661ab9/mas-host/crates/mas-host-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.73s
+     Running tests/a2a.rs (target/debug/deps/a2a-19b2b1a3091d8003)
+
+running 4 tests
+test descriptor_exposes_contracts_without_execution_configuration ... ok
+test blocking_unknown_outcome_preserves_task_identity_and_negotiated_extension ... ok
+test interrupted_task_becomes_unknown_and_retry_does_not_repeat_work ... ok
+test gateway_enforces_profile_owner_and_exact_retry_and_retains_completed_tasks ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.72s
+
