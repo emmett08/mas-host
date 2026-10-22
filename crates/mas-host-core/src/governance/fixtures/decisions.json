@@ -1,0 +1,62 @@
+{
+  "scope": {
+    "version": "mas-invocation-scope/1",
+    "tenant": "tenant-a", "principal": "engineer", "actor": "reviewer", "producer": "collector",
+    "grant_ref": "grant-1", "grant_epoch": 3, "purpose": "diagnosis", "policy_version": "policy-v1",
+    "permitted_operations": ["publish"], "evidence_refs": ["evidence-1"]
+  },
+  "authority": {
+    "version": "mas-current-authority/1", "status": "active", "tenant": "tenant-a", "principal": "engineer",
+    "grant_ref": "grant-1", "grant_epoch": 3, "policy_version": "policy-v1", "valid_from_ms": 100, "expires_at_ms": 1000
+  },
+  "request": {
+    "version": "mas-disclosure-request/1", "invocation_id": "run-1", "operation": "publish", "recipient": "operator",
+    "destination": "internal", "location": "uk", "input_binding_ref": "protected-input-1", "output_binding_ref": "protected-output-1",
+    "evidence_refs": ["evidence-1"], "fulfilled_obligations": ["bounded-retention"], "byte_count": 128,
+    "now_ms": 200, "expires_at_ms": 900
+  },
+  "evidence": [{
+    "version": "mas-governed-evidence/1", "id": "evidence-1", "payload_ref": "payload-1", "binding_ref": "protected-source-1",
+    "source_ref": "inventory-1", "acquisition_ref": "acquisition-1", "coverage": "complete", "classification": "internal",
+    "policy_refs": ["source-policy"], "parents": [], "transformation_ref": "structured-allowlist-v1",
+    "acquired_at_ms": 100, "expires_at_ms": 800
+  }],
+  "policies": [{
+    "version": "mas-data-use-policy/1", "id": "source-policy", "tenant": "tenant-a", "policy_version": "policy-v1",
+    "evidence_refs": ["evidence-1"], "valid_from_ms": 100, "expires_at_ms": 950,
+    "rules": [
+      {"operation":"publish", "principal":"engineer", "actor":"reviewer", "producer":"collector", "recipient":"operator", "purpose":"diagnosis", "destination":"internal", "location":"uk", "classifications":["internal"], "obligations":["bounded-retention"], "max_bytes":1024},
+      {"operation":"publish", "principal":"engineer", "actor":"reviewer", "producer":"collector", "recipient":"operator", "purpose":"audit", "destination":"regulator", "location":"uk", "classifications":["internal"], "obligations":["bounded-retention"], "max_bytes":1024}
+    ]
+  }],
+  "cases": [
+    {"name":"permitted-structured-evidence", "patches":[], "expected":"permitted-by-contract"},
+    {"name":"restricted-evidence", "patches":[{"path":"/evidence/0/classification", "value":"restricted"}], "expected":"policy-denied"},
+    {"name":"unchecked-text", "patches":[{"path":"/evidence/0/coverage", "value":"unchecked"}], "expected":"incomplete-evidence"},
+    {"name":"unavailable-policy", "patches":[{"path":"/authority", "value":{"version":"mas-current-authority/1", "status":"unavailable"}}], "expected":"policy-unavailable"},
+    {"name":"revoked-access", "patches":[{"path":"/authority", "value":{"version":"mas-current-authority/1", "status":"revoked"}}], "expected":"grant-revoked"},
+    {"name":"same-actor-other-tenant", "patches":[{"path":"/scope/tenant", "value":"tenant-b"}, {"path":"/authority/tenant", "value":"tenant-b"}], "expected":"policy-binding-mismatch"},
+    {"name":"correlated-diagnosis-regulator-denied", "patches":[{"path":"/request/destination", "value":"regulator"}], "expected":"policy-denied"},
+    {"name":"correlated-audit-regulator-permitted", "patches":[{"path":"/scope/purpose", "value":"audit"}, {"path":"/request/destination", "value":"regulator"}], "expected":"permitted-by-contract"},
+    {"name":"old-grant-epoch", "patches":[{"path":"/authority/grant_epoch", "value":4}], "expected":"authority-mismatch"},
+    {"name":"grant-expiry-boundary", "patches":[{"path":"/request/now_ms", "value":1000}], "expected":"expired-authority"},
+    {"name":"evidence-expiry-boundary", "patches":[{"path":"/request/now_ms", "value":800}], "expected":"expired-evidence"},
+    {"name":"unfulfilled-retention", "patches":[{"path":"/request/fulfilled_obligations", "value":[]}], "expected":"obligations-unfulfilled"},
+    {"name":"worker-omits-exposure", "patches":[{"path":"/request/evidence_refs", "value":[]}], "expected":"scope-mismatch"},
+    {"name":"missing-source-policy", "patches":[{"path":"/evidence/0/policy_refs", "value":[]}], "expected":"missing-inherited-policy"},
+    {"name":"missing-ancestor", "patches":[{"path":"/evidence/0/parents", "value":["missing-parent"]}], "expected":"missing-inherited-policy"},
+    {"name":"unknown-ancestry-payload", "patches":[{"path":"/evidence/0/coverage", "value":"partial"}], "expected":"incomplete-evidence"},
+    {"name":"over-byte-admission", "patches":[{"path":"/request/byte_count", "value":1025}], "expected":"policy-denied"}
+  ],
+  "result": {
+    "version":"mas-protected-result/1", "invocation_id":"run-1", "task_state":"completed", "host_settlement":"completed",
+    "external_execution":"completed", "payload":{"disposition":"withheld"},
+    "evidence":{"coverage":"partial", "freshness":"unknown"}, "application_assessment":"not-run",
+    "cso":{"native":"NOT_RUN", "eal_correspondence":"confirmed", "publication":"unpublished", "authority":"denied"}
+  },
+  "result_cases": [
+    {"name":"known-completion-withheld-output", "patches":[]},
+    {"name":"unknown-effect-outcome", "patches":[{"path":"/external_execution", "value":"unknown"}, {"path":"/task_state", "value":"unknown"}]},
+    {"name":"deleted-payload-preserves-completion", "patches":[{"path":"/payload/disposition", "value":"deleted"}]}
+  ]
+}

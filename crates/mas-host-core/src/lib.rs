@@ -25,6 +25,7 @@ use std::{
 
 mod effects;
 mod execution;
+pub mod governance;
 mod journal;
 mod observation;
 mod protocol;

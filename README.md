@@ -12,6 +12,11 @@ effect admission, inspection and evidence-based recovery. It consumes a pinned
 revision of [`emmett08/mas`](https://github.com/emmett08/mas) through its public
 Rust crate; neither the protocol repository nor existing demos need changes.
 
+The [Nehemiah implementation sequence](docs/nehemiah-implementation.md) starts
+the scaling, governed-data and PII plans with workload baselines, strict
+[profile preflight](docs/nehemiah-governance.md) and synthetic privacy fixtures.
+Managed and shared profiles report their missing enforcement capabilities.
+
 [`mas-agents/3`](docs/llm-workflows.md) configures maintained OpenAI Responses,
 OpenAI-compatible, Cursor SDK, command and explicit mock providers. Workflow
 agents recursively compose sequences, parallel groups, branches, bounded loops,

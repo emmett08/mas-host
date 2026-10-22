@@ -1,10 +1,13 @@
 SHELL := /bin/bash
 .SHELLFLAGS := -euo pipefail -c
 
-.PHONY: build check test acceptance provider-test python-test
+.PHONY: build check test acceptance provider-test python-test workload-test
 
 python-test:
 	PYTHONPATH=sdk/python python3 -m unittest discover -s sdk/python/tests -v
+
+workload-test:
+	python3 -m unittest discover -s tests/performance -p 'test_*.py' -v
 
 provider-test:
 	node --test assets/providers/cursor.test.mjs
@@ -27,6 +30,7 @@ test: check
 	c++ -std=c++17 -Wall -Wextra -Werror -pthread -Isdk/cpp/include sdk/cpp/tests/conformance.cpp -o target/cpp-conformance
 	target/cpp-conformance
 	$(MAKE) python-test
+	$(MAKE) workload-test
 
 acceptance:
 	cargo test --locked -p mas-host --test acceptance -- --ignored --nocapture

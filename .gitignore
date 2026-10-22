@@ -4,5 +4,7 @@
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
+__pycache__/
+*.pyc
 
 .DS_Store

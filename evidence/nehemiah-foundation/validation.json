@@ -1,0 +1,104 @@
+{
+  "version": "mas-host-foundation-validation/1",
+  "date": "2026-10-22",
+  "base_revision": "6508042ea86d26bb35106d919a8699d5f1a2e782",
+  "workspace_regression_tree": "d3b9ffddec7a2b54e0583c3dc94ffae4d9c893b3",
+  "final_implementation_tree": "c08cfa7d50c01aab9247afe7165cb7b56a2d1755",
+  "final_tree_scope": "Implementation index before evidence files. Remove evidence/nehemiah-foundation from this commit to reproduce.",
+  "source_change_after_workspace_regression": "Behaviour-preserving extraction of generic overlap merger from scanner.rs into spans.rs. Public API unchanged. Final privacy tests, workspace formatting and workspace Clippy rerun.",
+  "status": "FOUNDATION_VALIDATED",
+  "package_scope": {
+    "P0": "PARTIAL: provisional manifest, generator and native/observer smoke",
+    "E0": "versioned bounded contract/profile/fixture slice",
+    "N0": "PARTIAL: exact-byte synthetic contract fixtures; deployment-specific quality thresholds pending"
+  },
+  "checks": {
+    "make_test": {
+      "status": "PASS",
+      "rust_passed": 187,
+      "rust_failed": 0,
+      "rust_ignored": 2,
+      "python_sdk_passed": 58,
+      "workload_tests_passed": 14,
+      "go_vet_and_race": "PASS",
+      "cpp_conformance": "PASS",
+      "rustfmt": "PASS",
+      "clippy_warnings_denied": "PASS"
+    },
+    "make_acceptance": {
+      "status": "PASS",
+      "passed": 1,
+      "preserved_completed_child_steps": 7,
+      "preserved_protocol_calls": 1,
+      "unchanged_effect_receipts": 1
+    },
+    "final_privacy_tests": {
+      "status": "PASS",
+      "passed": 19
+    },
+    "final_workspace_rustfmt_and_clippy": {
+      "status": "PASS"
+    },
+    "synthetic_example": {
+      "status": "PASS",
+      "clean_unqualified_inspection": "HOLD",
+      "prohibited_credential_finding": "WITHHOLD",
+      "invalid_utf8_span": "REJECT"
+    },
+    "actual_host_smoke": {
+      "status": "SMOKE_ONLY",
+      "offered": 3,
+      "admitted": 3,
+      "completed": 3,
+      "successful_observations": 9
+    },
+    "independent_review": {
+      "status": "PASS_WITHIN_FOUNDATION_SCOPE",
+      "fixed": [
+        "source replacement after assessment serialisation",
+        "noncanonical overlap and recogniser validation",
+        "identity domain separation",
+        "explicit zero and unknown workload counts",
+        "missing git inventory provenance"
+      ]
+    }
+  },
+  "environment": {
+    "rust": "1.99.0",
+    "go": "1.24.0",
+    "python": "3.12.14",
+    "cpp": "GCC 13.3.0",
+    "GOFLAGS": "-buildvcs=false"
+  },
+  "baseline": {
+    "revision": "6508042ea86d26bb35106d919a8699d5f1a2e782",
+    "rust_passed": 159,
+    "rust_ignored": 2,
+    "native_acceptance": "PASS",
+    "initial_acceptance_environment_issue": "Go VCS discovery selected /workspace. Both baseline and candidate pass with GOFLAGS=-buildvcs=false."
+  },
+  "ignored_tests": {
+    "native_acceptance": "Executed separately by make acceptance",
+    "guardian_entry": "Subprocess harness entrypoint invoked by supervisor cleanup test"
+  },
+  "not_run_or_unimplemented": [
+    "Full V/L/S/A/A+/E/E+ capacity qualification",
+    "Reference hardware/cost freeze and assignment mapping",
+    "PostgreSQL query/admission contention",
+    "N1 neural model adapter and quality qualification",
+    "E2/N2 authenticated runtime mediation and durable source binding",
+    "E3/E4 governed payload lifecycle and restore",
+    "N3 durable privacy cases and notifications",
+    "Shared execution/fencing/quota deployment qualification"
+  ],
+  "preserved_boundaries": [
+    "Existing handler/configuration/bundle schemas",
+    "Protocol source pin",
+    "Single-owner trusted local runtime",
+    "No deployment, production notification, external provider call or workflow dispatch"
+  ],
+  "architecture": {
+    "private_algorithm_responsibilities": "EXTRACTED: governance policy/profile/result modules; source/assessment/scanner/span/handling privacy modules. Existing CLI execute retains command selection only.",
+    "deferred_debt": "Runtime mediation and authority lookup remain explicitly unsupported; no duplicate journal, scheduler or notification authority introduced."
+  }
+}
