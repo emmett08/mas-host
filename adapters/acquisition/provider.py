@@ -10,6 +10,7 @@ from __future__ import annotations
 from datetime import timezone
 from email.utils import parsedate_to_datetime
 import hashlib
+import hmac
 import json
 import re
 
@@ -92,7 +93,8 @@ def _retry_after(value: str, now_ms: int) -> int:
 
 def observe(provider: str, quota_scope: str, operation: str, *, now_ms: int,
             http_status: int | None = None, headers: list | tuple = (),
-            transport: str = "response", watch_cursor: str | None = None) -> dict:
+            transport: str = "response", watch_cursor: str | None = None,
+            cursor_identity_key: bytes | None = None) -> dict:
     """Project one response or established transport failure into safe metadata.
 
     `not-dispatched` requires evidence that request transmission never began.
@@ -107,8 +109,12 @@ def observe(provider: str, quota_scope: str, operation: str, *, now_ms: int,
     quota_scope = _scope(quota_scope)
     _require(watch_cursor is None or (type(watch_cursor) is str and 0 < len(watch_cursor) <= 512))
     _require(watch_cursor is None or operation in {"list", "watch"})
+    _require(watch_cursor is None or (type(cursor_identity_key) is bytes
+             and 32 <= len(cursor_identity_key) <= 64))
     try:
-        cursor_digest = hashlib.sha256(watch_cursor.encode()).hexdigest() if watch_cursor is not None else None
+        cursor_digest = hmac.new(cursor_identity_key,
+            b"mas-provider-cursor-identity/1\x00" + watch_cursor.encode(),
+            hashlib.sha256).hexdigest() if watch_cursor is not None else None
     except UnicodeError:
         raise ValueError("provider-contract-rejected") from None
     _require(http_status is None or (type(http_status) is int and 100 <= http_status <= 599))
@@ -153,6 +159,10 @@ def observe(provider: str, quota_scope: str, operation: str, *, now_ms: int,
             else:
                 retry = max(now_ms, retry or now_ms, reset)
                 hint_state = "valid"
+        elif provider == "github":
+            # Preserve the raw Retry-After separately, while the retained lower
+            # bound also includes the secondary-limit minimum waiting period.
+            retry = max(now_ms + 60000, retry or now_ms)
     elif provider == "kubernetes" and http_status == 410 and operation in {"list", "watch"}:
         response = "expired-history"
         relist = True

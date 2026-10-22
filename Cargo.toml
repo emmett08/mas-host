@@ -10,7 +10,7 @@ license = "GPL-3.0-only"
 repository = "https://github.com/emmett08/mas-host"
 
 [workspace.dependencies]
-mas-protocol-codec = { git = "https://github.com/emmett08/mas", rev = "3620aa2c848a7808e5c52ad3b6f09213ff7aaa95" }
+mas-protocol-codec = { git = "https://github.com/emmett08/mas", rev = "e1257fb7125cdc971d94e38221c5185818bb577d" }
 serde_json = { version = "=1.0.152", features = ["arbitrary_precision"] }
 rusqlite = { version = "=0.40.2", features = ["bundled"] }
 sha2 = "=0.11.0"

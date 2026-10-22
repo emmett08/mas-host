@@ -113,13 +113,16 @@ class ContractTests(unittest.TestCase):
         self.assertTrue(expired["reconciliation_required"])
 
     def test_gone_watch_records_lost_interval_and_requires_new_snapshot(self):
-        value = self.observation("kubernetes", "watch", status=410, watch_cursor="private-resource-version")
+        value = self.observation("kubernetes", "watch", status=410, watch_cursor="private-resource-version",
+                                 cursor_identity_key=b"synthetic-cursor-identity-key-0123456789")
         result = self.decision(value)
         self.assertEqual(result["action"], "relist")
         self.assertTrue(result["coverage_gap"])
         self.assertFalse(result["new_snapshot_repairs_history"])
         self.assertTrue(result["requires_fresh_admission"])
         self.assertNotIn("private-resource-version", json.dumps(value))
+        with self.assertRaises(ValueError):
+            self.observation("kubernetes", "watch", status=410, watch_cursor="private-resource-version")
         ordinary = self.observation("kubernetes", "read", status=410)
         self.assertEqual(self.decision(ordinary)["action"], "refused")
 

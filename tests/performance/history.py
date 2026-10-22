@@ -5,7 +5,7 @@ from __future__ import annotations
 import collections
 
 
-def check_history(offered: list[dict], records: list[dict], source: list[dict]) -> dict:
+def check_history(offered: list[dict], records: list[dict], source: list[dict], *, status_capture=None) -> dict:
     """Keep source execution truth separate from retained host settlement.
 
     The fixture emits source events before returning its effect result. A source
@@ -87,7 +87,30 @@ def check_history(offered: list[dict], records: list[dict], source: list[dict]) 
             errors.append(f"replay_redispatched:{request}")
         if mode == "lost-completion" and result.get("replay_source_unchanged") is not True:
             gaps.append(f"replay_source_check_unavailable:{request}")
+    captured = None
+    if status_capture is not None:
+        # This adapter's committed service snapshots are supplementary evidence.
+        # They never substitute for the independent source ledger above.
+        import importlib.util
+        from pathlib import Path
+        import sys
+        path = Path(__file__).resolve().parents[2] / "adapters/observations/capture.py"
+        spec = importlib.util.spec_from_file_location("mas_status_capture", path)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = module
+        spec.loader.exec_module(module)
+        try:
+            captured = module.check_capture(status_capture)
+        except (ValueError, TypeError, KeyError):
+            captured = {"status": "INCONCLUSIVE", "errors": [],
+                        "coverage_gaps": ["invalid-status-capture"]}
+        errors.extend("capture:" + item for item in captured["errors"])
+        # A complete independent source ledger can establish source invariants;
+        # a gap in the selected diagnostic window still remains explicit.
+        gaps.extend("capture:" + item for item in captured["coverage_gaps"]
+                    if item != "independent-source-history-unavailable")
     return {"status": "FAIL" if errors else "INCONCLUSIVE" if gaps else "PASS",
             "errors": errors, "coverage_gaps": gaps,
             "offered_identities": len(ids), "result_identities": len(results),
-            "source_completed_with_host_unsettled": uncertain_completed}
+            "source_completed_with_host_unsettled": uncertain_completed,
+            **({"status_capture": captured} if captured is not None else {})}

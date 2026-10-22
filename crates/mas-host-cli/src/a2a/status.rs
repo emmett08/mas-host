@@ -80,7 +80,7 @@ impl Service {
             .duration_since(std::time::UNIX_EPOCH)
             .map_err(|_| unavailable())?
             .as_millis();
-        let view = json!({"version":"mas-host-task-status/1","id":id,
+        let mut view = json!({"version":"mas-host-task-status/1","id":id,
             "agent":row.0,"bundleDigest":self.descriptor["bundle_digest"],
             "serviceState":row.1,"cancelRequested":row.2,
             "hostSettlement":if row.1=="completed" {"completed"} else {"not-established"},
@@ -91,6 +91,11 @@ impl Service {
             "materialisation":{"revision":row.4,"updatedAtMs":row.5,"observedAtMs":observed,
                 "consistency":"committed-service-snapshot","incomplete":false},
             "executionPermission":false});
+        // Ordinary local metadata has no governed retention contract. Protected
+        // and shared services must never advertise this capture profile.
+        if self.configuration.governed.is_none() {
+            view["captureProfile"] = json!("ordinary-trusted-local-metadata/1");
+        }
         if view.to_string().len() > MAX_BYTES {
             return Err(unavailable());
         }

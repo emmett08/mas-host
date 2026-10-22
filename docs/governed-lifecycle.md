@@ -58,6 +58,12 @@ The operation reports logical retirement and local-store purge, never
 cryptographic or physical-media erasure. Restoring a stale control ledger along
 with stale payload backups defeats the independent-current-control assumption.
 
+An opt-in [source quarantine](governed-source-quarantine.md) separately owns
+encrypted exact-source and failed-assessment custody. Namespace retirement also
+retires its bound source/review keys and purges ciphertext. Retiring or expiring
+one bound case conservatively withholds dependent namespace views while leaving
+execution certainty and unresolved obligations intact.
+
 # Current credential references
 
 The optional `credentials_file` field resolves declared worker environment

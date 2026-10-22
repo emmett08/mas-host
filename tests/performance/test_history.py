@@ -47,6 +47,12 @@ class HistoryTests(unittest.TestCase):
         self.assertEqual(result["status"], "INCONCLUSIVE")
         self.assertIn("source_coverage_incomplete:a", result["coverage_gaps"])
 
+    def test_status_capture_cannot_repair_missing_independent_source_history(self):
+        result = check_history(self.offers, self.records, [], status_capture={"version": "unapproved"})
+        self.assertEqual(result["status"], "INCONCLUSIVE")
+        self.assertIn("capture:invalid-status-capture", result["coverage_gaps"])
+        self.assertIn("source_coverage_incomplete:a", result["coverage_gaps"])
+
     def test_lost_host_completion_preserves_external_fact_without_reexecution(self):
         self.offers[0]["fault_mode"] = "lost-completion"
         self.records[0].update(execution="unknown", effect_id=None, replay_source_unchanged=True)

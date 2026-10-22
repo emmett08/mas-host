@@ -183,7 +183,7 @@ impl GovernedSession {
             exposure,
         )?;
         let inspection = if inspect {
-            self.inspect_boundary_with_exposure(actor, original, projection, exposure)?
+            self.inspect_disclosure_with_exposure(actor, original, projection, exposure)?
         } else {
             None
         };
@@ -216,7 +216,8 @@ impl GovernedSession {
             view,
             exposure,
         )?;
-        let inspection = self.inspect_boundary_with_exposure(actor, payload, payload, exposure)?;
+        let inspection =
+            self.inspect_disclosure_with_exposure(actor, payload, payload, exposure)?;
         self.authorize_inspected_with_exposure(
             actor,
             "resolve",

@@ -573,6 +573,7 @@ fn bounded_status_reads_do_not_load_payloads_or_repeat_provider_work() {
     let before = project.calls();
     let first = server.rpc(ALICE, "GetTaskStatus", json!({"id":id}));
     assert_eq!(first["version"], "mas-host-task-status/1");
+    assert_eq!(first["captureProfile"], "ordinary-trusted-local-metadata/1");
     assert_eq!(first["serviceState"], "completed");
     assert_eq!(first["hostSettlement"], "completed");
     assert_eq!(first["externalExecution"], "not-assessed");

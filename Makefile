@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 .SHELLFLAGS := -euo pipefail -c
 
-.PHONY: build check test acceptance provider-test python-test workload-test workload-acceptance privacy-test notification-test capability-test governance-test
+.PHONY: build check test acceptance provider-test python-test workload-test workload-acceptance privacy-test notification-test capability-test governance-test acquisition-test observation-test
 
 capability-test:
 	npm --prefix examples/structured-evidence/typescript ci --ignore-scripts
@@ -24,6 +24,12 @@ privacy-test:
 	PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s adapters/privacy -p test_qualification.py -v
 	PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=adapters/privacy python3 -m unittest discover -s adapters/privacy/tests -p 'test_*.py' -v
 	PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests/privacy -p 'test_*.py' -v
+
+acquisition-test:
+	PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s adapters/acquisition/tests -v
+
+observation-test:
+	PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s adapters/observations/tests -v
 
 notification-test:
 	PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=sdk/python:adapters/notifications python3 -m unittest discover -s adapters/notifications/tests -p 'test_*.py' -v
@@ -56,7 +62,10 @@ test: check capability-test
 	$(MAKE) workload-test
 	$(MAKE) privacy-test
 	$(MAKE) notification-test
+	$(MAKE) acquisition-test
+	$(MAKE) observation-test
 	$(MAKE) governance-test
 
 acceptance:
 	cargo test --locked -p mas-host --test acceptance -- --ignored --nocapture
+	PYTHONDONTWRITEBYTECODE=1 python3 adapters/acquisition/verify_host.py --host "$${CARGO_TARGET_DIR:-target}/debug/mas-host" --sdk-root .

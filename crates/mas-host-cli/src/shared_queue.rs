@@ -21,7 +21,22 @@ pub(super) struct Turn<'a> {
 /// Unknown execution preserves the original task/run and never requests retry.
 pub(super) enum DispatchOutcome {
     Completed(Value),
+    Deferred { not_before_ms: i64 },
     Unknown,
+}
+
+/// Release the worker slot until quota is eligible or the original business
+/// deadline needs reconciliation. This hint never changes the provider circuit.
+pub(super) fn provider_wake_ms(task: &Value, not_before: &Value) -> Result<i64, String> {
+    let hint = not_before
+        .as_i64()
+        .filter(|value| *value > 0)
+        .ok_or("native provider deferral unavailable")?;
+    let deadline = task["timing"]["business_expires_ms"]
+        .as_i64()
+        .filter(|value| *value > 0)
+        .ok_or("task business expiry unavailable")?;
+    Ok(hint.min(deadline))
 }
 
 /// Cap a single native worker by the authority-evaluated original business
@@ -250,6 +265,11 @@ fn drain_using<A: Authority>(
                 Ok(DispatchOutcome::Completed(result)) if result.is_object() => {
                     ("completed", result, Value::Null)
                 }
+                Ok(DispatchOutcome::Deferred { not_before_ms }) if not_before_ms > 0 => (
+                    "blocked",
+                    Value::Null,
+                    json!({"code":"native_provider_deferred","not_before_ms":not_before_ms}),
+                ),
                 _ => (
                     "unknown",
                     Value::Null,
@@ -271,7 +291,7 @@ fn drain_using<A: Authority>(
                 || settlement["principal"] != claimed["principal"]
                 || !matches!(
                     settlement["state"].as_str(),
-                    Some("completed" | "failed" | "cancelled" | "unknown")
+                    Some("completed" | "failed" | "cancelled" | "unknown" | "blocked")
                 )
             {
                 return Err("queue settlement differs from original task".into());
@@ -483,6 +503,44 @@ mod tests {
         second.eligible.insert("task-0".into());
         drain_using(&mut second, &turn(), |_, _| Ok(DispatchOutcome::Unknown)).unwrap();
         assert_eq!(second.commands[1].1["state"], "unknown");
+    }
+    #[test]
+    fn provider_deferral_keeps_original_task_and_run_blocked_without_completion() {
+        let mut f = Fixture::default();
+        f.pages
+            .insert(0, json!({"tasks":[candidate(0,"a")],"next":null}));
+        f.eligible.insert("task-0".into());
+        let result = drain_using(&mut f, &turn(), |_, task| {
+            assert_eq!(task["run_id"], "run-task-0");
+            Ok(DispatchOutcome::Deferred {
+                not_before_ms: 5000,
+            })
+        })
+        .unwrap();
+        let settlement = &f.commands[1].1;
+        assert_eq!(settlement["task"], "task-0");
+        assert_eq!(settlement["state"], "blocked");
+        assert!(settlement["result"].is_null());
+        assert_eq!(
+            settlement["error"],
+            json!({"code":"native_provider_deferred","not_before_ms":5000})
+        );
+        assert_eq!(result["task_summaries"][0]["run_id"], "run-task-0");
+        assert_eq!(f.dispatched, 0);
+    }
+    #[test]
+    fn provider_wakeup_preserves_the_original_business_deadline() {
+        let task = json!({"timing":{"business_expires_ms":5000}});
+        assert_eq!(provider_wake_ms(&task, &json!(9000)).unwrap(), 5000);
+        assert_eq!(provider_wake_ms(&task, &json!(3000)).unwrap(), 3000);
+        for invalid in [json!(0), json!(-1), Value::Null] {
+            assert!(provider_wake_ms(&task, &invalid).is_err());
+            assert!(provider_wake_ms(
+                &json!({"timing":{"business_expires_ms":invalid}}),
+                &json!(9000)
+            )
+            .is_err());
+        }
     }
     #[test]
     fn malformed_or_repeated_continuations_stop_before_dispatch() {

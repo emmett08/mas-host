@@ -160,6 +160,85 @@ fn retained_identity(directory: &Path, session: &GovernedSession) -> Result<(Str
     )
     .map_err(|_| UNAVAILABLE.into())
 }
+pub(super) fn custody_identity(
+    directory: &Path,
+    session: &GovernedSession,
+) -> Result<serde_json::Value> {
+    let (run, nonce) = retained_identity(directory, session)?;
+    let directory = std::fs::canonicalize(directory).map_err(|_| UNAVAILABLE)?;
+    Ok(json!({"run":run,"nonce":nonce,"directory":directory,"fingerprint":session.fingerprint()}))
+}
+pub(super) fn with_custody_admission<T>(
+    identities: &[serde_json::Value],
+    session: &GovernedSession,
+    read: impl FnOnce() -> Result<T>,
+) -> Result<T> {
+    let identities = identities
+        .iter()
+        .filter(|v| !v.is_null())
+        .collect::<Vec<_>>();
+    if identities.is_empty() {
+        return read();
+    }
+    let path = session
+        .lifecycle_file()
+        .ok_or("quarantine-namespace-requires-lifecycle-ledger")?;
+    let mut db = read_ledger(path)?;
+    let tx = db.transaction().map_err(|_| UNAVAILABLE)?;
+    for identity in identities {
+        let directory = Path::new(identity["directory"].as_str().ok_or(UNAVAILABLE)?);
+        if custody_identity(directory, session)? != *identity {
+            return Err(UNAVAILABLE.into());
+        }
+        let run = identity["run"].as_str().ok_or(UNAVAILABLE)?;
+        let nonce = identity["nonce"].as_str().ok_or(UNAVAILABLE)?;
+        check_record(&tx, session, run, &namespace(session, run, nonce)?)?;
+    }
+    let result = read()?;
+    tx.commit().map_err(|_| UNAVAILABLE)?;
+    Ok(result)
+}
+/// Restrict all dependent views when the namespace's raw source custody is
+/// retired/expired. This only shortens access; it preserves execution journals
+/// and unresolved effects and does not require taking the payload owner lock.
+pub(super) fn expire_for_custody(
+    directory: &Path,
+    session: &GovernedSession,
+    expiry: u64,
+) -> Result<()> {
+    let path = session
+        .lifecycle_file()
+        .ok_or("quarantine-namespace-requires-lifecycle-ledger")?;
+    let (run, nonce) = retained_identity(directory, session)?;
+    let id = namespace(session, &run, &nonce)?;
+    let mut db = ledger(path, false)?;
+    let tx = db
+        .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
+        .map_err(|_| UNAVAILABLE)?;
+    let (state, old): (String, Option<i64>) = tx
+        .query_row(
+            "SELECT status,expires_at_ms FROM namespaces WHERE id=? AND fingerprint=?",
+            params![id, session.fingerprint()],
+            |r| Ok((r.get(0)?, r.get(1)?)),
+        )
+        .map_err(|_| UNAVAILABLE)?;
+    if state != "retired" {
+        if state != "available" {
+            return Err(UNAVAILABLE.into());
+        }
+        let expiry = i64::try_from(expiry).map_err(|_| UNAVAILABLE)?;
+        if old.is_none_or(|old| expiry < old) {
+            tx.execute(
+                "UPDATE namespaces SET expires_at_ms=? WHERE id=?",
+                params![expiry, id],
+            )
+            .map_err(|_| UNAVAILABLE)?;
+        }
+    }
+    session.check_current()?;
+    tx.commit().map_err(|_| UNAVAILABLE)?;
+    Ok(())
+}
 
 /// Check lifecycle before any retained delivery or further execution. Missing
 /// control state fails closed; it is never reconstructed from an old backup.
@@ -250,6 +329,10 @@ pub fn govern_namespace_lifecycle(
             if held {
                 return Err("governed-lifecycle-held".into());
             }
+            // The independent admission transaction prevents new case writes.
+            // Key retirement precedes payload purge and cannot restore access
+            // if a later namespace-store operation fails.
+            super::quarantine::retire_namespace(session, directory, &run)?;
             tx.execute("UPDATE namespaces SET status='retired',reason='operator-retirement',retired_at_ms=COALESCE(retired_at_ms,?) WHERE id=?",
                 params![i64::try_from(crate::now_ms()?).map_err(|_|UNAVAILABLE)?,id]).map_err(|_|UNAVAILABLE)?;
         }

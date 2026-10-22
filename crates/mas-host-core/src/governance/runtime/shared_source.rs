@@ -75,7 +75,7 @@ pub fn authorize_governed_source_publication(
             descriptor,
             &snapshot.exposure,
         )?;
-        let inspection = session.inspect_boundary_with_exposure(
+        let inspection = session.inspect_disclosure_with_exposure(
             actor,
             descriptor,
             descriptor,

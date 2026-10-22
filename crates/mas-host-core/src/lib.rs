@@ -380,6 +380,7 @@ impl Engine {
         let agents = validated_agents(bundle)?;
         let topology = &bundle["topology"];
         let directory = run_directory(state_dir, run_id)?;
+        let governance = governance.map(|s| s.with_quarantine_namespace(run_id, &directory));
         if governance
             .as_ref()
             .and_then(|session| session.lifecycle_file())
@@ -388,6 +389,9 @@ impl Engine {
             return Err("governed-lifecycle-ledger-must-be-independent".into());
         }
         let owner = ownership(&directory)?;
+        if let Some(session) = &governance {
+            session.check_quarantine_directory(&directory)?;
+        }
         let mut db = journal(&directory)?;
         governance::runtime::open_namespace(&db, governance.as_ref())?;
         let encoded = bundle.to_string();

@@ -11,6 +11,7 @@ mod shared_connection;
 mod shared_native;
 #[cfg(feature = "shared-native")]
 mod shared_queue;
+mod source_quarantine;
 use serde_json::{json, Value};
 use std::{
     collections::BTreeMap,
@@ -24,6 +25,7 @@ const HELP: &str = "mas-host: native applications on the MAS protocol\n\n\
   inspect --state DIR --run ID\n\
   describe --bundle FILE\n\
   govern-lifecycle --state DIR --run ID --governance FILE --tenant ID --principal ID --purpose ID --grant ID --action hold|release-hold|expire|retire [--expires-at-ms N] [--privacy-inspector FILE] [--service-state DIR]\n\
+  govern-source-quarantine --governance FILE --tenant ID --principal ID --purpose ID --grant ID --actor NAME --action initialize|list|read|adjudicate|hold|release-hold|expire|retire [--reference ID --after ID --review FILE --expires-at-ms N --privacy-inspector FILE]\n\
   check-profile --profile FILE\n\
   check-capability --declaration FILE\n\
   privacy-inspect --input FILE|- --python ABS --manifest FILE --assets DIR [--worker FILE] [--timeout-ms N] [--memory-mib N] [--include-details true|false]\n\
@@ -72,6 +74,23 @@ fn sdk_root(args: &BTreeMap<String, String>) -> PathBuf {
 fn execute(args: &[String]) -> Result<Value, String> {
     let command = args.first().ok_or("missing command (try --help)")?;
     match command.as_str() {
+        "govern-source-quarantine" => source_quarantine::execute(&options(
+            &args[1..],
+            &[
+                "--governance",
+                "--tenant",
+                "--principal",
+                "--purpose",
+                "--grant",
+                "--actor",
+                "--action",
+                "--reference",
+                "--after",
+                "--review",
+                "--expires-at-ms",
+                "--privacy-inspector",
+            ],
+        )?),
         "govern-lifecycle" => {
             let args = options(
                 &args[1..],

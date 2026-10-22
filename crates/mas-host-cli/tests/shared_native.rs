@@ -11,6 +11,9 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
+#[path = "shared_native/provider_read.rs"]
+mod provider_read;
+
 struct Fixture {
     dsn: String,
     schema: String,

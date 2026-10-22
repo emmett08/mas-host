@@ -8,9 +8,9 @@ mod retained;
 mod retained_assessment;
 mod retained_effect;
 mod retained_source;
-mod shared_source;
 #[cfg(feature = "shared-native")]
 mod shared_queue;
+mod shared_source;
 mod status;
 use configuration::Configuration;
 use governed::Caller;

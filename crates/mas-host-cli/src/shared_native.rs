@@ -112,6 +112,14 @@ pub(super) fn drain(args: &BTreeMap<String, String>) -> Result<Value, String> {
             },
             &lock,
         )?;
+        if value["admission"] == "deferred" && value["dispatched"] == false {
+            return Ok(crate::shared_queue::DispatchOutcome::Deferred {
+                not_before_ms: crate::shared_queue::provider_wake_ms(
+                    task,
+                    &value["not_before_ms"],
+                )?,
+            });
+        }
         if matches!(
             value["invocation"]["state"].as_str(),
             Some("completed" | "resolved")

@@ -1,5 +1,10 @@
 # Nehemiah implementation sequence
 
+The current integration and its remaining qualification boundaries are tracked
+in [Nehemiah integration and qualification](nehemiah-integration-status.md).
+The foundation account and historical validation receipts below identify their
+own source revisions.
+
 Implementation follows the three plans updated on 22 October 2026. The original
 foundation starts from `mas-host@6508042ea86d26bb35106d919a8699d5f1a2e782`.
 Review repairs are published in PR #15 at

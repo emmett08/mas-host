@@ -125,16 +125,67 @@ is never clamped into an earlier retry. The original observation time anchors
 cooldown, so evaluating it again cannot renew it. Kubernetes list/watch 410
 records a lost interval and requires a new snapshot; that snapshot cannot repair
 the earlier history. The application retains the gap across subsequent replies.
+When supplying a watch cursor, the caller must supply a distinct private
+`cursor_identity_key` of at least 32 random bytes. Its public cursor identity is
+domain-separated HMAC-SHA256, never a plain hash of a predictable resource
+version. The application retains that key with the original stream lifecycle.
 Timeouts or 5xx responses to mutations preserve execution uncertainty, including
 after the original deadline. An accepted mutation still needs reconciliation.
 
 Provider semantics follow the [GitHub rate-limit contract](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api)
 and [Kubernetes API list/watch contract](https://kubernetes.io/docs/reference/using-api/api-concepts/).
 
+## Credential-free registered GET workers
+
+`read_worker.PublicGET` makes one bounded GET after the host controller has
+consumed both original native dispatch and registered provider request credit.
+The workflow definition's `provider_quota` is the exact immutable version 2
+provider circuit policy. Admission reserves native and provider credit in the
+same authority transaction. Replay, quota exhaustion, circuit deferral and an
+uncertain commit cannot launch a worker. The worker receives neither database
+credentials nor a controller capability.
+
+The fixed `mas-provider-public-get/1` request contract belongs in the pinned
+source package. Only verified `https://api.github.com` reads and explicitly
+opted-in anonymous loopback fixtures are supported. Kubernetes here qualifies
+the list/watch response contract on loopback. Authenticated provider workers and
+protected shared profiles remain closed. Application inputs may select an
+operator-registered enum case; they cannot supply an endpoint, header, credential
+or new query. The input and frozen source package bind the original native call.
+
+The request is GET only. Headers are fixed `Accept`, `User-Agent` and an optional
+registered `If-None-Match`. There is no redirect, proxy, mutation or HTTP retry.
+Response bytes are capped at 32 KiB, socket time at ten seconds and output
+projection at 16 KiB. A deterministic JSON pointer selection returns only
+registered string/integer/boolean fields. Raw bodies and arbitrary response
+headers are discarded. Projection is ordinary data; it does not establish a
+managed privacy inspection or override any source restrictions.
+
+The versioned result carries exact `provider_observation`, scheduling decision,
+payload disposition, approved projection and the known HTTP status, if headers
+arrived. A body timeout can therefore remain uncertain without erasing a known
+status. A 304 returns `not-modified` with no new projection or acquisition time.
+A Kubernetes 410 retains its lost interval. No later snapshot repairs that
+history. The host retains parsed throttle deferral and provider observation
+before completing the original native invocation; no quota credit is refunded.
+GitHub secondary deferral includes its one-minute floor even if the raw
+`Retry-After` is shorter. The controller also enforces its database-clock
+cooldown. UTC retry hints assume a qualified worker clock; protected deployment
+and clock agreement remain separate acceptance work. DNS can outlast the local
+socket timeout; the original native guardian deadline is the hard worker bound.
+
+The opt-in PostgreSQL tests in
+`crates/mas-host-cli/tests/shared_native/provider_read.rs` execute real anonymous
+HTTP under the native controller. They check approved projection, conditional
+304, lost-history 410, one-time native/provider credit, quota exhaustion and
+retained cooldown before another GET. Run them against an actual prepared
+PostgreSQL service; compiling or skipping them is not backend qualification.
+
 ## Validation
 
 ```sh
 python3 -m unittest discover -s adapters/acquisition/tests -v
+python3 adapters/acquisition/verify_host.py --host target/debug/mas-host --sdk-root .
 ```
 
 Tests exercise immutable host identities, lost submission/publication replies,
@@ -143,5 +194,26 @@ subscribers, cancellation during delivery, stale-source refusal and actual
 loopback HTTP error/throttle/redirect/oversize/slow-response handling. Fake RPC
 tests check adapter protocol control flow; they do not qualify a shared host or
 deployment. Provider HTTP fixtures exercise actual known refusals and uncertain
-mutations. Actual governed-host coalescing, multi-replica coordination, canonical
-workload mixes, cost and hardware acceptance remain separate qualification.
+mutations.
+
+`verify_host.py` exercises the real governed local host: it loses a real accepted
+submission's reply, replays the original message, verifies exactly one collector
+execution, publishes its retained source and reads it under two independent
+reader credentials. A third reader lacks source permission. Revoking one
+reader's current grant denies only that reader. Stale/cancelled subscriptions
+start no acquisition. Restart preserves the exact source, lineage and original
+times. The fixture uses synthetic structured evidence without the optional
+neural inspector; it performs no external request or model inference.
+
+The acceptance passed against integrated host revision `582961d`, executable
+SHA-256 `591105dc08cc510f73f8b1b490ba589f4e0e628b0ca26aa40577567ef4f8883a`.
+The Python suite passed 38 tests. Durable logical subscriptions, multi-replica
+coordination, external provider reconciliation, canonical workload mixes, cost
+and hardware acceptance remain separate qualification.
+
+The host transfers retry durations onto the PostgreSQL clock and also preserves
+provider epoch reset/date lower bounds. Invalid retry metadata places the
+registered resource in a retained indefinite hold (`i64::MAX`), requiring
+operator reconciliation and an explicitly reviewed replacement contract; it
+does not fall back to an automatic short retry. The queue wake-up hint is
+capped by the original business deadline without shortening that resource hold.

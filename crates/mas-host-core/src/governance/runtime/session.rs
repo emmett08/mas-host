@@ -45,6 +45,7 @@ pub(super) struct Session {
     pub(super) credentials_file: Option<PathBuf>,
     pub(super) revision: Option<Value>,
     pub(super) lineage: Option<Value>,
+    pub(super) quarantine: Option<super::quarantine::Configuration>,
     key_file: PathBuf,
     key: [u8; 32],
     key_id: String,
@@ -73,6 +74,7 @@ pub struct GovernedSession(
     pub(super) Arc<Session>,
     Option<Arc<dyn Fn() -> Result<()> + Send + Sync>>,
     pub(super) Option<Arc<InspectionGate>>,
+    pub(super) Option<Arc<super::quarantine::Namespace>>,
 );
 
 fn id(value: &Value, name: &str) -> Result<String> {
@@ -154,6 +156,7 @@ impl GovernedSession {
                     "credentials_file",
                     "revision",
                     "lineage",
+                    "quarantine",
                 ]
             } else {
                 &[]
@@ -177,6 +180,10 @@ impl GovernedSession {
         let credentials_file = config
             .get("credentials_file")
             .map(|_| path(config, "credentials_file"))
+            .transpose()?;
+        let quarantine = config
+            .get("quarantine")
+            .map(super::quarantine::Configuration::parse)
             .transpose()?;
         let key_file = path(config, "commitment_key_file")?;
         let key = key(&key_file)?;
@@ -323,6 +330,7 @@ impl GovernedSession {
                 credentials_file,
                 revision,
                 lineage,
+                quarantine,
                 key_file,
                 key,
                 key_id,
@@ -354,6 +362,7 @@ impl GovernedSession {
                 baseline_policy_refs,
                 v2,
             }),
+            None,
             None,
             None,
         ))

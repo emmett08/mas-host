@@ -8,6 +8,7 @@ use mas_host_worker::Worker;
 use mas_protocol_codec::{postgres_repository::PostgresRepository, shared_native::NativeAdmission};
 use serde_json::{json, Value};
 use std::{fs::File, os::fd::AsRawFd};
+mod provider;
 
 /// Trusted controller identities. They are never accepted from a worker frame.
 pub struct NativeRun<'a> {
@@ -155,9 +156,15 @@ pub fn execute(
         NativeAdmission::FreshDispatch(permit) => permit,
         NativeAdmission::Retained { .. } => return retained(repository, run, &call_id),
         NativeAdmission::Rejected { code } => {
+            let not_before_ms = match &code {
+                mas_protocol_codec::shared_native::NativeRejection::ProviderDeferred {
+                    not_before_ms,
+                } => Some(*not_before_ms),
+                _ => None,
+            };
             return Ok(
-                json!({"version":"mas-host-shared-native/1","run_id":run,"call_id":call_id,"admission":"rejected","reason":code.as_str(),"dispatched":false}),
-            )
+                json!({"version":"mas-host-shared-native/1","run_id":run,"call_id":call_id,"admission":if not_before_ms.is_some(){"deferred"}else{"rejected"},"reason":code.as_str(),"not_before_ms":not_before_ms,"dispatched":false}),
+            );
         }
         NativeAdmission::Uncertain { command_id } => {
             return Ok(
@@ -174,6 +181,7 @@ pub fn execute(
     let database_deadline = u64::try_from(permit.deadline_ms())
         .map_err(|_| "invalid authoritative native deadline")?
         .min(identities.max_deadline_ms.unwrap_or(u64::MAX));
+    let provider_policy = permit.provider_policy().cloned();
     let admitted_call = permit.into_call_id();
     if admitted_call != call_id {
         return Err("native permit binding differs".into());
@@ -213,6 +221,9 @@ pub fn execute(
             }
             checked_object(&frame["output"], "shared native result")?;
             mas_host_schema::validate(output_schema, &frame["output"])?;
+            if let Some(policy) = &provider_policy {
+                provider::observe(repository, run, owner, &call_id, policy, &frame["output"])?;
+            }
             Ok(frame["output"].clone())
         })();
         worker.stop()?;

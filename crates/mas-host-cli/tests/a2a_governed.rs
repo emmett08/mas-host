@@ -815,6 +815,7 @@ fn materialised_status_rechecks_current_governed_authority_without_payloads() {
     let (_, view) = server.rpc(TOKEN, "GetTaskStatus", json!({"id":id}));
     assert!(view.get("error").is_none(), "{view}");
     assert_eq!(view["result"]["serviceState"], "completed");
+    assert!(view["result"].get("captureProfile").is_none());
     assert!(!view.to_string().contains(PRIVATE));
     assert!(!view.to_string().contains("approved"));
     rejected(server.rpc(OTHER, "GetTaskStatus", json!({"id":id})));

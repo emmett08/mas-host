@@ -207,6 +207,9 @@ impl GovernedSession {
         if self.2.is_some() {
             return Err("governed-inspector-already-configured".into());
         }
+        if self.0.quarantine.is_some() && !inspector.retain_assessments() {
+            return Err("governed-source-quarantine-requires-retained-assessments".into());
+        }
         let destination = super::super::identifier(&json!({"id":destination}), "id")
             .map_err(|_| "governed-inspector-destination")?;
         let configuration_binding = inspector.configuration_binding();
@@ -234,21 +237,53 @@ impl GovernedSession {
         Ok(self)
     }
 
-    pub(super) fn inspect_boundary(
-        &self,
-        actor: &str,
-        original: &Value,
-        projection: &Value,
-    ) -> Result<Option<Value>> {
-        self.inspect_boundary_with_exposure(actor, original, projection, &Exposure::default())
-    }
-
     pub(crate) fn inspect_boundary_with_exposure(
         &self,
         actor: &str,
         original: &Value,
         projection: &Value,
         exposure: &Exposure,
+    ) -> Result<Option<Value>> {
+        if self.0.quarantine.is_some() && self.2.is_none() {
+            return Err("governed-source-quarantine-requires-inspector".into());
+        }
+        let mut assessed = None;
+        let mut outcome = self.scan_boundary(actor, original, projection, exposure, &mut assessed);
+        if self.0.quarantine.is_some() {
+            let assessment = assessed.unwrap_or_else(|| json!({"version":"mas-governed-inspection-failure/1",
+                "completion":"unavailable","reason":outcome.as_ref().err().map(String::as_str).unwrap_or("governed-inspection-unavailable"),
+                "contract":self.2.as_ref().map(|gate|gate.contract())}));
+            // This separate payload owner also handles rejected ingress, which
+            // has no task/journal yet. Failure to honour custody fails closed.
+            if let Some(reference) =
+                self.retain_quarantine(actor, original, projection, &assessment, exposure)?
+            {
+                if let Ok(Some(receipt)) = &mut outcome {
+                    receipt["quarantine_ref"] = json!(reference);
+                }
+            }
+        }
+        outcome
+    }
+
+    /// Retrieval rechecks inspection without acquiring another raw copy.
+    pub(super) fn inspect_disclosure_with_exposure(
+        &self,
+        actor: &str,
+        original: &Value,
+        projection: &Value,
+        exposure: &Exposure,
+    ) -> Result<Option<Value>> {
+        self.scan_boundary(actor, original, projection, exposure, &mut None)
+    }
+
+    fn scan_boundary(
+        &self,
+        actor: &str,
+        original: &Value,
+        projection: &Value,
+        exposure: &Exposure,
+        assessed: &mut Option<Value>,
     ) -> Result<Option<Value>> {
         let Some(gate) = &self.2 else {
             return Ok(None);
@@ -328,14 +363,19 @@ impl GovernedSession {
                 .map_err(|_| "governed-inspection-invalid")?;
             let assessment = CombinedAssessment::new(&source, neural, limits)
                 .map_err(|_| "governed-inspection-invalid")?;
-            if assessment.completion() != Completion::Complete {
-                return Err("governed-inspection-incomplete".into());
-            }
             if gate.retain_assessments {
                 let record = json!({"index":index,"scope":if index < original_count { "original" } else { "projection" },
                     "source_binding":self.commitment(&json!(text))?,"assessment":assessment.metadata()});
                 component_assessments
                     .push(json!({"binding":self.commitment(&record)?,"record":record}));
+                *assessed = Some(
+                    json!({"version":"mas-governed-inspection-failure/1","completion":"incomplete",
+                    "contract":gate.contract(),"original_binding":self.commitment(original)?,
+                    "projection_binding":self.commitment(projection)?,"component_assessments":component_assessments}),
+                );
+            }
+            if assessment.completion() != Completion::Complete {
+                return Err("governed-inspection-incomplete".into());
             }
             inspected.insert(text.as_str(), (assessment.findings().len(), index));
             if index < original_count {
@@ -360,9 +400,6 @@ impl GovernedSession {
         if started.elapsed() >= duration || crate::now_ms()? >= deadline_ms {
             return Err("governed-inspection-timeout".into());
         }
-        if projection_findings != 0 {
-            return Err("governed-inspection-prohibited-projection".into());
-        }
         let mut receipt = json!({"version":"mas-governed-inspection-receipt/1",
             "contract":gate.contract(),"original_binding":self.commitment(original)?,
             "projection_binding":self.commitment(projection)?,"completion":"complete",
@@ -382,6 +419,10 @@ impl GovernedSession {
                 exposure,
             )?;
             receipt["component_assessments"] = custody;
+        }
+        *assessed = Some(receipt.clone());
+        if projection_findings != 0 {
+            return Err("governed-inspection-prohibited-projection".into());
         }
         Ok(Some(receipt))
     }
