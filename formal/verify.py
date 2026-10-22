@@ -25,7 +25,8 @@ for model, claim in (("revision", "settles"), ("disclosure", "context_finishes")
                      ("delegation", "delegation_finishes"),
                      ("provider-results", "provider_results_settle"),
                      ("governed-local", "governed_local_settles"),
-                     ("privacy-response", "privacy_response_settles")):
+                     ("privacy-response", "privacy_response_settles"),
+                     ("retained-effect", "retained_effect_finishes")):
     for ltl in (False, True):
         for no_reduce in (False, True):
             CASES.append((model, f"{'progress' if ltl else 'safety'}{'-no-reduction' if no_reduce else ''}",
@@ -182,6 +183,36 @@ for name, macro, assertion in (
     CASES.append(("privacy-response", name, macro, None, False, assertion))
 CASES.append(("privacy-response", "stalled-endpoint", "BUG_STALL", "privacy_response_settles",
               False, "acceptance cycle"))
+for name, macro, assertion in (
+    ("namespace-binding", "BUG_NAMESPACE", "namespace_verified"),
+    ("parent-binding", "BUG_PARENT", "parent_verified"),
+    ("actor-binding", "BUG_ACTOR", "actor_verified"),
+    ("key-binding", "BUG_KEY", "returned_key==request_key"),
+    ("view-binding", "BUG_VIEW_BINDING", "authorised_view==returned_view"),
+    ("pre-lookup-authority", "BUG_PREAUTH", "!(precheck)"),
+    ("post-inspection-authority", "BUG_POSTAUTH", "!(final_check)"),
+    ("split-snapshot", "BUG_SPLIT_SNAPSHOT", "snap_revision==snap_receipt_revision"),
+    ("callback-with-database", "BUG_CALLBACK_WITH_DB", "!(db_open)"),
+    ("reader-write", "BUG_READER_WRITE", "reader_writes==0"),
+    ("reader-recovery", "BUG_READER_RECOVERY", "reader_recoveries==0"),
+    ("reader-dispatch", "BUG_READER_DISPATCH", "reader_dispatches==0"),
+    ("inspection-bypass", "BUG_INSPECTION", "result_inspection_ok"),
+    ("withheld-settlement", "BUG_WITHHELD_SETTLEMENT", "returned_state==snap_state"),
+    ("external-certainty", "BUG_CERTAINTY", "returned_certainty==snap_certainty"),
+    ("available-witness", "WITNESS_AVAILABLE", "returned_payload==Available"),
+    ("withheld-known-witness", "WITNESS_WITHHELD_KNOWN", "withheld_for_inspection"),
+    ("unknown-witness", "WITNESS_UNKNOWN", "returned_state==Unknown"),
+    ("not-recorded-witness", "WITNESS_NOT_RECORDED", "returned_state==Absent"),
+    ("live-owner-witness", "WITNESS_LIVE_OWNER", "owner_committed"),
+    ("old-snapshot-witness", "WITNESS_OLD_SNAPSHOT", "!(observed_older_snapshot)"),
+    ("post-inspection-revocation-witness", "WITNESS_REVOKED", "!(post_inspection_revocation)"),
+    ("binding-denied-witness", "WITNESS_BINDING_DENIED", "!(binding_denied)"),
+    ("query-inspection-denied-witness", "WITNESS_QUERY_DENIED", "!(query_denied)"),
+    ("authority-race-witness", "WITNESS_AUTHORITY_RACE", "!(return_after_revocation)"),
+):
+    CASES.append(("retained-effect", name, macro, None, False, assertion))
+CASES.append(("retained-effect", "stalled-inspector", "BUG_STALL", "retained_effect_finishes",
+              False, "acceptance cycle"))
 
 
 def bounded() -> None:
@@ -255,7 +286,12 @@ def main() -> int:
                                                "endpoint_reply_channel_capacity": 1,
                                                "revocations": 1, "crashes": 1,
                                                "explicit_retries": 1,
-                                               "maximum_cached_passes": 2}},
+                                               "maximum_cached_passes": 2},
+                          "retained_effect": {"readers": 1, "live_owners": 1,
+                                              "owner_commits": 1, "authority_updates": 1,
+                                              "namespace_classes": 2, "parent_classes": 2,
+                                              "actor_classes": 2, "logical_key_classes": 2,
+                                              "effect_states": 5, "external_certainties": 4}},
                "assumptions": [
                    "One host owner serialises this run and immutable journal writes are atomic",
                    "A provider invocation terminates or reaches its fixed external deadline",
@@ -272,6 +308,9 @@ def main() -> int:
                    "Privacy response routes and safe event classes abstract the bounded adapter parser and trusted configuration",
                    "Notification endpoint acceptance establishes submission only; recipient delivery remains unknown",
                    "Privacy response has no automated retry/reconciliation/escalation scheduler or shared case owner",
+                   "Retained-effect reads use one SQLite snapshot and release it before inspection or authority callbacks",
+                   "The retained-effect reader performs no recovery, storage writes or worker/effect dispatch",
+                   "An authorised missing effect is not-recorded; foreign or missing parent and denied reads are unavailable",
                    "No unmediated files, provider memory, traffic timing, hash collision or storage adversary",
                    "No fairness options, approximate hashing or disabled bounds/assertion checks",
                    "This is finite control checking plus implementation correspondence, not a refinement proof",

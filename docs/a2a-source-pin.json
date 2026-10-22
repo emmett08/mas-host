@@ -1,0 +1,32 @@
+{
+  "version": "mas-a2a-source-pin/1",
+  "protocol_version": "1.0",
+  "upstream_release": "v1.0.0",
+  "repository": "a2aproject/A2A",
+  "commit": "173695755607e884aa9acf8ce4feed90e32727a1",
+  "binding": "JSONRPC",
+  "scope": "Normative source and extension activation review for the optional retained-effect read method. Existing A2A core wire version remains 1.0.",
+  "sources": [
+    {
+      "path": "specification/a2a.proto",
+      "bytes": 34461,
+      "git_blob_sha1": "184a555b4b45f281004d534850eb582b6e1a7dcd",
+      "sha256": "4b74c0baa923ae0acb55474e548f1d6e5d3f83b80d757b65f8bf3e99a3c2257f",
+      "url": "https://github.com/a2aproject/A2A/blob/173695755607e884aa9acf8ce4feed90e32727a1/specification/a2a.proto"
+    },
+    {
+      "path": "docs/specification.md",
+      "bytes": 152715,
+      "git_blob_sha1": "7095fc0bad3d5a05edb6cfaf92e67d96bf91290c",
+      "sha256": "087c6f6272ec08a7fcd90eb16843bf97e25e0dcd155afa5779033d23d5ac377d",
+      "url": "https://github.com/a2aproject/A2A/blob/173695755607e884aa9acf8ce4feed90e32727a1/docs/specification.md"
+    },
+    {
+      "path": "docs/topics/extensions.md",
+      "bytes": 19506,
+      "git_blob_sha1": "fc7a2b248abeba74fc71de9b974cc2bc9c968073",
+      "sha256": "3bbec7ecbb868d233e82a8c5c73ca8ac8a049f7f157c38df60461c5cb5135cab",
+      "url": "https://github.com/a2aproject/A2A/blob/173695755607e884aa9acf8ce4feed90e32727a1/docs/topics/extensions.md"
+    }
+  ]
+}

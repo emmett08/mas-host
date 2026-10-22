@@ -8,6 +8,60 @@ use serde_json::{json, Value};
 type Result<T> = std::result::Result<T, String>;
 
 impl GovernedSession {
+    pub(in crate::governance::runtime) fn authorize_resolution(
+        &self,
+        actor: &str,
+        original: &Value,
+        projection: &Value,
+        inspect: bool,
+    ) -> Result<()> {
+        self.agent(actor)?;
+        let inspection = if inspect {
+            self.authorize(
+                actor,
+                "resolve",
+                &self.0.principal,
+                "client",
+                original,
+                projection,
+            )?;
+            self.inspect_boundary(actor, original, projection)?
+        } else {
+            None
+        };
+        self.authorize_inspected(
+            actor,
+            "resolve",
+            &self.0.principal,
+            "client",
+            original,
+            projection,
+            inspection,
+        )
+        .map(|_| ())
+    }
+
+    pub(in crate::governance::runtime) fn authorize_resolution_payload(
+        &self,
+        actor: &str,
+        view: &Value,
+        payload: &Value,
+    ) -> Result<()> {
+        self.agent(actor)?;
+        self.authorize(actor, "resolve", &self.0.principal, "client", view, view)?;
+        let inspection = self.inspect_boundary(actor, payload, payload)?;
+        self.authorize_inspected(
+            actor,
+            "resolve",
+            &self.0.principal,
+            "client",
+            view,
+            view,
+            inspection,
+        )
+        .map(|_| ())
+    }
+
     pub(in crate::governance::runtime) fn authorize(
         &self,
         actor: &str,

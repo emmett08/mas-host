@@ -63,6 +63,32 @@ An uncertain effect requires evidence-backed operator reconciliation under its
 original identity. The adapter exposes no automatic retry operation. A throttle
 receipt records eligibility and remains a refusal on replay.
 
+## Read a retained case
+
+`case_status(intent_view, notification_view)` projects a case from two
+`mas-governed-effect-view/1` records obtained through the host's authenticated
+`GetRetainedEffect` operation. Query the original task's `privacy-case-intent`
+and `privacy-notification` keys. The resolver derives the journal, root actor
+and invocation from task ownership and checks current `resolve` authority.
+The caller supplies neither a filesystem path nor another actor's identity.
+
+The consumer requires an available completed case intent and exact agreement on
+namespace, actor and parent invocation. Available notification descriptors must
+also match the safe event and destination binding. The case and action IDs are
+recomputed from the original invocation. The result preserves acceptance,
+refusal, throttling, known non-transmission and uncertainty; recipient delivery
+remains unknown. An inaccessible notification body preserves the host's safe
+execution metadata but reports an unknown submission and unavailable binding.
+An authorised `not-recorded` view also means unknown; a failed lookup cannot be
+substituted for such a view.
+
+This function performs no authentication or reads. Supplied JSON alone grants
+no authority. The example obtains both records from the host and re-reads the
+immutable intent after the notification lookup to check current access again.
+Those reads are separate snapshots, so the result does not claim an atomic
+case history or continuing access after the final response. It starts no
+notification, retry, acknowledgement or adjudication operation.
+
 ## Validation and remaining work
 
 Run `make notification-test` for contract, destination substitution, malformed
@@ -70,8 +96,9 @@ metadata, deadline, capacity and replay tests. The actual-host scenarios in
 `examples/privacy-response/verify.py` exercise the pinned native application,
 host inspection gate, case intent, notification, restart and revocation.
 
-This is the first trusted-local N3 response slice. Full N3 still requires a
-governed case resolver/history, adjudication against original assessments,
+The trusted-local N3 response slice now includes a read-only case projection
+over the first governed effect resolver. Full N3 still requires complete case
+history, adjudication against original assessments,
 durable cross-invocation queues and suppression, timed escalation, and qualified
 provider reconciliation. The synthetic example demonstrates one event per
 original request. A new request does not automatically deduplicate a repeated

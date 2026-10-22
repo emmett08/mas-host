@@ -228,13 +228,25 @@ impl Configuration {
             .filter(|v| allowed.contains(v["name"].as_str().unwrap()))
             .collect::<Vec<_>>());
         let skills:Vec<_>=allowed.iter().map(|agent| {let e=&self.exports[agent];json!({"id":agent,"name":e["name"],"description":e["description"],"tags":["nehemiah","bounded-workflow"],"inputModes":["application/json"],"outputModes":["application/json"]})}).collect();
-        json!({"name":self.name,"description":"Nehemiah bounded durable workflows through the Rust MAS host. Authorised exports only.","version":env!("CARGO_PKG_VERSION"),
+        let mut card = json!({"name":self.name,"description":"Nehemiah bounded durable workflows through the Rust MAS host. Authorised exports only.","version":env!("CARGO_PKG_VERSION"),
             "supportedInterfaces":[{"url":self.public_url,"protocolBinding":"JSONRPC","protocolVersion":"1.0"}],
             "capabilities":{"streaming":false,"pushNotifications":false,"extendedAgentCard":true,
                 "extensions":[{"uri":PROFILE,"required":true,"description":"Exact integer JSON, pinned operation contracts, durable request identity and explicit uncertain outcomes.",
                     "params":{"descriptor":projection,"methods":["SendMessage","GetTask","CancelTask"],"cancellation":"intent-only; pending cancellation returns TaskNotCancelableError","restart":"unfinished accepted work becomes unknown; no automatic redispatch"}}]},
             "securitySchemes":{"bearer":{"httpAuthSecurityScheme":{"scheme":"Bearer"}}},"securityRequirements":[{"schemes":{"bearer":{"list":[]}}}],
-            "defaultInputModes":["application/json"],"defaultOutputModes":["application/json"],"skills":skills})
+            "defaultInputModes":["application/json"],"defaultOutputModes":["application/json"],"skills":skills});
+        if self.governed.is_some() {
+            card["capabilities"]["extensions"].as_array_mut().unwrap().push(json!({
+                "uri":super::retained_effect::PROFILE,"required":false,
+                "description":"Read an owned task's retained root effect under current resolve and inspection policy.",
+                "params":{"requires":[PROFILE],"methods":["GetRetainedEffect"],
+                    "requestExample":{"id":"task-id","key":"exact-effect-key"},
+                    "requestFields":["id","key"],"additionalRequestFields":false,"maxKeyUtf8Bytes":128,
+                    "resultVersion":"mas-governed-effect-view/1", "scope":"owned-task-root-workflow-effects",
+                    "semantics":"read-only snapshot; no dispatch, settlement or reconciliation"}
+            }));
+        }
+        card
     }
 }
 

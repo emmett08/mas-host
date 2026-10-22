@@ -1,0 +1,11 @@
+test_completed_metadata_without_a_descriptor_never_claims_endpoint_acceptance (test_case_status_adversarial.CaseProjectionBoundaryTests.test_completed_metadata_without_a_descriptor_never_claims_endpoint_acceptance) ... ok
+test_different_logical_effect_keys_cannot_borrow_the_same_retained_effect_identity (test_case_status_adversarial.CaseProjectionBoundaryTests.test_different_logical_effect_keys_cannot_borrow_the_same_retained_effect_identity) ... ok
+test_impossible_host_state_settlement_pairs_do_not_become_case_facts (test_case_status_adversarial.CaseProjectionBoundaryTests.test_impossible_host_state_settlement_pairs_do_not_become_case_facts) ... ok
+test_missing_or_unsettled_effects_preserve_uncertainty_without_a_retry_projection (test_case_status_adversarial.CaseProjectionBoundaryTests.test_missing_or_unsettled_effects_preserve_uncertainty_without_a_retry_projection) ... ok
+test_optional_inspection_is_validated_before_its_metadata_is_discarded (test_case_status_adversarial.CaseProjectionBoundaryTests.test_optional_inspection_is_validated_before_its_metadata_is_discarded) ... ok
+test_real_n2_completion_evidence_can_include_a_valid_inspection_receipt (test_case_status_adversarial.CaseProjectionBoundaryTests.test_real_n2_completion_evidence_can_include_a_valid_inspection_receipt) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.003s
+
+OK

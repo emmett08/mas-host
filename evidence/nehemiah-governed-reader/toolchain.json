@@ -1,0 +1,10 @@
+{
+  "rust": "rustc 1.99.0 (b940084d7 2026-09-28)",
+  "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+  "go": "go version go1.24.0 linux/amd64",
+  "node": "v24.19.0",
+  "python": "Python 3.12.14",
+  "system_python": "Python 3.12.3",
+  "spin": "Spin Version 6.5.1 -- 20 December 2019",
+  "cc": "cc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0"
+}

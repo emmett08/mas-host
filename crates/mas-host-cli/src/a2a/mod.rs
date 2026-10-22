@@ -2,6 +2,7 @@
 mod configuration;
 mod governed;
 mod http;
+mod retained_effect;
 use configuration::Configuration;
 use governed::Caller;
 use rusqlite::{params, Connection, OptionalExtension};
@@ -476,16 +477,27 @@ impl Service {
             "cancellation_intent_recorded_poll_original_task",
         ))
     }
-    fn rpc(self: &Arc<Self>, principal: &Caller, request: &Value, extension: bool) -> Value {
+    fn rpc(
+        self: &Arc<Self>,
+        principal: &Caller,
+        request: &Value,
+        extension: bool,
+        effect_extension: bool,
+    ) -> Value {
         let id = if principal.session.is_some() && !governed::rpc_id_allowed(&request["id"]) {
             Value::Null
         } else {
             response_id(request)
         };
         let result = (|| -> RpcResult<Value> {
-            principal
-                .current()
-                .map_err(|_| RpcError(-32603, "authority_unavailable"))?;
+            principal.current().map_err(|_| {
+                if self.configuration.governed.is_some() && request["method"] == "GetRetainedEffect"
+                {
+                    retained_effect::unavailable()
+                } else {
+                    RpcError(-32603, "authority_unavailable")
+                }
+            })?;
             fields(request, &["jsonrpc", "id", "method"], &["params"])
                 .map_err(|_| RpcError(-32600, "invalid_request"))?;
             if request["jsonrpc"] != "2.0" || !(id.is_string() || id.is_i64() || id.is_u64()) {
@@ -513,6 +525,12 @@ impl Service {
                     self.task(principal, &text(params, "id")?)
                 }
                 "CancelTask" => self.cancel(principal, params),
+                "GetRetainedEffect" if self.configuration.governed.is_some() => {
+                    if !effect_extension {
+                        return Err(RpcError(-32008, "required_effect_extension_missing"));
+                    }
+                    self.retained_effect(principal, params)
+                }
                 "CreateTaskPushNotificationConfig"
                 | "GetTaskPushNotificationConfig"
                 | "ListTaskPushNotificationConfigs"

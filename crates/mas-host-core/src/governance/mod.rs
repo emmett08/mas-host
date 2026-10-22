@@ -19,7 +19,9 @@ pub use identity::{
 pub use policy::{decide_disclosure, CurrentAuthority, DataUsePolicy, DisclosureRequest};
 pub use profile::check_profile;
 pub use result::validate_result_view;
-pub use runtime::{GovernedSession, PrivacyInspector};
+pub use runtime::{
+    read_governed_effect, read_governed_root_effect, GovernedSession, PrivacyInspector,
+};
 
 use serde_json::Value;
 use std::collections::BTreeSet;

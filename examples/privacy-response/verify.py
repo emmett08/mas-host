@@ -12,8 +12,15 @@ import sys
 
 from prepare import prepare
 
+REPO = Path(__file__).resolve().parents[2]
+sys.path[:0] = [str(REPO / "sdk/python"), str(REPO / "adapters/notifications")]
+from privacy_response import case_status
+
 PRIVATE = b"private-response-person-8731@example.invalid"
 TOKEN = "synthetic-response-local-token-0123456789"
+OTHER_TOKEN = "synthetic-other-local-token-0123456789"
+TASK_EXTENSION = "urn:mas:host-task-service:1"
+EFFECT_EXTENSIONS = TASK_EXTENSION + ",urn:mas:host-governed-effect-read:1"
 COMPLETION_SECONDS = 240
 
 
@@ -50,17 +57,32 @@ class Service:
         assert PRIVATE not in raw
         self.process.stderr.close()
 
-    def rpc(self, method, params):
-        connection = http.client.HTTPConnection("127.0.0.1", self.port, timeout=40)
+    def rpc(self, method, params, *, token=TOKEN, extensions=TASK_EXTENSION):
+        connection = http.client.HTTPConnection("127.0.0.1", self.port,
+                                                timeout=150 if method == "GetRetainedEffect" else 40)
         try:
             body = json.dumps({"jsonrpc": "2.0", "id": "synthetic-safe-id", "method": method, "params": params})
             connection.request("POST", "/a2a", body=body.encode(), headers={"Content-Type": "application/json",
-                "Authorization": "Bearer " + TOKEN, "A2A-Version": "1.0", "A2A-Extensions": "urn:mas:host-task-service:1"})
+                "Authorization": "Bearer " + token, "A2A-Version": "1.0", "A2A-Extensions": extensions})
             raw = connection.getresponse().read(65537)
             assert len(raw) <= 65536 and PRIVATE not in raw
             return json.loads(raw)
         finally:
             connection.close()
+
+    def effect(self, identity, key):
+        reply = self.rpc("GetRetainedEffect", {"id": identity, "key": key}, extensions=EFFECT_EXTENSIONS)
+        assert "error" not in reply, reply
+        return reply["result"]
+
+    def case(self, identity):
+        intent = self.effect(identity, "privacy-case-intent")
+        notification = self.effect(identity, "privacy-notification")
+        # Separate snapshots cannot establish a transaction across both reads.
+        # Re-read the immutable intent after notification to recheck current
+        # authority and require the same retained case and target binding.
+        assert self.effect(identity, "privacy-case-intent") == intent
+        return case_status(intent, notification)
 
     def terminal(self, identity, expected):
         deadline = time.monotonic() + COMPLETION_SECONDS
@@ -109,9 +131,41 @@ def private_absent(project):
     assert count(project, "inspection-calls") > 0
 
 
+def second_principal(project):
+    """Give another authenticated scope its own rights, never this task's ownership."""
+    import copy
+    import hashlib
+    authority = json.loads((project / "authority.json").read_text())
+    grant = copy.deepcopy(authority["grants"][0])
+    grant.update(principal="synthetic-other", grant_ref="synthetic-other-grant")
+    authority["grants"].append(grant)
+    rules = authority["policies"][0]["rules"]
+    for original in list(rules):
+        rule = copy.deepcopy(original)
+        rule["principal"] = "synthetic-other"
+        if rule["recipient"] == "synthetic-user":
+            rule["recipient"] = "synthetic-other"
+        rules.append(rule)
+    (project / "authority.json").write_text(json.dumps(authority))
+    authentication = json.loads((project / "authentication.json").read_text())
+    principal = copy.deepcopy(authentication["principals"][0])
+    principal.update(principal="synthetic-other", grant_ref="synthetic-other-grant",
+                     token_sha256=hashlib.sha256(OTHER_TOKEN.encode()).hexdigest())
+    authentication["principals"].append(principal)
+    (project / "authentication.json").write_text(json.dumps(authentication))
+
+
+def denied_effect(service, identity, *, token=TOKEN, extensions=EFFECT_EXTENSIONS):
+    result = service.rpc("GetRetainedEffect", {"id": identity, "key": "privacy-case-intent"},
+                         token=token, extensions=extensions)
+    assert "error" in result, result
+    return result["error"]
+
+
 def run(host, mode, fixture_python="/usr/bin/python3"):
     with tempfile.TemporaryDirectory(prefix="mas-privacy-response-") as temporary:
         project = prepare(Path(temporary) / "application", fixture_python)
+        second_principal(project)
         checked(host, "build", "--project", project)
         descriptor = checked(host, "describe", "--bundle", project / ".mas/build/bundle.json")["bundle_digest"]
         with socket.socket() as listener:
@@ -150,6 +204,8 @@ def run(host, mode, fixture_python="/usr/bin/python3"):
                 assert count(project, "notification-calls") == 0
                 assert states(project) == [("collect", "completed"), ("privacy-case-intent", "completed")]
                 assert "error" in service.rpc("GetTask", {"id": identity})
+                denied = denied_effect(service, identity)
+                assert denied == "unauthorised" or denied.get("message") == "effect_not_found", denied
                 private_absent(project)
                 return
             try:
@@ -168,6 +224,22 @@ def run(host, mode, fixture_python="/usr/bin/python3"):
             assert observed[2][0] == "privacy-notification"
             assert observed[2][1] in (("executing", "unknown") if mode == "unknown" else ("completed",))
             retained = (project / "notification.json").read_bytes()
+            missing_extension = denied_effect(service, identity, extensions=TASK_EXTENSION)
+            assert missing_extension["message"] == "required_effect_extension_missing", missing_extension
+            assert denied_effect(service, identity, token=OTHER_TOKEN)["message"] == "effect_not_found"
+            projected = service.case(identity)
+            payload = json.loads(retained)
+            assert projected["case_id"] == payload["case_id"]
+            assert projected["notification"]["recipient_delivery"] == "unknown"
+            if mode == "unknown":
+                assert projected["notification"]["submission"] == "unknown"
+                assert projected["notification"]["external_execution"] == "unknown"
+                assert projected["notification"]["binding"] == "unavailable"
+                assert projected["notification"]["action_id"] is None
+            else:
+                assert projected["notification"]["submission"] == mode, projected
+                assert projected["notification"]["action_id"] == payload["action_id"]
+                assert projected["notification"]["external_execution"] == ("refused" if mode == "throttled" else "completed")
             private_absent(project)
         finally:
             service.close()
@@ -181,6 +253,14 @@ def run(host, mode, fixture_python="/usr/bin/python3"):
                 assert replay["result"]["task"]["artifacts"] == task["artifacts"], replay
             assert count(project, "collector-calls") == count(project, "notification-calls") == 1
             assert (project / "notification.json").read_bytes() == retained
+            recovered = restarted.case(identity)
+            if mode == "unknown":
+                expected_recovered = {**projected, "notification": {**projected["notification"],
+                                      "record_state": "unknown", "host_settlement": "unknown"}}
+                assert recovered == expected_recovered, (projected, recovered)
+            else:
+                assert recovered == projected, (projected, recovered)
+            assert count(project, "collector-calls") == count(project, "notification-calls") == 1
             changed = json.loads(json.dumps(request))
             changed["message"]["parts"][0]["data"]["input"]["discarded_private"] = "changed-original-private"
             assert "error" in restarted.rpc("SendMessage", changed)

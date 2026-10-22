@@ -1,0 +1,250 @@
+{
+  "version": "mas-governed-reader-core-formal-independent-review/1",
+  "reviewer": "/root/formal_independent_review",
+  "scope": "Read-only governed retained-effect resolver and independent finite-control/source correspondence review; secondary read-through of the authenticated A2A selection and privacy-case projection",
+  "verdict": "PASS_FOR_DECLARED_TRUSTED_LOCAL_SLICE_PENDING_PARENT_FULL_GATES",
+  "source_identity": {
+    "base_commit": "db77a670443776fc861875dd3a7328f5c8b3488f",
+    "accepted_staged_tree": "25374cf7ae0d992287320f6385e9cf0115895e2e",
+    "final_source_commit": null,
+    "final_source_commit_binding_owner": "parent",
+    "reviewed_file_sha256": {
+      "crates/mas-host-core/src/governance/runtime/resolver.rs": "34810bb3e1bd5821144a4505d810deda8adb3829a07ca82783fb6e7631e40ff3",
+      "crates/mas-host-core/src/governance/runtime/resolver_record.rs": "715ddaa62dd12c5c6a8febb523c1c3c48ffdd28dcd55c6008897f3766ce619fd",
+      "crates/mas-host-core/src/governance/runtime/authorization.rs": "aed6eb0520ed5271b4b23cbf8aac4df130606a945ee9edcf6c26ffebf03377ff",
+      "crates/mas-host-core/src/governance/runtime/resolver_adversarial_tests.rs": "ba514235d022ac978c483b8d45fd42f2a8608c14e5b06e8d751e5d2d5396ac43",
+      "crates/mas-host-core/src/governance/runtime/resolver_tests.rs": "548bfc93a300b607ca1db2bcf61193a99452a28b34c3dc8aca9b724e13fccc8c",
+      "crates/mas-host-core/src/governance/runtime/mod.rs": "adb7a27311e20214c44b606abf8d3435632a7363ffc9dd01601c73dd2d4d945b",
+      "crates/mas-host-core/src/governance/mod.rs": "6d648ac9858d84837fb7c7a422fbf41bd7ac60ca96e1efe45ed545683ce4215f",
+      "formal/retained-effect.pml": "bc94bb0751b17bb8f8a2c0489ebb2b73a768e7709522943dc9874314ce13391a",
+      "formal/retained-effect.md": "550244bed82850f489cdc229e119623efdfaec50d0b0f31369ac895b780f17b8",
+      "formal/verify.py": "6474eacaf9b7d4de33a354ce5de765a6aa4cbad9ccb9c1a30e78d1b5fbc2bcf7",
+      "adapters/notifications/privacy_response/case_status.py": "2bf212cae66dadd20b911a5770fbc69ff193da8b1600a35d831e4d2097877c74",
+      "crates/mas-host-cli/src/a2a/retained_effect.rs": "f4e701a21ce832dd06f7774a93abb7b7013e4c1f2f8a5de58c44d577f4d38778",
+      "docs/governed-evidence-reader.md": "7028d4d39076d4a8cd235519dd92859eddc1c1ee8870d2573b565119ea21b6e6",
+      "docs/nehemiah-implementation.md": "8877846f9407987e3c04821855261d2d459c20d0ef4cc5f8ab13c3d23847aee6"
+    }
+  },
+  "independent_rust_validation": {
+    "command": "env RUSTUP_HOME=/workspace/scratch/1ad2c1661ab9/tooling/rustup CARGO_HOME=/workspace/scratch/1ad2c1661ab9/tooling/cargo CARGO_INCREMENTAL=0 /workspace/scratch/1ad2c1661ab9/tooling/cargo/bin/cargo test --locked --offline -p mas-host-core resolver_adversarial_tests -- --nocapture",
+    "result": "PASS",
+    "exit_code": 0,
+    "tests": 16,
+    "passed": 16,
+    "failed": 0,
+    "ignored": 0,
+    "filtered_out": 72,
+    "reported_test_seconds": 9.13,
+    "validation_observation": "Observed final focused command completion in execution session 76883, after descriptor-HMAC and directory-basename fixes. No tests rerun to create this receipt.",
+    "standalone_raw_log": null,
+    "full_gate_log_binding_owner": "parent",
+    "file": "crates/mas-host-core/src/governance/runtime/resolver_adversarial_tests.rs",
+    "test_names": [
+      "live_owner_reads_are_exact_read_only_and_do_not_recover_executing_effects",
+      "authorised_parent_absence_does_not_certify_external_non_execution",
+      "foreign_namespace_parent_actor_and_denied_queries_share_one_public_failure",
+      "completed_host_settlement_never_promotes_unknown_external_execution",
+      "conflicting_or_missing_completion_receipts_fail_without_repairing_storage",
+      "completed_payload_inspection_outage_preserves_authorised_host_facts",
+      "revocation_during_payload_callback_denies_the_entire_view",
+      "read_snapshot_is_released_before_privacy_callbacks",
+      "root_helper_and_explicit_parent_select_the_same_bound_effect",
+      "execution_authority_does_not_grant_resolution_or_query_processing",
+      "total_query_inspection_outage_denies_even_known_completion_metadata",
+      "resolution_byte_limit_covers_the_entire_envelope_and_metadata_fallback",
+      "nonobject_retained_descriptor_cannot_bypass_current_payload_schemas",
+      "oversized_multibyte_retained_text_is_rejected_by_bytes_before_decoding",
+      "substituted_valid_descriptor_and_missing_admission_commitment_are_unavailable",
+      "copied_journal_under_another_run_name_cannot_rebind_the_namespace"
+    ]
+  },
+  "reviewed_claims": [
+    "Current resolve permission is distinct from invoke/effect permission and precedes query scanner processing and database opening.",
+    "Exact query inspection failure is a uniform unavailable failure before database lookup, even for a known retained completion.",
+    "Namespace fingerprint, metadata run identity, parent ownership and actor are verified before effect-specific lookup.",
+    "Effect identity and descriptor original commitment are bound to the selected logical key and retained namespace.",
+    "Bounded SQL byte selection, including multibyte UTF-8 text, precedes native JSON decoding.",
+    "One read-only SQLite transaction copies effect and completion consistently, then releases the connection before payload inspector callbacks.",
+    "Live-owner reads acquire no execution owner lock, perform no recovery or redispatch, and do not modify retained files.",
+    "Only a coherent completed receipt supports completed host settlement; external execution certainty is independently retained.",
+    "Nonterminal and originally withheld views expose null descriptor/output/evidence.",
+    "Current application schemas and complete exact-source inspection determine payload availability; validated host receipt metadata is not recursively rescanned as application content.",
+    "Policy byte limits and binding cover the entire returned envelope, including independently authorised metadata-only fallback.",
+    "Revocation observed during the payload callback denies the entire returned view.",
+    "An authorised not-recorded observation under a verified parent does not certify external non-execution or authorise a retry.",
+    "A2A derives the run and actor from an authenticated owned task rather than accepting client-supplied filesystem or invocation authority.",
+    "Case projection preserves independent snapshot and certainty dimensions; missing, withheld and unknown records do not fabricate a notification submission."
+  ],
+  "findings_and_repairs": [
+    {
+      "id": "READER-REVIEW-01",
+      "finding": "Scanning the available public envelope recursively rescanned nested host inspection receipts and could exhaust the 128-text-unit budget before the intended payload callback.",
+      "repair": "Inspect only application descriptor/output/reported_evidence; independently validate retained host inspection receipts; retain whole-envelope resolve policy and byte binding.",
+      "evidence": [
+        "completed_payload_inspection_outage_preserves_authorised_host_facts",
+        "read_snapshot_is_released_before_privacy_callbacks",
+        "revocation_during_payload_callback_denies_the_entire_view"
+      ],
+      "status": "FIXED_AND_VERIFIED"
+    },
+    {
+      "id": "READER-REVIEW-02",
+      "finding": "A descriptor.is_object conditional skipped all payload schema validation for a retained nonobject descriptor. An independent regression reproduced payload_disposition available.",
+      "repair": "Run validate_payload unconditionally for completed available payloads. After additional original-commitment hardening, descriptor substitution is unavailable; an explicitly fixture-rebound unsupported descriptor still exercises independent schema withholding.",
+      "evidence": [
+        "nonobject_retained_descriptor_cannot_bypass_current_payload_schemas"
+      ],
+      "status": "FIXED_AND_VERIFIED"
+    },
+    {
+      "id": "READER-REVIEW-03",
+      "finding": "The retained descriptor required explicit correspondence to its admitted original commitment, including schema-valid substitutions.",
+      "repair": "Read bounded governed_inputs.original_commitment for the exact effect in the same read-only transaction and compare the session commitment of the retained descriptor. Missing or mismatched admission is uniformly unavailable.",
+      "evidence": [
+        "substituted_valid_descriptor_and_missing_admission_commitment_are_unavailable",
+        "nonobject_retained_descriptor_cannot_bypass_current_payload_schemas"
+      ],
+      "status": "HARDENED_AND_VERIFIED"
+    },
+    {
+      "id": "READER-REVIEW-04",
+      "finding": "A restored or copied journal at another run basename required explicit rejection rather than implicit namespace rebinding.",
+      "repair": "Require directory basename to equal retained metadata.run_id before parent/effect lookup.",
+      "evidence": [
+        "copied_journal_under_another_run_name_cannot_rebind_the_namespace"
+      ],
+      "status": "HARDENED_AND_VERIFIED"
+    },
+    {
+      "id": "READER-REVIEW-05",
+      "finding": "Resolve permission must authorise query processing before invoking the inspector, with current whole-view checks retained after processing.",
+      "repair": "Perform current resolve query precheck before inspect_boundary; reauthorise after query and result processing.",
+      "evidence": [
+        "execution_authority_does_not_grant_resolution_or_query_processing",
+        "revocation_during_payload_callback_denies_the_entire_view"
+      ],
+      "status": "HARDENED_AND_VERIFIED"
+    },
+    {
+      "id": "READER-REVIEW-06",
+      "finding": "The initial finite model copied protected effect state before its namespace/parent/actor gates, unlike the required implementation ordering.",
+      "repair": "Model namespace/header, parent and actor gates before protected row lookup; assert lookup implies every verified identity flag. Preserve atomic effect/receipt snapshot and connection release before callbacks.",
+      "evidence": [
+        "retained-effect-namespace-binding",
+        "retained-effect-parent-binding",
+        "retained-effect-actor-binding",
+        "retained-effect-split-snapshot",
+        "retained-effect-callback-with-database"
+      ],
+      "status": "MODEL_REPAIRED_AND_ACCEPTED"
+    },
+    {
+      "id": "READER-REVIEW-07",
+      "finding": "The result-inspection abstraction needed its own current full-payload precheck, separate from the earlier query check and the later final-view authorisation.",
+      "repair": "Retain distinct result_inspection_precheck and post-inspection final_check, with an explicit permitted final-check-to-return race witness.",
+      "evidence": [
+        "retained-effect-post-inspection-authority",
+        "retained-effect-post-inspection-revocation-witness",
+        "retained-effect-authority-race-witness"
+      ],
+      "status": "MODEL_HARDENED_AND_ACCEPTED"
+    }
+  ],
+  "formal_review": {
+    "verdict": "ACCEPTED_FINITE_CONTROL_AND_SOURCE_CORRESPONDENCE",
+    "model": "formal/retained-effect.pml",
+    "model_sha256": "bc94bb0751b17bb8f8a2c0489ebb2b73a768e7709522943dc9874314ce13391a",
+    "runner": "formal/verify.py",
+    "runner_sha256": "6474eacaf9b7d4de33a354ce5de765a6aa4cbad9ccb9c1a30e78d1b5fbc2bcf7",
+    "focused_run": {
+      "directory": "validation/retained-effect-reviewed2",
+      "summary": "validation/retained-effect-reviewed2/summary.json",
+      "summary_sha256": "a04dc38d6da620058eab9e20172b4b96d2b0378ce4d9d6709490385e81fc5551",
+      "status": "PASS",
+      "checks": 30,
+      "complete_zero_error_searches": 4,
+      "mechanism_mutations": 15,
+      "reachability_witnesses": 10,
+      "stalled_callback_control": 1,
+      "all_26_expected_counterexamples_replayed": true,
+      "source_changed_during_verification": [],
+      "elapsed_seconds": 63.44194745000277,
+      "positive_search_states": {
+        "retained-effect-safety": 181197,
+        "retained-effect-safety-no-reduction": 199141,
+        "retained-effect-progress": 118077,
+        "retained-effect-progress-no-reduction": 132989
+      },
+      "spin": "Spin Version 6.5.1 -- 20 December 2019",
+      "compiler": "cc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+      "limits": {
+        "seconds_per_command": 30,
+        "memory_bytes": 536870912,
+        "search_depth": 100000
+      },
+      "artifact_sha256": {
+        "summary.json": "a04dc38d6da620058eab9e20172b4b96d2b0378ce4d9d6709490385e81fc5551",
+        "commands.json": "7fc49637834bdd3b26a53d583c7be89fff15d0a0b9c047bbebd2aff3726aabe1",
+        "counterexamples.zip": "40be8c99e0f4eb18bb6753fc21cd48c3a56c88846e5fe4689b9f548bbe20b6c8"
+      },
+      "replay_check": "Read all 26 expected-counterexample replay commands: -t replay, exit 0, and assertion-violation or acceptance-cycle output."
+    },
+    "accepted_properties": [
+      "Identity gates precede protected effect lookup",
+      "Coherent effect/completion snapshot",
+      "Read transaction released before payload callbacks",
+      "Exact returned-view authorisation binding",
+      "Fresh post-inspection authority check",
+      "Independent retained host settlement and external certainty",
+      "No reader storage writes, recovery or dispatch",
+      "Finite termination under the bounded inspector abstraction",
+      "Reachable conservative outcomes and explicit final-check authority race"
+    ],
+    "correspondence_limits": [
+      "Finite control abstraction, not a refinement proof of Rust, SQLite, cryptography, schema/policy code or detector quality.",
+      "Exact JSON/HMAC/schema/byte encoding is checked by implementation mechanisms and tests, not proved by identity classes.",
+      "Query-admission and metadata-envelope byte permissions are not separate finite model domains; the exact boundary and one-byte-below implementation test covers query admission followed by metadata denial.",
+      "One reader, one live owner, one owner commit, one authority update, two identity classes, five effect-state classes and four external-certainty classes.",
+      "File-backed authority checks are snapshots; authority can change after final verification before return.",
+      "Two case effect reads are independent snapshots and do not establish an atomic multi-record history.",
+      "Trusted local storage/configuration/callback profile; no hostile-filesystem, timing-channel or hash-collision theorem."
+    ]
+  },
+  "parent_full_validation": {
+    "status": "PENDING_AT_THIS_RECEIPT_CREATION",
+    "owner": "parent",
+    "formal_directory": "validation/governed-reader-formal-final",
+    "planned_default_formal_checks": 184,
+    "full_workspace_make_test": "RUNNING_AS_REPORTED_BY_PARENT",
+    "no_full_gate_pass_claim_in_this_receipt": true,
+    "final_source_commit_and_full_gate_binding": "Parent final validation receipt must bind this accepted staged source identity to final commit and completed default gates."
+  },
+  "remaining_scope": {
+    "E3": [
+      "Complete source/evidence ancestor and policy closure",
+      "Per-invocation exposure inheritance, including empty lineage downstream",
+      "General acquisition/revision resolver integration",
+      "Shared subscribers and reader/ancestor qualification beyond 32"
+    ],
+    "N2": [
+      "Cross-field/conversational inspection",
+      "Numeric identifiers and arbitrary free-text qualification",
+      "Remaining acquisition/inference/revision paths and managed/shared deployment gates"
+    ],
+    "N3": [
+      "Authorised exact assessment/source resolution for adjudication",
+      "Durable queue and timed retry/escalation",
+      "Provider reconciliation and endpoint/deployment qualification"
+    ],
+    "contract_limits": [
+      "Total query detector outage returns unavailable even for retained completed facts; retention is preserved but readability is not guaranteed.",
+      "Missing/withheld/unknown observations confer no execution/retry authority.",
+      "Pure Python case projection structurally validates supplied views but does not authenticate arbitrary JSON."
+    ]
+  },
+  "other_independent_receipt": "validation/reader-independent-review.json",
+  "production_edits_by_this_reviewer": false,
+  "reviewer_owned_test_file": "crates/mas-host-core/src/governance/runtime/resolver_adversarial_tests.rs",
+  "external_calls": [],
+  "no_test_reruns_or_source_edits_during_receipt_creation": true
+}

@@ -17,6 +17,9 @@ const OTHER: &str = "governed-bob-synthetic-token-012345678901";
 const PRIVATE: &str = "private-person-4387@example.invalid";
 const EXTENSION: &str = "urn:mas:host-task-service:1";
 
+#[path = "a2a_governed/retained_effect.rs"]
+mod retained_effect;
+
 fn object(properties: Value, required: &[&str]) -> Value {
     json!({"type":"object","properties":properties,"required":required,"additionalProperties":false})
 }

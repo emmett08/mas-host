@@ -1,0 +1,57 @@
+{
+  "version": "mas-governed-reader-independent-review/1",
+  "scope": "CLI HTTP retained-effect boundary and Python privacy-case consumer",
+  "verdict": "PASS_FOR_DECLARED_TRUSTED_LOCAL_SLICE",
+  "post_check_source_sha256": {
+    "crates/mas-host-cli/tests/a2a_governed.rs": "beb516dab384d8c765513b7c3c7e0931a49afbedd8c45e6313b6f480cdafbdef",
+    "crates/mas-host-cli/tests/a2a_governed/retained_effect.rs": "817451e38843f54402e1b737bc2b8e9128fcc4cb62c3f536b87fe5a4a43af92e",
+    "adapters/notifications/tests/test_case_status_adversarial.py": "b31fa3995c11e6f9883e889d8a2e1ffa18fddd61866db3f603a5c2c1c044bcf4",
+    "crates/mas-host-cli/src/a2a/retained_effect.rs": "f4e701a21ce832dd06f7774a93abb7b7013e4c1f2f8a5de58c44d577f4d38778",
+    "crates/mas-host-cli/src/a2a/http.rs": "50b34f30dc5a84056eeea33ea46c9ae3978621eb02887ee1c732adc4f8db8966",
+    "crates/mas-host-cli/src/a2a/mod.rs": "b403e78b6b4353f8b84a0759a4f75468883857b881845dc6835d4cdbb8632b64",
+    "adapters/notifications/privacy_response/case_status.py": "2bf212cae66dadd20b911a5770fbc69ff193da8b1600a35d831e4d2097877c74",
+    "crates/mas-host-core/src/governance/runtime/resolver.rs": "34810bb3e1bd5821144a4505d810deda8adb3829a07ca82783fb6e7631e40ff3",
+    "crates/mas-host-core/src/governance/runtime/resolver_record.rs": "715ddaa62dd12c5c6a8febb523c1c3c48ffdd28dcd55c6008897f3766ce619fd"
+  },
+  "checks": [
+    {
+      "command": "cargo test --locked -p mas-host --test a2a_governed retained_effect:: -- --nocapture",
+      "tests": 8,
+      "passed": 8,
+      "seconds": 17.65,
+      "log": "reader-http-adversarial.log",
+      "log_sha256": "7f155c705f44bd1d0be586dac6c19fc3c79587aef55d3d52fd0ec41e2fb4d7df"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=sdk/python:adapters/notifications python3 -m unittest discover -s adapters/notifications/tests -p 'test_case_status_adversarial.py' -v",
+      "tests": 6,
+      "passed": 6,
+      "log": "reader-case-adversarial.log",
+      "log_sha256": "2def68e56314d441468b4ec4d07e87560b59ce01331b87f51caee9d337a0de6d"
+    },
+    {
+      "command": "rustfmt --edition 2021 --check crates/mas-host-cli/tests/a2a_governed.rs",
+      "result": "PASS"
+    },
+    {
+      "command": "git diff --check",
+      "result": "PASS"
+    }
+  ],
+  "findings_repaired": [
+    "Valid N2 inspection receipts are accepted and omitted from case output",
+    "Impossible host-state/settlement pairs reject",
+    "Different case/notification keys cannot borrow the same effect ID",
+    "Nonterminal and originally withheld views expose metadata with null descriptor/output/evidence"
+  ],
+  "remaining_limits": [
+    "File authority checks are current snapshots, not distributed linearisation",
+    "Two effect views are independent snapshots",
+    "Pure Python projection does not authenticate supplied JSON",
+    "Missing/withheld/unknown records grant no retry or execution authority",
+    "General lineage/shared-subscriber/case lifecycle work remains separate"
+  ],
+  "external_calls": [],
+  "production_edits_by_reviewer": false,
+  "full_workspace_validation_owner": "parent"
+}

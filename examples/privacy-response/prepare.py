@@ -84,6 +84,8 @@ def prepare(destination, fixture_python="/usr/bin/python3"):
         bindings = [("invoke", "worker:" + actor, "local-worker"),
                     ("deliver", "synthetic-user", "client"),
                     ("inspect", "privacy-inspector", "local-detector")]
+        if actor == "responder":
+            bindings.append(("resolve", "synthetic-user", "client"))
         bindings += [("effect", "operation:" + effect["format"], effect["destination"])
                      for effect in actor_effects]
         if actor == "collector":
@@ -126,7 +128,7 @@ def prepare(destination, fixture_python="/usr/bin/python3"):
                  "detector": {"bundle_sha256": hashlib.sha256(manifest_raw).hexdigest(),
                               "code_revision": "a" * 40, "model_revision": "b" * 40,
                               "backend": "opf-cpu-bfloat16/1", "adapter": "mas-privacy-opf/1"},
-                 "destination": "local-detector", "timeout_ms": 30000, "memory_mib": 256}
+                 "destination": "local-detector", "timeout_ms": 60000, "memory_mib": 256}
     gateway = {"version": "mas-host-a2a/2", "listen": "127.0.0.1:8787", "public_url": "http://127.0.0.1:8787/a2a",
                "name": "Synthetic privacy response", "governance_file": str(destination / "governance.json"),
                "authentication_file": str(destination / "authentication.json"),

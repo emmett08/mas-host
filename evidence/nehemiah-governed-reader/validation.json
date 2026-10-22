@@ -1,0 +1,264 @@
+{
+  "schema": "nehemiah-governed-reader-evidence/1",
+  "status": "PASS",
+  "repository": "emmett08/mas-host",
+  "source_commit": "b2db88e038db00cc33c1df88d993290b83fb24df",
+  "source_tree": "25374cf7ae0d992287320f6385e9cf0115895e2e",
+  "parent_commit": "db77a670443776fc861875dd3a7328f5c8b3488f",
+  "toolchain": {
+    "rust": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+    "go": "go version go1.24.0 linux/amd64",
+    "node": "v24.19.0",
+    "python": "Python 3.12.14",
+    "system_python": "Python 3.12.3",
+    "spin": "Spin Version 6.5.1 -- 20 December 2019",
+    "cc": "cc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0"
+  },
+  "changed_source_sha256": {
+    "adapters/notifications/README.md": "c50663ec91903bfe0fb6f96d093f5401b90f16832eb7b925d3b9947dbb754a4d",
+    "adapters/notifications/privacy_response/__init__.py": "8b5392b23d538bcb3f2ad41c59cef832fb4352b0b0b2a6ad85b72d9fc1a4a440",
+    "adapters/notifications/privacy_response/case_status.py": "2bf212cae66dadd20b911a5770fbc69ff193da8b1600a35d831e4d2097877c74",
+    "adapters/notifications/tests/test_case_status.py": "b224e3c043858e8f80a08471fb505dc0dc80b9fdbb918a88ce7bfd25b5e2488f",
+    "adapters/notifications/tests/test_case_status_adversarial.py": "b31fa3995c11e6f9883e889d8a2e1ffa18fddd61866db3f603a5c2c1c044bcf4",
+    "crates/mas-host-cli/src/a2a/configuration.rs": "005bcda65bd7970541b1f3301d584a90fac119db2ad8ee24e3b6ca125ededabe",
+    "crates/mas-host-cli/src/a2a/http.rs": "50b34f30dc5a84056eeea33ea46c9ae3978621eb02887ee1c732adc4f8db8966",
+    "crates/mas-host-cli/src/a2a/mod.rs": "b403e78b6b4353f8b84a0759a4f75468883857b881845dc6835d4cdbb8632b64",
+    "crates/mas-host-cli/src/a2a/retained_effect.rs": "f4e701a21ce832dd06f7774a93abb7b7013e4c1f2f8a5de58c44d577f4d38778",
+    "crates/mas-host-cli/tests/a2a_governed.rs": "beb516dab384d8c765513b7c3c7e0931a49afbedd8c45e6313b6f480cdafbdef",
+    "crates/mas-host-cli/tests/a2a_governed/retained_effect.rs": "817451e38843f54402e1b737bc2b8e9128fcc4cb62c3f536b87fe5a4a43af92e",
+    "crates/mas-host-core/src/governance/mod.rs": "6d648ac9858d84837fb7c7a422fbf41bd7ac60ca96e1efe45ed545683ce4215f",
+    "crates/mas-host-core/src/governance/runtime/authorization.rs": "aed6eb0520ed5271b4b23cbf8aac4df130606a945ee9edcf6c26ffebf03377ff",
+    "crates/mas-host-core/src/governance/runtime/mod.rs": "adb7a27311e20214c44b606abf8d3435632a7363ffc9dd01601c73dd2d4d945b",
+    "crates/mas-host-core/src/governance/runtime/resolver.rs": "34810bb3e1bd5821144a4505d810deda8adb3829a07ca82783fb6e7631e40ff3",
+    "crates/mas-host-core/src/governance/runtime/resolver_adversarial_tests.rs": "ba514235d022ac978c483b8d45fd42f2a8608c14e5b06e8d751e5d2d5396ac43",
+    "crates/mas-host-core/src/governance/runtime/resolver_record.rs": "715ddaa62dd12c5c6a8febb523c1c3c48ffdd28dcd55c6008897f3766ce619fd",
+    "crates/mas-host-core/src/governance/runtime/resolver_tests.rs": "548bfc93a300b607ca1db2bcf61193a99452a28b34c3dc8aca9b724e13fccc8c",
+    "docs/a2a-source-pin.json": "9e2155afb1458f7686e364f4b27ad477f09a2890633c0a0a2eada0dde59a9918",
+    "docs/a2a.md": "aad49496c1dae10fd19dc4927cc5be78a3d1391ba50c98c1b97b21c72052a901",
+    "docs/governed-evidence-reader.md": "7028d4d39076d4a8cd235519dd92859eddc1c1ee8870d2573b565119ea21b6e6",
+    "docs/nehemiah-implementation.md": "8877846f9407987e3c04821855261d2d459c20d0ef4cc5f8ab13c3d23847aee6",
+    "examples/privacy-response/README.md": "10bd05f08862f01f20175cc8988375cd99727e105f95500eb5e76845a537eacf",
+    "examples/privacy-response/prepare.py": "83729c78cb506ee88c57594f6f45b6bcc3ea1f0321f8a2ebc93797700537a7ec",
+    "examples/privacy-response/verify.py": "089d6251c4b8623d270aa98d953cf7ec210eba2c1385fbea73be47f3094f8bf0",
+    "formal/README.md": "6a50bc755b511c8720a957728786da88eb98420a8bbe20bc80932d1db9333a34",
+    "formal/retained-effect.md": "550244bed82850f489cdc229e119623efdfaec50d0b0f31369ac895b780f17b8",
+    "formal/retained-effect.pml": "bc94bb0751b17bb8f8a2c0489ebb2b73a768e7709522943dc9874314ce13391a",
+    "formal/verify.py": "6474eacaf9b7d4de33a354ce5de765a6aa4cbad9ccb9c1a30e78d1b5fbc2bcf7"
+  },
+  "validation_source_identity": "All three command receipts contain the same full non-evidence source hashes. Their base records the local parent HEAD during execution; the staged source tree was frozen as source_commit. Evidence is committed separately.",
+  "plans": {
+    "current_files": [
+      {
+        "name": "nehemiah-pii-detection-response-plan.md",
+        "library_file_id": "libfile_800f3bb933fc8191ae9ec940b34eca74",
+        "version": null,
+        "snapshot_sha256": "8dd7b7a97b8ce2248e754d8c84a5dca2e89a55e6734ffbc7c0575c12de45b1f5"
+      },
+      {
+        "name": "nehemiah-enterprise-scaling-plan.md",
+        "library_file_id": "libfile_fad701f1c4d08191885e5b8190efd765",
+        "version": "1",
+        "snapshot_sha256": "4c7f7368ed9b245d1a435e302df53b3f488172a9a824d90d28bf6d8ac56788ad"
+      },
+      {
+        "name": "nehemiah-extensibility-data-use-plan.md",
+        "library_file_id": "libfile_60793a693e088191b7a4640f914f72a5",
+        "version": "1",
+        "snapshot_sha256": "e14410bab61418e2e2739ac4deb0c7cc13b096d18f3fb8ad7f50098db48e7854"
+      }
+    ],
+    "snapshot_normalisation": "Library read omits one final LF. Restoring that LF exactly matches all previous authoritative byte-sized snapshots; substantive content unchanged."
+  },
+  "formal_requirement": "Enterprise scaling plan section 6 requires finite control modelling, implementation schedule checks and independent adverse tests for changed ownership/admission transitions. This increment adds the retained-effect read control model and its deliberate guard-removal controls.",
+  "commands": {
+    "workspace": {
+      "command": [
+        "make",
+        "test"
+      ],
+      "status": "PASS",
+      "seconds": 560.354,
+      "exit_code": 0,
+      "log_sha256": "5d27af672ae60738d217a5be04b444c456abc89aa2fcad4cc19b69b693faf2e4",
+      "source_changes_during_checks": []
+    },
+    "acceptance": {
+      "command": [
+        "make",
+        "acceptance"
+      ],
+      "status": "PASS",
+      "seconds": 56.968,
+      "exit_code": 0,
+      "log_sha256": "31c5bcd6712c8a8bb82784b9ab9513e70f940ab86da673ea98c8712063449d24",
+      "source_changes_during_checks": []
+    },
+    "provider": {
+      "command": [
+        "make",
+        "provider-test"
+      ],
+      "status": "PASS",
+      "seconds": 0.572,
+      "exit_code": 0,
+      "log_sha256": "8a0a0a940d0df2948e4613d341ab9e54ecbffb721d76fd4b4d2247573cfd5780",
+      "source_changes_during_checks": []
+    }
+  },
+  "test_counts": {
+    "workspace_rust_passed": 295,
+    "workspace_rust_ignored": 3,
+    "workspace_rust_ignored_names": [
+      "code_only_apps_and_real_effect_recovery",
+      "worker_entry",
+      "tests::guardian_entry"
+    ],
+    "workspace_python_passed": 146,
+    "python_suite_counts": [
+      6,
+      59,
+      14,
+      15,
+      13,
+      39
+    ],
+    "native_acceptance_additional": 1,
+    "provider_node_tests_additional": 5,
+    "counting_rule": "Unique workspace suite summaries only. Independent focused reviews and the accepted single example overlap the final workspace checks and are not added again."
+  },
+  "formal": {
+    "status": "PASS_WITH_RESOURCE_RETRIES",
+    "checks": 184,
+    "status_counts": {
+      "COMPLETE_ZERO_ERRORS": 28,
+      "EXPECTED_COUNTEREXAMPLE": 156
+    },
+    "attempts": [
+      {
+        "directory": "governed-reader-formal-resource-timeout",
+        "status": "FAIL",
+        "checks": 184,
+        "seconds": 643.6123059099991,
+        "failures": [
+          {
+            "name": "privacy-response-between-effects-witness",
+            "model": "privacy-response.pml",
+            "macro": "WITNESS_BETWEEN_EFFECTS",
+            "claim": null,
+            "partial_order_reduction": true,
+            "expected": "counterexample",
+            "result": "FAILED_OR_INCOMPLETE",
+            "reason": "Command '['/usr/bin/cc', '-O2', '-DMEMLIM=512', '-DSAFETY', '-DNOCLAIM', '-o', 'pan', 'pan.c']' timed out after 30 seconds"
+          }
+        ],
+        "artifact_sha256": {
+          "summary.json": "9d685731c4ab20e9d8aa680e913826d4602a8228b1cb56b747193b0a5c42ffbb",
+          "commands.json": "0ad3fff601919bbd2761555ef7f3c28af12c1b48c88654afc6a3e1a6c6457637",
+          "counterexamples.zip": "18e8e5ab781f836028e4e7e115f4dafcd6709915dd7100a2743b73fa5a4760f7"
+        }
+      },
+      {
+        "directory": "governed-reader-formal-final",
+        "status": "FAIL",
+        "checks": 184,
+        "seconds": 567.8992352630012,
+        "failures": [
+          {
+            "name": "delegation-early-invalid-witness",
+            "model": "delegation.pml",
+            "macro": "WITNESS_EARLY_INVALID",
+            "claim": null,
+            "partial_order_reduction": true,
+            "expected": "counterexample",
+            "result": "FAILED_OR_INCOMPLETE",
+            "reason": "Command '['/usr/bin/cc', '-O2', '-DMEMLIM=512', '-DSAFETY', '-DNOCLAIM', '-o', 'pan', 'pan.c']' timed out after 30 seconds"
+          }
+        ],
+        "artifact_sha256": {
+          "summary.json": "761f2633b73fec3a4dc5f2186dee9e04bd416032ed4faa262abf43c8da1c1036",
+          "commands.json": "74004481fe4c09b4fca0a60301e47783086464b8ff4d38cd45dda2fc25f17f44",
+          "counterexamples.zip": "536284b3fedb667d116c3f28e9c30d25ec268fc2b4e31a265e9c1dbc6c2c89bd"
+        }
+      },
+      {
+        "directory": "governed-reader-formal-delegation-retry",
+        "status": "PASS",
+        "checks": 21,
+        "seconds": 37.68950180899992,
+        "failures": [],
+        "artifact_sha256": {
+          "summary.json": "99b170af2cd1956b67971cc94b14b134a102b9f62240e2d9365be52a28ac1cf4",
+          "commands.json": "ba511234912188ca045708f71c727e47ee198ab9233162b261a6cb44e5e48bee",
+          "counterexamples.zip": "1b2393d80189796c6bbb55a2121dfb5a116b1a57b9c2d1c2dba9d409ec2e66cc"
+        }
+      }
+    ],
+    "interpretation": "All 184 default case configurations completed successfully at the original bounds on identical model/runner sources. Each of two full default invocations failed one C compilation deadline; neither invocation is claimed as PASS. The affected delegation model was then explicitly retried with --model delegation and passed. Per-case provenance selects the latest successful observation. This coverage index does not alter or replace the raw runner receipts.",
+    "complete_zero_error_searches": 28,
+    "expected_replayed_counterexamples": 156,
+    "new_retained_reader_checks": 30,
+    "unchanged_previous_checks": 154,
+    "seconds": 1249.2010429820002,
+    "archive_sha256": "b4c056f3cf4bad2c62bf145853231b9467a9f3b523c3625bbc0a685e641e23f6",
+    "scope": "Bounded finite control verification and implementation correspondence; no Rust/Python/SQLite refinement proof, timing guarantee or detector quality assessment."
+  },
+  "diagnostics": [
+    "Each of two full formal invocations completed 183 of 184 expected checks, but compilation of different unchanged witnesses exceeded the same 30-second wall-clock bound. Their successful cases together cover all 184 configurations. The affected delegation model was then retried alone and passed. Both raw failures, the focused retry, their exact limits and per-case provenance are preserved; neither default invocation is described as PASS."
+  ],
+  "real_model_reader_smoke": {
+    "status": "NOT_RUN",
+    "reason": "This increment exercises deterministic scanner and loopback endpoint fixtures. Existing pinned-model runtime/quality evidence remains historical and is not transferred to this reader."
+  },
+  "contract": [
+    "Separate current resolve permission always precedes protected lookup. A configured query-inspection gate also precedes lookup and fails closed on outage; existing structured namespaces may omit the inspector under their existing contract.",
+    "One bounded read-only SQLite snapshot binds namespace, run, parent, actor, key, effect identity, original admitted descriptor and consistent completion.",
+    "Release the read transaction before inspection; no execution owner lock, recovery, writes or external dispatch.",
+    "Current payload/schema withholding preserves independently authorised host settlement facts; nonterminal/originally withheld views contain metadata only.",
+    "A2A task ownership selects the run and actor; clients supply only owned task ID and logical key and activate the optional extension.",
+    "Case status projection checks matching identities and keeps external execution, host settlement and recipient delivery separate; delivery remains unknown.",
+    "File authority checks and separate effect reads are snapshots; they do not establish distributed linearisation or atomic multi-record history.",
+    "Pure Python projection checks structure and bindings but does not authenticate arbitrary supplied JSON."
+  ],
+  "independent_review_binding": "Both independent receipts match the final source SHA256s. Their focused commands are overlapping checks and predate the parent full suite; final workspace, acceptance and source-identical 184-case formal coverage with the explicit model retry are the local release gates. The two default formal invocations each have a compiler timeout, preserved without relabelling their FAIL status. core-formal-review.json deliberately records those gates as pending at its creation; this receipt resolves them against the frozen source commit.",
+  "fixture_profile": "The deterministic privacy-response scanner explicitly retains the validated /usr/bin/python3 executable and uses a 60000 ms inspection budget. Its HTTP client budget is 150 seconds. Production defaults, limits and executable identity checks are unchanged. All four end-to-end scenarios run once in the final workspace gate.",
+  "remaining_plan_work": [
+    "E3 source/evidence ancestry and policy closure, per-invocation exposure inheritance, general acquisition/revision consumers, shared subscribers and more-than-32-reader/ancestor qualification.",
+    "N2 cross-field, conversational, numeric and unstructured inspection, remaining acquisition/inference/revision/diagnostic paths and measured quality qualification.",
+    "N3 authorised exact assessment/source access before adjudication, durable bounded scheduling, retry/escalation and provider reconciliation.",
+    "E4 deletion/expiry/restore, E5 isolation, N4 consumer integration and N5 measured deployment/quality/capacity; managed/shared profiles remain closed.",
+    "Identified reference deployment and shared P5/P6 dependencies; prior connection-profile work is not duplicated."
+  ],
+  "publication": {
+    "merged": false,
+    "deployed": false,
+    "manual_workflow_dispatches": 0,
+    "external_notifications_sent": 0,
+    "live_external_provider_calls": 0
+  },
+  "artifact_sha256": {
+    "formal-summary.json": "ac2f3d71e090e4f207bfbd8cc53475224c1334144a4af44d4b2ba6c19199e214",
+    "formal-second-attempt.json": "761f2633b73fec3a4dc5f2186dee9e04bd416032ed4faa262abf43c8da1c1036",
+    "formal-delegation-retry.json": "99b170af2cd1956b67971cc94b14b134a102b9f62240e2d9365be52a28ac1cf4",
+    "formal-coverage-review.json": "ac3f77d0c3e272c3ca5df22162b4418f17d40d1fb94c918b72620c6db0788293",
+    "compose-formal-evidence.py": "76db337257e8e3c545a6467b15cd4837cf604e1d6d39fb6f6612b9a4f534822b",
+    "formal-checks.tar.xz": "b4c056f3cf4bad2c62bf145853231b9467a9f3b523c3625bbc0a685e641e23f6",
+    "core-formal-review.json": "a11127c6f5131308660c4b4dbdd1e23b33f858c789c41027d5c0f457cc092430",
+    "independent-review.json": "7c342e175db7fddd5cda4b36d5aba7e4d6c459446d239628df5859c567802cda",
+    "http-adversarial.log": "7f155c705f44bd1d0be586dac6c19fc3c79587aef55d3d52fd0ec41e2fb4d7df",
+    "case-adversarial.log": "2def68e56314d441468b4ec4d07e87560b59ce01331b87f51caee9d337a0de6d",
+    "accepted-example.log": "16f2cc0110c62cf0d39d48d02acbb29a37ec5f68e97a132af319ba3fa4aa8878",
+    "validate-command.py": "9559aed03e51691d9c37077bfcaf8a5839f32c1328558aecbd2af6f7682bbe0f",
+    "toolchain.json": "b054d0154cc548a97410cec075e86dc0860baa3f03f2f74914fadc51337a0cb2",
+    "plan-snapshots.json": "841b16e18207783a1c9e8d948728877a781818dd6aa2082597c0011bb73367ec",
+    "formal-resource-timeout.json": "9d685731c4ab20e9d8aa680e913826d4602a8228b1cb56b747193b0a5c42ffbb",
+    "formal-resource-timeout.log": "6ece5de8677abfd6c52fe3bc1477634ca13b765ab5cf8759e72cd0ee09facf69",
+    "workspace-run.json": "5cd915d755443c6c0b1594fffa33dc4ceb61205b2b1b5e91140d0afdc6f88723",
+    "workspace-run.log": "5d27af672ae60738d217a5be04b444c456abc89aa2fcad4cc19b69b693faf2e4",
+    "acceptance-run.json": "2c86d7b086026f15b7b3f15d2be50240df76af0ceba6fafb6219e239a6ee3aab",
+    "acceptance-run.log": "31c5bcd6712c8a8bb82784b9ab9513e70f940ab86da673ea98c8712063449d24",
+    "provider-run.json": "9480aa335612a66ac16362ca8244113c9eb5cc0775f36ce6ce276149259ed810",
+    "provider-run.log": "8a0a0a940d0df2948e4613d341ab9e54ecbffb721d76fd4b4d2247573cfd5780",
+    ".gitattributes": "3188911374bde5dd4c6430f49ce0c4342e9d92b201672c028070267acc2c8fbf"
+  }
+}
