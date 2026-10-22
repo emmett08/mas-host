@@ -1,0 +1,1603 @@
+﻿2026-10-22T19:26:42.9396101Z Current runner version: '2.338.0'
+2026-10-22T19:26:42.9432492Z ##[group]Runner Image Provisioner
+2026-10-22T19:26:42.9434379Z Hosted Compute Agent
+2026-10-22T19:26:42.9435415Z Version: 20261012.601
+2026-10-22T19:26:42.9436892Z Commit: f3dc54e1fb89da6852db922499a0233137369e1d
+2026-10-22T19:26:42.9438415Z Build Date: 2026-10-12T17:48:21Z
+2026-10-22T19:26:42.9439643Z Worker ID: {d42ebee0-478d-4a17-88fd-7ef95207a7f1}
+2026-10-22T19:26:42.9441186Z Region: centralus
+2026-10-22T19:26:42.9442233Z Cloud: Azure
+2026-10-22T19:26:42.9443265Z ##[endgroup]
+2026-10-22T19:26:42.9445655Z ##[group]Operating System
+2026-10-22T19:26:42.9447156Z Ubuntu
+2026-10-22T19:26:42.9448275Z 24.04.5
+2026-10-22T19:26:42.9449269Z LTS
+2026-10-22T19:26:42.9450205Z ##[endgroup]
+2026-10-22T19:26:42.9451387Z ##[group]Runner Image
+2026-10-22T19:26:42.9452454Z Image: ubuntu-24.04
+2026-10-22T19:26:42.9453567Z Version: 20261012.334.1
+2026-10-22T19:26:42.9455630Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-22T19:26:42.9458812Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
+2026-10-22T19:26:42.9460556Z ##[endgroup]
+2026-10-22T19:26:42.9462658Z ##[group]GITHUB_TOKEN Permissions
+2026-10-22T19:26:42.9465639Z Contents: read
+2026-10-22T19:26:42.9467134Z Metadata: read
+2026-10-22T19:26:42.9468106Z ##[endgroup]
+2026-10-22T19:26:42.9471199Z Secret source: Actions
+2026-10-22T19:26:42.9472813Z Cache mode: write
+2026-10-22T19:26:42.9474130Z Prepare workflow directory
+2026-10-22T19:26:42.9828369Z Prepare all required actions
+2026-10-22T19:26:42.9876325Z Getting action download info
+2026-10-22T19:26:43.3142840Z Download action repository 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-10-22T19:26:43.4310383Z Download action repository 'actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e' (SHA:b7ad1dad31e06c5925ef5d2fc7ad053ef454303e)
+2026-10-22T19:26:44.0185092Z Download action repository 'actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-10-22T19:26:44.1036234Z Download action repository 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-22T19:26:44.3493980Z Complete job name: linux
+2026-10-22T19:26:44.4593412Z ##[group]Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+2026-10-22T19:26:44.4595189Z with:
+2026-10-22T19:26:44.4596007Z   persist-credentials: false
+2026-10-22T19:26:44.4597234Z   repository: emmett08/mas-host
+2026-10-22T19:26:44.4606287Z   token: ***
+2026-10-22T19:26:44.4607240Z   ssh-strict: true
+2026-10-22T19:26:44.4608073Z   ssh-user: git
+2026-10-22T19:26:44.4608874Z   clean: true
+2026-10-22T19:26:44.4609729Z   sparse-checkout-cone-mode: true
+2026-10-22T19:26:44.4610738Z   fetch-depth: 1
+2026-10-22T19:26:44.4611573Z   fetch-tags: false
+2026-10-22T19:26:44.4612425Z   show-progress: true
+2026-10-22T19:26:44.4613296Z   lfs: false
+2026-10-22T19:26:44.4614104Z   submodules: false
+2026-10-22T19:26:44.4614958Z   set-safe-directory: true
+2026-10-22T19:26:44.4615960Z   allow-unsafe-pr-checkout: false
+2026-10-22T19:26:44.4617734Z ##[endgroup]
+2026-10-22T19:26:44.5652538Z Syncing repository: emmett08/mas-host
+2026-10-22T19:26:44.5655117Z ##[group]Getting Git version info
+2026-10-22T19:26:44.5656795Z Working directory is '/home/runner/work/mas-host/mas-host'
+2026-10-22T19:26:44.5658951Z [command]/usr/bin/git version
+2026-10-22T19:26:44.5725958Z git version 2.55.0
+2026-10-22T19:26:44.5749495Z ##[endgroup]
+2026-10-22T19:26:44.5759704Z Temporarily overriding HOME='/home/runner/work/_temp/848834e4-83fe-4b41-8e97-91589ae03ae2' before making global git config changes
+2026-10-22T19:26:44.5763094Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-22T19:26:44.5765529Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mas-host/mas-host
+2026-10-22T19:26:44.5811294Z Deleting the contents of '/home/runner/work/mas-host/mas-host'
+2026-10-22T19:26:44.5814076Z ##[group]Determining repository object format
+2026-10-22T19:26:44.5816170Z ##[endgroup]
+2026-10-22T19:26:44.5817927Z ##[group]Initializing the repository
+2026-10-22T19:26:44.5820001Z [command]/usr/bin/git init /home/runner/work/mas-host/mas-host
+2026-10-22T19:26:44.6002266Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-22T19:26:44.6005573Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-22T19:26:44.6007847Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-22T19:26:44.6009387Z hint: call:
+2026-10-22T19:26:44.6010220Z hint:
+2026-10-22T19:26:44.6011323Z hint: 	git config --global init.defaultBranch <name>
+2026-10-22T19:26:44.6013264Z hint:
+2026-10-22T19:26:44.6014487Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-22T19:26:44.6016399Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-22T19:26:44.6018299Z hint:
+2026-10-22T19:26:44.6019160Z hint: 	git branch -m <name>
+2026-10-22T19:26:44.6020132Z hint:
+2026-10-22T19:26:44.6021590Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-22T19:26:44.6023982Z Initialized empty Git repository in /home/runner/work/mas-host/mas-host/.git/
+2026-10-22T19:26:44.6028626Z [command]/usr/bin/git remote add origin https://github.com/emmett08/mas-host
+2026-10-22T19:26:44.6032543Z ##[endgroup]
+2026-10-22T19:26:44.6034298Z ##[group]Disabling automatic garbage collection
+2026-10-22T19:26:44.6035917Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-22T19:26:44.6039713Z ##[endgroup]
+2026-10-22T19:26:44.6042436Z ##[group]Setting up auth
+2026-10-22T19:26:44.6044031Z Removing SSH command configuration
+2026-10-22T19:26:44.6047388Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-22T19:26:44.6070906Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-22T19:26:44.6454831Z Removing HTTP extra header
+2026-10-22T19:26:44.6460898Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-22T19:26:44.6493978Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-22T19:26:44.6714322Z Removing includeIf entries pointing to credentials config files
+2026-10-22T19:26:44.6720150Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-22T19:26:44.6752659Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-22T19:26:44.6971708Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-40899927-6c53-43b6-907b-d338ce02a472.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-22T19:26:44.7014216Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/mas-host/mas-host/.git.path /home/runner/work/_temp/git-credentials-40899927-6c53-43b6-907b-d338ce02a472.config
+2026-10-22T19:26:44.7046002Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/mas-host/mas-host/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-40899927-6c53-43b6-907b-d338ce02a472.config
+2026-10-22T19:26:44.7080616Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-40899927-6c53-43b6-907b-d338ce02a472.config
+2026-10-22T19:26:44.7111483Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-40899927-6c53-43b6-907b-d338ce02a472.config
+2026-10-22T19:26:44.7139252Z ##[endgroup]
+2026-10-22T19:26:44.7141001Z ##[group]Fetching the repository
+2026-10-22T19:26:44.7145925Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +6950d93c9f5d36b95f3a5e5d6b759c636afaa128:refs/remotes/pull/19/merge
+2026-10-22T19:26:45.6267097Z From https://github.com/emmett08/mas-host
+2026-10-22T19:26:45.6269779Z  * [new ref]         6950d93c9f5d36b95f3a5e5d6b759c636afaa128 -> pull/19/merge
+2026-10-22T19:26:45.6272472Z ##[endgroup]
+2026-10-22T19:26:45.6273410Z ##[group]Determining the checkout info
+2026-10-22T19:26:45.6274522Z ##[endgroup]
+2026-10-22T19:26:45.6278780Z [command]/usr/bin/git sparse-checkout disable
+2026-10-22T19:26:45.6330104Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-22T19:26:45.6358914Z ##[group]Checking out the ref
+2026-10-22T19:26:45.6362239Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/19/merge
+2026-10-22T19:26:45.6762518Z Note: switching to 'refs/remotes/pull/19/merge'.
+2026-10-22T19:26:45.6763118Z 
+2026-10-22T19:26:45.6763572Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-22T19:26:45.6764648Z changes and commit them, and you can discard any commits you make in this
+2026-10-22T19:26:45.6765628Z state without impacting any branches by switching back to a branch.
+2026-10-22T19:26:45.6766086Z 
+2026-10-22T19:26:45.6766752Z If you want to create a new branch to retain commits you create, you may
+2026-10-22T19:26:45.6768064Z do so (now or later) by using -c with the switch command. Example:
+2026-10-22T19:26:45.6768814Z 
+2026-10-22T19:26:45.6769219Z   git switch -c <new-branch-name>
+2026-10-22T19:26:45.6769794Z 
+2026-10-22T19:26:45.6770165Z Or undo this operation with:
+2026-10-22T19:26:45.6770662Z 
+2026-10-22T19:26:45.6770974Z   git switch -
+2026-10-22T19:26:45.6771403Z 
+2026-10-22T19:26:45.6772071Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-22T19:26:45.6772864Z 
+2026-10-22T19:26:45.6773754Z HEAD is now at 6950d93 Merge c84feb406eff46e9c2857b5ad92a817ab4bc12ec into db77a670443776fc861875dd3a7328f5c8b3488f
+2026-10-22T19:26:45.6781792Z ##[endgroup]
+2026-10-22T19:26:45.6828477Z [command]/usr/bin/git log -1 --format=%H
+2026-10-22T19:26:45.6853301Z 6950d93c9f5d36b95f3a5e5d6b759c636afaa128
+2026-10-22T19:26:45.6863289Z ##[group]Removing auth
+2026-10-22T19:26:45.6864686Z Removing SSH command configuration
+2026-10-22T19:26:45.6868627Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-22T19:26:45.6900252Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-22T19:26:45.7117645Z Removing HTTP extra header
+2026-10-22T19:26:45.7122114Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-22T19:26:45.7153751Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-22T19:26:45.7370154Z Removing includeIf entries pointing to credentials config files
+2026-10-22T19:26:45.7373378Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-22T19:26:45.7410424Z includeif.gitdir:/home/runner/work/mas-host/mas-host/.git.path
+2026-10-22T19:26:45.7411514Z includeif.gitdir:/home/runner/work/mas-host/mas-host/.git/worktrees/*.path
+2026-10-22T19:26:45.7412427Z includeif.gitdir:/github/workspace/.git.path
+2026-10-22T19:26:45.7413235Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-22T19:26:45.7419918Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/mas-host/mas-host/.git.path
+2026-10-22T19:26:45.7440985Z /home/runner/work/_temp/git-credentials-40899927-6c53-43b6-907b-d338ce02a472.config
+2026-10-22T19:26:45.7452620Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/mas-host/mas-host/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-40899927\-6c53\-43b6\-907b\-d338ce02a472\.config
+2026-10-22T19:26:45.7488854Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/mas-host/mas-host/.git/worktrees/*.path
+2026-10-22T19:26:45.7511234Z /home/runner/work/_temp/git-credentials-40899927-6c53-43b6-907b-d338ce02a472.config
+2026-10-22T19:26:45.7520815Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/mas-host/mas-host/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-40899927\-6c53\-43b6\-907b\-d338ce02a472\.config
+2026-10-22T19:26:45.7552871Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-22T19:26:45.7573152Z /github/runner_temp/git-credentials-40899927-6c53-43b6-907b-d338ce02a472.config
+2026-10-22T19:26:45.7582661Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-40899927\-6c53\-43b6\-907b\-d338ce02a472\.config
+2026-10-22T19:26:45.7616125Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-22T19:26:45.7638391Z /github/runner_temp/git-credentials-40899927-6c53-43b6-907b-d338ce02a472.config
+2026-10-22T19:26:45.7647241Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-40899927\-6c53\-43b6\-907b\-d338ce02a472\.config
+2026-10-22T19:26:45.7678644Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-22T19:26:45.7889526Z Removing credentials config '/home/runner/work/_temp/git-credentials-40899927-6c53-43b6-907b-d338ce02a472.config'
+2026-10-22T19:26:45.7898308Z ##[endgroup]
+2026-10-22T19:26:45.8167868Z ##[group]Run actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+2026-10-22T19:26:45.8168680Z with:
+2026-10-22T19:26:45.8169190Z   go-version: 1.24.0
+2026-10-22T19:26:45.8169740Z   cache: false
+2026-10-22T19:26:45.8170266Z   check-latest: false
+2026-10-22T19:26:45.8173545Z   token: ***
+2026-10-22T19:26:45.8174056Z ##[endgroup]
+2026-10-22T19:26:45.9288445Z Setup go version spec 1.24.0
+2026-10-22T19:26:45.9309556Z Attempting to download 1.24.0...
+2026-10-22T19:26:46.6798716Z matching 1.24.0...
+2026-10-22T19:26:46.6850226Z Acquiring 1.24.0 from https://github.com/actions/go-versions/releases/download/1.24.0-13277276272/go-1.24.0-linux-x64.tar.gz
+2026-10-22T19:26:47.3659292Z Extracting Go...
+2026-10-22T19:26:47.3766458Z [command]/usr/bin/tar xz --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/e33774a8-7ea2-403e-a1ad-3c31ffd5859a -f /home/runner/work/_temp/ffd32c14-3459-4108-9f4a-d593bc86a2ed
+2026-10-22T19:26:49.1457776Z Successfully extracted go to /home/runner/work/_temp/e33774a8-7ea2-403e-a1ad-3c31ffd5859a
+2026-10-22T19:26:49.1458389Z Adding to the cache ...
+2026-10-22T19:26:54.4464087Z Successfully cached go to /opt/hostedtoolcache/go/1.24.0/x64
+2026-10-22T19:26:54.4466691Z Added go to the path
+2026-10-22T19:26:54.4468345Z Successfully set up Go version 1.24.0
+2026-10-22T19:26:54.4652186Z go version go1.24.0 linux/amd64
+2026-10-22T19:26:54.4652412Z 
+2026-10-22T19:26:54.4652691Z ##[group]go env
+2026-10-22T19:26:54.6040355Z AR='ar'
+2026-10-22T19:26:54.6040845Z CC='gcc'
+2026-10-22T19:26:54.6041226Z CGO_CFLAGS='-O2 -g'
+2026-10-22T19:26:54.6041647Z CGO_CPPFLAGS=''
+2026-10-22T19:26:54.6041969Z CGO_CXXFLAGS='-O2 -g'
+2026-10-22T19:26:54.6042207Z CGO_ENABLED='1'
+2026-10-22T19:26:54.6042425Z CGO_FFLAGS='-O2 -g'
+2026-10-22T19:26:54.6042646Z CGO_LDFLAGS='-O2 -g'
+2026-10-22T19:26:54.6042859Z CXX='g++'
+2026-10-22T19:26:54.6043065Z GCCGO='gccgo'
+2026-10-22T19:26:54.6043267Z GO111MODULE=''
+2026-10-22T19:26:54.6043469Z GOAMD64='v1'
+2026-10-22T19:26:54.6043668Z GOARCH='amd64'
+2026-10-22T19:26:54.6043897Z GOAUTH='netrc'
+2026-10-22T19:26:54.6044089Z GOBIN=''
+2026-10-22T19:26:54.6044309Z GOCACHE='/home/runner/.cache/go-build'
+2026-10-22T19:26:54.6044843Z GOCACHEPROG=''
+2026-10-22T19:26:54.6045074Z GODEBUG=''
+2026-10-22T19:26:54.6045309Z GOENV='/home/runner/.config/go/env'
+2026-10-22T19:26:54.6045628Z GOEXE=''
+2026-10-22T19:26:54.6045824Z GOEXPERIMENT=''
+2026-10-22T19:26:54.6046037Z GOFIPS140='off'
+2026-10-22T19:26:54.6046275Z GOFLAGS=''
+2026-10-22T19:26:54.6047267Z GOGCCFLAGS='-fPIC -m64 -pthread -Wl,--no-gc-sections -fmessage-length=0 -ffile-prefix-map=/tmp/go-build2357080155=/tmp/go-build -gno-record-gcc-switches'
+2026-10-22T19:26:54.6047957Z GOHOSTARCH='amd64'
+2026-10-22T19:26:54.6048179Z GOHOSTOS='linux'
+2026-10-22T19:26:54.6048407Z GOINSECURE=''
+2026-10-22T19:26:54.6048656Z GOMOD='/dev/null'
+2026-10-22T19:26:54.6048898Z GOMODCACHE='/home/runner/go/pkg/mod'
+2026-10-22T19:26:54.6049197Z GONOPROXY=''
+2026-10-22T19:26:54.6049406Z GONOSUMDB=''
+2026-10-22T19:26:54.6049602Z GOOS='linux'
+2026-10-22T19:26:54.6049823Z GOPATH='/home/runner/go'
+2026-10-22T19:26:54.6050049Z GOPRIVATE=''
+2026-10-22T19:26:54.6050315Z GOPROXY='https://proxy.golang.org,direct'
+2026-10-22T19:26:54.6050649Z GOROOT='/opt/hostedtoolcache/go/1.24.0/x64'
+2026-10-22T19:26:54.6050947Z GOSUMDB='sum.golang.org'
+2026-10-22T19:26:54.6051176Z GOTELEMETRY='local'
+2026-10-22T19:26:54.6051445Z GOTELEMETRYDIR='/home/runner/.config/go/telemetry'
+2026-10-22T19:26:54.6051749Z GOTMPDIR=''
+2026-10-22T19:26:54.6051952Z GOTOOLCHAIN='local'
+2026-10-22T19:26:54.6052270Z GOTOOLDIR='/opt/hostedtoolcache/go/1.24.0/x64/pkg/tool/linux_amd64'
+2026-10-22T19:26:54.6052619Z GOVCS=''
+2026-10-22T19:26:54.6052817Z GOVERSION='go1.24.0'
+2026-10-22T19:26:54.6053027Z GOWORK=''
+2026-10-22T19:26:54.6053230Z PKG_CONFIG='pkg-config'
+2026-10-22T19:26:54.6053388Z 
+2026-10-22T19:26:54.6053752Z ##[endgroup]
+2026-10-22T19:26:54.6282012Z ##[group]Run rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy
+2026-10-22T19:26:54.6282801Z [36;1mrustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy[0m
+2026-10-22T19:26:54.6558073Z shell: /usr/bin/bash -e {0}
+2026-10-22T19:26:54.6558480Z env:
+2026-10-22T19:26:54.6558757Z   GOTOOLCHAIN: local
+2026-10-22T19:26:54.6559060Z ##[endgroup]
+2026-10-22T19:26:54.7158280Z info: syncing channel updates for 1.99.0-x86_64-unknown-linux-gnu
+2026-10-22T19:26:55.0068935Z info: latest update on 2026-10-01 for version 1.99.0 (b940084d7 2026-09-28)
+2026-10-22T19:26:55.0069563Z info: downloading 5 components
+2026-10-22T19:27:03.2658164Z 
+2026-10-22T19:27:03.2722123Z   1.99.0-x86_64-unknown-linux-gnu installed - rustc 1.99.0 (b940084d7 2026-09-28)
+2026-10-22T19:27:03.2722709Z 
+2026-10-22T19:27:03.2857042Z ##[group]Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+2026-10-22T19:27:03.2857475Z with:
+2026-10-22T19:27:03.2857678Z   node-version: 22.14.0
+2026-10-22T19:27:03.2857906Z   always-auth: false
+2026-10-22T19:27:03.2858120Z   check-latest: false
+2026-10-22T19:27:03.2860625Z   token: ***
+2026-10-22T19:27:03.2860814Z env:
+2026-10-22T19:27:03.2860995Z   GOTOOLCHAIN: local
+2026-10-22T19:27:03.2861208Z ##[endgroup]
+2026-10-22T19:27:03.4212162Z Attempting to download 22.14.0...
+2026-10-22T19:27:03.4316756Z (node:2523) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-22T19:27:03.4317973Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-22T19:27:04.2400120Z Acquiring 22.14.0 - x64 from https://github.com/actions/node-versions/releases/download/22.14.0-13265982013/node-22.14.0-linux-x64.tar.gz
+2026-10-22T19:27:04.8530084Z Extracting ...
+2026-10-22T19:27:04.8661887Z [command]/usr/bin/tar xz --strip 1 --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/cbaeb39d-2109-46c0-b9d9-e774fd39c7d4 -f /home/runner/work/_temp/c35a9028-3fb1-4365-82f1-a4fb0a9c26f0
+2026-10-22T19:27:06.0672404Z Adding to the cache ...
+2026-10-22T19:27:08.0147388Z ##[group]Environment details
+2026-10-22T19:27:08.2344068Z node: v22.14.0
+2026-10-22T19:27:08.2344614Z npm: 10.9.2
+2026-10-22T19:27:08.2345077Z yarn: 1.22.22
+2026-10-22T19:27:08.2346017Z ##[endgroup]
+2026-10-22T19:27:08.2511579Z ##[group]Run node --test assets/providers/cursor.test.mjs
+2026-10-22T19:27:08.2512037Z [36;1mnode --test assets/providers/cursor.test.mjs[0m
+2026-10-22T19:27:08.2574532Z shell: /usr/bin/bash -e {0}
+2026-10-22T19:27:08.2574838Z env:
+2026-10-22T19:27:08.2575080Z   GOTOOLCHAIN: local
+2026-10-22T19:27:08.2575350Z ##[endgroup]
+2026-10-22T19:27:08.3045697Z TAP version 13
+2026-10-22T19:27:08.3516076Z # Subtest: Cursor uses the documented text-only SDK contract in a clean temporary workspace
+2026-10-22T19:27:08.3542335Z ok 1 - Cursor uses the documented text-only SDK contract in a clean temporary workspace
+2026-10-22T19:27:08.3543234Z   ---
+2026-10-22T19:27:08.3543848Z   duration_ms: 8.35709
+2026-10-22T19:27:08.3544223Z   ...
+2026-10-22T19:27:08.3544805Z # Subtest: Missing credentials fail before SDK acquisition
+2026-10-22T19:27:08.3545583Z ok 2 - Missing credentials fail before SDK acquisition
+2026-10-22T19:27:08.3546095Z   ---
+2026-10-22T19:27:08.3546450Z   duration_ms: 0.333755
+2026-10-22T19:27:08.3547369Z   ...
+2026-10-22T19:27:08.3548080Z # Subtest: A failed send remains unknown and does not reveal or retry errors
+2026-10-22T19:27:08.3549080Z ok 3 - A failed send remains unknown and does not reveal or retry errors
+2026-10-22T19:27:08.3549633Z   ---
+2026-10-22T19:27:08.3549848Z   duration_ms: 2.05226
+2026-10-22T19:27:08.3550067Z   ...
+2026-10-22T19:27:08.3556060Z # Subtest: Raw output and failed disposal retain separate evidence for Rust validation
+2026-10-22T19:27:08.3560854Z ok 4 - Raw output and failed disposal retain separate evidence for Rust validation
+2026-10-22T19:27:08.3561587Z   ---
+2026-10-22T19:27:08.3561988Z   duration_ms: 2.17489
+2026-10-22T19:27:08.3562389Z   ...
+2026-10-22T19:27:08.3568853Z # Subtest: Application integers and raw output reach Rust without JavaScript rounding
+2026-10-22T19:27:08.3571242Z ok 5 - Application integers and raw output reach Rust without JavaScript rounding
+2026-10-22T19:27:08.3571955Z   ---
+2026-10-22T19:27:08.3572439Z   duration_ms: 1.104084
+2026-10-22T19:27:08.3572689Z   ...
+2026-10-22T19:27:08.3664640Z 1..5
+2026-10-22T19:27:08.3665204Z # tests 5
+2026-10-22T19:27:08.3667323Z # suites 0
+2026-10-22T19:27:08.3677359Z # pass 5
+2026-10-22T19:27:08.3677704Z # fail 0
+2026-10-22T19:27:08.3678030Z # cancelled 0
+2026-10-22T19:27:08.3678496Z # skipped 0
+2026-10-22T19:27:08.3678837Z # todo 0
+2026-10-22T19:27:08.3679208Z # duration_ms 75.767153
+2026-10-22T19:27:08.3742071Z ##[group]Run python3 -c 'import sys; assert sys.version_info >= (3, 11), sys.version'
+2026-10-22T19:27:08.3742642Z [36;1mpython3 -c 'import sys; assert sys.version_info >= (3, 11), sys.version'[0m
+2026-10-22T19:27:08.3808464Z shell: /usr/bin/bash -e {0}
+2026-10-22T19:27:08.3808715Z env:
+2026-10-22T19:27:08.3808903Z   GOTOOLCHAIN: local
+2026-10-22T19:27:08.3809127Z ##[endgroup]
+2026-10-22T19:27:08.4112145Z ##[group]Run make test
+2026-10-22T19:27:08.4112433Z [36;1mmake test[0m
+2026-10-22T19:27:08.4172821Z shell: /usr/bin/bash -e {0}
+2026-10-22T19:27:08.4173088Z env:
+2026-10-22T19:27:08.4173311Z   GOTOOLCHAIN: local
+2026-10-22T19:27:08.4173545Z ##[endgroup]
+2026-10-22T19:27:08.4279406Z cargo fmt --all -- --check
+2026-10-22T19:27:08.8133325Z cargo clippy --locked --workspace --all-targets -- -D warnings
+2026-10-22T19:27:08.8830579Z     Updating crates.io index
+2026-10-22T19:27:08.8840621Z     Updating git repository `https://github.com/emmett08/mas`
+2026-10-22T19:27:10.3643243Z  Downloading crates ...
+2026-10-22T19:27:10.4535538Z   Downloaded block-buffer v0.12.1
+2026-10-22T19:27:10.4646697Z   Downloaded atomic-waker v1.1.2
+2026-10-22T19:27:10.4659406Z   Downloaded autocfg v1.5.1
+2026-10-22T19:27:10.4682640Z   Downloaded bitflags v2.13.2
+2026-10-22T19:27:10.4729640Z   Downloaded http-body v1.1.0
+2026-10-22T19:27:10.4739247Z   Downloaded cfg-if v1.0.5
+2026-10-22T19:27:10.4755627Z   Downloaded arraydeque v0.5.1
+2026-10-22T19:27:10.5202441Z   Downloaded hybrid-array v0.4.15
+2026-10-22T19:27:10.5350833Z   Downloaded futures-core v0.3.34
+2026-10-22T19:27:10.5368247Z   Downloaded serde_spanned v1.1.2
+2026-10-22T19:27:10.5494546Z   Downloaded http-body-util v0.1.5
+2026-10-22T19:27:10.5516153Z   Downloaded nom v8.0.0
+2026-10-22T19:27:10.5606038Z   Downloaded foldhash v0.2.0
+2026-10-22T19:27:10.5620996Z   Downloaded pkg-config v0.3.34
+2026-10-22T19:27:10.5639218Z   Downloaded socket2 v0.6.5
+2026-10-22T19:27:10.5658042Z   Downloaded toml_parser v1.1.5+spec-1.1.0
+2026-10-22T19:27:10.5680473Z   Downloaded toml v1.1.8+spec-1.1.0
+2026-10-22T19:27:10.5720578Z   Downloaded const-oid v0.10.2
+2026-10-22T19:27:10.5763117Z   Downloaded indexmap v2.14.2
+2026-10-22T19:27:10.5807793Z   Downloaded itoa v1.0.18
+2026-10-22T19:27:10.5821695Z   Downloaded pin-project-lite v0.2.17
+2026-10-22T19:27:10.5881605Z   Downloaded sha2 v0.11.0
+2026-10-22T19:27:10.5935778Z   Downloaded digest v0.11.3
+2026-10-22T19:27:10.5958901Z   Downloaded hashbrown v0.17.1
+2026-10-22T19:27:10.6012470Z   Downloaded cpufeatures v0.3.1
+2026-10-22T19:27:10.6037837Z   Downloaded toml_datetime v1.1.2+spec-1.1.0
+2026-10-22T19:27:10.6059539Z   Downloaded httpdate v1.0.3
+2026-10-22T19:27:10.6071473Z   Downloaded vcpkg v0.2.15
+2026-10-22T19:27:10.6670216Z   Downloaded shlex v2.0.1
+2026-10-22T19:27:10.6682611Z   Downloaded toml_writer v1.1.3+spec-1.1.0
+2026-10-22T19:27:10.6696197Z   Downloaded http v1.5.0
+2026-10-22T19:27:10.6731352Z   Downloaded crypto-common v0.2.2
+2026-10-22T19:27:10.6742858Z   Downloaded ctutils v0.4.3
+2026-10-22T19:27:10.6762340Z   Downloaded num-integer v0.1.47
+2026-10-22T19:27:10.6776929Z   Downloaded cmov v0.5.4
+2026-10-22T19:27:10.6794798Z   Downloaded smallvec v1.16.3
+2026-10-22T19:27:10.6810015Z   Downloaded find-msvc-tools v0.1.14
+2026-10-22T19:27:10.6825936Z   Downloaded hashlink v0.12.2
+2026-10-22T19:27:10.6850633Z   Downloaded rusqlite v0.40.2
+2026-10-22T19:27:10.6918083Z   Downloaded hmac v0.13.0
+2026-10-22T19:27:10.6938318Z   Downloaded serde_core v1.0.229
+2026-10-22T19:27:10.6964592Z   Downloaded fallible-iterator v0.3.0
+2026-10-22T19:27:10.6976480Z   Downloaded memchr v2.8.3
+2026-10-22T19:27:10.7029823Z   Downloaded mio v1.2.4
+2026-10-22T19:27:10.7089122Z   Downloaded num-bigint v0.4.8
+2026-10-22T19:27:10.7135407Z   Downloaded zmij v1.0.23
+2026-10-22T19:27:10.7152498Z   Downloaded winnow v1.0.4
+2026-10-22T19:27:10.7246709Z   Downloaded bytes v1.12.1
+2026-10-22T19:27:10.7280689Z   Downloaded hyper v1.12.0
+2026-10-22T19:27:10.7348651Z   Downloaded num-traits v0.2.19
+2026-10-22T19:27:10.7373768Z   Downloaded hyper-util v0.1.21
+2026-10-22T19:27:10.7436151Z   Downloaded serde_json v1.0.152
+2026-10-22T19:27:10.7507155Z   Downloaded fallible-streaming-iterator v0.1.9
+2026-10-22T19:27:10.7515892Z   Downloaded httparse v1.10.1
+2026-10-22T19:27:10.7539742Z   Downloaded typenum v1.20.1
+2026-10-22T19:27:10.7574307Z   Downloaded cc v1.8.0
+2026-10-22T19:27:10.7611224Z   Downloaded equivalent v1.0.3
+2026-10-22T19:27:10.7621418Z   Downloaded tokio v1.53.3
+2026-10-22T19:27:10.8076786Z   Downloaded subtle v2.6.1
+2026-10-22T19:27:10.8087972Z   Downloaded yaml-rust2 v0.13.0
+2026-10-22T19:27:10.8121698Z   Downloaded libc v0.2.190
+2026-10-22T19:27:10.8590194Z   Downloaded libsqlite3-sys v0.38.2
+2026-10-22T19:27:11.0892789Z     Checking itoa v1.0.18
+2026-10-22T19:27:11.0893717Z    Compiling zmij v1.0.23
+2026-10-22T19:27:11.0894963Z    Compiling serde_core v1.0.229
+2026-10-22T19:27:11.0896008Z    Compiling serde_json v1.0.152
+2026-10-22T19:27:11.1700374Z     Checking memchr v2.8.3
+2026-10-22T19:27:11.1927820Z     Checking typenum v1.20.1
+2026-10-22T19:27:11.4887543Z     Checking cmov v0.5.4
+2026-10-22T19:27:11.5217825Z     Checking const-oid v0.10.2
+2026-10-22T19:27:11.6108126Z     Checking cpufeatures v0.3.1
+2026-10-22T19:27:11.6202192Z     Checking ctutils v0.4.3
+2026-10-22T19:27:11.6395527Z     Checking cfg-if v1.0.5
+2026-10-22T19:27:11.6655073Z    Compiling libc v0.2.190
+2026-10-22T19:27:11.7674922Z    Compiling shlex v2.0.1
+2026-10-22T19:27:11.8696704Z    Compiling find-msvc-tools v0.1.14
+2026-10-22T19:27:12.0139161Z    Compiling cc v1.8.0
+2026-10-22T19:27:12.0527858Z     Checking hybrid-array v0.4.15
+2026-10-22T19:27:12.5567799Z     Checking block-buffer v0.12.1
+2026-10-22T19:27:12.6287930Z     Checking crypto-common v0.2.2
+2026-10-22T19:27:12.9108965Z    Compiling pkg-config v0.3.34
+2026-10-22T19:27:13.1896336Z     Checking digest v0.11.3
+2026-10-22T19:27:13.3047995Z     Checking sha2 v0.11.0
+2026-10-22T19:27:13.3152476Z     Checking foldhash v0.2.0
+2026-10-22T19:27:13.3817920Z    Compiling vcpkg v0.2.15
+2026-10-22T19:27:13.6367932Z     Checking hashbrown v0.17.1
+2026-10-22T19:27:13.7966189Z     Checking smallvec v1.16.3
+2026-10-22T19:27:13.8728340Z     Checking fallible-iterator v0.3.0
+2026-10-22T19:27:13.9108509Z     Checking bitflags v2.13.2
+2026-10-22T19:27:13.9478077Z    Compiling libsqlite3-sys v0.38.2
+2026-10-22T19:27:14.0048012Z     Checking fallible-streaming-iterator v0.1.9
+2026-10-22T19:27:14.0697896Z     Checking nom v8.0.0
+2026-10-22T19:27:14.1047950Z     Checking hashlink v0.12.2
+2026-10-22T19:27:14.1295605Z     Checking subtle v2.6.1
+2026-10-22T19:27:14.2078411Z     Checking mas-host-process v0.1.0 (/home/runner/work/mas-host/mas-host/crates/mas-host-process)
+2026-10-22T19:27:14.2514700Z     Checking mas-host-privacy v0.1.0 (/home/runner/work/mas-host/mas-host/crates/mas-host-privacy)
+2026-10-22T19:27:14.3002873Z     Checking mas-host-schema v0.1.0 (/home/runner/work/mas-host/mas-host/crates/mas-host-schema)
+2026-10-22T19:27:14.3597153Z     Checking bytes v1.12.1
+2026-10-22T19:27:14.4577817Z    Compiling autocfg v1.5.1
+2026-10-22T19:27:14.7418250Z    Compiling num-traits v0.2.19
+2026-10-22T19:27:14.7688631Z     Checking http v1.5.0
+2026-10-22T19:27:14.8250974Z    Compiling httparse v1.10.1
+2026-10-22T19:27:15.0137780Z     Checking pin-project-lite v0.2.17
+2026-10-22T19:27:15.1087967Z     Checking socket2 v0.6.5
+2026-10-22T19:27:15.3237743Z     Checking mio v1.2.4
+2026-10-22T19:27:15.3498099Z     Checking http-body v1.1.0
+2026-10-22T19:27:15.4069456Z     Checking futures-core v0.3.34
+2026-10-22T19:27:15.5358280Z     Checking tokio v1.53.3
+2026-10-22T19:27:16.1597089Z     Checking hmac v0.13.0
+2026-10-22T19:27:16.3137794Z     Checking httpdate v1.0.3
+2026-10-22T19:27:16.3777622Z     Checking winnow v1.0.4
+2026-10-22T19:27:16.4917964Z     Checking atomic-waker v1.1.2
+2026-10-22T19:27:16.5187751Z     Checking num-integer v0.1.47
+2026-10-22T19:27:16.6338274Z     Checking toml_parser v1.1.5+spec-1.1.0
+2026-10-22T19:27:16.6898169Z     Checking serde_spanned v1.1.2
+2026-10-22T19:27:16.7258689Z     Checking toml_datetime v1.1.2+spec-1.1.0
+2026-10-22T19:27:16.8187807Z     Checking arraydeque v0.5.1
+2026-10-22T19:27:16.9117733Z     Checking toml v1.1.8+spec-1.1.0
+2026-10-22T19:27:16.9276247Z     Checking yaml-rust2 v0.13.0
+2026-10-22T19:27:17.0957875Z     Checking num-bigint v0.4.8
+2026-10-22T19:27:17.1988200Z     Checking http-body-util v0.1.5
+2026-10-22T19:27:17.3628820Z     Checking mas-host-native-build v0.1.0 (/home/runner/work/mas-host/mas-host/crates/mas-host-native-build)
+2026-10-22T19:27:17.7808013Z     Checking hyper v1.12.0
+2026-10-22T19:27:18.2283501Z     Checking hyper-util v0.1.21
+2026-10-22T19:27:23.8452521Z     Checking rusqlite v0.40.2
+2026-10-22T19:27:24.2281198Z     Checking mas-protocol-codec v0.1.0 (https://github.com/emmett08/mas?rev=fe644bbf3acb3ccc2abaffd54bcc4b367053fe4b#fe644bbf)
+2026-10-22T19:27:24.6839299Z     Checking mas-host-sdk v0.1.0 (/home/runner/work/mas-host/mas-host/sdk/rust)
+2026-10-22T19:27:24.6840827Z     Checking mas-host-providers v0.1.0 (/home/runner/work/mas-host/mas-host/crates/mas-host-providers)
+2026-10-22T19:27:24.6842028Z     Checking mas-host-worker v0.1.0 (/home/runner/work/mas-host/mas-host/crates/mas-host-worker)
+2026-10-22T19:27:24.7809121Z     Checking mas-host-core v0.1.0 (/home/runner/work/mas-host/mas-host/crates/mas-host-core)
+2026-10-22T19:27:24.7857874Z     Checking mas-host-workflow v0.1.0 (/home/runner/work/mas-host/mas-host/crates/mas-host-workflow)
+2026-10-22T19:27:24.9858421Z     Checking mas-host-runtime v0.1.0 (/home/runner/work/mas-host/mas-host/crates/mas-host-runtime)
+2026-10-22T19:27:25.6989839Z     Checking mas-host v0.1.0 (/home/runner/work/mas-host/mas-host/crates/mas-host-cli)
+2026-10-22T19:27:26.9965530Z     Finished `dev` profile [unoptimized + debuginfo] target(s) in 18.13s
+2026-10-22T19:27:27.0345881Z cd sdk/go && go vet ./...
+2026-10-22T19:27:34.7322496Z cd tests/fixtures/go-release && go vet ./...
+2026-10-22T19:27:34.8035224Z npm --prefix examples/structured-evidence/typescript ci --ignore-scripts
+2026-10-22T19:27:35.4921419Z 
+2026-10-22T19:27:35.4922247Z added 1 package, and audited 2 packages in 636ms
+2026-10-22T19:27:35.4929208Z 
+2026-10-22T19:27:35.4929464Z found 0 vulnerabilities
+2026-10-22T19:27:35.5344826Z npm --prefix examples/structured-evidence/typescript run check
+2026-10-22T19:27:35.6267126Z 
+2026-10-22T19:27:35.6268060Z > nehemiah-structured-evidence-fixture@0.1.0 check
+2026-10-22T19:27:35.6268937Z > tsc --noEmit -p tsconfig.json
+2026-10-22T19:27:35.6269290Z 
+2026-10-22T19:27:36.9362117Z npm --prefix examples/structured-evidence/typescript run build
+2026-10-22T19:27:37.0285125Z 
+2026-10-22T19:27:37.0285964Z > nehemiah-structured-evidence-fixture@0.1.0 build
+2026-10-22T19:27:37.0287055Z > tsc -p tsconfig.json
+2026-10-22T19:27:37.0287334Z 
+2026-10-22T19:27:38.2700069Z PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s examples/structured-evidence/tests -v
+2026-10-22T19:27:38.7809139Z test_each_changed_target_field_is_rejected (test_collectors.Collectors.test_each_changed_target_field_is_rejected) ... ok
+2026-10-22T19:27:38.8871862Z test_prepared_packages_have_same_contract_with_distinct_approved_implementation (test_collectors.Collectors.test_prepared_packages_have_same_contract_with_distinct_approved_implementation) ... ok
+2026-10-22T19:27:39.2107775Z test_quantities_cannot_be_booleans_fractional_negative_or_unbounded (test_collectors.Collectors.test_quantities_cannot_be_booleans_fractional_negative_or_unbounded) ... ok
+2026-10-22T19:27:39.2767142Z test_same_observation_and_original_application_host_identities (test_collectors.Collectors.test_same_observation_and_original_application_host_identities) ... ok
+2026-10-22T19:27:39.4694839Z test_transport_rejects_duplicate_members_invalid_utf8_and_oversize_input (test_collectors.Collectors.test_transport_rejects_duplicate_members_invalid_utf8_and_oversize_input) ... ok
+2026-10-22T19:27:39.7243498Z test_unknown_fields_and_file_or_endpoint_selection_are_rejected (test_collectors.Collectors.test_unknown_fields_and_file_or_endpoint_selection_are_rejected) ... ok
+2026-10-22T19:27:39.7244799Z 
+2026-10-22T19:27:39.7245509Z ----------------------------------------------------------------------
+2026-10-22T19:27:39.7246128Z Ran 6 tests in 1.396s
+2026-10-22T19:27:39.7246356Z 
+2026-10-22T19:27:39.7246735Z OK
+2026-10-22T19:27:39.7342789Z cargo test --locked --workspace
+2026-10-22T19:27:39.8357772Z    Compiling itoa v1.0.18
+2026-10-22T19:27:39.8359290Z    Compiling memchr v2.8.3
+2026-10-22T19:27:39.8360108Z    Compiling zmij v1.0.23
+2026-10-22T19:27:39.8360961Z    Compiling serde_core v1.0.229
+2026-10-22T19:27:39.9557943Z    Compiling typenum v1.20.1
+2026-10-22T19:27:40.1373457Z    Compiling cmov v0.5.4
+2026-10-22T19:27:40.2877950Z    Compiling ctutils v0.4.3
+2026-10-22T19:27:40.4407901Z    Compiling const-oid v0.10.2
+2026-10-22T19:27:40.4979496Z    Compiling cpufeatures v0.3.1
+2026-10-22T19:27:40.5308228Z    Compiling cfg-if v1.0.5
+2026-10-22T19:27:40.5548536Z    Compiling libc v0.2.190
+2026-10-22T19:27:40.5687950Z    Compiling foldhash v0.2.0
+2026-10-22T19:27:40.6678356Z    Compiling hashbrown v0.17.1
+2026-10-22T19:27:40.8538007Z    Compiling hybrid-array v0.4.15
+2026-10-22T19:27:41.2218136Z    Compiling smallvec v1.16.3
+2026-10-22T19:27:41.3618370Z    Compiling block-buffer v0.12.1
+2026-10-22T19:27:41.3707774Z    Compiling crypto-common v0.2.2
+2026-10-22T19:27:41.4514088Z    Compiling hashlink v0.12.2
+2026-10-22T19:27:41.6235086Z    Compiling libsqlite3-sys v0.38.2
+2026-10-22T19:27:41.6937855Z    Compiling bitflags v2.13.2
+2026-10-22T19:27:41.7888095Z    Compiling fallible-streaming-iterator v0.1.9
+2026-10-22T19:27:41.8368002Z    Compiling fallible-iterator v0.3.0
+2026-10-22T19:27:41.8676437Z    Compiling nom v8.0.0
+2026-10-22T19:27:42.1270336Z    Compiling serde_json v1.0.152
+2026-10-22T19:27:42.1308134Z    Compiling digest v0.11.3
+2026-10-22T19:27:42.2398109Z    Compiling sha2 v0.11.0
+2026-10-22T19:27:42.4404935Z    Compiling rusqlite v0.40.2
+2026-10-22T19:27:43.1397812Z    Compiling subtle v2.6.1
+2026-10-22T19:27:43.2318271Z    Compiling mas-host-process v0.1.0 (/home/runner/work/mas-host/mas-host/crates/mas-host-process)
+2026-10-22T19:27:43.5170394Z    Compiling mas-host-privacy v0.1.0 (/home/runner/work/mas-host/mas-host/crates/mas-host-privacy)
+2026-10-22T19:27:43.6361892Z    Compiling mas-host-schema v0.1.0 (/home/runner/work/mas-host/mas-host/crates/mas-host-schema)
+2026-10-22T19:27:43.8096153Z    Compiling bytes v1.12.1
+2026-10-22T19:27:43.8278177Z    Compiling pin-project-lite v0.2.17
+2026-10-22T19:27:43.8648043Z    Compiling hmac v0.13.0
+2026-10-22T19:27:43.9577849Z    Compiling mio v1.2.4
+2026-10-22T19:27:44.4227822Z    Compiling http v1.5.0
+2026-10-22T19:27:44.4428176Z    Compiling socket2 v0.6.5
+2026-10-22T19:27:44.5377116Z    Compiling futures-core v0.3.34
+2026-10-22T19:27:44.6077819Z    Compiling num-traits v0.2.19
+2026-10-22T19:27:44.7684640Z    Compiling mas-protocol-codec v0.1.0 (https://github.com/emmett08/mas?rev=fe644bbf3acb3ccc2abaffd54bcc4b367053fe4b#fe644bbf)
+2026-10-22T19:27:44.9267256Z    Compiling tokio v1.53.3
+2026-10-22T19:27:45.3128341Z    Compiling http-body v1.1.0
+2026-10-22T19:27:45.3843359Z    Compiling httparse v1.10.1
+2026-10-22T19:27:45.4960210Z    Compiling winnow v1.0.4
+2026-10-22T19:27:45.6188200Z    Compiling atomic-waker v1.1.2
+2026-10-22T19:27:45.6677884Z    Compiling httpdate v1.0.3
+2026-10-22T19:27:45.8138301Z    Compiling toml_parser v1.1.5+spec-1.1.0
+2026-10-22T19:27:45.8318044Z    Compiling num-integer v0.1.47
+2026-10-22T19:27:46.1228380Z    Compiling mas-host-sdk v0.1.0 (/home/runner/work/mas-host/mas-host/sdk/rust)
+2026-10-22T19:27:46.3620973Z    Compiling mas-host-workflow v0.1.0 (/home/runner/work/mas-host/mas-host/crates/mas-host-workflow)
+2026-10-22T19:27:46.4949514Z    Compiling mas-host-providers v0.1.0 (/home/runner/work/mas-host/mas-host/crates/mas-host-providers)
+2026-10-22T19:27:46.9598434Z    Compiling mas-host-worker v0.1.0 (/home/runner/work/mas-host/mas-host/crates/mas-host-worker)
+2026-10-22T19:27:47.1868513Z    Compiling mas-host-runtime v0.1.0 (/home/runner/work/mas-host/mas-host/crates/mas-host-runtime)
+2026-10-22T19:27:47.2198503Z    Compiling mas-host-core v0.1.0 (/home/runner/work/mas-host/mas-host/crates/mas-host-core)
+2026-10-22T19:27:47.6728258Z    Compiling hyper v1.12.0
+2026-10-22T19:27:48.4178630Z    Compiling mas-host-native-build v0.1.0 (/home/runner/work/mas-host/mas-host/crates/mas-host-native-build)
+2026-10-22T19:27:48.6257994Z    Compiling serde_spanned v1.1.2
+2026-10-22T19:27:48.6658048Z    Compiling toml_datetime v1.1.2+spec-1.1.0
+2026-10-22T19:27:48.8548464Z    Compiling arraydeque v0.5.1
+2026-10-22T19:27:48.8898826Z    Compiling toml v1.1.8+spec-1.1.0
+2026-10-22T19:27:48.9957743Z    Compiling yaml-rust2 v0.13.0
+2026-10-22T19:27:49.5415100Z    Compiling hyper-util v0.1.21
+2026-10-22T19:27:49.5627957Z    Compiling num-bigint v0.4.8
+2026-10-22T19:27:49.6667947Z    Compiling http-body-util v0.1.5
+2026-10-22T19:27:51.5378382Z    Compiling mas-host v0.1.0 (/home/runner/work/mas-host/mas-host/crates/mas-host-cli)
+2026-10-22T19:27:58.1644273Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 18.40s
+2026-10-22T19:27:58.1729257Z      Running unittests src/main.rs (target/debug/deps/mas_host-6657558780f2b3c2)
+2026-10-22T19:27:58.1741642Z 
+2026-10-22T19:27:58.1741862Z running 16 tests
+2026-10-22T19:27:58.1750395Z test a2a::configuration::timeout_tests::only_configured_inspection_adds_two_bounded_rpc_scan_budgets ... ok
+2026-10-22T19:27:58.1752808Z test config::authoring::tests::non_decimal_toml_integers_are_lossless_beyond_u64 ... ok
+2026-10-22T19:27:58.1754706Z test config::authoring::tests::rejects_lossy_toml_values_and_duplicate_keys ... ok
+2026-10-22T19:27:58.1756938Z test config::authoring::tests::rejects_ambiguous_and_unsupported_yaml_before_execution ... ok
+2026-10-22T19:27:58.1768484Z test config::authoring::tests::formats_resolve_to_identical_values_with_exact_integers ... ok
+2026-10-22T19:27:58.1770040Z test config::authoring::tests::strict_json_keeps_original_rejections_and_exact_integer_semantics ... ok
+2026-10-22T19:27:58.1788968Z test config::authoring::tests::yaml_core_scalars_and_quoted_values_have_explicit_semantics ... ok
+2026-10-22T19:27:58.1790240Z test config::authoring::tests::authoring_integers_obey_protocol_digit_limit ... ok
+2026-10-22T19:27:58.1794542Z test config::tests::public_operations_are_explicit_mas_identities ... ok
+2026-10-22T19:27:58.1798703Z test config::tests::rejects_implicit_permissions_bad_limits_and_unknown_settings ... ok
+2026-10-22T19:27:58.1801299Z test config::tests::requires_current_version_and_explicit_implementation_kind ... ok
+2026-10-22T19:27:58.1804509Z test privacy_inspect::governed::tests::occupied_inspector_rejects_concurrent_work_without_a_launch_or_queue ... ok
+2026-10-22T19:27:58.1811902Z test privacy_inspect::governed::tests::revoked_configuration_invalidates_identity_without_launching_a_text_scan ... ok
+2026-10-22T19:27:58.1817596Z test config::bindings::tests::minimum_delegate_calls_is_optional_bounded_and_requires_delegates ... ok
+2026-10-22T19:27:58.1840644Z test config::bindings::tests::required_delegates_are_a_unique_subset_with_a_completion_turn ... ok
+2026-10-22T19:27:58.1882865Z test config::authoring::tests::size_and_depth_are_bounded_in_source_and_resolved_values ... ok
+2026-10-22T19:27:58.1883531Z 
+2026-10-22T19:27:58.1884251Z test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+2026-10-22T19:27:58.1884856Z 
+2026-10-22T19:27:58.1887089Z      Running tests/a2a.rs (target/debug/deps/a2a-033f27082a608bad)
+2026-10-22T19:27:58.1896742Z 
+2026-10-22T19:27:58.1896959Z running 4 tests
+2026-10-22T19:28:04.4752673Z test descriptor_exposes_contracts_without_execution_configuration ... ok
+2026-10-22T19:28:17.3929124Z test blocking_unknown_outcome_preserves_task_identity_and_negotiated_extension ... ok
+2026-10-22T19:28:21.6111578Z test interrupted_task_becomes_unknown_and_retry_does_not_repeat_work ... ok
+2026-10-22T19:28:22.9869800Z test gateway_enforces_profile_owner_and_exact_retry_and_retains_completed_tasks ... ok
+2026-10-22T19:28:22.9870334Z 
+2026-10-22T19:28:22.9870847Z test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 24.80s
+2026-10-22T19:28:22.9871582Z 
+2026-10-22T19:28:22.9872160Z      Running tests/a2a_governed.rs (target/debug/deps/a2a_governed-0d9f41785ddd140f)
+2026-10-22T19:28:22.9884658Z 
+2026-10-22T19:28:22.9884892Z running 19 tests
+2026-10-22T19:28:26.7538353Z test changed_governed_detector_implementation_is_rejected_before_dispatch ... ok
+2026-10-22T19:28:29.4171746Z test current_authority_controls_cached_delivery_and_same_policy_credential_rotation ... ok
+2026-10-22T19:28:29.4208124Z test changed_grant_reference_cannot_reset_request_identity_and_key_changes_stop_use ... ok
+2026-10-22T19:28:31.4518593Z test authentication_revocation_stops_later_effect_admission ... ok
+2026-10-22T19:28:42.2430202Z test governed_ingress_minimises_before_persistence_preserves_original_conflicts_and_replays ... ok
+2026-10-22T19:28:44.4531033Z test invalid_governed_detector_configuration_prevents_service_startup ... ok
+2026-10-22T19:28:45.4924725Z test governed_detector_output_failure_preserves_effect_completion_across_restart ... ok
+2026-10-22T19:28:49.2457887Z test faulty_or_incomplete_governed_detector_blocks_before_task_or_effect_storage ... ok
+2026-10-22T19:28:49.9550036Z test governed_detector_runs_before_persistence_and_uses_only_approved_projection ... ok
+2026-10-22T19:28:53.9568791Z test known_effect_completion_with_prohibited_output_survives_withholding_and_restart ... ok
+2026-10-22T19:28:54.4128373Z test lost_effect_response_keeps_uncertainty_and_authorised_recovery_ids ... ok
+2026-10-22T19:28:55.7669088Z test retained_effect::authorised_missing_effect_and_unknown_effect_never_become_unsent_or_executable ... ok
+2026-10-22T19:28:56.7298370Z test retained_effect::corrupted_completion_or_root_association_returns_uniform_denial_without_repair ... ok
+2026-10-22T19:29:01.7928583Z test retained_effect::live_effect_reader_observes_executing_without_owner_lock_recovery_or_dispatch ... ok
+2026-10-22T19:29:02.9493938Z test retained_effect::retained_reader_hides_foreign_tasks_and_rejects_scope_or_path_substitution ... ok
+2026-10-22T19:29:12.8646159Z test retained_effect::retained_reader_requires_both_extensions_and_advertises_only_on_governed_services ... ok
+2026-10-22T19:29:16.8326011Z test retained_effect::retained_reader_requires_current_resolve_rights_and_supports_same_scope_credential_rotation ... ok
+2026-10-22T19:29:16.9279034Z test retained_effect::retained_reader_preserves_completion_withholding_and_read_only_history_after_restart ... ok
+2026-10-22T19:29:18.1820551Z test retained_effect::current_payload_inspection_failure_withholds_known_facts_but_query_failure_denies_lookup ... ok
+2026-10-22T19:29:18.1821508Z 
+2026-10-22T19:29:18.1822260Z test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 55.19s
+2026-10-22T19:29:18.1822951Z 
+2026-10-22T19:29:18.1837220Z      Running tests/acceptance.rs (target/debug/deps/acceptance-e854ad81053043b8)
+2026-10-22T19:29:18.1848197Z 
+2026-10-22T19:29:18.1848405Z running 1 test
+2026-10-22T19:29:18.1849588Z test code_only_apps_and_real_effect_recovery ... ignored, requires Go, C++ and Rust toolchains; run make acceptance
+2026-10-22T19:29:18.1850459Z 
+2026-10-22T19:29:18.1851327Z test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-22T19:29:18.1851992Z 
+2026-10-22T19:29:18.1855854Z      Running tests/authoring.rs (target/debug/deps/authoring-4ac87bde8a26deb7)
+2026-10-22T19:29:18.1861121Z 
+2026-10-22T19:29:18.1861297Z running 3 tests
+2026-10-22T19:29:18.1931324Z test invalid_authoring_fails_before_build_or_state_creation ... ok
+2026-10-22T19:29:20.0396869Z test ambiguous_defaults_require_explicit_selection_before_build ... ok
+2026-10-22T19:29:44.9826775Z test toml_yaml_and_json_preserve_bundle_digest_and_resume_input ... ok
+2026-10-22T19:29:44.9827182Z 
+2026-10-22T19:29:44.9827597Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 26.80s
+2026-10-22T19:29:44.9827976Z 
+2026-10-22T19:29:44.9830518Z      Running tests/capabilities.rs (target/debug/deps/capabilities-1b032c04b216c1e1)
+2026-10-22T19:29:44.9842029Z 
+2026-10-22T19:29:44.9842373Z running 8 tests
+2026-10-22T19:29:45.0757887Z test closed_versions_signature_requirements_and_unsupported_schemas_reject ... ok
+2026-10-22T19:29:59.3538084Z test aggregate_bundle_limit_preserves_previous_valid_publication ... ok
+2026-10-22T19:30:00.4173417Z test file_escape_missing_argument_and_changed_argv_cannot_keep_old_approval ... ok
+2026-10-22T19:30:01.7258182Z test changed_executable_bytes_cannot_reuse_approved_package ... ok
+2026-10-22T19:30:03.4882073Z test changed_runtime_is_rejected_by_cli_and_existing_command_dispatch_gate ... ok
+2026-10-22T19:30:08.8260222Z test same_name_substitution_and_missing_static_requirements_reject_before_publication ... ok
+2026-10-22T19:30:10.0088226Z test exact_approval_binds_real_collector_and_retained_observation_replay ... ok
+2026-10-22T19:30:18.7210905Z test retained_package_cannot_switch_implementation_runner_or_schemas ... ok
+2026-10-22T19:30:18.7211881Z 
+2026-10-22T19:30:18.7213161Z test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 33.74s
+2026-10-22T19:30:18.7213835Z 
+2026-10-22T19:30:18.7215058Z      Running tests/commands.rs (target/debug/deps/commands-7ec6221b9c7c58bc)
+2026-10-22T19:30:18.7226144Z 
+2026-10-22T19:30:18.7226366Z running 8 tests
+2026-10-22T19:30:35.8887831Z test argv_stdin_environment_and_directory_are_explicit_and_replay_is_cached ... ok
+2026-10-22T19:30:40.3825747Z test absolute_executable_drift_blocks_dispatch_and_failed_spawn_is_known ... ok
+2026-10-22T19:30:44.3536721Z test interrupted_external_write_requires_resolution_and_is_never_repeated ... ok
+2026-10-22T19:30:55.6135025Z test operation_schemas_apply_to_workflows_and_commands_before_dispatch_and_completion ... ok
+2026-10-22T19:31:05.0212592Z test retained_commands_preserve_configured_names_and_normalise_permissions ... ok
+2026-10-22T19:31:18.7238715Z test invalid_output_is_a_recorded_observation_and_bad_arguments_never_dispatch has been running for over 60 seconds
+2026-10-22T19:31:22.0598532Z test timeout_and_output_overflow_remain_uncertain_without_retry ... ok
+2026-10-22T19:31:22.1687445Z test invalid_output_is_a_recorded_observation_and_bad_arguments_never_dispatch ... ok
+2026-10-22T19:31:25.7170721Z test retained_script_survives_source_change_and_new_bundle_cannot_resume ... ok
+2026-10-22T19:31:25.7171163Z 
+2026-10-22T19:31:25.7171667Z test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 66.99s
+2026-10-22T19:31:25.7172160Z 
+2026-10-22T19:31:25.7174192Z      Running tests/configured.rs (target/debug/deps/configured-4710c3ce75d3d402)
+2026-10-22T19:31:25.7187425Z 
+2026-10-22T19:31:25.7187670Z running 14 tests
+2026-10-22T19:31:42.5048799Z test inference_keeps_large_task_input_without_repeating_immutable_configuration ... ok
+2026-10-22T19:31:45.1859360Z test final_turn_does_not_spend_a_peer_call_that_cannot_contribute_to_completion ... ok
+2026-10-22T19:31:47.9908151Z test configured_workflow_runs_llm_peer_requests_through_mas_and_replays_without_calls ... ok
+2026-10-22T19:32:04.3438081Z test model_delegation_cannot_bypass_the_frozen_topology ... ok
+2026-10-22T19:32:07.0522503Z test llm_delegates_to_an_ordinary_cli_with_the_same_admission_and_replay ... ok
+2026-10-22T19:32:18.1208318Z test oversized_rebuild_preserves_the_previous_published_bundle ... ok
+2026-10-22T19:32:22.8609287Z test early_completion_is_allowed_by_default_but_required_delegation_failure_is_retained ... ok
+2026-10-22T19:32:31.4818021Z test known_refusal_and_invalid_output_are_recorded_while_unknown_execution_blocks_replay ... ok
+2026-10-22T19:32:47.5668355Z test required_delegations_gate_provider_schema_until_results_are_recorded_and_replay ... ok
+2026-10-22T19:32:47.5747267Z test reserved_ingress_cannot_be_a_workflow_or_model_delegate ... ok
+2026-10-22T19:32:50.7506352Z test prompt_and_schema_drift_cannot_resume_the_original_configured_run ... ok
+2026-10-22T19:33:07.0540606Z test partial_or_repeated_coverage_and_final_turn_requests_fail_without_dispatch_or_retry has been running for over 60 seconds
+2026-10-22T19:33:28.5819697Z test partial_or_repeated_coverage_and_final_turn_requests_fail_without_dispatch_or_retry ... ok
+2026-10-22T19:33:31.4781403Z test required_peer_coverage_allows_model_order_and_additional_count_then_replays has been running for over 60 seconds
+2026-10-22T19:33:41.0064648Z test resolved_provider_outputs_cannot_bypass_required_peer_runtime_checks ... ok
+2026-10-22T19:33:55.1784191Z test required_peer_coverage_allows_model_order_and_additional_count_then_replays ... ok
+2026-10-22T19:33:55.1785020Z 
+2026-10-22T19:33:55.1785741Z test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 149.46s
+2026-10-22T19:33:55.1786179Z 
+2026-10-22T19:33:55.1787619Z      Running tests/privacy_inspect.rs (target/debug/deps/privacy_inspect-96df60b872beb20a)
+2026-10-22T19:33:55.1798155Z 
+2026-10-22T19:33:55.1798366Z running 7 tests
+2026-10-22T19:33:55.1856692Z test changed_worker_is_rejected_before_execution ... ok
+2026-10-22T19:33:55.1863142Z test invalid_encoding_and_oversized_source_have_explicit_safe_outcomes ... ok
+2026-10-22T19:33:55.1864440Z test non_utf8_resolved_worker_paths_are_rejected_without_lossy_conversion ... ok
+2026-10-22T19:33:55.2205999Z test guardian_reaps_classifier_descendants_before_returning_assessment ... ok
+2026-10-22T19:33:55.2378189Z test timeout_and_large_encoded_requests_do_not_release_content ... ok
+2026-10-22T19:33:55.2619809Z test valid_local_scan_never_admits_release_and_hides_worker_output ... ok
+2026-10-22T19:33:55.3123281Z test faulty_neural_results_preserve_deterministic_positive_findings ... ok
+2026-10-22T19:33:55.3123874Z 
+2026-10-22T19:33:55.3124569Z test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+2026-10-22T19:33:55.3125499Z 
+2026-10-22T19:33:55.3126696Z      Running tests/privacy_response.rs (target/debug/deps/privacy_response-50dc6169e40c3596)
+2026-10-22T19:33:55.3135192Z 
+2026-10-22T19:33:55.3135358Z running 4 tests
+2026-10-22T19:34:23.7747949Z test revocation_after_safe_intent_blocks_fresh_notification_admission ... ok
+2026-10-22T19:34:55.3139522Z test completed_withheld_collection_creates_safe_case_and_one_notification_across_restart has been running for over 60 seconds
+2026-10-22T19:34:55.3140916Z test lost_notification_acknowledgement_retains_intent_and_original_unknown_without_redispatch has been running for over 60 seconds
+2026-10-22T19:34:55.3144901Z test throttling_remains_refused_with_retry_eligibility_and_replay_does_not_resend has been running for over 60 seconds
+2026-10-22T19:35:32.8395850Z test lost_notification_acknowledgement_retains_intent_and_original_unknown_without_redispatch ... ok
+2026-10-22T19:36:03.0444771Z test throttling_remains_refused_with_retry_eligibility_and_replay_does_not_resend ... ok
+2026-10-22T19:36:03.2920850Z test completed_withheld_collection_creates_safe_case_and_one_notification_across_restart ... ok
+2026-10-22T19:36:03.2921757Z 
+2026-10-22T19:36:03.2922594Z test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 127.98s
+2026-10-22T19:36:03.2923407Z 
+2026-10-22T19:36:03.2924564Z      Running tests/profile.rs (target/debug/deps/profile-e802dc7e02644704)
+2026-10-22T19:36:03.2935919Z 
+2026-10-22T19:36:03.2936232Z running 3 tests
+2026-10-22T19:36:03.2963964Z test trusted_local_preflight_has_no_execution_side_effects ... ok
+2026-10-22T19:36:03.2978201Z test unknown_profile_fields_and_versions_are_rejected ... ok
+2026-10-22T19:36:03.2987619Z test managed_and_shared_profiles_cannot_self_declare_runtime_support ... ok
+2026-10-22T19:36:03.2988214Z 
+2026-10-22T19:36:03.2988847Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+2026-10-22T19:36:03.2989477Z 
+2026-10-22T19:36:03.2990099Z      Running tests/python.rs (target/debug/deps/python-ec9e033d7c11f32d)
+2026-10-22T19:36:03.2999412Z 
+2026-10-22T19:36:03.2999643Z running 1 test
+2026-10-22T19:36:09.1185763Z test python_dataclasses_peer_calls_and_crashed_effect_reconcile_without_repetition ... ok
+2026-10-22T19:36:09.1186775Z 
+2026-10-22T19:36:09.1187614Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.82s
+2026-10-22T19:36:09.1188477Z 
+2026-10-22T19:36:09.1189071Z      Running tests/revision.rs (target/debug/deps/revision-a86a214983109c78)
+2026-10-22T19:36:09.1198837Z 
+2026-10-22T19:36:09.1199154Z running 1 test
+2026-10-22T19:36:31.2067056Z test revision_replays_immutable_records_and_filters_all_public_channels ... ok
+2026-10-22T19:36:31.2067792Z 
+2026-10-22T19:36:31.2068400Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 22.09s
+2026-10-22T19:36:31.2068935Z 
+2026-10-22T19:36:31.2070264Z      Running tests/revision_adversarial.rs (target/debug/deps/revision_adversarial-6f22d0722c70bb50)
+2026-10-22T19:36:31.2083072Z 
+2026-10-22T19:36:31.2083239Z running 4 tests
+2026-10-22T19:36:37.0248209Z test cancellation_is_terminal_and_replay_does_not_restart_the_worker ... ok
+2026-10-22T19:36:37.0743425Z test crash_during_assessment_reuses_the_completed_draft ... ok
+2026-10-22T19:36:37.1991836Z test shared_evidence_keeps_its_own_readers_across_conflicting_contexts ... ok
+2026-10-22T19:36:37.6106303Z test deadline_is_terminal_and_replay_does_not_extend_it ... ok
+2026-10-22T19:36:37.6107143Z 
+2026-10-22T19:36:37.6108063Z test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.40s
+2026-10-22T19:36:37.6108698Z 
+2026-10-22T19:36:37.6110139Z      Running unittests src/lib.rs (target/debug/deps/mas_host_core-da5619e9cd7b8939)
+2026-10-22T19:36:37.6122959Z 
+2026-10-22T19:36:37.6123145Z running 88 tests
+2026-10-22T19:36:37.6127811Z test governance::runtime::inspection::tests::all_numeric_and_empty_values_have_no_unchecked_text ... ok
+2026-10-22T19:36:37.6128986Z test governance::runtime::inspection::tests::decoded_keys_and_values_are_exact_bounded_text_sources ... ok
+2026-10-22T19:36:37.6309238Z test governance::runtime::boundary::tests::exact_native_ack_envelope_limits_preserve_small_completion_receipt ... ok
+2026-10-22T19:36:37.6464412Z test governance::runtime::inspection_adversarial_tests::inspection_requires_processing_authority_before_the_callback ... ok
+2026-10-22T19:36:38.7636873Z test governance::runtime::inspection_adversarial_tests::incomplete_or_late_detector_results_cannot_release_the_projection ... ok
+2026-10-22T19:36:39.4518426Z test governance::runtime::inspection_adversarial_tests::inspector_configuration_and_destination_are_part_of_retained_namespace_identity ... ok
+2026-10-22T19:36:39.5948612Z test governance::runtime::inspection_adversarial_tests::inspected_private_originals_keep_distinct_commitments_after_equal_projection ... ok
+2026-10-22T19:36:40.5778334Z test governance::runtime::inspection_adversarial_tests::policy_byte_scope_includes_inspection_receipt_before_persistence ... ok
+2026-10-22T19:36:40.6177937Z test governance::runtime::inspection_adversarial_tests::stale_source_tokens_and_substituted_detector_results_cannot_authorise_input ... ok
+2026-10-22T19:36:40.8908338Z test governance::runtime::inspection_adversarial_tests::detector_failure_after_external_completion_retains_known_withheld_fact ... ok
+2026-10-22T19:36:41.2358976Z test governance::runtime::inspection_adversarial_tests::revocation_during_final_inspection_callback_prevents_input_persistence ... ok
+2026-10-22T19:36:42.5453013Z test governance::runtime::resolver_adversarial_tests::authorised_parent_absence_does_not_certify_external_non_execution ... ok
+2026-10-22T19:36:42.8618765Z test governance::runtime::resolver_adversarial_tests::completed_host_settlement_never_promotes_unknown_external_execution ... ok
+2026-10-22T19:36:43.5008582Z test governance::runtime::inspection_adversarial_tests::same_policy_grant_epoch_refresh_replays_under_stable_inspected_namespace ... ok
+2026-10-22T19:36:43.9738245Z test governance::runtime::resolver_adversarial_tests::completed_payload_inspection_outage_preserves_authorised_host_facts ... ok
+2026-10-22T19:36:45.3351869Z test governance::runtime::resolver_adversarial_tests::copied_journal_under_another_run_name_cannot_rebind_the_namespace ... ok
+2026-10-22T19:36:45.7914613Z test governance::runtime::resolver_adversarial_tests::execution_authority_does_not_grant_resolution_or_query_processing ... ok
+2026-10-22T19:36:46.2538516Z test governance::runtime::resolver_adversarial_tests::foreign_namespace_parent_actor_and_denied_queries_share_one_public_failure ... ok
+2026-10-22T19:36:47.2318522Z test governance::runtime::resolver_adversarial_tests::live_owner_reads_are_exact_read_only_and_do_not_recover_executing_effects ... ok
+2026-10-22T19:36:48.1678374Z test governance::runtime::resolver_adversarial_tests::oversized_multibyte_retained_text_is_rejected_by_bytes_before_decoding ... ok
+2026-10-22T19:36:50.0227902Z test governance::runtime::resolver_adversarial_tests::read_snapshot_is_released_before_privacy_callbacks ... ok
+2026-10-22T19:36:50.7896047Z test governance::runtime::resolver_adversarial_tests::conflicting_or_missing_completion_receipts_fail_without_repairing_storage ... ok
+2026-10-22T19:36:51.7188278Z test governance::runtime::resolver_adversarial_tests::nonobject_retained_descriptor_cannot_bypass_current_payload_schemas ... ok
+2026-10-22T19:36:52.6180526Z test governance::runtime::resolver_adversarial_tests::revocation_during_payload_callback_denies_the_entire_view ... ok
+2026-10-22T19:36:52.8590690Z test governance::runtime::resolver_adversarial_tests::root_helper_and_explicit_parent_select_the_same_bound_effect ... ok
+2026-10-22T19:36:52.8592675Z test governance::runtime::resolver_tests::completion_reader_rejects_missing_or_extra_untrusted_payload_fields ... ok
+2026-10-22T19:36:52.8594975Z test governance::runtime::resolver_tests::completion_truth_requires_matching_retained_receipt_dimensions ... ok
+2026-10-22T19:36:52.8608454Z test governance::runtime::resolver_tests::withheld_completion_preserves_exact_host_marker_without_reported_payloads ... ok
+2026-10-22T19:36:54.0408039Z test governance::runtime::resolver_adversarial_tests::resolution_byte_limit_covers_the_entire_envelope_and_metadata_fallback ... ok
+2026-10-22T19:36:54.7376346Z test governance::runtime::tests::accepted_output_and_evidence_are_projected_once_for_ack_replay_and_both_stores ... ok
+2026-10-22T19:36:54.8472650Z test governance::runtime::resolver_adversarial_tests::total_query_inspection_outage_denies_even_known_completion_metadata ... ok
+2026-10-22T19:36:55.5478298Z test governance::runtime::resolver_adversarial_tests::substituted_valid_descriptor_and_missing_admission_commitment_are_unavailable ... ok
+2026-10-22T19:36:55.8362712Z test governance::runtime::tests::application_schema_exception_requires_exact_host_unavailable_marker ... ok
+2026-10-22T19:36:56.5615374Z test governance::runtime::tests::completion_policy_limit_covers_evidence_and_receipt_not_only_output ... ok
+2026-10-22T19:36:58.4398308Z test governance::runtime::tests::credential_rotation_preserves_identity_while_policy_or_key_change_requires_migration ... ok
+2026-10-22T19:36:59.1043886Z test governance::runtime::tests::governed_namespace_has_no_ordinary_or_revision_bypass ... ok
+2026-10-22T19:36:59.1338014Z test governance::runtime::tests::trusted_credential_callback_is_checked_at_every_boundary_and_free_text_is_rejected ... ok
+2026-10-22T19:36:59.5013373Z test governance::runtime::tests::known_completion_with_withheld_payload_survives_restart_without_fresh_permission ... ok
+2026-10-22T19:36:59.5098562Z test governance::tests::decisions_bind_exact_operation_payload_and_recipient ... ok
+2026-10-22T19:36:59.5128461Z test governance::tests::deployment_declarations_cannot_enable_unimplemented_enforcement ... ok
+2026-10-22T19:36:59.5247755Z test governance::tests::held_decisions_preserve_distinct_operation_output_and_recipient_bindings ... ok
+2026-10-22T19:36:59.5317602Z test governance::tests::inherited_policy_permissions_intersect_and_obligations_accumulate ... ok
+2026-10-22T19:36:59.5358299Z test governance::tests::mismatched_and_expired_decisions_retain_requested_and_observed_facts ... ok
+2026-10-22T19:36:59.5371773Z test governance::tests::protected_result_dimensions_remain_independent ... ok
+2026-10-22T19:36:59.5777380Z test governance::tests::published_policy_counterexamples ... ok
+2026-10-22T19:36:59.5817699Z test governance::tests::strict_contracts_reject_unknown_versions_fields_and_identity_wildcards ... ok
+2026-10-22T19:36:59.5819069Z test revision::tests::audit_records_and_contexts_cannot_be_rewritten_or_deleted ... ok
+2026-10-22T19:36:59.5877594Z test revision::tests::derived_output_intersects_restrictions_and_feedback_is_filtered ... ok
+2026-10-22T19:36:59.5907614Z test revision::tests::evaluator_failure_and_forged_identity_cannot_pass ... ok
+2026-10-22T19:36:59.5909088Z test revision::tests::exact_evidence_and_frozen_authority_are_required_and_inconclusive_is_preserved ... ok
+2026-10-22T19:37:00.1894872Z test governance::runtime::tests::revocation_blocks_new_work_and_delivery_but_preserves_observed_completion ... ok
+2026-10-22T19:37:00.2858175Z test governance::runtime::tests::structured_projection_hides_originals_but_preserves_conflicts ... ok
+2026-10-22T19:37:00.3328322Z test governance::tests::aggregate_decision_limit_never_permits_or_implies_complete_exposure ... ok
+2026-10-22T19:37:01.3374921Z test revision::tests::host_evidence_names_are_rejected_before_any_draft_dispatch ... ok
+2026-10-22T19:37:01.9674991Z test revision::tests::invocation_identity_is_reserved_once_and_audit_conflicts_are_rejected ... ok
+2026-10-22T19:37:02.1334502Z test revision::tests::retained_assessment_revalidates_every_binding_and_original_context ... ok
+2026-10-22T19:37:03.0980614Z test revision::tests::retained_terminal_replay_survives_later_stop_without_reclassification ... ok
+2026-10-22T19:37:03.1002088Z test revision::tests::withheld_peer_content_does_not_affect_independent_input_or_policy ... ok
+2026-10-22T19:37:03.8566801Z test revision::tests::restart_reuses_terminal_error_assessment_without_reclassifying_completed_worker_output ... ok
+2026-10-22T19:37:04.8518508Z test tests::bundle_two_binds_configuration_arguments_and_public_operation ... ok
+2026-10-22T19:37:05.5075720Z test revision::tests::scoped_inference_unknown_effect_remains_blocked_after_restart ... ok
+2026-10-22T19:37:05.6547686Z test tests::cancellation_interrupts_admission_backoff_without_dispatch ... ok
+2026-10-22T19:37:05.6962598Z test revision::tests::stop_after_assessment_prevents_new_reservation_at_transaction_boundary ... ok
+2026-10-22T19:37:06.6037965Z test tests::cancellation_persists_without_resolving_an_effect ... ok
+2026-10-22T19:37:07.2757927Z test tests::cancellation_prevents_durable_final_result_and_retains_known_effect_completion ... ok
+2026-10-22T19:37:07.2847723Z test tests::executable_verification_cache_does_not_trust_a_different_digest ... ok
+2026-10-22T19:37:07.4615402Z test tests::effect_identity_and_evidence_fail_closed ... ok
+2026-10-22T19:37:08.3665332Z test tests::environment_scope_is_independent_of_implementation_kind ... ok
+2026-10-22T19:37:09.2328072Z test tests::completed_output_survives_a_missing_protocol_finish ... ok
+2026-10-22T19:37:11.0027647Z test tests::forbidden_route_uses_protocol_authority ... ok
+2026-10-22T19:37:11.9028086Z test tests::explicit_resume_of_uncertain_admission_reuses_committed_request ... ok
+2026-10-22T19:37:12.0220846Z test tests::execution_permission_is_uncertain_after_restart_and_requires_resolution ... ok
+2026-10-22T19:37:12.1280853Z test tests::exhausted_capacity_retry_keeps_child_and_ancestor_replayable ... ok
+2026-10-22T19:37:13.8248460Z test tests::live_observation_is_read_only_ordered_and_payloads_require_opt_in ... ok
+2026-10-22T19:37:13.9110768Z test tests::observation_rejects_missing_and_incompatible_runs_without_creating_state ... ok
+2026-10-22T19:37:14.4918670Z test tests::identity_drift_and_reused_root_input_are_rejected ... ok
+2026-10-22T19:37:15.6597957Z test tests::parallel_sibling_effect_does_not_block_independent_branch_completion ... ok
+2026-10-22T19:37:16.2777234Z test tests::parent_failure_waits_until_cached_child_terminal_can_be_admitted ... ok
+2026-10-22T19:37:16.5898012Z test tests::original_deadline_expires_during_capacity_backoff_without_dispatch ... ok
+2026-10-22T19:37:17.0699067Z test tests::independent_run_namespaces_have_distinct_effect_identities ... ok
+2026-10-22T19:37:17.0817584Z test tests::parent_repairs_retained_child_output_before_success ... ok
+2026-10-22T19:37:18.0365572Z test tests::permitted_request_without_reply_route_is_rejected_before_preparation_or_execution ... ok
+2026-10-22T19:37:18.8318516Z test tests::rejects_previous_bundle_version_and_missing_public_operation ... ok
+2026-10-22T19:37:18.8496251Z test tests::removed_binary_does_not_reclassify_an_admitted_child_as_rejected ... ok
+2026-10-22T19:37:19.7968195Z test tests::storage_admission_failure_is_blocked_without_automatic_retry ... ok
+2026-10-22T19:37:20.1158138Z test tests::prepared_reservation_recovers_without_a_second_charge ... ok
+2026-10-22T19:37:20.3451275Z test tests::unfinished_child_prevents_parent_success_but_rejected_route_is_settled ... ok
+2026-10-22T19:37:20.4649806Z test tests::transient_admission_retries_same_identity_after_acknowledgement ... ok
+2026-10-22T19:37:20.4650488Z 
+2026-10-22T19:37:20.4651211Z test result: ok. 88 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 42.85s
+2026-10-22T19:37:20.4651901Z 
+2026-10-22T19:37:20.4657883Z      Running unittests src/lib.rs (target/debug/deps/mas_host_native_build-e08cba5e7aa61bbd)
+2026-10-22T19:37:20.4669060Z 
+2026-10-22T19:37:20.4669346Z running 13 tests
+2026-10-22T19:37:20.4692774Z test cpp::tests::cpp_include_rejects_source_delimiters ... ok
+2026-10-22T19:37:20.5188780Z test python::tests::excludes_generated_and_hidden_directories_and_never_imports_at_build ... ok
+2026-10-22T19:37:20.5538223Z test python::tests::accepts_package_initialisers_as_entry_modules ... ok
+2026-10-22T19:37:20.5567538Z test python::tests::preserves_namespace_package_imports ... ok
+2026-10-22T19:37:20.6142426Z test python::tests::rejects_oversized_snapshots_before_compiling_or_publishing ... ok
+2026-10-22T19:37:20.6551767Z test python::tests::rebuilds_are_deterministic_and_helper_changes_change_worker_bytes ... ok
+2026-10-22T19:37:20.6577582Z test python::tests::rejects_project_symlinks_including_internal_ones ... ok
+2026-10-22T19:37:20.6611307Z test python::tests::rejects_launcher_and_sdk_name_conflicts ... ok
+2026-10-22T19:37:20.7514393Z test python::tests::snapshots_regular_packages_helpers_and_sdk_before_source_removal ... ok
+2026-10-22T19:37:20.7517906Z test tests::generated_symbols_cannot_inject_source ... ok
+2026-10-22T19:37:20.7547227Z test python::tests::sdk_source_changes_alter_the_frozen_worker ... ok
+2026-10-22T19:37:20.7563190Z test python::tests::rejects_syntax_errors_and_non_importable_entry_modules ... ok
+2026-10-22T19:37:20.8161004Z test python::tests::revokes_channel_inheritance_before_sdk_imports_application_named_json ... ok
+2026-10-22T19:37:20.8161483Z 
+2026-10-22T19:37:20.8161928Z test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.35s
+2026-10-22T19:37:20.8162368Z 
+2026-10-22T19:37:20.8164523Z      Running unittests src/lib.rs (target/debug/deps/mas_host_privacy-28a927cc8c0cab04)
+2026-10-22T19:37:20.8174221Z 
+2026-10-22T19:37:20.8174426Z running 0 tests
+2026-10-22T19:37:20.8174668Z 
+2026-10-22T19:37:20.8175611Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-22T19:37:20.8176267Z 
+2026-10-22T19:37:20.8177442Z      Running tests/conformance.rs (target/debug/deps/conformance-e64b13db08b01393)
+2026-10-22T19:37:20.8186396Z 
+2026-10-22T19:37:20.8186863Z running 20 tests
+2026-10-22T19:37:20.8192048Z test byte_ranges_reject_reversed_out_of_bounds_and_empty ... ok
+2026-10-22T19:37:20.8202354Z test complete_coverage_rejects_gaps_missing_final_chunk_and_reordering ... ok
+2026-10-22T19:37:20.8203958Z test complete_records_cannot_hide_omissions_or_overlap_rules ... ok
+2026-10-22T19:37:20.8205590Z test authority_and_policy_failures_never_permit_synthetic_data ... ok
+2026-10-22T19:37:20.8207426Z test assessment_rejects_same_id_equal_length_replacement_before_and_after_wire_roundtrip ... ok
+2026-10-22T19:37:20.8208983Z test deterministic_full_range_still_has_unqualified_neural_coverage ... ok
+2026-10-22T19:37:20.8210451Z test empty_source_can_be_completely_checked_without_a_fake_range ... ok
+2026-10-22T19:37:20.8211548Z test input_and_finding_limits_fail_explicitly ... ok
+2026-10-22T19:37:20.8212812Z test only_explicit_synthetic_fixture_profile_can_permit_complete_fixture ... ok
+2026-10-22T19:37:20.8214216Z test known_completion_and_uncertainty_are_preserved_when_output_is_withheld ... ok
+2026-10-22T19:37:20.8215878Z test overlap_union_preserves_categories_and_provenance ... ok
+2026-10-22T19:37:20.8217289Z test positive_finding_must_be_inside_checked_coverage ... ok
+2026-10-22T19:37:20.8218526Z test no_record_can_claim_qualified_neural_by_changing_detector_fields ... ok
+2026-10-22T19:37:20.8219823Z test positive_findings_survive_partial_inspection_and_route_by_policy ... ok
+2026-10-22T19:37:20.8221189Z test public_merger_validates_directly_constructed_recogniser_sets ... ok
+2026-10-22T19:37:20.8222466Z test safe_metadata_and_debug_contain_no_detected_values_or_fingerprints ... ok
+2026-10-22T19:37:20.8223891Z test strict_records_reject_fields_versions_offsets_and_missing_coverage ... ok
+2026-10-22T19:37:20.8224967Z test unsupported_json_and_attachments_have_no_guessed_mapping ... ok
+2026-10-22T19:37:20.8225938Z test utf8_byte_boundaries_include_combining_text ... ok
+2026-10-22T19:37:20.8227718Z test fixture_taxonomy_roundtrips_its_categories_and_rejects_neural_only_categories ... ok
+2026-10-22T19:37:20.8228927Z      Running tests/neural.rs (target/debug/deps/neural-ace15c2dc1549f27)
+2026-10-22T19:37:20.8229578Z 
+2026-10-22T19:37:20.8230250Z test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-22T19:37:20.8230896Z 
+2026-10-22T19:37:20.8236163Z 
+2026-10-22T19:37:20.8236320Z running 16 tests
+2026-10-22T19:37:20.8257697Z test complete_neural_responses_require_every_final_codepoint_and_no_gaps ... ok
+2026-10-22T19:37:20.8259254Z test complete_neural_candidate_cannot_unlock_fixture_or_protected_release ... ok
+2026-10-22T19:37:20.8260675Z test declared_wrong_units_and_impossible_codepoint_offsets_are_rejected ... ok
+2026-10-22T19:37:20.8262019Z test all_eight_labels_retain_original_meaning_and_distinct_categories ... ok
+2026-10-22T19:37:20.8278951Z test exact_schema_and_all_output_limits_are_enforced ... ok
+2026-10-22T19:37:20.8280144Z test finding_outside_observed_ranges_and_reordered_ranges_are_rejected ... ok
+2026-10-22T19:37:20.8297728Z test overlap_merger_keeps_pattern_and_neural_provenance ... ok
+2026-10-22T19:37:20.8298824Z test pin_identity_is_closed_and_supports_only_the_implemented_backend ... ok
+2026-10-22T19:37:20.8299838Z test request_binds_exact_private_source_and_pins_without_qualification_fields ... ok
+2026-10-22T19:37:20.8301070Z test source_replacement_and_detector_changes_invalidate_responses ... ok
+2026-10-22T19:37:20.8317525Z test unicode_codepoints_convert_to_original_bytes_without_normalisation ... ok
+2026-10-22T19:37:20.8318142Z test unknown_model_labels_and_model_scores_are_rejected ... ok
+2026-10-22T19:37:20.8318686Z test combined_output_still_rejects_more_than_the_finding_limit ... ok
+2026-10-22T19:37:20.8319334Z test partial_unsupported_and_failed_coverage_remain_distinct_with_valid_findings ... ok
+2026-10-22T19:37:20.8320027Z test worker_failure_preserves_deterministic_positive_findings_and_safe_metadata ... ok
+2026-10-22T19:37:20.8487532Z test duplicate_detector_contributions_use_the_merged_finding_limit ... ok
+2026-10-22T19:37:20.8488164Z 
+2026-10-22T19:37:20.8488796Z test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+2026-10-22T19:37:20.8489160Z 
+2026-10-22T19:37:20.8490157Z      Running tests/neural_omissions.rs (target/debug/deps/neural_omissions-77674fc3948d8e31)
+2026-10-22T19:37:20.8500086Z 
+2026-10-22T19:37:20.8500280Z running 2 tests
+2026-10-22T19:37:20.8504776Z test host_failure_reasons_cannot_copy_arbitrary_exception_data ... ok
+2026-10-22T19:37:20.8507287Z test incomplete_statuses_require_a_fixed_content_free_worker_reason ... ok
+2026-10-22T19:37:20.8507895Z 
+2026-10-22T19:37:20.8508329Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-22T19:37:20.8508858Z 
+2026-10-22T19:37:20.8509572Z      Running unittests src/lib.rs (target/debug/deps/mas_host_process-60d3154c6883b4f8)
+2026-10-22T19:37:20.8517744Z 
+2026-10-22T19:37:20.8517991Z running 3 tests
+2026-10-22T19:37:20.8575434Z test tests::output_limit_rejects_a_completed_oversized_process ... ok
+2026-10-22T19:37:20.8683109Z test tests::output_overflow_stops_a_running_process_before_its_deadline ... ok
+2026-10-22T19:37:20.8934876Z test tests::timeout_returns_without_waiting_for_open_inherited_streams ... ok
+2026-10-22T19:37:20.8935733Z 
+2026-10-22T19:37:20.8937164Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+2026-10-22T19:37:20.8937929Z 
+2026-10-22T19:37:20.8939098Z      Running unittests src/lib.rs (target/debug/deps/mas_host_providers-b498fd14263d1ede)
+2026-10-22T19:37:20.8948159Z 
+2026-10-22T19:37:20.8948362Z running 26 tests
+2026-10-22T19:37:20.9023139Z test command::tests::a_spawned_command_with_no_valid_envelope_is_unknown ... ok
+2026-10-22T19:37:20.9024406Z test http::tests::chat_finish_reason_and_json_are_required ... ok
+2026-10-22T19:37:20.9025724Z test command::tests::command_never_retries_or_copies_provider_error_text ... ok
+2026-10-22T19:37:20.9030308Z test http::tests::endpoint_validation_rejects_credential_urls_and_remote_plaintext ... ok
+2026-10-22T19:37:20.9065427Z test command::tests::command_contract_and_cursor_fixture_use_the_same_port ... ok
+2026-10-22T19:37:20.9210690Z test command::tests::cursor_raw_output_uses_the_exact_mas_json_parser ... ok
+2026-10-22T19:37:20.9264955Z test http::tests::loopback_repeated_messages_return_one_result_without_retry ... ok
+2026-10-22T19:37:20.9287339Z test http::tests::loopback_invalid_output_diagnostics_are_bounded_and_content_free ... ok
+2026-10-22T19:37:20.9362650Z test http::tests::loopback_server_failure_remains_unknown ... ok
+2026-10-22T19:37:20.9376279Z test http::tests::loopback_rejections_omit_arbitrary_strings_even_in_diagnostic_fields ... ok
+2026-10-22T19:37:20.9378279Z test http::tests::model_json_retains_exact_integers_and_rejects_duplicate_or_decimal_syntax ... ok
+2026-10-22T19:37:20.9379933Z test http::tests::responses_accept_legacy_missing_null_and_explicit_final_phases ... ok
+2026-10-22T19:37:20.9381459Z test http::tests::responses_distinguish_refusal_incomplete_and_invalid_output ... ok
+2026-10-22T19:37:20.9384766Z test http::tests::responses_accept_only_one_distinct_json_value_across_complete_messages ... ok
+2026-10-22T19:37:20.9391421Z test http::tests::responses_do_not_stitch_or_choose_between_conflicting_outputs ... ok
+2026-10-22T19:37:20.9395518Z test http::tests::responses_equivalence_preserves_exact_json_types_and_string_contents ... ok
+2026-10-22T19:37:20.9397541Z test http::tests::responses_never_ignore_malformed_siblings_of_valid_json ... ok
+2026-10-22T19:37:20.9400651Z test http::tests::responses_preserve_refusal_and_ignore_nonmessage_outputs ... ok
+2026-10-22T19:37:20.9403929Z test http::tests::responses_select_final_answer_without_commentary ... ok
+2026-10-22T19:37:20.9405362Z test http_error::tests::malformed_or_non_object_error_diagnostics_are_omitted ... ok
+2026-10-22T19:37:20.9407408Z test http::tests::responses_never_promote_valid_json_from_an_explicit_nonfinal_phase ... ok
+2026-10-22T19:37:20.9408781Z test tests::metadata_does_not_retain_errors_or_decimal_usage ... ok
+2026-10-22T19:37:20.9409846Z test tests::missing_deadline_is_not_dispatched ... ok
+2026-10-22T19:37:20.9411049Z test tests::mock_has_the_same_contract_and_echoes_only_when_output_is_absent ... ok
+2026-10-22T19:37:20.9413856Z test http::tests::loopback_transport_uses_responses_contract_and_records_usage ... ok
+2026-10-22T19:37:20.9700574Z test http::tests::loopback_rejections_retain_safe_schema_authentication_and_quota_identifiers ... ok
+2026-10-22T19:37:20.9701674Z 
+2026-10-22T19:37:20.9702733Z test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+2026-10-22T19:37:20.9703476Z 
+2026-10-22T19:37:20.9704843Z      Running unittests src/lib.rs (target/debug/deps/mas_host_runtime-d36c237321a6223d)
+2026-10-22T19:37:20.9714422Z 
+2026-10-22T19:37:20.9714617Z running 4 tests
+2026-10-22T19:37:20.9718883Z test effect_result::tests::withheld_delivery_keeps_known_settlement_separate_from_external_execution ... ok
+2026-10-22T19:37:20.9724798Z test inference::tests::known_invalid_completion_does_not_become_an_unknown_effect ... ok
+2026-10-22T19:37:20.9726676Z test inference::tests::rejection_diagnostics_distinguish_local_validation_without_retaining_output ... ok
+2026-10-22T19:37:20.9727979Z test inference::tests::required_delegation_schema_excludes_early_completion ... ok
+2026-10-22T19:37:20.9728573Z 
+2026-10-22T19:37:20.9728967Z test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-22T19:37:20.9729319Z 
+2026-10-22T19:37:20.9730233Z      Running tests/projected_completion.rs (target/debug/deps/projected_completion-17365365398f33e7)
+2026-10-22T19:37:20.9738514Z 
+2026-10-22T19:37:20.9738906Z running 2 tests
+2026-10-22T19:37:20.9744440Z test worker_entry ... ignored, private subprocess fixture
+2026-10-22T19:37:21.0289332Z test runtime_uses_safe_fresh_projection_and_never_dispatches_cached_or_withheld_work ... ok
+2026-10-22T19:37:21.0289973Z 
+2026-10-22T19:37:21.0290718Z test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.06s
+2026-10-22T19:37:21.0291497Z 
+2026-10-22T19:37:21.0292208Z      Running unittests src/lib.rs (target/debug/deps/mas_host_schema-04f53588aee5e945)
+2026-10-22T19:37:21.0301128Z 
+2026-10-22T19:37:21.0301372Z running 1 test
+2026-10-22T19:37:21.0304912Z test tests::schema_rejects_unsupported_rules_and_preserves_large_integer_bounds ... ok
+2026-10-22T19:37:21.0305652Z 
+2026-10-22T19:37:21.0306277Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-22T19:37:21.0307062Z 
+2026-10-22T19:37:21.0307818Z      Running unittests src/lib.rs (target/debug/deps/mas_host_sdk-7f605d501d4315b6)
+2026-10-22T19:37:21.0315870Z 
+2026-10-22T19:37:21.0316047Z running 7 tests
+2026-10-22T19:37:21.0336818Z test tests::admitted_effect_reports_output_and_evidence ... ok
+2026-10-22T19:37:21.0338286Z test tests::configured_dispatch_keeps_configuration_separate_from_task_input ... ok
+2026-10-22T19:37:21.0339950Z test tests::cached_effect_does_not_execute_and_ordered_parallel_is_checked ... ok
+2026-10-22T19:37:21.0341338Z test tests::framing_rejects_invalid_json_and_preserves_integer_unicode ... ok
+2026-10-22T19:37:21.0342820Z test tests::configured_worker_channel_does_not_escape_into_exec_children ... ok
+2026-10-22T19:37:21.0343622Z test tests::native_dispatch_still_rejects_another_handler ... ok
+2026-10-22T19:37:21.0590356Z test tests::governed_completion_is_authoritative_and_never_reexecutes_on_replay ... ok
+2026-10-22T19:37:21.0591265Z 
+2026-10-22T19:37:21.0591974Z test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+2026-10-22T19:37:21.0592579Z 
+2026-10-22T19:37:21.0593154Z      Running unittests src/lib.rs (target/debug/deps/mas_host_worker-8defefdfa9efd56e)
+2026-10-22T19:37:21.0602527Z 
+2026-10-22T19:37:21.0602756Z running 10 tests
+2026-10-22T19:37:21.0608425Z test tests::guardian_entry ... ignored, subprocess entrypoint invoked by supervisor cleanup test
+2026-10-22T19:37:21.0612762Z test tests::exact_integer_and_unicode_round_trip ... ok
+2026-10-22T19:37:21.0732241Z test tests::guardian_applies_selected_address_space_and_disables_core_dumps ... ok
+2026-10-22T19:37:21.0795797Z test tests::guardian_reaps_descendants_retains_lock_and_preserves_parent_fd ... ok
+2026-10-22T19:37:21.0828114Z test tests::protocol_rejects_invalid_json_and_frames ... ok
+2026-10-22T19:37:21.0829384Z test tests::resource_bounds_are_validated_before_launch_or_descriptor_access ... ok
+2026-10-22T19:37:21.0893401Z test tests::scoped_worker_receives_arguments_and_only_declared_environment ... ok
+2026-10-22T19:37:21.1138599Z test tests::partial_frame_uses_original_deadline_and_reports_eof ... ok
+2026-10-22T19:37:21.1619045Z test tests::interruptible_read_cancels_without_waiting_for_deadline ... ok
+2026-10-22T19:37:21.3017544Z test tests::interruptible_read_retains_partial_header_and_body ... ok
+2026-10-22T19:37:21.3018016Z 
+2026-10-22T19:37:21.3018586Z test result: ok. 9 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.24s
+2026-10-22T19:37:21.3019243Z 
+2026-10-22T19:37:21.3021792Z      Running unittests src/lib.rs (target/debug/deps/mas_host_workflow-1c6d78282d0887a2)
+2026-10-22T19:37:21.3031579Z 
+2026-10-22T19:37:21.3031783Z running 13 tests
+2026-10-22T19:37:21.3047587Z test tests::dynamic_wrong_types_fail_before_any_following_request ... ok
+2026-10-22T19:37:21.3077564Z test tests::exhausted_repeat_is_failure_and_runtime_cannot_omit_outputs ... ok
+2026-10-22T19:37:21.3092800Z test tests::nested_parallel_sequences_share_ready_frontiers_and_preserve_order ... ok
+2026-10-22T19:37:21.3094053Z test tests::pointers_escape_correctly_and_missing_data_never_invokes_actor ... ok
+2026-10-22T19:37:21.3097272Z test tests::foreach_parallel_matches_direct_arithmetic_oracle_and_chunks_frontier ... ok
+2026-10-22T19:37:21.3125751Z test tests::conflicting_candidates_and_stale_review_contexts_cannot_form_a_quorum ... ok
+2026-10-22T19:37:21.3127478Z test tests::quorum_binding_is_validated_before_dispatch_and_actor_aliases_cannot_add_votes ... ok
+2026-10-22T19:37:21.3128868Z test tests::repeat_named_definition_and_branch_carry_outputs_and_unique_replay_keys ... ok
+2026-10-22T19:37:21.3130132Z test tests::quorum_context_comparison_preserves_exact_integers_and_json_types ... ok
+2026-10-22T19:37:21.3131738Z test tests::sequential_foreach_passes_accumulator_and_empty_array_returns_no_requests ... ok
+2026-10-22T19:37:21.3137737Z test tests::validation_rejects_hidden_unknown_targets_cycles_and_malformed_nodes ... ok
+2026-10-22T19:37:21.3145330Z test tests::candidate_quorum_retains_all_reviews_and_selects_distinct_actors_in_plan_order ... ok
+2026-10-22T19:37:21.3218501Z test tests::static_expansion_and_materialised_values_have_independent_limits ... ok
+2026-10-22T19:37:21.3219150Z 
+2026-10-22T19:37:21.3219842Z test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+2026-10-22T19:37:21.3220383Z 
+2026-10-22T19:37:21.3220906Z    Doc-tests mas_host_core
+2026-10-22T19:37:21.4002605Z 
+2026-10-22T19:37:21.4003161Z running 0 tests
+2026-10-22T19:37:21.4003456Z 
+2026-10-22T19:37:21.4004174Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-22T19:37:21.4004566Z 
+2026-10-22T19:37:21.4017411Z    Doc-tests mas_host_native_build
+2026-10-22T19:37:21.4178702Z 
+2026-10-22T19:37:21.4179247Z running 0 tests
+2026-10-22T19:37:21.4179518Z 
+2026-10-22T19:37:21.4181191Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-22T19:37:21.4181601Z 
+2026-10-22T19:37:21.4189518Z    Doc-tests mas_host_privacy
+2026-10-22T19:37:21.4482933Z 
+2026-10-22T19:37:21.4483336Z running 0 tests
+2026-10-22T19:37:21.4483595Z 
+2026-10-22T19:37:21.4484024Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-22T19:37:21.4484393Z 
+2026-10-22T19:37:21.4493688Z    Doc-tests mas_host_process
+2026-10-22T19:37:21.4630676Z 
+2026-10-22T19:37:21.4631054Z running 0 tests
+2026-10-22T19:37:21.4631374Z 
+2026-10-22T19:37:21.4631882Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-22T19:37:21.4632265Z 
+2026-10-22T19:37:21.4640351Z    Doc-tests mas_host_providers
+2026-10-22T19:37:21.4882226Z 
+2026-10-22T19:37:21.4882489Z running 0 tests
+2026-10-22T19:37:21.4882837Z 
+2026-10-22T19:37:21.4883452Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-22T19:37:21.4883812Z 
+2026-10-22T19:37:21.4894409Z    Doc-tests mas_host_runtime
+2026-10-22T19:37:21.5132888Z 
+2026-10-22T19:37:21.5133181Z running 0 tests
+2026-10-22T19:37:21.5133469Z 
+2026-10-22T19:37:21.5133998Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-22T19:37:21.5134372Z 
+2026-10-22T19:37:21.5142535Z    Doc-tests mas_host_schema
+2026-10-22T19:37:21.5277135Z 
+2026-10-22T19:37:21.5277470Z running 0 tests
+2026-10-22T19:37:21.5277760Z 
+2026-10-22T19:37:21.5278302Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-22T19:37:21.5278971Z 
+2026-10-22T19:37:21.5286957Z    Doc-tests mas_host_sdk
+2026-10-22T19:37:21.5502923Z 
+2026-10-22T19:37:21.5503256Z running 0 tests
+2026-10-22T19:37:21.5503555Z 
+2026-10-22T19:37:21.5504036Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-22T19:37:21.5504433Z 
+2026-10-22T19:37:21.5513569Z    Doc-tests mas_host_worker
+2026-10-22T19:37:21.5725853Z 
+2026-10-22T19:37:21.5726172Z running 0 tests
+2026-10-22T19:37:21.5726642Z 
+2026-10-22T19:37:21.5727233Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-22T19:37:21.5727615Z 
+2026-10-22T19:37:21.5736771Z    Doc-tests mas_host_workflow
+2026-10-22T19:37:21.5975895Z 
+2026-10-22T19:37:21.5976172Z running 0 tests
+2026-10-22T19:37:21.5976420Z 
+2026-10-22T19:37:21.5977334Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-22T19:37:21.5977947Z 
+2026-10-22T19:37:21.5999950Z cd sdk/go && go test -race ./...
+2026-10-22T19:37:31.9179499Z ok  	github.com/emmett08/mas-host/sdk/go	1.065s
+2026-10-22T19:37:31.9185135Z ?   	github.com/emmett08/mas-host/sdk/go/cmd/mas-go-gen	[no test files]
+2026-10-22T19:37:37.8115179Z ok  	github.com/emmett08/mas-host/sdk/go/internal/generate	6.717s
+2026-10-22T19:37:37.8452336Z cd tests/fixtures/go-release && go test -race ./...
+2026-10-22T19:37:39.1259922Z ok  	example.org/release-qualification	1.008s
+2026-10-22T19:37:39.1296972Z mkdir -p target
+2026-10-22T19:37:39.1323231Z c++ -std=c++17 -Wall -Wextra -Werror -pthread -Isdk/cpp/include sdk/cpp/tests/conformance.cpp -o target/cpp-conformance
+2026-10-22T19:37:44.8741458Z target/cpp-conformance
+2026-10-22T19:37:44.9020976Z make python-test
+2026-10-22T19:37:44.9045342Z make[1]: Entering directory '/home/runner/work/mas-host/mas-host'
+2026-10-22T19:37:44.9046729Z PYTHONPATH=sdk/python python3 -m unittest discover -s sdk/python/tests -v
+2026-10-22T19:37:45.0247274Z test_adapt_rejects_non_object_handler_result (test_adaptation.AdaptationTests.test_adapt_rejects_non_object_handler_result) ... ok
+2026-10-22T19:37:45.0261201Z test_adapt_resolves_postponed_annotations_and_returns_object (test_adaptation.AdaptationTests.test_adapt_resolves_postponed_annotations_and_returns_object) ... ok
+2026-10-22T19:37:45.0263257Z test_dictionary_keys_must_be_strings (test_adaptation.AdaptationTests.test_dictionary_keys_must_be_strings) ... ok
+2026-10-22T19:37:45.0264960Z test_encoding_rejects_invalid_nested_values (test_adaptation.AdaptationTests.test_encoding_rejects_invalid_nested_values) ... ok
+2026-10-22T19:37:45.0267028Z test_missing_required_optional_field_is_still_missing (test_adaptation.AdaptationTests.test_missing_required_optional_field_is_still_missing) ... ok
+2026-10-22T19:37:45.0293890Z test_nested_dataclasses_and_default_factories_round_trip (test_adaptation.AdaptationTests.test_nested_dataclasses_and_default_factories_round_trip) ... ok
+2026-10-22T19:37:45.0300334Z test_output_validation_does_not_reconstruct_application_dataclass (test_adaptation.AdaptationTests.test_output_validation_does_not_reconstruct_application_dataclass) ... ok
+2026-10-22T19:37:45.0327181Z test_primitive_types_never_coerce (test_adaptation.AdaptationTests.test_primitive_types_never_coerce) ... ok
+2026-10-22T19:37:45.0357869Z test_unions_and_literals_preserve_json_types (test_adaptation.AdaptationTests.test_unions_and_literals_preserve_json_types) ... ok
+2026-10-22T19:37:45.0362344Z test_unknown_and_missing_fields_are_rejected (test_adaptation.AdaptationTests.test_unknown_and_missing_fields_are_rejected) ... ok
+2026-10-22T19:37:45.0370748Z test_completion_requires_the_requested_run_identity (test_client.ClientTests.test_completion_requires_the_requested_run_identity) ... ok
+2026-10-22T19:37:45.0374024Z test_existing_bundle_run_avoids_project_build_arguments (test_client.ClientTests.test_existing_bundle_run_avoids_project_build_arguments) ... ok
+2026-10-22T19:37:45.0378344Z test_host_failure_surfaces_stderr_without_retry (test_client.ClientTests.test_host_failure_surfaces_stderr_without_retry) ... ok
+2026-10-22T19:37:45.0380628Z test_invalid_input_never_launches_host (test_client.ClientTests.test_invalid_input_never_launches_host) ... ok
+2026-10-22T19:37:45.0389060Z test_malformed_success_response_is_rejected (test_client.ClientTests.test_malformed_success_response_is_rejected) ... ok
+2026-10-22T19:37:45.0913569Z test_pretty_cli_envelope_can_exceed_native_frame_size (test_client.ClientTests.test_pretty_cli_envelope_can_exceed_native_frame_size) ... ok
+2026-10-22T19:37:45.0918275Z test_project_run_serialises_dataclass_on_stdin_and_decodes_output (test_client.ClientTests.test_project_run_serialises_dataclass_on_stdin_and_decodes_output) ... ok
+2026-10-22T19:37:45.0920641Z test_requires_exactly_one_project_or_bundle (test_client.ClientTests.test_requires_exactly_one_project_or_bundle) ... ok
+2026-10-22T19:37:45.0922470Z test_container_depth_counts_the_root (test_codec.CodecTests.test_container_depth_counts_the_root) ... ok
+2026-10-22T19:37:45.0923969Z test_exact_integer_and_unicode_round_trip (test_codec.CodecTests.test_exact_integer_and_unicode_round_trip) ... ok
+2026-10-22T19:37:45.0980819Z test_frame_byte_limit_includes_object_syntax (test_codec.CodecTests.test_frame_byte_limit_includes_object_syntax) ... ok
+2026-10-22T19:37:45.0989115Z test_integer_decimal_digit_limit (test_codec.CodecTests.test_integer_decimal_digit_limit) ... ok
+2026-10-22T19:37:45.0990698Z test_rejects_cycles_without_hanging (test_codec.CodecTests.test_rejects_cycles_without_hanging) ... ok
+2026-10-22T19:37:45.0992710Z test_rejects_duplicate_keys_even_when_spelled_with_escapes (test_codec.CodecTests.test_rejects_duplicate_keys_even_when_spelled_with_escapes) ... ok
+2026-10-22T19:37:45.0994819Z test_rejects_invalid_unicode_in_values_and_keys (test_codec.CodecTests.test_rejects_invalid_unicode_in_values_and_keys) ... ok
+2026-10-22T19:37:45.0997466Z test_rejects_non_integer_numbers_and_non_json_constants (test_codec.CodecTests.test_rejects_non_integer_numbers_and_non_json_constants) ... ok
+2026-10-22T19:37:45.1001254Z test_requires_an_object_and_one_complete_document (test_codec.CodecTests.test_requires_an_object_and_one_complete_document) ... ok
+2026-10-22T19:37:45.1006832Z test_command_builder_preserves_explicit_bindings_and_operation_contract (test_configuration.ConfigurationTests.test_command_builder_preserves_explicit_bindings_and_operation_contract) ... ok
+2026-10-22T19:37:45.1009299Z test_export_leaves_domain_validation_to_host (test_configuration.ConfigurationTests.test_export_leaves_domain_validation_to_host) ... ok
+2026-10-22T19:37:45.1024502Z test_export_preserves_exact_host_bindings_and_topology (test_configuration.ConfigurationTests.test_export_preserves_exact_host_bindings_and_topology) ... ok
+2026-10-22T19:37:45.1040619Z test_exports_are_deterministic_independent_documents (test_configuration.ConfigurationTests.test_exports_are_deterministic_independent_documents) ... ok
+2026-10-22T19:37:45.1054410Z test_invalid_python_types_are_rejected_before_writing (test_configuration.ConfigurationTests.test_invalid_python_types_are_rejected_before_writing) ... ok
+2026-10-22T19:37:45.1057263Z test_optional_fields_remain_omitted_and_paths_are_not_read (test_configuration.ConfigurationTests.test_optional_fields_remain_omitted_and_paths_are_not_read) ... ok
+2026-10-22T19:37:45.1067319Z test_relative_export_paths_can_be_passed_directly_to_project_client (test_configuration.ConfigurationTests.test_relative_export_paths_can_be_passed_directly_to_project_client) ... ok
+2026-10-22T19:37:45.1075251Z test_admitted_effect_uses_stable_invocation_and_completes_with_evidence (test_context.ContextTests.test_admitted_effect_uses_stable_invocation_and_completes_with_evidence) ... ok
+2026-10-22T19:37:45.1081175Z test_cached_effect_never_executes_callback (test_context.ContextTests.test_cached_effect_never_executes_callback) ... ok
+2026-10-22T19:37:45.1086788Z test_callback_failure_after_admission_is_uncertain_and_not_repeated (test_context.ContextTests.test_callback_failure_after_admission_is_uncertain_and_not_repeated) ... ok
+2026-10-22T19:37:45.1287828Z test_governed_completion_is_authoritative_and_replay_never_reexecutes (test_context.ContextTests.test_governed_completion_is_authoritative_and_replay_never_reexecutes) ... ok
+2026-10-22T19:37:45.1291090Z test_host_rejection_is_reported_without_retry (test_context.ContextTests.test_host_rejection_is_reported_without_retry) ... ok
+2026-10-22T19:37:45.1296091Z test_invalid_completion_evidence_keeps_admitted_effect_uncertain (test_context.ContextTests.test_invalid_completion_evidence_keeps_admitted_effect_uncertain) ... ok
+2026-10-22T19:37:45.1699266Z test_invalid_step_keys_fail_before_any_channel_io (test_context.ContextTests.test_invalid_step_keys_fail_before_any_channel_io) ... ok
+2026-10-22T19:37:45.1703569Z test_lost_admission_acknowledgement_blocks_requests_without_callback (test_context.ContextTests.test_lost_admission_acknowledgement_blocks_requests_without_callback) ... ok
+2026-10-22T19:37:45.1709062Z test_lost_completion_acknowledgement_is_uncertain (test_context.ContextTests.test_lost_completion_acknowledgement_is_uncertain) ... ok
+2026-10-22T19:37:45.1715571Z test_parallel_accepts_eight_requests (test_context.ContextTests.test_parallel_accepts_eight_requests) ... ok
+2026-10-22T19:37:45.1765597Z test_parallel_cardinality_is_validated_before_any_channel_io (test_context.ContextTests.test_parallel_cardinality_is_validated_before_any_channel_io) ... ok
+2026-10-22T19:37:45.1771041Z test_parallel_preserves_request_and_result_order (test_context.ContextTests.test_parallel_preserves_request_and_result_order) ... ok
+2026-10-22T19:37:45.1775124Z test_parallel_rejects_missing_result (test_context.ContextTests.test_parallel_rejects_missing_result) ... ok
+2026-10-22T19:37:45.1780767Z test_rejected_effect_admission_never_executes_callback (test_context.ContextTests.test_rejected_effect_admission_never_executes_callback) ... ok
+2026-10-22T19:37:45.1785851Z test_request_encodes_application_dataclass_and_decodes_result (test_context.ContextTests.test_request_encodes_application_dataclass_and_decodes_result) ... ok
+2026-10-22T19:37:45.1790041Z test_step_key_accepts_exactly_128_utf8_bytes (test_context.ContextTests.test_step_key_accepts_exactly_128_utf8_bytes) ... ok
+2026-10-22T19:37:45.1791580Z test_expired_original_deadline_stops_channel_io (test_context.FramingTests.test_expired_original_deadline_stops_channel_io) ... ok
+2026-10-22T19:37:45.1793044Z test_frame_reader_enforces_strict_json (test_context.FramingTests.test_frame_reader_enforces_strict_json) ... ok
+2026-10-22T19:37:45.1794612Z test_invalid_length_and_truncated_payload_are_rejected (test_context.FramingTests.test_invalid_length_and_truncated_payload_are_rejected) ... ok
+2026-10-22T19:37:45.1798030Z test_receives_fragmented_big_endian_frames (test_context.FramingTests.test_receives_fragmented_big_endian_frames) ... ok
+2026-10-22T19:37:45.1799463Z test_sends_one_big_endian_object_frame (test_context.FramingTests.test_sends_one_big_endian_object_frame) ... ok
+2026-10-22T19:37:45.1810688Z test_handler_exception_is_an_error_frame (test_context.ServeTests.test_handler_exception_is_an_error_frame) ... ok
+2026-10-22T19:37:45.1825329Z test_module_import_sees_private_socket_with_inheritance_revoked (test_context.ServeTests.test_module_import_sees_private_socket_with_inheritance_revoked) ... ok
+2026-10-22T19:37:45.1835823Z test_serves_typed_handler_on_private_socket (test_context.ServeTests.test_serves_typed_handler_on_private_socket) ... ok
+2026-10-22T19:37:45.1845185Z test_unknown_handler_cannot_execute_application (test_context.ServeTests.test_unknown_handler_cannot_execute_application) ... ok
+2026-10-22T19:37:45.1846070Z 
+2026-10-22T19:37:45.1846760Z ----------------------------------------------------------------------
+2026-10-22T19:37:45.1847391Z Ran 59 tests in 0.160s
+2026-10-22T19:37:45.1847622Z 
+2026-10-22T19:37:45.1847763Z OK
+2026-10-22T19:37:45.1971667Z make[1]: Leaving directory '/home/runner/work/mas-host/mas-host'
+2026-10-22T19:37:45.1973586Z make workload-test
+2026-10-22T19:37:45.2000386Z make[1]: Entering directory '/home/runner/work/mas-host/mas-host'
+2026-10-22T19:37:45.2001766Z python3 -m unittest discover -s tests/performance -p 'test_*.py' -v
+2026-10-22T19:37:45.2555228Z test_aggregate_counts_do_not_hide_per_request_duplicate_or_loss (test_workload.OutcomeTests.test_aggregate_counts_do_not_hide_per_request_duplicate_or_loss) ... ok
+2026-10-22T19:37:45.2558473Z test_lost_response_and_known_failure_have_distinct_projections (test_workload.OutcomeTests.test_lost_response_and_known_failure_have_distinct_projections) ... ok
+2026-10-22T19:37:45.2561142Z test_prepared_snapshot_is_not_reported_as_definite_deferral (test_workload.OutcomeTests.test_prepared_snapshot_is_not_reported_as_definite_deferral) ... ok
+2026-10-22T19:37:45.2563043Z test_process_failure_does_not_imply_failed_or_rejected_work (test_workload.OutcomeTests.test_process_failure_does_not_imply_failed_or_rejected_work) ... ok
+2026-10-22T19:37:45.2564944Z test_quantiles_are_nearest_rank_and_missing_is_explicit (test_workload.OutcomeTests.test_quantiles_are_nearest_rank_and_missing_is_explicit) ... ok
+2026-10-22T19:37:45.2566972Z test_rejected_and_completed_have_different_admission_knowledge (test_workload.OutcomeTests.test_rejected_and_completed_have_different_admission_knowledge) ... ok
+2026-10-22T19:37:45.2569046Z test_request_identity_is_required_for_admission_evidence (test_workload.OutcomeTests.test_request_identity_is_required_for_admission_evidence) ... ok
+2026-10-22T19:37:45.2571061Z test_stable_empty_or_contradictory_observations_cannot_pass_completion (test_workload.OutcomeTests.test_stable_empty_or_contradictory_observations_cannot_pass_completion) ... ok
+2026-10-22T19:37:45.2573253Z test_zero_categories_remain_explicit (test_workload.OutcomeTests.test_zero_categories_remain_explicit) ... ok
+2026-10-22T19:37:45.2574654Z test_canonical_manifest_keeps_unmeasured_scenarios_unrun (test_workload.WorkloadTests.test_canonical_manifest_keeps_unmeasured_scenarios_unrun) ... ok
+2026-10-22T19:37:45.2575906Z test_encoded_input_size_is_exact_and_separate_from_envelope (test_workload.WorkloadTests.test_encoded_input_size_is_exact_and_separate_from_envelope) ... ok
+2026-10-22T19:37:45.2580147Z test_generation_preserves_prefixes_and_binds_workload_parameters (test_workload.WorkloadTests.test_generation_preserves_prefixes_and_binds_workload_parameters) ... ok
+2026-10-22T19:37:45.2581837Z test_invalid_load_rejected_before_materialisation (test_workload.WorkloadTests.test_invalid_load_rejected_before_materialisation) ... ok
+2026-10-22T19:37:45.2592846Z test_skew_is_exact_and_nonhot_tenants_stay_distinct (test_workload.WorkloadTests.test_skew_is_exact_and_nonhot_tenants_stay_distinct) ... ok
+2026-10-22T19:37:45.2593394Z 
+2026-10-22T19:37:45.2593642Z ----------------------------------------------------------------------
+2026-10-22T19:37:45.2593996Z Ran 14 tests in 0.004s
+2026-10-22T19:37:45.2594136Z 
+2026-10-22T19:37:45.2594220Z OK
+2026-10-22T19:37:45.2661581Z make[1]: Leaving directory '/home/runner/work/mas-host/mas-host'
+2026-10-22T19:37:45.2663446Z make privacy-test
+2026-10-22T19:37:45.2689022Z make[1]: Entering directory '/home/runner/work/mas-host/mas-host'
+2026-10-22T19:37:45.2690525Z PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=adapters/privacy python3 -m unittest discover -s adapters/privacy/tests -p 'test_*.py' -v
+2026-10-22T19:37:45.3733548Z test_extra_importable_extension_bytecode_and_symlink_fail (test_adapter.Assets.test_extra_importable_extension_bytecode_and_symlink_fail) ... ok
+2026-10-22T19:37:45.3775195Z test_offline_assets_missing_changed_and_path_escape_fail (test_adapter.Assets.test_offline_assets_missing_changed_and_path_escape_fail) ... ok
+2026-10-22T19:37:45.3791897Z test_provisioning_preserves_another_transfers_partial_file (test_adapter.Assets.test_provisioning_preserves_another_transfers_partial_file) ... ok
+2026-10-22T19:37:45.3803633Z test_runtime_unknown_or_missing_version_never_imports_model (test_adapter.Assets.test_runtime_unknown_or_missing_version_never_imports_model) ... ok
+2026-10-22T19:37:45.4472731Z test_worker_rejects_extra_extension_before_first_package_import (test_adapter.Assets.test_worker_rejects_extra_extension_before_first_package_import) ... ok
+2026-10-22T19:37:45.4474136Z test_character_coordinates_preserve_unicode_and_overlap_categories (test_adapter.Contracts.test_character_coordinates_preserve_unicode_and_overlap_categories) ... ok
+2026-10-22T19:37:45.4475737Z test_duplicate_json_nonfinite_truncation_and_surrogates_reject (test_adapter.Contracts.test_duplicate_json_nonfinite_truncation_and_surrogates_reject) ... ok
+2026-10-22T19:37:45.4478031Z test_positive_findings_survive_explicit_limit_as_partial (test_adapter.Contracts.test_positive_findings_survive_explicit_limit_as_partial) ... ok
+2026-10-22T19:37:45.4479594Z test_response_has_only_permitted_correlated_metadata (test_adapter.Contracts.test_response_has_only_permitted_correlated_metadata) ... ok
+2026-10-22T19:37:45.4482144Z test_strict_source_identity_byte_bounds_and_versions (test_adapter.Contracts.test_strict_source_identity_byte_bounds_and_versions) ... ok
+2026-10-22T19:37:45.4484060Z test_decoder_length_failure_cannot_fall_back_to_argmax (test_adapter.CoverageGuards.test_decoder_length_failure_cannot_fall_back_to_argmax) ... ok
+2026-10-22T19:37:45.4485800Z test_missing_final_token_or_nonfinite_scores_cannot_be_complete (test_adapter.CoverageGuards.test_missing_final_token_or_nonfinite_scores_cannot_be_complete) ... ok
+2026-10-22T19:37:45.4487616Z test_model_checks_original_tokens_full_mask_and_exact_output (test_adapter.CoverageGuards.test_model_checks_original_tokens_full_mask_and_exact_output) ... ok
+2026-10-22T19:37:45.4489696Z test_asset_and_model_exception_text_never_leaves_response (test_adapter.FailureAndTransport.test_asset_and_model_exception_text_never_leaves_response) ... ok
+2026-10-22T19:37:45.4494287Z test_private_fd_roundtrip_and_oversized_prefix (test_adapter.FailureAndTransport.test_private_fd_roundtrip_and_oversized_prefix) ... ok
+2026-10-22T19:37:45.4494820Z 
+2026-10-22T19:37:45.4495072Z ----------------------------------------------------------------------
+2026-10-22T19:37:45.4495434Z Ran 15 tests in 0.085s
+2026-10-22T19:37:45.4495581Z 
+2026-10-22T19:37:45.4495671Z OK
+2026-10-22T19:37:45.4652824Z PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests/privacy -p 'test_*.py' -v
+2026-10-22T19:37:45.5423289Z test_codepoint_offset_mistaken_for_byte_offset_fails (test_qualification.QualificationTests.test_codepoint_offset_mistaken_for_byte_offset_fails) ... ok
+2026-10-22T19:37:45.5425767Z test_complete_byte_correct_synthetic_result_passes (test_qualification.QualificationTests.test_complete_byte_correct_synthetic_result_passes) ... ok
+2026-10-22T19:37:45.5428398Z test_coverage_check_permits_surrounding_whitespace (test_qualification.QualificationTests.test_coverage_check_permits_surrounding_whitespace) ... ok
+2026-10-22T19:37:45.5431028Z test_different_detector_bundle_is_rejected (test_qualification.QualificationTests.test_different_detector_bundle_is_rejected) ... ok
+2026-10-22T19:37:45.5433159Z test_duplicate_keys_and_nonfinite_json_are_rejected (test_qualification.QualificationTests.test_duplicate_keys_and_nonfinite_json_are_rejected) ... ok
+2026-10-22T19:37:45.5435626Z test_failed_scan_or_missing_coverage_cannot_pass (test_qualification.QualificationTests.test_failed_scan_or_missing_coverage_cannot_pass) ... ok
+2026-10-22T19:37:45.5437757Z test_missing_entity_cannot_pass_with_equal_aggregate_count (test_qualification.QualificationTests.test_missing_entity_cannot_pass_with_equal_aggregate_count) ... ok
+2026-10-22T19:37:45.5951796Z test_outer_cli_deadline_is_bounded_without_model_assets (test_qualification.QualificationTests.test_outer_cli_deadline_is_bounded_without_model_assets) ... ok
+2026-10-22T19:37:45.5954832Z test_partial_progress_remains_running_until_every_case_passes (test_qualification.QualificationTests.test_partial_progress_remains_running_until_every_case_passes) ... ok
+2026-10-22T19:37:45.5957786Z test_policy_release_and_quality_claims_are_rejected (test_qualification.QualificationTests.test_policy_release_and_quality_claims_are_rejected) ... ok
+2026-10-22T19:37:45.5974411Z test_preflight_failure_replaces_a_stale_pass_receipt (test_qualification.QualificationTests.test_preflight_failure_replaces_a_stale_pass_receipt) ... ok
+2026-10-22T19:37:45.5977446Z test_source_leak_is_found_after_json_unescaping (test_qualification.QualificationTests.test_source_leak_is_found_after_json_unescaping) ... ok
+2026-10-22T19:37:45.5979182Z test_stderr_is_rejected (test_qualification.QualificationTests.test_stderr_is_rejected) ... ok
+2026-10-22T19:37:45.5979761Z 
+2026-10-22T19:37:45.5980105Z ----------------------------------------------------------------------
+2026-10-22T19:37:45.5980615Z Ran 13 tests in 0.056s
+2026-10-22T19:37:45.5980814Z 
+2026-10-22T19:37:45.5980932Z OK
+2026-10-22T19:37:45.6091902Z make[1]: Leaving directory '/home/runner/work/mas-host/mas-host'
+2026-10-22T19:37:45.6093807Z make notification-test
+2026-10-22T19:37:45.6121164Z make[1]: Entering directory '/home/runner/work/mas-host/mas-host'
+2026-10-22T19:37:45.6122699Z PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=sdk/python:adapters/notifications python3 -m unittest discover -s adapters/notifications/tests -p 'test_*.py' -v
+2026-10-22T19:37:45.7107299Z test_changed_endpoint_cannot_reuse_an_earlier_targets_acceptance (test_boundary_adversarial.BoundaryTests.test_changed_endpoint_cannot_reuse_an_earlier_targets_acceptance) ... ok
+2026-10-22T19:37:45.7111261Z test_direct_notification_construction_rejects_unvalidated_header_identities (test_boundary_adversarial.BoundaryTests.test_direct_notification_construction_rejects_unvalidated_header_identities) ... ok
+2026-10-22T19:37:45.7176433Z test_guaranteed_refusal_survives_unusable_response_metadata (test_boundary_adversarial.BoundaryTests.test_guaranteed_refusal_survives_unusable_response_metadata) ... ok
+2026-10-22T19:37:45.7180332Z test_route_mismatch_is_known_unsent_and_credentials_do_not_rebind_target (test_boundary_adversarial.BoundaryTests.test_route_mismatch_is_known_unsent_and_credentials_do_not_rebind_target) ... ok
+2026-10-22T19:37:45.7183876Z test_target_rotation_after_intent_is_known_unsent_before_dispatch (test_boundary_adversarial.BoundaryTests.test_target_rotation_after_intent_is_known_unsent_before_dispatch) ... ok
+2026-10-22T19:37:45.7191979Z test_tls_exhausting_deadline_prevents_starting_post (test_boundary_adversarial.BoundaryTests.test_tls_exhausting_deadline_prevents_starting_post) ... ok
+2026-10-22T19:37:45.7196735Z test_a_generic_lookup_failure_is_not_an_absent_notification_record (test_case_status.CaseStatusTests.test_a_generic_lookup_failure_is_not_an_absent_notification_record) ... ok
+2026-10-22T19:37:45.7203112Z test_changed_event_target_route_or_format_cannot_borrow_another_notification (test_case_status.CaseStatusTests.test_changed_event_target_route_or_format_cannot_borrow_another_notification) ... ok
+2026-10-22T19:37:45.7210282Z test_closed_versioned_records_reject_private_fields_and_malformed_identifiers (test_case_status.CaseStatusTests.test_closed_versioned_records_reject_private_fields_and_malformed_identifiers) ... ok
+2026-10-22T19:37:45.7213011Z test_completed_case_and_notification_preserve_exact_original_identities (test_case_status.CaseStatusTests.test_completed_case_and_notification_preserve_exact_original_identities) ... ok
+2026-10-22T19:37:45.7221437Z test_receipt_certainty_and_payload_consistency_are_checked (test_case_status.CaseStatusTests.test_receipt_certainty_and_payload_consistency_are_checked) ... ok
+2026-10-22T19:37:45.7227585Z test_refusal_throttle_and_unsent_remain_separate_from_acceptance (test_case_status.CaseStatusTests.test_refusal_throttle_and_unsent_remain_separate_from_acceptance) ... ok
+2026-10-22T19:37:45.7231308Z test_scope_actor_parent_and_logical_keys_must_match (test_case_status.CaseStatusTests.test_scope_actor_parent_and_logical_keys_must_match) ... ok
+2026-10-22T19:37:45.7234744Z test_unavailable_or_incomplete_case_intent_does_not_create_a_case (test_case_status.CaseStatusTests.test_unavailable_or_incomplete_case_intent_does_not_create_a_case) ... ok
+2026-10-22T19:37:45.7243886Z test_unsettled_and_unrecorded_states_never_create_permission_to_send_again (test_case_status.CaseStatusTests.test_unsettled_and_unrecorded_states_never_create_permission_to_send_again) ... ok
+2026-10-22T19:37:45.7246699Z test_withheld_record_preserves_known_execution_without_inventing_submission (test_case_status.CaseStatusTests.test_withheld_record_preserves_known_execution_without_inventing_submission) ... ok
+2026-10-22T19:37:45.7249355Z test_completed_metadata_without_a_descriptor_never_claims_endpoint_acceptance (test_case_status_adversarial.CaseProjectionBoundaryTests.test_completed_metadata_without_a_descriptor_never_claims_endpoint_acceptance) ... ok
+2026-10-22T19:37:45.7251704Z test_different_logical_effect_keys_cannot_borrow_the_same_retained_effect_identity (test_case_status_adversarial.CaseProjectionBoundaryTests.test_different_logical_effect_keys_cannot_borrow_the_same_retained_effect_identity) ... ok
+2026-10-22T19:37:45.7257978Z test_impossible_host_state_settlement_pairs_do_not_become_case_facts (test_case_status_adversarial.CaseProjectionBoundaryTests.test_impossible_host_state_settlement_pairs_do_not_become_case_facts) ... ok
+2026-10-22T19:37:45.7262895Z test_missing_or_unsettled_effects_preserve_uncertainty_without_a_retry_projection (test_case_status_adversarial.CaseProjectionBoundaryTests.test_missing_or_unsettled_effects_preserve_uncertainty_without_a_retry_projection) ... ok
+2026-10-22T19:37:45.7276312Z test_optional_inspection_is_validated_before_its_metadata_is_discarded (test_case_status_adversarial.CaseProjectionBoundaryTests.test_optional_inspection_is_validated_before_its_metadata_is_discarded) ... ok
+2026-10-22T19:37:45.7281120Z test_real_n2_completion_evidence_can_include_a_valid_inspection_receipt (test_case_status_adversarial.CaseProjectionBoundaryTests.test_real_n2_completion_evidence_can_include_a_valid_inspection_receipt) ... ok
+2026-10-22T19:37:45.7283279Z test_categories_choose_symbolic_route_without_supplied_recipient (test_response.ContractTests.test_categories_choose_symbolic_route_without_supplied_recipient) ... ok
+2026-10-22T19:37:45.7284786Z test_default_withheld_event_does_not_infer_pii_or_exposure (test_response.ContractTests.test_default_withheld_event_does_not_infer_pii_or_exposure) ... ok
+2026-10-22T19:37:45.7294840Z test_direct_notification_constructor_rejects_header_injection_and_identity_substitution (test_response.ContractTests.test_direct_notification_constructor_rejects_header_injection_and_identity_substitution) ... ok
+2026-10-22T19:37:45.7296981Z test_invalid_private_metadata_counts_and_routes_reject (test_response.ContractTests.test_invalid_private_metadata_counts_and_routes_reject) ... ok
+2026-10-22T19:37:45.7299079Z test_logical_action_stable_and_host_scope_event_route_separate (test_response.ContractTests.test_logical_action_stable_and_host_scope_event_route_separate) ... ok
+2026-10-22T19:37:45.7300964Z test_flood_capacity_is_explicit_refusal_and_dedup_does_not_spend (test_response.FlowTests.test_flood_capacity_is_explicit_refusal_and_dedup_does_not_spend) ... ok
+2026-10-22T19:37:45.7303260Z test_intent_precedes_send_and_same_action_replays_after_restart (test_response.FlowTests.test_intent_precedes_send_and_same_action_replays_after_restart) ... ok
+2026-10-22T19:37:45.7305261Z test_lost_acceptance_retains_original_uncertainty_without_resend (test_response.FlowTests.test_lost_acceptance_retains_original_uncertainty_without_resend) ... ok
+2026-10-22T19:37:45.7307271Z test_missing_or_revoked_case_intent_cannot_start_notification (test_response.FlowTests.test_missing_or_revoked_case_intent_cannot_start_notification) ... ok
+2026-10-22T19:37:45.7308863Z test_adapter_concurrency_rejection_is_unsent (test_response.HttpsTests.test_adapter_concurrency_rejection_is_unsent) ... ok
+2026-10-22T19:37:45.7312087Z test_connection_failure_is_proved_unsent_without_credential_or_endpoint_diagnostics (test_response.HttpsTests.test_connection_failure_is_proved_unsent_without_credential_or_endpoint_diagnostics) ... ok
+2026-10-22T19:37:45.7320184Z test_endpoint_acceptance_is_separate_from_recipient_delivery_and_body (test_response.HttpsTests.test_endpoint_acceptance_is_separate_from_recipient_delivery_and_body) ... ok
+2026-10-22T19:37:45.7333605Z test_expired_connect_or_tls_deadline_cannot_start_a_post (test_response.HttpsTests.test_expired_connect_or_tls_deadline_cannot_start_a_post) ... ok
+2026-10-22T19:37:45.7336590Z test_https_config_rejects_dynamic_credential_injection_and_unapproved_contract (test_response.HttpsTests.test_https_config_rejects_dynamic_credential_injection_and_unapproved_contract) ... ok
+2026-10-22T19:37:45.7400379Z test_known_acceptance_survives_invalid_or_oversized_metadata (test_response.HttpsTests.test_known_acceptance_survives_invalid_or_oversized_metadata) ... ok
+2026-10-22T19:37:45.7432945Z test_redirect_server_failure_and_lost_response_remain_uncertain (test_response.HttpsTests.test_redirect_server_failure_and_lost_response_remain_uncertain) ... ok
+2026-10-22T19:37:45.7443818Z test_throttling_and_known_refusal_are_retained_without_automatic_retry (test_response.HttpsTests.test_throttling_and_known_refusal_are_retained_without_automatic_retry) ... ok
+2026-10-22T19:37:45.7444589Z 
+2026-10-22T19:37:45.7444860Z ----------------------------------------------------------------------
+2026-10-22T19:37:45.7445270Z Ran 39 tests in 0.035s
+2026-10-22T19:37:45.7445585Z 
+2026-10-22T19:37:45.7445681Z OK
+2026-10-22T19:37:45.7584205Z make[1]: Leaving directory '/home/runner/work/mas-host/mas-host'
+2026-10-22T19:37:45.7626351Z ##[group]Run make acceptance
+2026-10-22T19:37:45.7634579Z [36;1mmake acceptance[0m
+2026-10-22T19:37:45.7695188Z shell: /usr/bin/bash -e {0}
+2026-10-22T19:37:45.7695468Z env:
+2026-10-22T19:37:45.7695684Z   GOTOOLCHAIN: local
+2026-10-22T19:37:45.7695936Z ##[endgroup]
+2026-10-22T19:37:45.7788133Z cargo test --locked -p mas-host --test acceptance -- --ignored --nocapture
+2026-10-22T19:37:45.8517905Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
+2026-10-22T19:37:45.8536153Z      Running tests/acceptance.rs (target/debug/deps/acceptance-e854ad81053043b8)
+2026-10-22T19:37:45.8547196Z 
+2026-10-22T19:37:45.8547402Z running 1 test
+2026-10-22T19:38:01.6729027Z recovery: preserved 7 completed child steps, one protocol call, one unchanged receipt
+2026-10-22T19:38:22.1419932Z test code_only_apps_and_real_effect_recovery ... ok
+2026-10-22T19:38:22.1420478Z 
+2026-10-22T19:38:22.1421051Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 36.29s
+2026-10-22T19:38:22.1421536Z 
+2026-10-22T19:38:22.1477889Z ##[group]Run sudo apt-get update
+2026-10-22T19:38:22.1478229Z [36;1msudo apt-get update[0m
+2026-10-22T19:38:22.1478508Z [36;1msudo apt-get install -y spin[0m
+2026-10-22T19:38:22.1478815Z [36;1mpython3 formal/verify.py[0m
+2026-10-22T19:38:22.1539922Z shell: /usr/bin/bash -e {0}
+2026-10-22T19:38:22.1540261Z env:
+2026-10-22T19:38:22.1540522Z   GOTOOLCHAIN: local
+2026-10-22T19:38:22.1540818Z ##[endgroup]
+2026-10-22T19:38:22.2507635Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-10-22T19:38:22.2810538Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+2026-10-22T19:38:22.2813181Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+2026-10-22T19:38:22.2820048Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+2026-10-22T19:38:22.2859392Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+2026-10-22T19:38:22.2897421Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+2026-10-22T19:38:22.3975150Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble/main armhf Packages [12.4 kB]
+2026-10-22T19:38:22.4091642Z Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [571 kB]
+2026-10-22T19:38:22.4193882Z Get:9 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [633 kB]
+2026-10-22T19:38:22.4468449Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1400 kB]
+2026-10-22T19:38:22.4542695Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [310 kB]
+2026-10-22T19:38:22.4564927Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1706 kB]
+2026-10-22T19:38:22.4647900Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [342 kB]
+2026-10-22T19:38:22.4670614Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1805 kB]
+2026-10-22T19:38:22.4757033Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [411 kB]
+2026-10-22T19:38:22.5534973Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1146 kB]
+2026-10-22T19:38:22.5594072Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [231 kB]
+2026-10-22T19:38:22.5611981Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1222 kB]
+2026-10-22T19:38:22.5671215Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [246 kB]
+2026-10-22T19:38:22.6117309Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1713 kB]
+2026-10-22T19:38:22.6199501Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [392 kB]
+2026-10-22T19:38:25.6178232Z Fetched 12.5 MB in 1s (10.1 MB/s)
+2026-10-22T19:38:26.5250469Z Reading package lists...
+2026-10-22T19:38:26.5553911Z Reading package lists...
+2026-10-22T19:38:26.7417691Z Building dependency tree...
+2026-10-22T19:38:26.7425823Z Reading state information...
+2026-10-22T19:38:26.8993701Z The following NEW packages will be installed:
+2026-10-22T19:38:26.8994671Z   spin
+2026-10-22T19:38:26.9160645Z 0 upgraded, 1 newly installed, 0 to remove and 97 not upgraded.
+2026-10-22T19:38:26.9161118Z Need to get 446 kB of archives.
+2026-10-22T19:38:26.9161578Z After this operation, 1580 kB of additional disk space will be used.
+2026-10-22T19:38:26.9162319Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-10-22T19:38:26.9662847Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 spin amd64 6.5.2+dfsg-1 [446 kB]
+2026-10-22T19:38:27.2188176Z Fetched 446 kB in 0s (6973 kB/s)
+2026-10-22T19:38:27.2399218Z Selecting previously unselected package spin.
+2026-10-22T19:38:27.2732239Z (Reading database ... 
+2026-10-22T19:38:27.2732924Z (Reading database ... 5%
+2026-10-22T19:38:27.2733412Z (Reading database ... 10%
+2026-10-22T19:38:27.2734011Z (Reading database ... 15%
+2026-10-22T19:38:27.2735016Z (Reading database ... 20%
+2026-10-22T19:38:27.2735914Z (Reading database ... 25%
+2026-10-22T19:38:27.2736840Z (Reading database ... 30%
+2026-10-22T19:38:27.2738012Z (Reading database ... 35%
+2026-10-22T19:38:27.2738477Z (Reading database ... 40%
+2026-10-22T19:38:27.2738879Z (Reading database ... 45%
+2026-10-22T19:38:27.2739272Z (Reading database ... 50%
+2026-10-22T19:38:27.2784907Z (Reading database ... 55%
+2026-10-22T19:38:27.4028257Z (Reading database ... 60%
+2026-10-22T19:38:27.6137850Z (Reading database ... 65%
+2026-10-22T19:38:27.7668294Z (Reading database ... 70%
+2026-10-22T19:38:27.9692440Z (Reading database ... 75%
+2026-10-22T19:38:28.1143564Z (Reading database ... 80%
+2026-10-22T19:38:28.2654811Z (Reading database ... 85%
+2026-10-22T19:38:28.3868736Z (Reading database ... 90%
+2026-10-22T19:38:28.4918704Z (Reading database ... 95%
+2026-10-22T19:38:28.4919513Z (Reading database ... 100%
+2026-10-22T19:38:28.4920794Z (Reading database ... 203540 files and directories currently installed.)
+2026-10-22T19:38:28.4961969Z Preparing to unpack .../spin_6.5.2+dfsg-1_amd64.deb ...
+2026-10-22T19:38:28.4989444Z Unpacking spin (6.5.2+dfsg-1) ...
+2026-10-22T19:38:28.5814610Z Setting up spin (6.5.2+dfsg-1) ...
+2026-10-22T19:38:28.5834046Z Processing triggers for man-db (2.12.0-4build2) ...
+2026-10-22T19:38:28.5854390Z Not building database; man-db/auto-update is not 'true'.
+2026-10-22T19:38:29.2263946Z 
+2026-10-22T19:38:29.2264662Z Running kernel seems to be up-to-date.
+2026-10-22T19:38:29.2265175Z 
+2026-10-22T19:38:29.2265525Z No services need to be restarted.
+2026-10-22T19:38:29.2265915Z 
+2026-10-22T19:38:29.2266244Z No containers need to be restarted.
+2026-10-22T19:38:29.2266933Z 
+2026-10-22T19:38:29.2267339Z No user sessions are running outdated binaries.
+2026-10-22T19:38:29.2267796Z 
+2026-10-22T19:38:29.2268459Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+2026-10-22T19:38:31.4891469Z revision-safety: COMPLETE_ZERO_ERRORS
+2026-10-22T19:38:32.7313733Z revision-safety-no-reduction: COMPLETE_ZERO_ERRORS
+2026-10-22T19:38:34.1837967Z revision-progress: COMPLETE_ZERO_ERRORS
+2026-10-22T19:38:35.5629302Z revision-progress-no-reduction: COMPLETE_ZERO_ERRORS
+2026-10-22T19:38:36.5536001Z disclosure-safety: COMPLETE_ZERO_ERRORS
+2026-10-22T19:38:37.4568846Z disclosure-safety-no-reduction: COMPLETE_ZERO_ERRORS
+2026-10-22T19:38:38.5596055Z disclosure-progress: COMPLETE_ZERO_ERRORS
+2026-10-22T19:38:39.5717804Z disclosure-progress-no-reduction: COMPLETE_ZERO_ERRORS
+2026-10-22T19:38:40.6450926Z delegation-safety: COMPLETE_ZERO_ERRORS
+2026-10-22T19:38:41.6242785Z delegation-safety-no-reduction: COMPLETE_ZERO_ERRORS
+2026-10-22T19:38:42.7983377Z delegation-progress: COMPLETE_ZERO_ERRORS
+2026-10-22T19:38:43.8913666Z delegation-progress-no-reduction: COMPLETE_ZERO_ERRORS
+2026-10-22T19:38:45.4779277Z provider-results-safety: COMPLETE_ZERO_ERRORS
+2026-10-22T19:38:46.9496385Z provider-results-safety-no-reduction: COMPLETE_ZERO_ERRORS
+2026-10-22T19:38:48.6369999Z provider-results-progress: COMPLETE_ZERO_ERRORS
+2026-10-22T19:38:50.2488034Z provider-results-progress-no-reduction: COMPLETE_ZERO_ERRORS
+2026-10-22T19:38:53.7293695Z governed-local-safety: COMPLETE_ZERO_ERRORS
+2026-10-22T19:38:58.5946343Z governed-local-safety-no-reduction: COMPLETE_ZERO_ERRORS
+2026-10-22T19:39:03.0525036Z governed-local-progress: COMPLETE_ZERO_ERRORS
+2026-10-22T19:39:09.6747947Z governed-local-progress-no-reduction: COMPLETE_ZERO_ERRORS
+2026-10-22T19:39:11.2905937Z privacy-response-safety: COMPLETE_ZERO_ERRORS
+2026-10-22T19:39:12.8162948Z privacy-response-safety-no-reduction: COMPLETE_ZERO_ERRORS
+2026-10-22T19:39:14.5551388Z privacy-response-progress: COMPLETE_ZERO_ERRORS
+2026-10-22T19:39:16.2292744Z privacy-response-progress-no-reduction: COMPLETE_ZERO_ERRORS
+2026-10-22T19:39:17.7472938Z retained-effect-safety: COMPLETE_ZERO_ERRORS
+2026-10-22T19:39:19.1930977Z retained-effect-safety-no-reduction: COMPLETE_ZERO_ERRORS
+2026-10-22T19:39:20.8591417Z retained-effect-progress: COMPLETE_ZERO_ERRORS
+2026-10-22T19:39:22.4687999Z retained-effect-progress-no-reduction: COMPLETE_ZERO_ERRORS
+2026-10-22T19:39:23.8239516Z revision-unknown-retry: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:25.1936946Z revision-completed-replay: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:26.5547694Z revision-assessment-replay: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:27.9192131Z revision-error-pass: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:29.3088074Z revision-revision-budget: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:30.6912526Z revision-permission-expansion: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:32.0664195Z revision-deadline-expansion: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:33.4309818Z revision-remediation-effect: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:34.7789733Z revision-complete-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:36.1313001Z revision-replay-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:37.4823582Z revision-unknown-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:38.8285674Z revision-exhausted-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:40.1810101Z revision-error-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:41.5331453Z revision-assessment-replay-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:42.8796820Z revision-invocation-budget-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:44.3672135Z revision-stalled-controller: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:45.3809901Z disclosure-hidden-peer: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:46.3882151Z disclosure-reassemble-replay: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:47.3940114Z disclosure-policy-rebind: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:48.3958384Z disclosure-derived-reader: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:49.4056302Z disclosure-restricted-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:50.4091319Z disclosure-delegation-disclosure: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:51.4123082Z disclosure-delegation-inheritance: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:52.4174523Z disclosure-evidence-namespace: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:53.4191472Z disclosure-evidence-readers: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:54.4811863Z delegation-early-complete: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:55.5721957Z delegation-early-complete-schema: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:56.6419315Z delegation-partial-coverage-complete: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:57.7263383Z delegation-required-target-schema: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:58.8171601Z delegation-duplicate-target-schema: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:39:59.9018849Z delegation-final-turn-request: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:00.9889958Z delegation-replay-count: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:02.0757031Z delegation-replay-coverage: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:03.1640718Z delegation-replay-dispatch: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:04.2522895Z delegation-complete-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:05.3439490Z delegation-zero-minimum-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:06.4316210Z delegation-replay-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:07.5197481Z delegation-early-invalid-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:08.6136613Z delegation-partial-coverage-invalid-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:09.6986105Z delegation-duplicate-target-invalid-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:10.7894744Z delegation-reverse-order-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:11.8620027Z delegation-stalled-inference: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:13.4385851Z provider-results-first-output: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:15.0330366Z provider-results-ignore-malformed-sibling: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:16.6097461Z provider-results-commentary-promotion: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:18.1883137Z provider-results-ignore-refusal: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:19.7746378Z provider-results-reject-equivalent-messages: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:21.3504476Z provider-results-skip-schema: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:22.9337320Z provider-results-skip-request-admission: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:24.5207398Z provider-results-known-invalid-becomes-unknown: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:26.0981603Z provider-results-inference-replay: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:27.6975460Z provider-results-peer-replay: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:29.2995246Z provider-results-invalid-retry: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:30.8973257Z provider-results-unknown-retry: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:32.4908008Z provider-results-reclassify-retained-invalid: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:34.0661106Z provider-results-descriptor-rebind: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:35.6426790Z provider-results-single-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:37.2237398Z provider-results-repeated-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:38.8045261Z provider-results-triplicated-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:40.3951781Z provider-results-conflict-after-peer-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:41.9761051Z provider-results-malformed-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:43.5667287Z provider-results-schema-invalid-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:45.1641877Z provider-results-request-invalid-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:46.7419927Z provider-results-refusal-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:48.3234170Z provider-results-unknown-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:49.9128299Z provider-results-lost-known-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:51.5025555Z provider-results-cached-inference-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:53.0832174Z provider-results-delegate-crash-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:54.6676638Z provider-results-descriptor-rebind-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:56.3837094Z provider-results-stalled-provider: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:40:58.6784061Z governed-local-raw-input: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:00.9909814Z governed-local-raw-completion: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:03.3194581Z governed-local-raw-protocol: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:05.6219083Z governed-local-stale-effect-authority: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:07.9166800Z governed-local-stale-delivery-authority: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:10.2288983Z governed-local-certainty-promotion: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:12.5331235Z governed-local-erase-completion: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:14.8320567Z governed-local-borrowed-receipt: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:17.1314343Z governed-local-foreign-tenant: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:19.4297545Z governed-local-original-rebind: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:21.7311436Z governed-local-unknown-retry: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:24.0384179Z governed-local-completed-retry: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:26.3757728Z governed-local-inspection-coverage: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:28.7268642Z governed-local-inspection-binding: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:31.0455697Z governed-local-inspection-finding: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:33.3683008Z governed-local-inspection-revocation: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:35.6767752Z governed-local-outbound-inspection: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:37.9831961Z governed-local-available-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:40.2953720Z governed-local-withheld-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:42.6037324Z governed-local-replay-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:44.9293123Z governed-local-unknown-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:47.3595769Z governed-local-restart-repair-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:49.6699450Z governed-local-revoked-completion-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:51.9780068Z governed-local-input-conflict-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:54.2870526Z governed-local-foreign-denial-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:56.6019654Z governed-local-snapshot-race-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:41:58.9111260Z governed-local-epoch-refresh-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:01.2303967Z governed-local-positive-original-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:03.5410723Z governed-local-inspection-denial-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:05.8505756Z governed-local-inspection-withholding-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:08.1674031Z governed-local-unknown-retry-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:10.6478708Z governed-local-stalled-external: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:12.2769012Z privacy-response-untrusted-route: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:13.9024674Z privacy-response-intent-order: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:15.4890911Z privacy-response-withheld-intent: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:17.1220403Z privacy-response-revoked-notification: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:18.7487008Z privacy-response-unknown-retry: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:20.3754917Z privacy-response-completed-retry: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:22.0083359Z privacy-response-withheld-retry: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:23.6288929Z privacy-response-throttled-retry: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:25.2662675Z privacy-response-throttled-success: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:26.9040537Z privacy-response-recipient-certainty: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:28.5241596Z privacy-response-event-rebind: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:30.1511385Z privacy-response-destination-rebind: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:31.7784831Z privacy-response-replay-identity: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:33.4049482Z privacy-response-accepted-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:35.0294410Z privacy-response-refused-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:36.6541949Z privacy-response-throttled-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:38.2803308Z privacy-response-unknown-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:39.9129775Z privacy-response-between-effects-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:41.5423684Z privacy-response-withheld-completion-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:43.1660616Z privacy-response-withheld-intent-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:44.8005328Z privacy-response-revocation-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:46.4312203Z privacy-response-replay-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:48.0531180Z privacy-response-event-conflict-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:49.6793561Z privacy-response-foreign-denial-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:51.3010548Z privacy-response-not-sent-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:52.9321098Z privacy-response-destination-conflict-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:54.5599482Z privacy-response-unknown-retry-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:56.3206581Z privacy-response-stalled-endpoint: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:57.8103892Z retained-effect-namespace-binding: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:42:59.3058421Z retained-effect-parent-binding: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:00.7972882Z retained-effect-actor-binding: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:02.2891847Z retained-effect-key-binding: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:03.7883641Z retained-effect-view-binding: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:05.2866168Z retained-effect-pre-lookup-authority: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:06.7795070Z retained-effect-post-inspection-authority: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:08.2724040Z retained-effect-split-snapshot: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:09.7659595Z retained-effect-callback-with-database: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:11.2770697Z retained-effect-reader-write: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:12.7779622Z retained-effect-reader-recovery: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:14.2790311Z retained-effect-reader-dispatch: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:15.7737735Z retained-effect-inspection-bypass: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:17.2765614Z retained-effect-withheld-settlement: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:18.7791612Z retained-effect-external-certainty: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:20.2904009Z retained-effect-available-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:21.7942785Z retained-effect-withheld-known-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:23.3009052Z retained-effect-unknown-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:24.7928439Z retained-effect-not-recorded-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:26.2964874Z retained-effect-live-owner-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:27.8004743Z retained-effect-old-snapshot-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:29.3059742Z retained-effect-post-inspection-revocation-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:30.7991132Z retained-effect-binding-denied-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:32.2935838Z retained-effect-query-inspection-denied-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:33.7997778Z retained-effect-authority-race-witness: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:35.4330873Z retained-effect-stalled-inspector: EXPECTED_COUNTEREXAMPLE
+2026-10-22T19:43:35.4934596Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-22T19:43:35.4935010Z with:
+2026-10-22T19:43:35.4935215Z   name: host-revision-verification
+2026-10-22T19:43:35.4935473Z   path: formal/evidence
+2026-10-22T19:43:35.4935696Z   if-no-files-found: warn
+2026-10-22T19:43:35.4935923Z   retention-days: 14
+2026-10-22T19:43:35.4936151Z   compression-level: 6
+2026-10-22T19:43:35.4936362Z   overwrite: false
+2026-10-22T19:43:35.4936760Z   include-hidden-files: false
+2026-10-22T19:43:35.4936987Z env:
+2026-10-22T19:43:35.4937161Z   GOTOOLCHAIN: local
+2026-10-22T19:43:35.4937359Z ##[endgroup]
+2026-10-22T19:43:35.6532453Z (node:17227) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-22T19:43:35.6533692Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-22T19:43:35.6589309Z With the provided path, there will be 3 files uploaded
+2026-10-22T19:43:35.6594457Z Artifact name is valid!
+2026-10-22T19:43:35.6595292Z Root directory input is valid!
+2026-10-22T19:43:35.9441801Z Beginning upload of artifact content to blob storage
+2026-10-22T19:43:36.3194409Z (node:17227) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-22T19:43:36.7440099Z Uploaded bytes 8388608
+2026-10-22T19:43:37.0900420Z Uploaded bytes 16777216
+2026-10-22T19:43:37.2542200Z Uploaded bytes 22739292
+2026-10-22T19:43:37.2935203Z Finished uploading artifact content to blob storage!
+2026-10-22T19:43:37.2937625Z SHA256 digest of uploaded artifact zip is b20353d5a96dc17f48755988aec79f9b8213d26b61d5c5e7daa46047ffc7007e
+2026-10-22T19:43:37.2939632Z Finalizing artifact upload
+2026-10-22T19:43:37.8374631Z Artifact host-revision-verification.zip successfully finalized. Artifact ID 12453372185
+2026-10-22T19:43:37.8377140Z Artifact host-revision-verification has been successfully uploaded! Final size is 22739292 bytes. Artifact ID is 12453372185
+2026-10-22T19:43:37.8381658Z Artifact download URL: https://github.com/emmett08/mas-host/actions/runs/39840094948/artifacts/12453372185
+2026-10-22T19:43:37.8592100Z Post job cleanup.
+2026-10-22T19:43:37.9792240Z (node:17240) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-22T19:43:37.9793927Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-22T19:43:37.9931329Z Post job cleanup.
+2026-10-22T19:43:38.1276990Z Post job cleanup.
+2026-10-22T19:43:38.2129410Z [command]/usr/bin/git version
+2026-10-22T19:43:38.2167973Z git version 2.55.0
+2026-10-22T19:43:38.2206812Z Temporarily overriding HOME='/home/runner/work/_temp/f3abe42c-23d4-422d-b449-52b2f75c418b' before making global git config changes
+2026-10-22T19:43:38.2208348Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-22T19:43:38.2211603Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mas-host/mas-host
+2026-10-22T19:43:38.2243062Z Removing SSH command configuration
+2026-10-22T19:43:38.2250028Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-22T19:43:38.2285915Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-22T19:43:38.2506838Z Removing HTTP extra header
+2026-10-22T19:43:38.2512022Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-22T19:43:38.2542822Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-22T19:43:38.2757377Z Removing includeIf entries pointing to credentials config files
+2026-10-22T19:43:38.2763781Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-22T19:43:38.2794483Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-22T19:43:38.3147853Z Cleaning up orphan processes
+2026-10-22T19:43:38.3494938Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020, actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
