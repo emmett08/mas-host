@@ -2,6 +2,7 @@
 mod configuration;
 mod governed;
 mod http;
+mod retained;
 mod retained_effect;
 use configuration::Configuration;
 use governed::Caller;
