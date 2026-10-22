@@ -1,0 +1,38 @@
+{
+  "recorded_at": "2026-10-22T16:14:53.005742+00:00",
+  "base": "dcdd73971aecd8e3962f582937e721b04d6a1379",
+  "checkout": "/tmp/nehemiah-e0-repair-f8933kd4",
+  "source_sha256": {
+    "crates/mas-host-core/src/governance/policy.rs": "a4dcb9dc7f229e56d7dfecd9412272cbaa886e8730b6b72807b62a6fd90e03cd",
+    "crates/mas-host-core/src/governance/tests.rs": "c04e33ff15cf2f819755d21b0752822123300d3400132b12c29ed490c60edefe"
+  },
+  "environment": {
+    "CARGO_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/cargo",
+    "RUSTUP_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/rustup",
+    "CARGO_TARGET_DIR": "/tmp/nehemiah-e0-repair-target"
+  },
+  "toolchain_bin": "/workspace/scratch/1ad2c1661ab9/tooling/rustup/toolchains/1.99.0-x86_64-unknown-linux-gnu/bin"
+}
+
+COMMAND ["cargo", "test", "--offline", "--locked", "-p", "mas-host-core", "governance::"]
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running unittests src/lib.rs (/tmp/nehemiah-e0-repair-target/debug/deps/mas_host_core-0ecc11aa0cf9558a)
+
+running 9 tests
+test governance::tests::protected_result_dimensions_remain_independent ... ok
+test governance::tests::deployment_declarations_cannot_enable_unimplemented_enforcement ... ok
+test governance::tests::strict_contracts_reject_unknown_versions_fields_and_identity_wildcards ... ok
+test governance::tests::held_decisions_preserve_distinct_operation_output_and_recipient_bindings ... ok
+test governance::tests::inherited_policy_permissions_intersect_and_obligations_accumulate ... ok
+test governance::tests::mismatched_and_expired_decisions_retain_requested_and_observed_facts ... ok
+test governance::tests::decisions_bind_exact_operation_payload_and_recipient ... ok
+test governance::tests::published_policy_counterexamples ... ok
+test governance::tests::aggregate_decision_limit_never_permits_or_implies_complete_exposure ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 39 filtered out; finished in 0.74s
+
+EXIT 0
+
+COMMAND ["cargo", "clippy", "--offline", "--locked", "-p", "mas-host-core", "--all-targets", "--", "-D", "warnings"]
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s
+EXIT 0

@@ -1,0 +1,70 @@
+   Compiling mas-host-privacy v0.1.0 (/tmp/mas-n1-review-cut-777zmcym/crates/mas-host-privacy)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.91s
+     Running unittests src/lib.rs (/workspace/scratch/1ad2c1661ab9/validation/n1-review-target/debug/deps/mas_host_privacy-751c5f9a3daac211)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/conformance.rs (/workspace/scratch/1ad2c1661ab9/validation/n1-review-target/debug/deps/conformance-d8afe2fdd5d8af42)
+
+running 20 tests
+test complete_coverage_rejects_gaps_missing_final_chunk_and_reordering ... ok
+test byte_ranges_reject_reversed_out_of_bounds_and_empty ... ok
+test authority_and_policy_failures_never_permit_synthetic_data ... ok
+test assessment_rejects_same_id_equal_length_replacement_before_and_after_wire_roundtrip ... ok
+test complete_records_cannot_hide_omissions_or_overlap_rules ... ok
+test empty_source_can_be_completely_checked_without_a_fake_range ... ok
+test input_and_finding_limits_fail_explicitly ... ok
+test deterministic_full_range_still_has_unqualified_neural_coverage ... ok
+test only_explicit_synthetic_fixture_profile_can_permit_complete_fixture ... ok
+test positive_finding_must_be_inside_checked_coverage ... ok
+test overlap_union_preserves_categories_and_provenance ... ok
+test unsupported_json_and_attachments_have_no_guessed_mapping ... ok
+test public_merger_validates_directly_constructed_recogniser_sets ... ok
+test no_record_can_claim_qualified_neural_by_changing_detector_fields ... ok
+test safe_metadata_and_debug_contain_no_detected_values_or_fingerprints ... ok
+test positive_findings_survive_partial_inspection_and_route_by_policy ... ok
+test known_completion_and_uncertainty_are_preserved_when_output_is_withheld ... ok
+test utf8_byte_boundaries_include_combining_text ... ok
+test strict_records_reject_fields_versions_offsets_and_missing_coverage ... ok
+test fixture_taxonomy_roundtrips_its_categories_and_rejects_neural_only_categories ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/neural.rs (/workspace/scratch/1ad2c1661ab9/validation/n1-review-target/debug/deps/neural-9d20fe71c54aa4e3)
+
+running 16 tests
+test complete_neural_responses_require_every_final_codepoint_and_no_gaps ... ok
+test complete_neural_candidate_cannot_unlock_fixture_or_protected_release ... ok
+test finding_outside_observed_ranges_and_reordered_ranges_are_rejected ... ok
+test exact_schema_and_all_output_limits_are_enforced ... ok
+test declared_wrong_units_and_impossible_codepoint_offsets_are_rejected ... ok
+test all_eight_labels_retain_original_meaning_and_distinct_categories ... ok
+test overlap_merger_keeps_pattern_and_neural_provenance ... ok
+test source_replacement_and_detector_changes_invalidate_responses ... ok
+test partial_unsupported_and_failed_coverage_remain_distinct_with_valid_findings ... ok
+test request_binds_exact_private_source_and_pins_without_qualification_fields ... ok
+test pin_identity_is_closed_and_supports_only_the_implemented_backend ... ok
+test unicode_codepoints_convert_to_original_bytes_without_normalisation ... ok
+test unknown_model_labels_and_model_scores_are_rejected ... ok
+test worker_failure_preserves_deterministic_positive_findings_and_safe_metadata ... ok
+test combined_output_still_rejects_more_than_the_finding_limit ... ok
+test duplicate_detector_contributions_use_the_merged_finding_limit ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/neural_omissions.rs (/workspace/scratch/1ad2c1661ab9/validation/n1-review-target/debug/deps/neural_omissions-dd87ddc5560c7a3e)
+
+running 2 tests
+test host_failure_reasons_cannot_copy_arbitrary_exception_data ... ok
+test incomplete_statuses_require_a_fixed_content_free_worker_reason ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests mas_host_privacy
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

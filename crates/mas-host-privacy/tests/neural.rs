@@ -335,6 +335,48 @@ fn overlap_merger_keeps_pattern_and_neural_provenance() {
 }
 
 #[test]
+fn duplicate_detector_contributions_use_the_merged_finding_limit() {
+    let limits = Limits::default();
+    for count in [64, 65, limits.max_findings] {
+        let email = "a@b.invalid";
+        let stride = email.len() + 1;
+        let text = format!("{email} ").repeat(count);
+        let source = Source::text("source-merge-limit", &text, limits.max_input_bytes).unwrap();
+        let mut value = response(&source);
+        value["findings"] = (0..count)
+            .map(|i| json!({"start":i*stride,"end":i*stride+email.len(),"label":"private_email"}))
+            .collect();
+        let neural = NeuralAssessment::from_value(&value, &source, &pins(), limits).unwrap();
+        let combined = CombinedAssessment::new(&source, neural, limits).unwrap();
+        assert_eq!(combined.findings().len(), count);
+        assert_eq!(combined.completion(), Completion::Complete);
+        assert!(combined
+            .findings()
+            .iter()
+            .all(|finding| finding.recognisers.len() == 2));
+    }
+}
+
+#[test]
+fn combined_output_still_rejects_more_than_the_finding_limit() {
+    let limits = Limits::default();
+    let prefix = "a@b.invalid ";
+    let text = prefix.to_owned() + &"x ".repeat(limits.max_findings);
+    let source = Source::text("source-output-limit", &text, limits.max_input_bytes).unwrap();
+    let mut value = response(&source);
+    value["findings"] = (0..limits.max_findings)
+        .map(
+            |i| json!({"start":prefix.len()+i*2,"end":prefix.len()+i*2+1,"label":"private_person"}),
+        )
+        .collect();
+    let neural = NeuralAssessment::from_value(&value, &source, &pins(), limits).unwrap();
+    assert_eq!(
+        CombinedAssessment::new(&source, neural, limits).unwrap_err(),
+        Error::LimitExceeded
+    );
+}
+
+#[test]
 fn pin_identity_is_closed_and_supports_only_the_implemented_backend() {
     for value in ["A".repeat(64), "a".repeat(63), "a".repeat(65)] {
         assert_eq!(

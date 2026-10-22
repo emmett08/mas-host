@@ -27,11 +27,11 @@ pub(super) fn inspect(
     let arguments = vec![
         "-I".into(),
         "-B".into(),
-        config.worker.to_string_lossy().into_owned(),
+        config.worker.to_str().ok_or("worker-unavailable")?.into(),
         "--manifest".into(),
-        config.manifest.to_string_lossy().into_owned(),
+        config.manifest.to_str().ok_or("worker-unavailable")?.into(),
         "--assets".into(),
-        config.assets.to_string_lossy().into_owned(),
+        config.assets.to_str().ok_or("worker-unavailable")?.into(),
     ];
     let environment: BTreeMap<String, String> = [
         ("HF_HUB_OFFLINE", "1"),

@@ -1,0 +1,54 @@
+{
+  "version": "mas-nehemiah-pr-review/1",
+  "date": "2026-10-22",
+  "reviewed_commit": "a675ba828468d117d6c66389b62c1b4da7d99743",
+  "scope": "PR16 N1 trusted-local detector corrections and inherited PR15 review repair",
+  "plan_snapshots_sha256": {
+    "review-current-nehemiah-pii-detection-response-plan.md": "8dd7b7a97b8ce2248e754d8c84a5dca2e89a55e6734ffbc7c0575c12de45b1f5",
+    "review-current-nehemiah-enterprise-scaling-plan.md": "4c7f7368ed9b245d1a435e302df53b3f488172a9a824d90d28bf6d8ac56788ad",
+    "review-current-nehemiah-extensibility-data-use-plan.md": "e14410bab61418e2e2739ac4deb0c7cc13b096d18f3fb8ad7f50098db48e7854"
+  },
+  "source_sha256": {
+    "crates/mas-host-cli/src/privacy_inspect/config.rs": "b8d35150e4935f8a52a638deb8ee09a980156a03b66306c013ff9664d850d9f1",
+    "crates/mas-host-cli/src/privacy_inspect/runner.rs": "7df11521cd3a80839f6dc4f11c74e12cc138afd583329191d5a0939d504ac197",
+    "crates/mas-host-cli/tests/privacy_inspect.rs": "ce70024f12e73329a9d82f0ab339ed42df5a32161944adf878473aa7ac9493a1",
+    "crates/mas-host-privacy/README.md": "e4c29f40fcc2b73931a3cab8829fce43d0406b36b3a779027095ec22425c0ae0",
+    "crates/mas-host-privacy/src/combined.rs": "b4321d9ae7f884d94b78d4e340349bb8c3f6503cd7307c2a37ac91a54a8774a9",
+    "crates/mas-host-privacy/tests/conformance.rs": "775bef6b7d24aeaf18b6246ff3ecb69ab3f73f7b006d4c37412f96e6653ae55b",
+    "crates/mas-host-privacy/tests/neural.rs": "91ee7c161701b14a1ef1e229fdd940ef03fc5578a041e08f740f6501bb855f91"
+  },
+  "findings_repaired": [
+    "Bounded detector contributions must merge before applying the final 128-finding limit.",
+    "Reject non-UTF-8 resolved executable/asset paths instead of lossy substitution.",
+    "N1 documentation no longer describes model packaging as future work."
+  ],
+  "checks": [
+    {
+      "command": "cargo test --locked -p mas-host-privacy",
+      "passed": 38,
+      "failed": 0
+    },
+    {
+      "command": "cargo test --locked -p mas-host --test privacy_inspect",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "command": "cargo clippy --locked -p mas-host-privacy -p mas-host --all-targets -- -D warnings",
+      "result": "PASS"
+    }
+  ],
+  "test_cut": "Published PR16 base plus the seven listed N1 files in an isolated checkout. Inherited E0 repair is validated separately in pr15.json.",
+  "validation_logs": [
+    "n1-review-privacy-isolated-tests.log",
+    "n1-review-cli-isolated-tests.log",
+    "n1-review-clippy-isolated.log"
+  ],
+  "actual_model_rerun": false,
+  "historical_model_evidence": "../nehemiah-local-detector/validation.json remains bound to implementation 3902bd13b53bb0909975dcf418cf20a82afbb644; unchanged Python/model assets were not requalified for this correction.",
+  "not_claimed": [
+    "Population or deployment-domain privacy accuracy",
+    "General unstructured release authority",
+    "Complete N2/N3 integration or E4/E5 deployment qualification"
+  ]
+}

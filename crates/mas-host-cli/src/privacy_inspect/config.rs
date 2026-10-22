@@ -95,6 +95,12 @@ impl Config {
             .unwrap_or(default_worker)
             .canonicalize()
             .map_err(|_| "privacy worker unavailable")?;
+        if [&worker, &manifest, &assets]
+            .iter()
+            .any(|path| path.to_str().is_none())
+        {
+            return Err("privacy resolved paths must be UTF-8".into());
+        }
         let raw = read_bounded(&manifest, 262_144)?;
         let manifest_value = mas_protocol_codec::parse_json(
             std::str::from_utf8(&raw).map_err(|_| "invalid privacy manifest")?,

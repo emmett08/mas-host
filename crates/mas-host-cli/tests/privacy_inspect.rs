@@ -186,6 +186,20 @@ fn changed_worker_is_rejected_before_execution() {
 }
 
 #[test]
+fn non_utf8_resolved_worker_paths_are_rejected_without_lossy_conversion() {
+    use std::os::unix::{ffi::OsStrExt, fs::symlink};
+    let f = Fixture::new("complete", "plain");
+    let worker = f.root.join("worker.py");
+    let non_utf8 = f.root.join(std::ffi::OsStr::from_bytes(b"worker-\xff.py"));
+    fs::rename(&worker, &non_utf8).unwrap();
+    symlink(&non_utf8, &worker).unwrap();
+    let out = f.command().output().unwrap();
+    assert!(!out.status.success());
+    assert!(out.stdout.is_empty());
+    assert!(String::from_utf8_lossy(&out.stderr).contains("resolved paths must be UTF-8"));
+}
+
+#[test]
 fn invalid_encoding_and_oversized_source_have_explicit_safe_outcomes() {
     let f = Fixture::new("complete", "plain");
     fs::write(f.root.join("input.txt"), [0xff, 0xfe]).unwrap();

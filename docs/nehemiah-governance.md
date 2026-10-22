@@ -51,6 +51,20 @@ destinations would create additional permissions. Applicable source policies
 instead accumulate through conjunction. Unavailable current authority, revoked
 grants, missing obligations and unsupported records prevent a permit.
 
+With `binding_complete: true`, held and permitted decisions retain the exact
+proposed operation, source/output binding references, recipient, scope and
+supplied governance references. Held
+decisions carry `authority: "none"` and zero admission expiry. The supplied scope
+and requested exposure sets remain separate when they disagree. These records
+contain governed metadata and require an authorised storage and disclosure path.
+
+The assembled decision has a 65,536-byte limit. If the reference closure exceeds
+that limit, the result is `hold` with `reason: "decision-binding-limit"` and
+`binding_complete: false`. It retains the bounded request identity and omits the
+exposure/policy arrays. This outcome cannot be interpreted as a complete empty
+exposure or used as a disclosure permit. `binding_complete` describes retained
+reference coverage; it authenticates none of the supplied facts.
+
 These deterministic functions take authenticated scope and current authority
 from trusted integration code. Runtime mediation, grant rotation and protected
 commitment storage belong to the subsequent governed execution increment.
@@ -78,8 +92,10 @@ cargo run --locked -p mas-host-privacy --example synthetic
 The example uses synthetic text and a deterministic fixture detector. Its output
 contains safe classifications and handling dispositions. The neural detector
 remains unqualified, so the fixture cannot authorise protected unstructured
-disclosure. Model packaging, complete host persistence and retrieval mediation,
-durable privacy cases and notification delivery follow N1–N3 in the PII plan.
+disclosure. N1 local model packaging and supervised inspection are available in
+the [local detector guide](privacy-detector.md). Complete host persistence and
+retrieval mediation, durable privacy cases and notification delivery remain
+subsequent N2–N3 work in the PII plan.
 
 See [implementation status](nehemiah-implementation.md) for dependencies and the
 evidence boundary of this increment.

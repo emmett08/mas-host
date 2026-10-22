@@ -1,0 +1,82 @@
+   Compiling itoa v1.0.18
+   Compiling libc v0.2.190
+   Compiling typenum v1.20.1
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling shlex v2.0.1
+   Compiling memchr v2.8.3
+   Compiling find-msvc-tools v0.1.14
+   Compiling serde_json v1.0.152
+   Compiling cc v1.8.0
+   Compiling foldhash v0.2.0
+   Compiling vcpkg v0.2.15
+   Compiling pkg-config v0.3.34
+   Compiling hashbrown v0.17.1
+   Compiling hybrid-array v0.4.15
+   Compiling const-oid v0.10.2
+   Compiling smallvec v1.16.3
+   Compiling hashlink v0.12.2
+   Compiling cfg-if v1.0.5
+   Compiling cpufeatures v0.3.1
+   Compiling fallible-streaming-iterator v0.1.9
+   Compiling fallible-iterator v0.3.0
+   Compiling bitflags v2.13.2
+   Compiling nom v8.0.0
+   Compiling subtle v2.6.1
+   Compiling autocfg v1.5.1
+   Compiling bytes v1.12.1
+   Compiling pin-project-lite v0.2.17
+   Compiling httparse v1.10.1
+   Compiling crypto-common v0.2.2
+   Compiling block-buffer v0.12.1
+   Compiling num-traits v0.2.19
+   Compiling mas-host-process v0.1.0 (/tmp/mas-n1-review-cut-777zmcym/crates/mas-host-process)
+   Compiling http v1.5.0
+   Compiling socket2 v0.6.5
+   Compiling digest v0.11.3
+   Compiling sha2 v0.11.0
+   Compiling libsqlite3-sys v0.38.2
+   Compiling mio v1.2.4
+   Compiling futures-core v0.3.34
+   Compiling http-body v1.1.0
+   Compiling tokio v1.53.3
+   Compiling atomic-waker v1.1.2
+   Compiling winnow v1.0.4
+   Compiling httpdate v1.0.3
+   Compiling serde_spanned v1.1.2
+   Compiling toml_datetime v1.1.2+spec-1.1.0
+   Compiling toml_parser v1.1.5+spec-1.1.0
+   Compiling num-integer v0.1.47
+   Compiling arraydeque v0.5.1
+   Compiling http-body-util v0.1.5
+   Compiling yaml-rust2 v0.13.0
+   Compiling num-bigint v0.4.8
+   Compiling toml v1.1.8+spec-1.1.0
+   Compiling mas-host-schema v0.1.0 (/tmp/mas-n1-review-cut-777zmcym/crates/mas-host-schema)
+   Compiling mas-host-privacy v0.1.0 (/tmp/mas-n1-review-cut-777zmcym/crates/mas-host-privacy)
+   Compiling mas-host-native-build v0.1.0 (/tmp/mas-n1-review-cut-777zmcym/crates/mas-host-native-build)
+   Compiling hyper v1.12.0
+   Compiling hyper-util v0.1.21
+   Compiling rusqlite v0.40.2
+   Compiling mas-protocol-codec v0.1.0 (https://github.com/emmett08/mas?rev=fe644bbf3acb3ccc2abaffd54bcc4b367053fe4b#fe644bbf)
+   Compiling mas-host-sdk v0.1.0 (/tmp/mas-n1-review-cut-777zmcym/sdk/rust)
+   Compiling mas-host-worker v0.1.0 (/tmp/mas-n1-review-cut-777zmcym/crates/mas-host-worker)
+   Compiling mas-host-providers v0.1.0 (/tmp/mas-n1-review-cut-777zmcym/crates/mas-host-providers)
+   Compiling mas-host-workflow v0.1.0 (/tmp/mas-n1-review-cut-777zmcym/crates/mas-host-workflow)
+   Compiling mas-host-core v0.1.0 (/tmp/mas-n1-review-cut-777zmcym/crates/mas-host-core)
+   Compiling mas-host-runtime v0.1.0 (/tmp/mas-n1-review-cut-777zmcym/crates/mas-host-runtime)
+   Compiling mas-host v0.1.0 (/tmp/mas-n1-review-cut-777zmcym/crates/mas-host-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 16s
+     Running tests/privacy_inspect.rs (/workspace/scratch/1ad2c1661ab9/validation/n1-review-target/debug/deps/privacy_inspect-ad9f26103521a7fe)
+
+running 7 tests
+test non_utf8_resolved_worker_paths_are_rejected_without_lossy_conversion ... ok
+test changed_worker_is_rejected_before_execution ... ok
+test invalid_encoding_and_oversized_source_have_explicit_safe_outcomes ... ok
+test guardian_reaps_classifier_descendants_before_returning_assessment ... ok
+test timeout_and_large_encoded_requests_do_not_release_content ... ok
+test valid_local_scan_never_admits_release_and_hides_worker_output ... ok
+test faulty_neural_results_preserve_deterministic_positive_findings ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+

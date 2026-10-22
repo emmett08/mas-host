@@ -24,9 +24,15 @@ impl CombinedAssessment {
                 .map(|finding| finding.finding())
                 .collect::<Result<Vec<_>>>()?,
         );
+        // Each detector has already enforced its own finding bound. Their
+        // overlapping contributions can total twice the final output bound.
+        let merge_limits = Limits {
+            max_findings: limits.max_findings.saturating_mul(2),
+            ..limits
+        };
         let result = Self {
             neural,
-            findings: merge_findings(source, findings, limits)?,
+            findings: merge_findings(source, findings, merge_limits)?,
         };
         result.validate(source, limits)?;
         Ok(result)

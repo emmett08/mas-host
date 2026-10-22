@@ -52,6 +52,9 @@ fn decisions_bind_exact_operation_payload_and_recipient() {
     let input = fixtures();
     let decision = decide(&input);
     assert_eq!(decision["authority"], "requires-current-admission");
+    assert_eq!(decision["binding_complete"], true);
+    assert!(decision.to_string().len() <= 65_536);
+    assert!(decision["policy_bindings"][0].get("rules").is_none());
     for field in [
         "invocation_id",
         "operation",
@@ -82,6 +85,124 @@ fn decisions_bind_exact_operation_payload_and_recipient() {
             .metadata(),
         fixtures()["evidence"][0]
     );
+}
+
+#[test]
+fn held_decisions_preserve_distinct_operation_output_and_recipient_bindings() {
+    let mut input = fixtures();
+    input["authority"] = json!({"version":"mas-current-authority/1", "status":"unavailable"});
+    let original = decide(&input);
+    assert_eq!(original["disposition"], "hold");
+    assert_eq!(original["reason"], "policy-unavailable");
+    assert_eq!(original["authority"], "none");
+    assert_eq!(original["expires_at_ms"], 0);
+    assert_eq!(original["binding_complete"], true);
+    assert_eq!(
+        original["request_fulfilled_obligations"],
+        input["request"]["fulfilled_obligations"]
+    );
+    for field in ["operation", "output_binding_ref", "recipient"] {
+        let mut changed = input.clone();
+        changed["request"][field] = json!(format!("different-{field}"));
+        let held = decide(&changed);
+        assert_eq!(held["disposition"], "hold");
+        assert_eq!(held["reason"], "policy-unavailable");
+        assert_eq!(held[field], changed["request"][field]);
+        assert_ne!(
+            held, original,
+            "distinct rejected {field} must stay distinct"
+        );
+    }
+    assert_eq!(original["evidence_bindings"], input["evidence"]);
+    assert_eq!(
+        original["policy_bindings"][0]["id"],
+        input["policies"][0]["id"]
+    );
+    assert_eq!(original["current_authority"]["status"], "unavailable");
+}
+
+#[test]
+fn mismatched_and_expired_decisions_retain_requested_and_observed_facts() {
+    let mut input = fixtures();
+    input["request"]["evidence_refs"] = json!([]);
+    let decision = decide(&input);
+    assert_eq!(decision["reason"], "scope-mismatch");
+    assert_eq!(decision["scope_evidence_refs"], json!(["evidence-1"]));
+    assert_eq!(decision["requested_evidence_refs"], json!([]));
+    assert_eq!(decision["evidence_bindings"][0]["id"], "evidence-1");
+
+    input = fixtures();
+    input["request"]["now_ms"] = json!(1000);
+    let decision = decide(&input);
+    assert_eq!(decision["reason"], "expired-authority");
+    assert_eq!(decision["evaluated_at_ms"], 1000);
+    assert_eq!(decision["current_authority"]["expires_at_ms"], 1000);
+    assert_eq!(decision["requested_expires_at_ms"], 900);
+    assert_eq!(decision["expires_at_ms"], 0);
+    assert_eq!(decision["authority"], "none");
+
+    input = fixtures();
+    input["request"]["output_binding_ref"] = json!({"unexpected":"private diagnostic"});
+    assert!(DisclosureRequest::from_value(&input["request"]).is_err());
+}
+
+#[test]
+fn aggregate_decision_limit_never_permits_or_implies_complete_exposure() {
+    let mut input = fixtures();
+    let ids = (0..64)
+        .map(|index| format!("evidence-{index}"))
+        .collect::<Vec<_>>();
+    let policy_ids = (0..64)
+        .map(|index| format!("policy-{index:02}-{}", "p".repeat(118)))
+        .collect::<Vec<_>>();
+    input["scope"]["evidence_refs"] = json!(ids);
+    input["request"]["evidence_refs"] = json!(ids);
+    let evidence = ids
+        .iter()
+        .map(|id| {
+            let mut item = input["evidence"][0].clone();
+            item["id"] = json!(id);
+            item["policy_refs"] = json!(policy_ids);
+            // Each accepted metadata record fits its own limit. Their assembled
+            // reference closure exceeds the existing 65536-byte decision envelope.
+            assert!(GovernedEvidence::from_value(&item).is_ok());
+            item
+        })
+        .collect::<Vec<_>>();
+    let policies = policy_ids
+        .iter()
+        .map(|id| {
+            let mut policy = input["policies"][0].clone();
+            policy["id"] = json!(id);
+            policy["evidence_refs"] = json!(ids);
+            assert!(DataUsePolicy::from_value(&policy).is_ok());
+            policy
+        })
+        .collect::<Vec<_>>();
+    input["evidence"] = json!(evidence);
+    input["policies"] = json!(policies);
+    let decision = decide(&input);
+    assert_eq!(decision["disposition"], "hold");
+    assert_eq!(decision["reason"], "decision-binding-limit");
+    assert_eq!(decision["binding_complete"], false);
+    assert_eq!(decision["binding_omission"], "governance-reference-limit");
+    assert_eq!(decision["authority"], "none");
+    assert_eq!(
+        decision["output_binding_ref"],
+        input["request"]["output_binding_ref"]
+    );
+    assert_eq!(decision["recipient"], input["request"]["recipient"]);
+    assert!(decision.get("evidence_bindings").is_none());
+    assert!(decision.get("policy_refs").is_none());
+    assert!(decision.to_string().len() <= 65_536);
+
+    // The same bound applies before an early hold, not only to candidates
+    // which otherwise satisfy their policy predicates.
+    input["authority"] = json!({"version":"mas-current-authority/1", "status":"revoked"});
+    assert_eq!(decide(&input)["reason"], "decision-binding-limit");
+    let duplicate = input["evidence"][0].clone();
+    input["evidence"].as_array_mut().unwrap().push(duplicate);
+    assert_eq!(decide(&input)["binding_complete"], false);
 }
 
 #[test]
