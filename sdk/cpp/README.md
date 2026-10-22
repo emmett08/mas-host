@@ -23,9 +23,18 @@ is non-copyable and serialises channel commands. Application threads must finish
 before their handler returns; they do not become durable workflow steps.
 `Context::effect(key, descriptor, callback)` supplies a stable admitted identity
 to the callback and expects `std::pair<mas::Json,mas::Json>{output,evidence}`.
-Cached effects skip the callback. An exception after admission preserves
-uncertainty until evidence-based resolution. The host owns admission, deadlines,
+Cached effects skip the callback. Failure before acknowledged completion requires
+evidence-based resolution. The host owns admission, deadlines,
 durable state and recovery.
+
+A governed completion returns the host's safe projection, matching cached
+replay. Withheld payloads return the reserved `mas-governed-unavailable/1` object
+while host settlement remains completed. Malformed replacement metadata throws
+`std::runtime_error("invalid governed effect completion")` without returning local
+raw output or retrying. An acknowledgement without `completion` preserves the
+ordinary callback output. See the closed versioned acknowledgement, effect
+identity, external certainty and payload disposition in the
+[native contract](../../docs/native-contract.md#external-effects-and-recovery).
 
 `mas::Json` is the vendored nlohmann/json 3.12.0 type. Inputs, outputs,
 descriptors and evidence are objects. The SDK rejects duplicate keys (including

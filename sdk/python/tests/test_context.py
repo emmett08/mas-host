@@ -3,6 +3,7 @@
 from contextlib import contextmanager
 from dataclasses import dataclass
 import os
+from pathlib import Path
 import socket
 import struct
 import threading
@@ -287,6 +288,37 @@ class ContextTests(unittest.TestCase):
         with host_session(self, script) as ctx:
             self.assertEqual(ctx.effect("write", {"destination": "records"}, callback), {"total": 5})
         self.assertEqual(callback_calls, ["stable-effect-id"])
+
+    def test_governed_completion_is_authoritative_and_replay_never_reexecutes(self):
+        fixture = loads_object((Path(__file__).parents[2] / "completion-conformance.json").read_bytes())
+        for case in fixture["cases"]:
+            with self.subTest(case=case["name"]):
+                calls = []
+                cached = case.get("output", {"redacted": True})
+
+                def script(host):
+                    self.assertEqual(read_frame(host)["type"], "effect_begin")
+                    write_frame(host, {"type": "effect", "state": "execute", "invocation_id": "effect-1"})
+                    self.assertEqual(read_frame(host)["output"], {"private": "private-local-output"})
+                    write_frame(host, {"type": "response", "ok": True, "completion": case["completion"]})
+                    self.assertEqual(read_frame(host)["type"], "effect_begin")
+                    write_frame(host, {"type": "effect", "state": "cached", "output": cached})
+
+                def callback(identity):
+                    calls.append(identity)
+                    return EffectResult({"private": "private-local-output"}, {"receipt": "one"})
+
+                with host_session(self, script) as ctx:
+                    if case["valid"]:
+                        self.assertEqual(ctx.effect("write", {}, callback), cached)
+                    else:
+                        with self.assertRaisesRegex(HostError, "^invalid governed effect completion$") as error:
+                            ctx.effect("write", {}, callback)
+                        self.assertNotIsInstance(error.exception, EffectUncertain)
+                    # The acknowledged settlement remains known, including when
+                    # projection validation failed. The host replay skips work.
+                    self.assertEqual(ctx.effect("write", {}, callback), cached)
+                self.assertEqual(calls, ["effect-1"])
 
     def test_lost_completion_acknowledgement_is_uncertain(self):
         completed = []

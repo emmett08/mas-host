@@ -1,7 +1,13 @@
 SHELL := /bin/bash
 .SHELLFLAGS := -euo pipefail -c
 
-.PHONY: build check test acceptance provider-test python-test workload-test privacy-test
+.PHONY: build check test acceptance provider-test python-test workload-test privacy-test capability-test
+
+capability-test:
+	npm --prefix examples/structured-evidence/typescript ci --ignore-scripts
+	npm --prefix examples/structured-evidence/typescript run check
+	npm --prefix examples/structured-evidence/typescript run build
+	PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s examples/structured-evidence/tests -v
 
 python-test:
 	PYTHONPATH=sdk/python python3 -m unittest discover -s sdk/python/tests -v
@@ -26,7 +32,7 @@ check:
 	cd sdk/go && go vet ./...
 	cd tests/fixtures/go-release && go vet ./...
 
-test: check
+test: check capability-test
 	cargo test --locked --workspace
 	cd sdk/go && go test -race ./...
 	cd tests/fixtures/go-release && go test -race ./...

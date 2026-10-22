@@ -1,0 +1,29 @@
+{
+  "version": "structured-deployment-fixture/1",
+  "scope": {
+    "cluster_uid": "fixture-cluster-001",
+    "namespace_uid": "fixture-namespace-001"
+  },
+  "deployment": {
+    "apiVersion": "apps/v1",
+    "kind": "Deployment",
+    "metadata": {
+      "namespace": "demo",
+      "name": "web",
+      "uid": "fixture-deployment-001",
+      "resourceVersion": "17",
+      "generation": 4
+    },
+    "spec": {
+      "replicas": 3
+    },
+    "status": {
+      "observedGeneration": 4,
+      "replicas": 3,
+      "updatedReplicas": 3,
+      "readyReplicas": 2,
+      "availableReplicas": 2,
+      "unavailableReplicas": 1
+    }
+  }
+}

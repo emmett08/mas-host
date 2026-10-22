@@ -117,6 +117,16 @@ changing external state is therefore replayed from the same recorded observation
 | Accepted exit code with invalid output | Record `status: invalid_output`; fail without repeating the tool. |
 | Other exit code, signal, interrupted execution, stream limit or lost outcome | Keep the effect uncertain; block successful completion and automatic repetition. |
 
+For an observed accepted exit code, the maintained adapter records
+`execution: completed` with `execution_scope: command-process` in its evidence,
+including when stdout is invalid. A failed launch records `execution: not_started`
+with the same scope. These fields describe the local command process. They make
+no assertion about completion of downstream operations performed by the tool.
+Governed output withholding preserves that known process completion and returns
+the unavailable marker through the [native completion contract](native-contract.md#external-effects-and-recovery).
+Fresh delivery and cached replay fail with the same static result-unavailable
+error and do not execute the command again.
+
 The configured accepted exit codes are assertions about the tool's completion
 contract. Process termination alone does not establish whether an external write
 or remote action happened. Failure diagnostics record the observed exit status

@@ -101,6 +101,26 @@ inline void success(const Json& value) {
     if (value.value("type", "") != "response" || !value.value("ok", false))
         throw std::runtime_error("invalid host response");
 }
+inline Json completed_output(const Json& response, const std::string& effect_id, const Json& original) {
+    if (!response.contains("completion")) return original;
+    const auto& completion=response.at("completion");
+    const auto invalid=[] { throw std::runtime_error("invalid governed effect completion"); };
+    if (!completion.is_object() || completion.size()!=6) invalid();
+    for (const auto* key : {"version","effect_id","host_settlement","external_execution","payload_disposition"})
+        if (!completion.contains(key) || !completion.at(key).is_string()) invalid();
+    const auto& execution=completion.at("external_execution");
+    const auto& disposition=completion.at("payload_disposition");
+    if (completion.at("version")!="mas-governed-effect-completion/1" || completion.at("effect_id")!=effect_id
+        || completion.at("host_settlement")!="completed"
+        || (execution!="completed" && execution!="not-sent" && execution!="refused" && execution!="unknown")
+        || (disposition!="available" && disposition!="withheld")
+        || !completion.contains("output") || !completion.at("output").is_object()) invalid();
+    const auto& output=completion.at("output");
+    if (disposition=="available" && output.contains("version") && output.at("version")=="mas-governed-unavailable/1") invalid();
+    if (disposition=="withheld" && output!=Json{{"version","mas-governed-unavailable/1"},
+            {"external_execution",execution},{"payload_disposition","withheld"}}) invalid();
+    return output;
+}
 } // namespace detail
 
 struct Request { std::string key; std::string target; Json input; };
@@ -145,7 +165,7 @@ public:
         return outputs;
     }
     // The callback receives the stable admitted effect identity and returns
-    // {output,evidence}. Any exception after admission leaves uncertainty.
+    // {output,evidence}. Governed acknowledgements return the host projection.
     template<class F> Json effect(const std::string& key, const Json& descriptor, F execute) {
         detail::object(descriptor);
         if (key.empty()) throw std::runtime_error("effect key must be non-empty");
@@ -154,11 +174,13 @@ public:
         const auto state = response.value("state", "");
         if (state == "cached") { auto output=response.at("output"); detail::object(output); return output; }
         if (state != "execute") throw std::runtime_error("invalid host effect state");
-        const auto result = execute(response.at("invocation_id").get<std::string>());
+        const auto effect_id=response.at("invocation_id").get<std::string>();
+        if (effect_id.empty()) throw std::runtime_error("host omitted effect identity");
+        const auto result = execute(effect_id);
         detail::object(result.first); detail::object(result.second);
         if (result.second.empty()) throw std::runtime_error("effect evidence must be non-empty");
         auto completed = exchange({{"type","effect_complete"},{"key",key},{"output",result.first},{"evidence",result.second}});
-        detail::success(completed); return result.first;
+        detail::success(completed); return detail::completed_output(completed,effect_id,result.first);
     }
 };
 

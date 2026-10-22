@@ -32,9 +32,17 @@ commands on one context. Ordinary threads are not durable workflow steps.
 `Context::effect(key, descriptor, |invocation_id| ...)` performs an external
 operation only after host admission. The closure returns `(output, evidence)`;
 both are objects and evidence must be non-empty. The host may instead return a
-cached result without invoking the closure. Failure after admission remains
-uncertain; the SDK never retries it automatically. Stable keys, descriptors and
+cached result without invoking the closure. Failure before acknowledged
+completion requires reconciliation. The SDK never retries automatically. Stable keys, descriptors and
 evidence semantics belong to the application.
+
+A governed acknowledgement may replace the local output with the host's safe
+projection. Fresh and cached calls return that same object. Withheld output is
+the reserved `mas-governed-unavailable/1` object and keeps the host effect completed.
+Malformed replacement metadata returns `Err("invalid governed effect completion")`
+without returning local raw output or retrying. A legacy acknowledgement without
+`completion` returns the local output. See the exact version, identity, certainty
+and disposition fields in the [native contract](../../docs/native-contract.md#external-effects-and-recovery).
 
 Input/output values must be JSON objects. Integers remain exact, including
 integers larger than machine integer types; use `Json` number values to retain

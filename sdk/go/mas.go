@@ -62,6 +62,7 @@ type reply struct {
 	Error        json.RawMessage   `json:"error"`
 	State        string            `json:"state"`
 	InvocationID string            `json:"invocation_id"`
+	Completion   json.RawMessage   `json:"completion"`
 }
 
 func (c *Context) exchange(command any) (reply, error) {
@@ -138,7 +139,8 @@ func (c *Context) Parallel(requests []RequestSpec) ([]json.RawMessage, error) {
 }
 
 // Effect runs fn only after durable host admission. A cached result skips fn.
-// An error after admission leaves the effect uncertain; it never permits retry.
+// Failure before acknowledged completion requires reconciliation, never retry.
+// A governed completion returns the host's safe projection, also on replay.
 // The invocation ID is stable and can serve as an external idempotency key.
 func (c *Context) Effect(key string, descriptor any, fn func(string) (EffectResult, error)) (json.RawMessage, error) {
 	if key == "" || fn == nil {
@@ -187,7 +189,46 @@ func (c *Context) Effect(key string, descriptor any, fn func(string) (EffectResu
 	if complete.Type != "response" || !complete.OK {
 		return nil, fmt.Errorf("unexpected effect completion reply")
 	}
-	return output, nil
+	return completedOutput(complete.Completion, response.InvocationID, output)
+}
+
+func completedOutput(raw json.RawMessage, effectID string, original json.RawMessage) (json.RawMessage, error) {
+	if len(raw) == 0 {
+		return original, nil
+	}
+	invalid := fmt.Errorf("invalid governed effect completion")
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &fields); err != nil || len(fields) != 6 {
+		return nil, invalid
+	}
+	text := func(key string) string {
+		var value string
+		if err := json.Unmarshal(fields[key], &value); err != nil {
+			return ""
+		}
+		return value
+	}
+	execution, disposition := text("external_execution"), text("payload_disposition")
+	if text("version") != "mas-governed-effect-completion/1" || text("effect_id") != effectID || text("host_settlement") != "completed" ||
+		(execution != "completed" && execution != "not-sent" && execution != "refused" && execution != "unknown") ||
+		(disposition != "available" && disposition != "withheld") || ValidateObject(fields["output"]) != nil {
+		return nil, invalid
+	}
+	if disposition == "withheld" {
+		var marker map[string]string
+		if err := json.Unmarshal(fields["output"], &marker); err != nil || len(marker) != 3 || marker["version"] != "mas-governed-unavailable/1" || marker["external_execution"] != execution || marker["payload_disposition"] != "withheld" {
+			return nil, invalid
+		}
+	} else {
+		var outputFields map[string]json.RawMessage
+		_ = json.Unmarshal(fields["output"], &outputFields)
+		var version string
+		_ = json.Unmarshal(outputFields["version"], &version)
+		if version == "mas-governed-unavailable/1" {
+			return nil, invalid
+		}
+	}
+	return fields["output"], nil
 }
 
 func readFrame(reader io.Reader) (json.RawMessage, error) {

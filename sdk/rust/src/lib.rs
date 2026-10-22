@@ -172,7 +172,8 @@ impl Context {
         Ok(outputs.clone())
     }
     /// Execute only after durable admission. A cached outcome skips the closure.
-    /// Failure after admission remains uncertain until evidence-based resolution.
+    /// Failure before acknowledged completion requires evidence-based resolution.
+    /// A governed completion returns the host's safe projection, also on replay.
     pub fn effect<F>(&mut self, key: &str, descriptor: Json, execute: F) -> Result<Json>
     where
         F: FnOnce(&str) -> Result<(Json, Json)>,
@@ -196,6 +197,7 @@ impl Context {
         }
         let id = response["invocation_id"]
             .as_str()
+            .filter(|id| !id.is_empty())
             .ok_or("host omitted effect identity")?;
         let (output, evidence) = execute(id)?;
         object(&output)?;
@@ -207,8 +209,48 @@ impl Context {
             json!({"type":"effect_complete", "key":key, "output":output, "evidence":evidence}),
         )?;
         successful_response(&response)?;
-        Ok(output)
+        completed_output(&response, id, output)
     }
+}
+
+fn completed_output(response: &Json, effect_id: &str, original: Json) -> Result<Json> {
+    let Some(completion) = response.get("completion") else {
+        return Ok(original);
+    };
+    let invalid = || "invalid governed effect completion".to_owned();
+    let fields = completion.as_object().ok_or_else(invalid)?;
+    let execution = completion["external_execution"].as_str();
+    if fields.len() != 6
+        || completion["version"] != "mas-governed-effect-completion/1"
+        || completion["effect_id"] != effect_id
+        || completion["host_settlement"] != "completed"
+        || !matches!(
+            execution,
+            Some("completed" | "not-sent" | "refused" | "unknown")
+        )
+        || !matches!(
+            completion["payload_disposition"].as_str(),
+            Some("available" | "withheld")
+        )
+        || !completion["output"].is_object()
+    {
+        return Err(invalid());
+    }
+    let output = &completion["output"];
+    if completion["payload_disposition"] == "available"
+        && output["version"] == "mas-governed-unavailable/1"
+    {
+        return Err(invalid());
+    }
+    if completion["payload_disposition"] == "withheld"
+        && (output.as_object().map(|v| v.len()) != Some(3)
+            || output["version"] != "mas-governed-unavailable/1"
+            || output["external_execution"] != completion["external_execution"]
+            || output["payload_disposition"] != "withheld")
+    {
+        return Err(invalid());
+    }
+    Ok(output.clone())
 }
 
 fn successful_response(response: &Json) -> Result<()> {
@@ -485,5 +527,79 @@ mod tests {
             true
         );
         host_thread.join().unwrap();
+    }
+
+    #[test]
+    fn governed_completion_is_authoritative_and_never_reexecutes_on_replay() {
+        let fixture: Json =
+            serde_json::from_str(include_str!("../../completion-conformance.json")).unwrap();
+        for case in fixture["cases"].as_array().unwrap() {
+            let (mut host, worker) = UnixStream::pair().unwrap();
+            let completion = case["completion"].clone();
+            let cached = if case["valid"] == true {
+                case["output"].clone()
+            } else {
+                json!({"redacted":true})
+            };
+            let replay = cached.clone();
+            let host_thread = thread::spawn(move || {
+                assert_eq!(read_frame(&mut host).unwrap()["type"], "effect_begin");
+                write_frame(
+                    &mut host,
+                    &json!({"type":"effect","state":"execute","invocation_id":"effect-1"}),
+                )
+                .unwrap();
+                assert_eq!(
+                    read_frame(&mut host).unwrap()["output"],
+                    json!({"private":"private-local-output"})
+                );
+                write_frame(
+                    &mut host,
+                    &json!({"type":"response","ok":true,"completion":completion}),
+                )
+                .unwrap();
+                assert_eq!(read_frame(&mut host).unwrap()["type"], "effect_begin");
+                write_frame(
+                    &mut host,
+                    &json!({"type":"effect","state":"cached","output":cached}),
+                )
+                .unwrap();
+            });
+            let mut context = Context {
+                channel: worker,
+                actor: "a".into(),
+                invocation_id: "i".into(),
+                deadline_ms: 0,
+            };
+            let mut calls = 0;
+            let fresh = context.effect("write", json!({}), |_| {
+                calls += 1;
+                Ok((
+                    json!({"private":"private-local-output"}),
+                    json!({"receipt":"one"}),
+                ))
+            });
+            if case["valid"] == true {
+                assert_eq!(fresh.unwrap(), replay, "{}", case["name"]);
+            } else {
+                assert_eq!(
+                    fresh.unwrap_err(),
+                    "invalid governed effect completion",
+                    "{}",
+                    case["name"]
+                );
+            }
+            assert_eq!(
+                context
+                    .effect("write", json!({}), |_| {
+                        calls += 1;
+                        Err("replayed callback executed".into())
+                    })
+                    .unwrap(),
+                replay
+            );
+            assert_eq!(calls, 1);
+            host_thread.join().unwrap();
+        }
     }
 }

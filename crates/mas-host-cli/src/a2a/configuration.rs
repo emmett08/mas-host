@@ -1,4 +1,5 @@
 //! Administrator-owned publication and authority; never supplied by a card.
+use super::governed::{Caller, GovernedIngress};
 use super::{digest, Result, PROFILE};
 use serde_json::{json, Value};
 use std::{
@@ -14,6 +15,7 @@ pub(super) struct Configuration {
     pub principals: BTreeMap<String, (String, BTreeSet<String>)>,
     pub max_active: usize,
     pub max_tasks: usize,
+    pub governed: Option<GovernedIngress>,
 }
 fn string(value: &Value, key: &str, max: usize) -> Result<String> {
     value[key]
@@ -35,22 +37,23 @@ fn bound(value: &Value, key: &str, default: u64, maximum: u64) -> Result<usize> 
 }
 impl Configuration {
     pub fn parse(value: &Value, descriptor: &Value, bundle: &Value) -> Result<Self> {
+        let governed = match value["version"].as_str() {
+            Some("mas-host-a2a/1") => None,
+            Some("mas-host-a2a/2") => Some(GovernedIngress::load(value)?),
+            _ => return Err("unsupported A2A configuration".into()),
+        };
+        let mut required = vec!["version", "listen", "public_url", "name", "exports"];
+        if governed.is_some() {
+            required.extend(["authentication_file", "governance_file"]);
+        } else {
+            required.push("principals");
+        }
         crate::config::fields(
             value,
-            &[
-                "version",
-                "listen",
-                "public_url",
-                "name",
-                "exports",
-                "principals",
-            ],
+            &required,
             &["max_active", "max_tasks"],
             "A2A configuration",
         )?;
-        if value["version"] != "mas-host-a2a/1" {
-            return Err("unsupported A2A configuration".into());
-        }
         let listen: SocketAddr = string(value, "listen", 100)?
             .parse()
             .map_err(|_| "invalid listen address")?;
@@ -121,11 +124,16 @@ impl Configuration {
         }
         let mut principals = BTreeMap::new();
         let mut tokens = BTreeSet::new();
-        for principal in value["principals"]
-            .as_array()
-            .filter(|v| !v.is_empty() && v.len() <= 128)
-            .ok_or("expected 1..128 principals")?
-        {
+        let empty = Vec::new();
+        let records = if governed.is_some() {
+            &empty
+        } else {
+            value["principals"]
+                .as_array()
+                .filter(|v| !v.is_empty() && v.len() <= 128)
+                .ok_or("expected 1..128 principals")?
+        };
+        for principal in records {
             crate::config::fields(
                 principal,
                 &["name", "token_sha256", "agents"],
@@ -157,7 +165,7 @@ impl Configuration {
                 return Err("duplicate principal".into());
             }
         }
-        Ok(Self {
+        let result = Self {
             listen,
             public_url,
             name: string(value, "name", 200)?,
@@ -165,11 +173,19 @@ impl Configuration {
             principals,
             max_active: bound(value, "max_active", 4, 16)?,
             max_tasks: bound(value, "max_tasks", 1000, 10000)?,
-        })
+            governed,
+        };
+        if let Some(governed) = &result.governed {
+            governed.validate(&result)?;
+        }
+        Ok(result)
     }
-    pub fn authenticate(&self, bearer: &str) -> Option<String> {
+    pub fn authenticate(&self, bearer: &str) -> Option<Caller> {
         if !(32..=512).contains(&bearer.len()) || !bearer.bytes().all(|b| b.is_ascii_graphic()) {
             return None;
+        }
+        if let Some(governed) = &self.governed {
+            return governed.authenticate(self, bearer);
         }
         let hash = digest(bearer.as_bytes());
         self.principals
@@ -180,11 +196,16 @@ impl Configuration {
                     .fold(0u8, |d, (a, b)| d | (a ^ b))
                     == 0
             })
-            .map(|(name, _)| name.clone())
+            .map(|(name, (_, agents))| Caller {
+                owner: name.clone(),
+                agents: agents.clone(),
+                session: None,
+                lease: None,
+            })
     }
-    pub fn card(&self, descriptor: &Value, principal: Option<&str>) -> Value {
+    pub fn card(&self, descriptor: &Value, principal: Option<&Caller>) -> Value {
         let allowed: BTreeSet<_> = match principal {
-            Some(p) => self.principals[p].1.clone(),
+            Some(p) => p.agents.clone(),
             None => self
                 .exports
                 .iter()

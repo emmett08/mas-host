@@ -1,6 +1,8 @@
 #include "mas.hpp"
 #include <cassert>
 #include <limits>
+#include <filesystem>
+#include <fstream>
 #include <thread>
 
 int main() {
@@ -45,4 +47,33 @@ int main() {
     assert(outputs[0]["n"]==1 && outputs[1]["n"]==2);
     context.effect("two",Json::object(),[](const std::string& id) { return std::make_pair(Json{{"done",true}},Json{{"receipt",id}}); });
     ::close(sockets[1]); host.join();
+    std::ifstream fixture_file(std::filesystem::path(__FILE__).parent_path().parent_path().parent_path()/"completion-conformance.json");
+    assert(fixture_file.good());
+    const auto fixture=Json::parse(fixture_file);
+    for (const auto& test : fixture.at("cases")) {
+        int pair[2]; assert(::socketpair(AF_UNIX,SOCK_STREAM,0,pair)==0);
+        const bool valid=test.at("valid").get<bool>();
+        const Json expected=valid ? test.at("output") : Json{{"redacted",true}};
+        std::thread projected_host([&] {
+            assert(mas::detail::read_frame(pair[0])["type"]=="effect_begin");
+            mas::detail::write_frame(pair[0],{{"type","effect"},{"state","execute"},{"invocation_id","effect-1"}});
+            assert(mas::detail::read_frame(pair[0])["output"]==Json({{"private","private-local-output"}}));
+            mas::detail::write_frame(pair[0],{{"type","response"},{"ok",true},{"completion",test.at("completion")}});
+            assert(mas::detail::read_frame(pair[0])["type"]=="effect_begin");
+            mas::detail::write_frame(pair[0],{{"type","effect"},{"state","cached"},{"output",expected}});
+            ::close(pair[0]);
+        });
+        mas::Context projected_context(pair[1],{{"actor","invoice"},{"invocation_id","one"},{"deadline_ms",0}});
+        int calls=0;
+        const auto callback=[&](const std::string& id) {
+            assert(id=="effect-1"); ++calls;
+            return std::make_pair(Json{{"private","private-local-output"}},Json{{"receipt","one"}});
+        };
+        bool failed=false;
+        try { const auto fresh=projected_context.effect("write",Json::object(),callback); assert(valid && fresh==expected); }
+        catch (const std::runtime_error& error) { failed=true; assert(!valid && std::string(error.what())=="invalid governed effect completion"); }
+        assert(failed!=valid);
+        assert(projected_context.effect("write",Json::object(),callback)==expected && calls==1);
+        ::close(pair[1]); projected_host.join();
+    }
 }

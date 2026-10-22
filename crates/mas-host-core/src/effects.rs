@@ -23,6 +23,15 @@ impl Inner {
         )?;
         if matches!(step.state.as_str(), "completed" | "resolved") {
             finish_effect(&mut *lock(&self.protocol)?, &self.run_id, &step)?;
+            if let Some(session) = &self.governance {
+                session.check_effect_delivery(
+                    &step.actor,
+                    step.input["format"]
+                        .as_str()
+                        .ok_or("governed-effect-format")?,
+                    step.output.as_ref().ok_or("governed-result-unavailable")?,
+                )?;
+            }
             return Ok(json!({"type":"effect","state":"cached","output":step.output}));
         }
         if matches!(step.state.as_str(), "executing" | "unknown") {
@@ -64,6 +73,9 @@ impl Inner {
             }
         }
         drop(protocol);
+        if let Some(session) = &self.governance {
+            session.check_current()?;
+        }
         self.set_state(&step.id, "executing", None, None)?;
         Ok(json!({"type":"effect","state":"execute","invocation_id":step.id}))
     }
@@ -92,13 +104,52 @@ impl Inner {
             return Err("effect belongs to another invocation".into());
         }
         if step.state == "completed" {
-            if step.output.as_ref() != Some(output) || step.evidence.as_ref() != Some(evidence) {
+            if let Some(session) = &self.governance {
+                let commitment = session.commitment(&json!([output, evidence]))?;
+                super::governance::runtime::storage::check_completion(
+                    &*lock(&self.journal)?,
+                    &step.id,
+                    &commitment,
+                )?;
+            } else if step.output.as_ref() != Some(output)
+                || step.evidence.as_ref() != Some(evidence)
+            {
                 return Err("completed effect cannot be overwritten".into());
             }
             return finish_effect(&mut *lock(&self.protocol)?, &self.run_id, &step);
         }
         if step.state != "executing" {
             return Err("effect has no live execute permission".into());
+        }
+        if let Some((output_projection, evidence_projection, completion)) =
+            self.governed_effect_completion(&step, output, evidence)?
+        {
+            let session = self.governance.as_ref().unwrap();
+            let commitment = session.commitment(&json!([output, evidence]))?;
+            step.state = "completed".into();
+            step.output = Some(output_projection);
+            step.evidence = Some(evidence_projection);
+            effect_evidence(&step)?;
+            let mut db = lock(&self.journal)?;
+            let tx = db.transaction().map_err(super::error)?;
+            super::governance::runtime::storage::save_completion(
+                &tx,
+                &step.id,
+                &commitment,
+                &completion,
+            )?;
+            tx.execute(
+                "UPDATE steps SET state='completed',output=?,evidence=? WHERE id=?",
+                rusqlite::params![
+                    step.output.as_ref().unwrap().to_string(),
+                    step.evidence.as_ref().unwrap().to_string(),
+                    step.id
+                ],
+            )
+            .map_err(super::error)?;
+            tx.commit().map_err(super::error)?;
+            drop(db);
+            return finish_effect(&mut *lock(&self.protocol)?, &self.run_id, &step);
         }
         step.state = "completed".into();
         step.output = Some(output.clone());

@@ -12,12 +12,21 @@ mod assets;
 use assets::retain_binary;
 use config::model::{Agent, Implementation};
 
-pub fn build_configured(
+pub(crate) fn retain_capability_file(
+    source: &Path,
+    out: &Path,
+) -> Result<(PathBuf, String), String> {
+    assets::retain_resource(source, out)
+}
+
+pub fn build_with_capabilities(
     project: &Path,
     sdk_root: &Path,
     agents_path: Option<&Path>,
     connections_path: Option<&Path>,
     topology_path: Option<&Path>,
+    capabilities_path: Option<&Path>,
+    policy_path: Option<&Path>,
 ) -> Result<PathBuf, String> {
     let project = project.canonicalize().map_err(|e| e.to_string())?;
     let sdk_root = sdk_root.canonicalize().map_err(|e| e.to_string())?;
@@ -32,6 +41,13 @@ pub fn build_configured(
     });
     let (agents, topology) =
         config::load_profile(&project, &agents_path, &topology_path, profile.as_deref())?;
+    let packages = match (capabilities_path, policy_path) {
+        (None, None) => None,
+        (Some(sidecar), Some(policy)) => Some(crate::capabilities::Packages::load(
+            &project, &agents, sidecar, policy,
+        )?),
+        _ => return Err("capability sidecar and operator policy must be supplied together".into()),
+    };
     let out = project.join(".mas/build");
     std::fs::create_dir_all(&out).map_err(|e| e.to_string())?;
     let owner = std::fs::OpenOptions::new()
@@ -152,6 +168,9 @@ pub fn build_configured(
         };
         worker["sha256"] = json!(digest);
         worker["executable"] = json!(path.to_str().ok_or("executable path is not UTF-8")?);
+    }
+    if let Some(packages) = &packages {
+        packages.bind(&project, &out, &mut workers)?;
     }
     let bundle = json!({"version":"mas-bundle/3","agents":workers,"topology":topology});
     // The assembled document must obey the same strict bound as its reader.

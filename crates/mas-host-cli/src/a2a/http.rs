@@ -129,7 +129,7 @@ async fn handle(service: Arc<Service>, request: Request<Incoming>) -> Response<B
             )
         }
     };
-    let request = match std::str::from_utf8(&bytes)
+    let mut request = match std::str::from_utf8(&bytes)
         .ok()
         .and_then(|s| mas_protocol_codec::parse_json(s).ok())
     {
@@ -141,6 +141,12 @@ async fn handle(service: Arc<Service>, request: Request<Incoming>) -> Response<B
             )
         }
     };
+    if service.configuration.governed.is_some()
+        && request.is_object()
+        && !super::governed::rpc_id_allowed(&request["id"])
+    {
+        request["id"] = Value::Null;
+    }
     if !version {
         return response(
             StatusCode::OK,
@@ -202,7 +208,32 @@ async fn handle(service: Arc<Service>, request: Request<Incoming>) -> Response<B
             }
         }
         if result.get("error").is_some() {
-            result["error"]["data"] = json!([{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"RETAINED_TASK_REQUIRES_OBSERVATION","domain":"mas-host","metadata":{"taskId":id,"contextId":context_id}}]);
+            let cloned = Arc::clone(&service);
+            let caller = principal.clone();
+            let task_id = id.clone();
+            let information = json!([{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"RETAINED_TASK_REQUIRES_OBSERVATION","domain":"mas-host","metadata":{"taskId":id,"contextId":context_id}}]);
+            let mut projection = result["error"].clone();
+            projection["data"] = information.clone();
+            if matches!(
+                tokio::task::spawn_blocking(move || {
+                    let task = cloned.task(&caller, &task_id)?;
+                    if let Some(session) = &caller.session {
+                        session
+                            .check_status_value(
+                                task["metadata"]["mas"]["agent"]
+                                    .as_str()
+                                    .ok_or(super::RpcError(-32603, "status_unavailable"))?,
+                                &projection,
+                            )
+                            .map_err(|_| super::RpcError(-32603, "status_unavailable"))?;
+                    }
+                    Ok::<(), super::RpcError>(())
+                })
+                .await,
+                Ok(Ok(_))
+            ) {
+                result["error"]["data"] = information;
+            }
         }
     }
     let mut response = response(StatusCode::OK, result);

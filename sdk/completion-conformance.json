@@ -1,0 +1,446 @@
+{
+  "version": "mas-sdk-effect-completion-conformance/1",
+  "cases": [
+    {
+      "name": "available-completed",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": "effect-1",
+        "host_settlement": "completed",
+        "external_execution": "completed",
+        "payload_disposition": "available",
+        "output": {
+          "redacted": true
+        }
+      },
+      "valid": true,
+      "output": {
+        "redacted": true
+      }
+    },
+    {
+      "name": "withheld-completed",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": "effect-1",
+        "host_settlement": "completed",
+        "external_execution": "completed",
+        "payload_disposition": "withheld",
+        "output": {
+          "version": "mas-governed-unavailable/1",
+          "external_execution": "completed",
+          "payload_disposition": "withheld"
+        }
+      },
+      "valid": true,
+      "output": {
+        "version": "mas-governed-unavailable/1",
+        "external_execution": "completed",
+        "payload_disposition": "withheld"
+      }
+    },
+    {
+      "name": "available-not-sent",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": "effect-1",
+        "host_settlement": "completed",
+        "external_execution": "not-sent",
+        "payload_disposition": "available",
+        "output": {
+          "redacted": true
+        }
+      },
+      "valid": true,
+      "output": {
+        "redacted": true
+      }
+    },
+    {
+      "name": "withheld-not-sent",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": "effect-1",
+        "host_settlement": "completed",
+        "external_execution": "not-sent",
+        "payload_disposition": "withheld",
+        "output": {
+          "version": "mas-governed-unavailable/1",
+          "external_execution": "not-sent",
+          "payload_disposition": "withheld"
+        }
+      },
+      "valid": true,
+      "output": {
+        "version": "mas-governed-unavailable/1",
+        "external_execution": "not-sent",
+        "payload_disposition": "withheld"
+      }
+    },
+    {
+      "name": "available-refused",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": "effect-1",
+        "host_settlement": "completed",
+        "external_execution": "refused",
+        "payload_disposition": "available",
+        "output": {
+          "redacted": true
+        }
+      },
+      "valid": true,
+      "output": {
+        "redacted": true
+      }
+    },
+    {
+      "name": "withheld-refused",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": "effect-1",
+        "host_settlement": "completed",
+        "external_execution": "refused",
+        "payload_disposition": "withheld",
+        "output": {
+          "version": "mas-governed-unavailable/1",
+          "external_execution": "refused",
+          "payload_disposition": "withheld"
+        }
+      },
+      "valid": true,
+      "output": {
+        "version": "mas-governed-unavailable/1",
+        "external_execution": "refused",
+        "payload_disposition": "withheld"
+      }
+    },
+    {
+      "name": "available-unknown",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": "effect-1",
+        "host_settlement": "completed",
+        "external_execution": "unknown",
+        "payload_disposition": "available",
+        "output": {
+          "redacted": true
+        }
+      },
+      "valid": true,
+      "output": {
+        "redacted": true
+      }
+    },
+    {
+      "name": "withheld-unknown",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": "effect-1",
+        "host_settlement": "completed",
+        "external_execution": "unknown",
+        "payload_disposition": "withheld",
+        "output": {
+          "version": "mas-governed-unavailable/1",
+          "external_execution": "unknown",
+          "payload_disposition": "withheld"
+        }
+      },
+      "valid": true,
+      "output": {
+        "version": "mas-governed-unavailable/1",
+        "external_execution": "unknown",
+        "payload_disposition": "withheld"
+      }
+    },
+    {
+      "name": "unknown-version",
+      "completion": {
+        "version": "future/2",
+        "effect_id": "effect-1",
+        "host_settlement": "completed",
+        "external_execution": "completed",
+        "payload_disposition": "available",
+        "output": {
+          "redacted": true
+        }
+      },
+      "valid": false
+    },
+    {
+      "name": "wrong-effect",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": "other-effect",
+        "host_settlement": "completed",
+        "external_execution": "completed",
+        "payload_disposition": "available",
+        "output": {
+          "redacted": true
+        }
+      },
+      "valid": false
+    },
+    {
+      "name": "empty-effect",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": "",
+        "host_settlement": "completed",
+        "external_execution": "completed",
+        "payload_disposition": "available",
+        "output": {
+          "redacted": true
+        }
+      },
+      "valid": false
+    },
+    {
+      "name": "wrong-settlement",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": "effect-1",
+        "host_settlement": "uncertain",
+        "external_execution": "completed",
+        "payload_disposition": "available",
+        "output": {
+          "redacted": true
+        }
+      },
+      "valid": false
+    },
+    {
+      "name": "wrong-execution",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": "effect-1",
+        "host_settlement": "completed",
+        "external_execution": "maybe",
+        "payload_disposition": "available",
+        "output": {
+          "redacted": true
+        }
+      },
+      "valid": false
+    },
+    {
+      "name": "wrong-disposition",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": "effect-1",
+        "host_settlement": "completed",
+        "external_execution": "completed",
+        "payload_disposition": "released",
+        "output": {
+          "redacted": true
+        }
+      },
+      "valid": false
+    },
+    {
+      "name": "array-output",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": "effect-1",
+        "host_settlement": "completed",
+        "external_execution": "completed",
+        "payload_disposition": "available",
+        "output": []
+      },
+      "valid": false
+    },
+    {
+      "name": "null-output",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": "effect-1",
+        "host_settlement": "completed",
+        "external_execution": "completed",
+        "payload_disposition": "available",
+        "output": null
+      },
+      "valid": false
+    },
+    {
+      "name": "typed-version",
+      "completion": {
+        "version": 1,
+        "effect_id": "effect-1",
+        "host_settlement": "completed",
+        "external_execution": "completed",
+        "payload_disposition": "available",
+        "output": {
+          "redacted": true
+        }
+      },
+      "valid": false
+    },
+    {
+      "name": "typed-effect",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": {},
+        "host_settlement": "completed",
+        "external_execution": "completed",
+        "payload_disposition": "available",
+        "output": {
+          "redacted": true
+        }
+      },
+      "valid": false
+    },
+    {
+      "name": "typed-settlement",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": "effect-1",
+        "host_settlement": false,
+        "external_execution": "completed",
+        "payload_disposition": "available",
+        "output": {
+          "redacted": true
+        }
+      },
+      "valid": false
+    },
+    {
+      "name": "typed-execution",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": "effect-1",
+        "host_settlement": "completed",
+        "external_execution": {},
+        "payload_disposition": "available",
+        "output": {
+          "redacted": true
+        }
+      },
+      "valid": false
+    },
+    {
+      "name": "typed-disposition",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": "effect-1",
+        "host_settlement": "completed",
+        "external_execution": "completed",
+        "payload_disposition": [],
+        "output": {
+          "redacted": true
+        }
+      },
+      "valid": false
+    },
+    {
+      "name": "reserved-available",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": "effect-1",
+        "host_settlement": "completed",
+        "external_execution": "completed",
+        "payload_disposition": "available",
+        "output": {
+          "version": "mas-governed-unavailable/1",
+          "external_execution": "completed",
+          "payload_disposition": "withheld"
+        }
+      },
+      "valid": false
+    },
+    {
+      "name": "extra-field",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": "effect-1",
+        "host_settlement": "completed",
+        "external_execution": "completed",
+        "payload_disposition": "available",
+        "output": {
+          "redacted": true
+        },
+        "extra": "private-local-output"
+      },
+      "valid": false
+    },
+    {
+      "name": "missing-field",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "host_settlement": "completed",
+        "external_execution": "completed",
+        "payload_disposition": "available",
+        "output": {
+          "redacted": true
+        }
+      },
+      "valid": false
+    },
+    {
+      "name": "non-object-object-false",
+      "completion": null,
+      "valid": false
+    },
+    {
+      "name": "non-object-object-true",
+      "completion": [],
+      "valid": false
+    },
+    {
+      "name": "non-object-boolean-false",
+      "completion": true,
+      "valid": false
+    },
+    {
+      "name": "non-object-string-false",
+      "completion": "private-local-output",
+      "valid": false
+    },
+    {
+      "name": "withheld-raw-output",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": "effect-1",
+        "host_settlement": "completed",
+        "external_execution": "completed",
+        "payload_disposition": "withheld",
+        "output": {
+          "private": "private-local-output"
+        }
+      },
+      "valid": false
+    },
+    {
+      "name": "withheld-extra",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": "effect-1",
+        "host_settlement": "completed",
+        "external_execution": "completed",
+        "payload_disposition": "withheld",
+        "output": {
+          "version": "mas-governed-unavailable/1",
+          "external_execution": "completed",
+          "payload_disposition": "withheld",
+          "private": "private-local-output"
+        }
+      },
+      "valid": false
+    },
+    {
+      "name": "withheld-execution-mismatch",
+      "completion": {
+        "version": "mas-governed-effect-completion/1",
+        "effect_id": "effect-1",
+        "host_settlement": "completed",
+        "external_execution": "completed",
+        "payload_disposition": "withheld",
+        "output": {
+          "version": "mas-governed-unavailable/1",
+          "external_execution": "unknown",
+          "payload_disposition": "withheld"
+        }
+      },
+      "valid": false
+    }
+  ]
+}

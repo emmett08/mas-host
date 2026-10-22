@@ -66,8 +66,9 @@ exposure or used as a disclosure permit. `binding_complete` describes retained
 reference coverage; it authenticates none of the supplied facts.
 
 These deterministic functions take authenticated scope and current authority
-from trusted integration code. Runtime mediation, grant rotation and protected
-commitment storage belong to the subsequent governed execution increment.
+from trusted integration code. The [governed local path](governed-local.md) now
+wires those checks into a bounded structured execution slice, with current grant
+checks and keyed original-content bindings. Complete N2 mediation remains pending.
 Existing workers and callbacks retain the trust boundary documented in
 [the architecture](architecture.md).
 
@@ -95,7 +96,8 @@ remains unqualified, so the fixture cannot authorise protected unstructured
 disclosure. N1 local model packaging and supervised inspection are available in
 the [local detector guide](privacy-detector.md). Complete host persistence and
 retrieval mediation, durable privacy cases and notification delivery remain
-subsequent N2–N3 work in the PII plan.
+subsequent N2–N3 work in the PII plan. A closed structured subset is available
+through [governed local execution](governed-local.md).
 
 See [implementation status](nehemiah-implementation.md) for dependencies and the
 evidence boundary of this increment.

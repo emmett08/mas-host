@@ -28,7 +28,7 @@ pub fn execute(ctx: &mut Context, input: Json, configuration: &Json) -> Result<J
             Ok(result) => result,
             Err(process::Failure::NotStarted) => return Ok((
                 json!({"status":"not_started"}),
-                json!({"adapter":"mas-command/1","execution":"not_started"}),
+                json!({"adapter":"mas-command/1","execution":"not_started","execution_scope":"command-process"}),
             )),
             Err(process::Failure::Incomplete) => return Err("command interrupted or exceeded output/deadline limits; external outcome uncertain".into()),
         };
@@ -37,7 +37,11 @@ pub fn execute(ctx: &mut Context, input: Json, configuration: &Json) -> Result<J
             return Err(format!("command process ended with {}; external outcome uncertain", result.status));
         }
         let digest: String = Sha256::digest(&result.stdout).iter().map(|b| format!("{b:02x}")).collect();
+        // This adapter observed the command process exit successfully. It does
+        // not establish completion of downstream operations started by the tool.
+        // Preserve that process certainty even when stdout cannot be delivered.
         let evidence = json!({"adapter":"mas-command/1","invocation_id":invocation_id,
+            "execution":"completed","execution_scope":"command-process",
             "exit_code":code,"stdout_sha256":digest,"stdout_bytes":result.stdout.len()});
         let output = std::str::from_utf8(&result.stdout).ok().and_then(|text| {
             if spec.text_stdout { Some(json!({"stdout":text})) }
@@ -55,6 +59,7 @@ pub fn execute(ctx: &mut Context, input: Json, configuration: &Json) -> Result<J
         }
         Ok((outcome, evidence))
     })?;
+    super::effect_result::require_available(&outcome)?;
     match outcome["status"].as_str() {
         Some("completed") => {
             super::schema::validate(&configuration["output_schema"], &outcome["output"])?;

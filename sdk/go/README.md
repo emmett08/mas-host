@@ -30,8 +30,18 @@ Keys identify operations within their parent invocation. Reuse a key only for
 the same operation and input. Handler code outside effect callbacks must be
 deterministic and free of external effects: an interrupted handler may execute
 again, while completed requests and effects are replayed from the host journal.
-An error after effect admission requires reconciliation; catching the error
-does not clear uncertainty or authorise another external attempt.
+Failure before acknowledged effect completion requires reconciliation. Catching
+the error does not clear uncertainty or authorise another external attempt.
+
+A governed completion returns the host's safe output projection as
+`json.RawMessage`, with identical output on cached replay. Withheld payloads use
+the reserved `mas-governed-unavailable/1` object and retain completed host settlement.
+Malformed projection metadata returns `invalid governed effect completion`,
+without exposing local raw output or retrying. An acknowledgement without
+`completion` preserves the ordinary callback output. The
+[native contract](../../docs/native-contract.md#external-effects-and-recovery)
+defines the closed versioned acknowledgement, effect identity, external certainty
+and payload disposition.
 
 ## Data profile
 

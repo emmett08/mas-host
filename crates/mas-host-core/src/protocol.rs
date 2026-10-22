@@ -72,6 +72,9 @@ impl Inner {
         output: Option<&Value>,
         failure: Option<&str>,
     ) -> Result<()> {
+        if let Some(output) = output {
+            self.governed_request_delivery(step, output)?;
+        }
         let request_id = format!("req-{}", step.id);
         let payload = if let Some(output) = output {
             json!({"task_id":step.id,"reply_to":request_id,"status":"completed","output":output})
@@ -105,7 +108,7 @@ impl Inner {
         Ok(())
     }
     pub(crate) fn known_failure(&self, step: &Step, failure: &str) -> Result<()> {
-        let failure = bounded_error(failure);
+        let failure = self.governed_error(failure);
         // A temporary child admission failure must remain replayable. Likewise,
         // a blocked admitted child cannot be hidden behind a terminal parent.
         if self.has_unsettled_below(&step.id)? {

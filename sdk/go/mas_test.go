@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"reflect"
 	"strings"
 	"syscall"
 	"testing"
@@ -96,6 +97,80 @@ func hostSend(t *testing.T, channel net.Conn, value any) {
 	t.Helper()
 	if err := writeFrame(channel, value); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestGovernedCompletionProjectionAndReplay(t *testing.T) {
+	raw, err := os.ReadFile("../completion-conformance.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fixture struct {
+		Cases []struct {
+			Name       string          `json:"name"`
+			Completion json.RawMessage `json:"completion"`
+			Valid      bool            `json:"valid"`
+			Output     json.RawMessage `json:"output"`
+		} `json:"cases"`
+	}
+	if err := json.Unmarshal(raw, &fixture); err != nil {
+		t.Fatal(err)
+	}
+	for _, test := range fixture.Cases {
+		t.Run(test.Name, func(t *testing.T) {
+			worker, host := unixPair(t)
+			cached := test.Output
+			if !test.Valid {
+				cached = json.RawMessage(`{"redacted":true}`)
+			}
+			done := make(chan struct{})
+			go func() {
+				defer close(done)
+				hostRead(t, host, "effect_begin")
+				hostSend(t, host, map[string]any{"type": "effect", "state": "execute", "invocation_id": "effect-1"})
+				completed := hostRead(t, host, "effect_complete")
+				if string(completed["output"]) != `{"private":"private-local-output"}` {
+					t.Errorf("wrong local output")
+				}
+				hostSend(t, host, map[string]any{"type": "response", "ok": true, "completion": test.Completion})
+				hostRead(t, host, "effect_begin")
+				hostSend(t, host, map[string]any{"type": "effect", "state": "cached", "output": cached})
+			}()
+			ctx := Context{Context: context.Background(), channel: worker}
+			calls := 0
+			callback := func(id string) (EffectResult, error) {
+				calls++
+				if id != "effect-1" {
+					t.Errorf("wrong effect identity")
+				}
+				return EffectResult{Output: map[string]any{"private": "private-local-output"}, Evidence: map[string]any{"receipt": "one"}}, nil
+			}
+			fresh, err := ctx.Effect("write", map[string]any{}, callback)
+			if test.Valid {
+				if err != nil {
+					t.Fatal(err)
+				}
+				var actual, expected any
+				_ = json.Unmarshal(fresh, &actual)
+				_ = json.Unmarshal(cached, &expected)
+				if !reflect.DeepEqual(actual, expected) {
+					t.Errorf("fresh output was not projected")
+				}
+			} else if err == nil || err.Error() != "invalid governed effect completion" || fresh != nil {
+				t.Errorf("malformed projection did not fail safely: %v", err)
+			}
+			replay, err := ctx.Effect("write", map[string]any{}, callback)
+			if err != nil || calls != 1 {
+				t.Fatalf("replay executed callback or failed: %v", err)
+			}
+			var actual, expected any
+			_ = json.Unmarshal(replay, &actual)
+			_ = json.Unmarshal(cached, &expected)
+			if !reflect.DeepEqual(actual, expected) {
+				t.Errorf("replay was not host output")
+			}
+			<-done
+		})
 	}
 }
 

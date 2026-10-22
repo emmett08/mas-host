@@ -10,6 +10,7 @@ mod identity;
 mod policy;
 mod profile;
 mod result;
+pub(crate) mod runtime;
 
 pub use evidence::GovernedEvidence;
 pub use identity::{
@@ -18,6 +19,7 @@ pub use identity::{
 pub use policy::{decide_disclosure, CurrentAuthority, DataUsePolicy, DisclosureRequest};
 pub use profile::check_profile;
 pub use result::validate_result_view;
+pub use runtime::GovernedSession;
 
 use serde_json::Value;
 use std::collections::BTreeSet;

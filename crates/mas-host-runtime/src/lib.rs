@@ -1,5 +1,6 @@
 //! A small facade selecting maintained worker implementations.
 pub mod command;
+mod effect_result;
 mod identity;
 pub mod inference;
 pub use mas_host_schema as schema;
