@@ -1,0 +1,131 @@
+{
+  "benchmark_revision": "8b535be6d3de18b8288858fdf6ed79f67ce9155e",
+  "validation_revision": "293e394d59968b839b003cbaf0ecd5162ac88b20",
+  "workload": "configured integration tests with deterministic local providers and fresh temporary projects",
+  "environment": {
+    "architecture": "x86_64 Linux",
+    "cpu_quota_cores": 8,
+    "memory_limit_bytes": 8589934592,
+    "rust": "1.99.0",
+    "test_threads": 2,
+    "candidate_cargo_build_jobs": 2,
+    "node": "24.19.0",
+    "go": "1.24.0"
+  },
+  "candidate_profile": {
+    "dev.split-debuginfo": "unpacked",
+    "test.split-debuginfo": "unpacked",
+    "optimisation": "existing development default",
+    "debug_information": "full default, sidecars retained"
+  },
+  "host_executable_bytes": {
+    "baseline": 71072648,
+    "candidate": 31797624
+  },
+  "full_configured_suite": {
+    "tests": 14,
+    "repetitions_per_profile": 1,
+    "execution_seconds": {
+      "baseline": 259.89,
+      "candidate": 102.71
+    },
+    "both_exit_codes": 0,
+    "wrapper_caveat": "Baseline Cargo invocation included an 8.89 s package-cache wait. Table compares harness execution time."
+  },
+  "paired_scenario": {
+    "test": "configured_workflow_runs_llm_peer_requests_through_mas_and_replays_without_calls",
+    "repetitions_per_profile": 3,
+    "order": [
+      "baseline",
+      "candidate",
+      "candidate",
+      "baseline",
+      "baseline",
+      "candidate"
+    ],
+    "elapsed_seconds": {
+      "baseline": [
+        17.13457758200093,
+        15.10083585800021,
+        14.368022442002257
+      ],
+      "candidate": [
+        7.354032864997862,
+        9.690293189996737,
+        6.683703038004751
+      ]
+    },
+    "median_seconds": {
+      "baseline": 15.10083585800021,
+      "candidate": 7.354032864997862
+    },
+    "all_exit_codes": 0,
+    "invocation": "compiled test executables with --exact TEST_NAME --test-threads=2; excludes Cargo startup"
+  },
+  "candidate_cold_compilation_seconds": 54.05154980299994,
+  "cold_comparison_caveat": "Baseline initial compilation was 26.54 s with default parallelism. Candidate used two build jobs. These do not establish a cold-build speed-up.",
+  "rejected_candidate": {
+    "candidate": "opt-level=1, full inline debug info",
+    "cold_compilation_seconds": 273.7731381880003,
+    "full_suite_seconds": 34.851477342999715,
+    "result": "13 passed, 1 failed because temporary storage was exhausted",
+    "host_bytes": 81968672,
+    "disposition": "rejected: assess lower-cost split-debug candidate"
+  },
+  "variability_limit": "Shared local host without CPU isolation. Three paired repetitions support a bounded fixture comparison, not a hosted CI duration claim.",
+  "diagnostic_probe": {
+    "compiler": "rustc 1.99.0",
+    "debug_level": 2,
+    "profiles": [
+      "split-debuginfo=off",
+      "split-debuginfo=unpacked"
+    ],
+    "result": "PASS",
+    "source_backtrace_frames_per_profile": 2,
+    "source": "#[inline(never)]\nfn probe() { panic!(\"ci-diagnostic-probe\"); }\nfn main() { probe(); }\n",
+    "compiler_arguments": [
+      "-C",
+      "debuginfo=2",
+      "-C",
+      "split-debuginfo=PROFILE"
+    ]
+  },
+  "hosted_baseline": {
+    "run_id": 39859225460,
+    "head_revision": "4fd4b536e6589d631f6a475f4ddd68b0d30ffade",
+    "job_id": 120105287047,
+    "total_seconds": 1816,
+    "steps": [
+      {
+        "name": "Run actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e",
+        "seconds": 9
+      },
+      {
+        "name": "Install pinned Rust",
+        "seconds": 9
+      },
+      {
+        "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+        "seconds": 5
+      },
+      {
+        "name": "Format, analyse and test",
+        "seconds": 1324
+      },
+      {
+        "name": "Native applications and effect recovery",
+        "seconds": 43
+      },
+      {
+        "name": "Check host control and governed recovery with SPIN",
+        "seconds": 418
+      }
+    ]
+  },
+  "benchmark_sidecar_files_observed": 2606,
+  "current_main_configured_suite": {
+    "source_revision": "293e394d59968b839b003cbaf0ecd5162ac88b20",
+    "tests_passed": 14,
+    "execution_seconds": 107.9
+  }
+}
