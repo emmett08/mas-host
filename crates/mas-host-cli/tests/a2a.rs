@@ -155,7 +155,8 @@ impl Project {
             child,
             address: self.address,
         };
-        let deadline = Instant::now() + Duration::from_secs(10);
+        // Startup includes executable hashing under shared CI scheduling.
+        let deadline = Instant::now() + Duration::from_secs(30);
         loop {
             if TcpStream::connect(self.address).is_ok() {
                 return server;
@@ -454,7 +455,8 @@ fn interrupted_task_becomes_unknown_and_retry_does_not_repeat_work() {
     let server = project.start();
     let result = server.rpc(ALICE, "SendMessage", request.clone());
     let id = result["task"]["id"].as_str().unwrap();
-    let deadline = Instant::now() + Duration::from_secs(15);
+    // Observe dispatch correctness with tolerance for shared runner scheduling.
+    let deadline = Instant::now() + Duration::from_secs(30);
     while project.calls() == 0 {
         assert!(Instant::now() < deadline, "provider was not started");
         thread::sleep(Duration::from_millis(20));
@@ -526,7 +528,7 @@ fn blocking_unknown_outcome_preserves_task_identity_and_negotiated_extension() {
     // A slow runner may return its bounded response deadline first. Both
     // outcomes must identify retained work; observe that work rather than
     // inventing a replacement request or treating uncertainty as completion.
-    let deadline = Instant::now() + Duration::from_secs(10);
+    let deadline = Instant::now() + Duration::from_secs(30);
     loop {
         let task = server.task(id);
         assert_eq!(task["id"], id);

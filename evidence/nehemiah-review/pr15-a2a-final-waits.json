@@ -1,0 +1,64 @@
+{
+  "base_commit": "6369d18920ec94de60172f2543fbf6edef60b301",
+  "checkout": "/tmp/nehemiah-pr15-a2a-poll-x0ckk1oh",
+  "changed_file": "crates/mas-host-cli/tests/a2a.rs",
+  "before_sha256": "3be4deee32d33e58799b3b0648d238e589f12bdf7e4e426b3787dc8d2e8b3aee",
+  "after_sha256": "c4dad8eb17faa8755de5f6788edcb84937b88b11785921453feb481a699dd985",
+  "scope": "Test-only startup, completion, provider-start and provider-uncertainty observation waits allow 30 seconds of CI scheduling tolerance. Socket read timeout remains 10 seconds; terminal semantic assertions and all production limits unchanged.",
+  "patch_sha256": "4a83c9ec5cfceee05afdefa44b72849fe08a4af8ae04e67cd757c234bca5c4ce",
+  "validation_status": "PASS",
+  "recorded_at": "2026-10-22T16:42:33.539660+00:00",
+  "commands": [
+    [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "mas-host",
+      "--test",
+      "a2a"
+    ],
+    [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ]
+  ],
+  "environment": {
+    "CARGO_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/cargo",
+    "RUSTUP_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/rustup",
+    "CARGO_TARGET_DIR": "/tmp/nehemiah-pr15-a2a-poll-target"
+  },
+  "toolchain_bin": "/workspace/scratch/1ad2c1661ab9/tooling/rustup/toolchains/1.99.0-x86_64-unknown-linux-gnu/bin",
+  "results": [
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "mas-host",
+        "--test",
+        "a2a"
+      ],
+      "exit_code": 0,
+      "seconds": 37.7136
+    },
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.686
+    }
+  ],
+  "source_unchanged": true
+}
