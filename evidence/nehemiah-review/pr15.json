@@ -1,0 +1,38 @@
+{
+  "version": "mas-nehemiah-pr-review/1",
+  "date": "2026-10-22",
+  "reviewed_commit": "dcdd73971aecd8e3962f582937e721b04d6a1379",
+  "scope": "PR15 bounded E0 repair; P0 and N0 remain explicitly partial",
+  "plan_snapshots_sha256": {
+    "review-current-nehemiah-pii-detection-response-plan.md": "8dd7b7a97b8ce2248e754d8c84a5dca2e89a55e6734ffbc7c0575c12de45b1f5",
+    "review-current-nehemiah-enterprise-scaling-plan.md": "4c7f7368ed9b245d1a435e302df53b3f488172a9a824d90d28bf6d8ac56788ad",
+    "review-current-nehemiah-extensibility-data-use-plan.md": "e14410bab61418e2e2739ac4deb0c7cc13b096d18f3fb8ad7f50098db48e7854"
+  },
+  "source_sha256": {
+    "crates/mas-host-core/src/governance/policy.rs": "a4dcb9dc7f229e56d7dfecd9412272cbaa886e8730b6b72807b62a6fd90e03cd",
+    "crates/mas-host-core/src/governance/tests.rs": "c04e33ff15cf2f819755d21b0752822123300d3400132b12c29ed490c60edefe",
+    "docs/nehemiah-governance.md": "d67302d87ce1cd902c2ceed48bb5b19ef6dbf101e1a73bba8e43d234cce82770"
+  },
+  "findings_repaired": [
+    "Held decisions omitted exact operation/output/recipient bindings required before runtime integration.",
+    "Aggregate decision closure required an explicit bounded non-permitting result."
+  ],
+  "checks": [
+    {
+      "command": "cargo test --offline --locked -p mas-host-core governance::",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "command": "cargo clippy --offline --locked -p mas-host-core --all-targets -- -D warnings",
+      "result": "PASS"
+    }
+  ],
+  "test_cut": "Published PR15 base plus the two listed Rust files in an isolated checkout; documentation has no runtime effect.",
+  "validation_log": "pr15-isolated-validation.log",
+  "not_claimed": [
+    "P0 reference hardware/cost and full capacity qualification",
+    "N0 deployment-domain quality thresholds",
+    "Runtime mediation, protected deployment or lifecycle qualification"
+  ]
+}

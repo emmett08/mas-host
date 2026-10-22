@@ -1,0 +1,121 @@
+{
+  "base_commit": "6369d18920ec94de60172f2543fbf6edef60b301",
+  "checkout": "/tmp/nehemiah-pr15-a2a-poll-x0ckk1oh",
+  "changed_file": "crates/mas-host-cli/tests/a2a.rs",
+  "before_sha256": "3be4deee32d33e58799b3b0648d238e589f12bdf7e4e426b3787dc8d2e8b3aee",
+  "after_sha256": "0e7edd367bc7000f7b35b366c48f037506e9c4b5c96479496d05cd8fbecf5946",
+  "scope": "Test-only completion poll allowance 10 to 30 seconds; terminal failure assertions and production deadlines unchanged.",
+  "patch_sha256": "b3d5d8d0b7214cb766abca46583050e8e67ec31cbdf33b7f3943513bf499fb79",
+  "validation_status": "RUNNING",
+  "recorded_at": "2026-10-22T16:30:46.096730+00:00",
+  "commands": [
+    [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "mas-host",
+      "--test",
+      "a2a"
+    ],
+    [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ]
+  ],
+  "environment": {
+    "CARGO_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/cargo",
+    "RUSTUP_HOME": "/workspace/scratch/1ad2c1661ab9/tooling/rustup",
+    "CARGO_TARGET_DIR": "/tmp/nehemiah-pr15-a2a-poll-target"
+  },
+  "toolchain_bin": "/workspace/scratch/1ad2c1661ab9/tooling/rustup/toolchains/1.99.0-x86_64-unknown-linux-gnu/bin",
+  "results": []
+}
+
+COMMAND ["cargo", "test", "--offline", "--locked", "-p", "mas-host", "--test", "a2a"]
+   Compiling itoa v1.0.18
+   Compiling libc v0.2.190
+   Compiling serde_core v1.0.229
+   Compiling shlex v2.0.1
+   Compiling typenum v1.20.1
+   Compiling find-msvc-tools v0.1.14
+   Compiling zmij v1.0.23
+   Compiling foldhash v0.2.0
+   Compiling memchr v2.8.3
+   Compiling vcpkg v0.2.15
+   Compiling serde_json v1.0.152
+   Compiling cc v1.8.0
+   Compiling pkg-config v0.3.34
+   Compiling hashbrown v0.17.1
+   Compiling smallvec v1.16.3
+   Compiling hybrid-array v0.4.15
+   Compiling const-oid v0.10.2
+   Compiling hashlink v0.12.2
+   Compiling fallible-streaming-iterator v0.1.9
+   Compiling cpufeatures v0.3.1
+   Compiling fallible-iterator v0.3.0
+   Compiling cfg-if v1.0.5
+   Compiling bitflags v2.13.2
+   Compiling nom v8.0.0
+   Compiling subtle v2.6.1
+   Compiling bytes v1.12.1
+   Compiling autocfg v1.5.1
+   Compiling block-buffer v0.12.1
+   Compiling crypto-common v0.2.2
+   Compiling pin-project-lite v0.2.17
+   Compiling httparse v1.10.1
+   Compiling http v1.5.0
+   Compiling num-traits v0.2.19
+   Compiling mio v1.2.4
+   Compiling socket2 v0.6.5
+   Compiling mas-host-process v0.1.0 (/tmp/nehemiah-pr15-a2a-poll-x0ckk1oh/crates/mas-host-process)
+   Compiling libsqlite3-sys v0.38.2
+   Compiling futures-core v0.3.34
+   Compiling tokio v1.53.3
+   Compiling digest v0.11.3
+   Compiling http-body v1.1.0
+   Compiling sha2 v0.11.0
+   Compiling httpdate v1.0.3
+   Compiling winnow v1.0.4
+   Compiling atomic-waker v1.1.2
+   Compiling num-integer v0.1.47
+   Compiling serde_spanned v1.1.2
+   Compiling toml_datetime v1.1.2+spec-1.1.0
+   Compiling toml_parser v1.1.5+spec-1.1.0
+   Compiling arraydeque v0.5.1
+   Compiling num-bigint v0.4.8
+   Compiling yaml-rust2 v0.13.0
+   Compiling toml v1.1.8+spec-1.1.0
+   Compiling http-body-util v0.1.5
+   Compiling mas-host-schema v0.1.0 (/tmp/nehemiah-pr15-a2a-poll-x0ckk1oh/crates/mas-host-schema)
+   Compiling mas-host-native-build v0.1.0 (/tmp/nehemiah-pr15-a2a-poll-x0ckk1oh/crates/mas-host-native-build)
+   Compiling hyper v1.12.0
+   Compiling hyper-util v0.1.21
+   Compiling rusqlite v0.40.2
+   Compiling mas-protocol-codec v0.1.0 (https://github.com/emmett08/mas?rev=fe644bbf3acb3ccc2abaffd54bcc4b367053fe4b#fe644bbf)
+   Compiling mas-host-sdk v0.1.0 (/tmp/nehemiah-pr15-a2a-poll-x0ckk1oh/sdk/rust)
+   Compiling mas-host-providers v0.1.0 (/tmp/nehemiah-pr15-a2a-poll-x0ckk1oh/crates/mas-host-providers)
+   Compiling mas-host-worker v0.1.0 (/tmp/nehemiah-pr15-a2a-poll-x0ckk1oh/crates/mas-host-worker)
+   Compiling mas-host-core v0.1.0 (/tmp/nehemiah-pr15-a2a-poll-x0ckk1oh/crates/mas-host-core)
+   Compiling mas-host-workflow v0.1.0 (/tmp/nehemiah-pr15-a2a-poll-x0ckk1oh/crates/mas-host-workflow)
+   Compiling mas-host-runtime v0.1.0 (/tmp/nehemiah-pr15-a2a-poll-x0ckk1oh/crates/mas-host-runtime)
+   Compiling mas-host v0.1.0 (/tmp/nehemiah-pr15-a2a-poll-x0ckk1oh/crates/mas-host-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 28.89s
+     Running tests/a2a.rs (/tmp/nehemiah-pr15-a2a-poll-target/debug/deps/a2a-9289254a282cb570)
+
+running 4 tests
+test descriptor_exposes_contracts_without_execution_configuration ... ok
+test blocking_unknown_outcome_preserves_task_identity_and_negotiated_extension ... ok
+test interrupted_task_becomes_unknown_and_retry_does_not_repeat_work ... ok
+test gateway_enforces_profile_owner_and_exact_retry_and_retains_completed_tasks ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.80s
+
+RESULT {"command": ["cargo", "test", "--offline", "--locked", "-p", "mas-host", "--test", "a2a"], "exit_code": 0, "seconds": 48.7112}
+
+COMMAND ["cargo", "fmt", "--all", "--", "--check"]
+RESULT {"command": ["cargo", "fmt", "--all", "--", "--check"], "exit_code": 0, "seconds": 0.4721}

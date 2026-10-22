@@ -1,0 +1,197 @@
+{
+  "version": "mas-host-baseline/1",
+  "status": "SMOKE_ONLY",
+  "workload_manifest_sha256": "b3b4ee586873f9f2cdb3e05689d5bdd60dbfc6a26e573c59a0f0621677e4ff04",
+  "environment": {
+    "checkout_revision": "6508042ea86d26bb35106d919a8699d5f1a2e782",
+    "host_source_revision": null,
+    "host_source_binding": "BINARY_HASH_ONLY_BUILD_PROVENANCE_REQUIRED",
+    "working_tree_diff_sha256": "6076ff9ac21fdf50712878be34810b612c7a9de1a2dd11f058a60ba053fdb932",
+    "source_tree_identity_complete": true,
+    "host_sha256": "84bf684d9f65f36491f4595886f0dac6767d86cbeb54fa59f8f256c0e37a0756",
+    "cargo_lock_sha256": "d3a5958b20950cdd25251ab2530414d1c6c374f8603c19ad1fc2cbc74d12ff1f",
+    "workspace_manifest_sha256": "708c5d296abe899622e84d5097967fa5957686c97e09df716e7674a817c85e5e",
+    "harness_sha256": {
+      "baseline.py": "5f50e486b0a2890873cc380551d37a8b4e32e53534dd4488298ce39af201b95c",
+      "workload.py": "3ec321191623d40dfbf79b3687e7769ff6701a6c257fda1fafafe813c3e1003b"
+    },
+    "python": "3.12.14",
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "os": "Linux",
+    "kernel": "6.18.55",
+    "architecture": "x86_64",
+    "logical_cpus": 9,
+    "physical_memory_bytes": 10451435520,
+    "storage": "temporary directory, local SQLite journals; filesystem/device unqualified",
+    "database_version": null,
+    "cost_ceiling": null,
+    "provider_requests": 0,
+    "provider_tokens": null,
+    "provider_billing": null
+  },
+  "records": [
+    {
+      "admission": "admitted",
+      "execution": "completed",
+      "started": true,
+      "request_id": "p0-44cbeca2155d3e2d-00000",
+      "tenant": "tenant-0000",
+      "cluster": "cluster-0000",
+      "input_bytes": 500,
+      "cli_returncode": 0,
+      "elapsed_ms": 4402.289477,
+      "application_check": "pass"
+    },
+    {
+      "admission": "admitted",
+      "execution": "completed",
+      "started": true,
+      "request_id": "p0-44cbeca2155d3e2d-00001",
+      "tenant": "tenant-0000",
+      "cluster": "cluster-0000",
+      "input_bytes": 500,
+      "cli_returncode": 0,
+      "elapsed_ms": 6412.991658,
+      "application_check": "pass"
+    },
+    {
+      "admission": "admitted",
+      "execution": "completed",
+      "started": true,
+      "request_id": "p0-44cbeca2155d3e2d-00002",
+      "tenant": "tenant-0000",
+      "cluster": "cluster-0000",
+      "input_bytes": 500,
+      "cli_returncode": 0,
+      "elapsed_ms": 3492.897869,
+      "application_check": "pass"
+    }
+  ],
+  "observation_samples": [
+    {
+      "request_id": "p0-44cbeca2155d3e2d-00000",
+      "success": true,
+      "latency_ms": 30.259313,
+      "encoded_projection_bytes": 1843
+    },
+    {
+      "request_id": "p0-44cbeca2155d3e2d-00000",
+      "success": true,
+      "latency_ms": 26.861409,
+      "encoded_projection_bytes": 1843
+    },
+    {
+      "request_id": "p0-44cbeca2155d3e2d-00000",
+      "success": true,
+      "latency_ms": 39.810204,
+      "encoded_projection_bytes": 1843
+    },
+    {
+      "request_id": "p0-44cbeca2155d3e2d-00001",
+      "success": true,
+      "latency_ms": 23.611302,
+      "encoded_projection_bytes": 1843
+    },
+    {
+      "request_id": "p0-44cbeca2155d3e2d-00001",
+      "success": true,
+      "latency_ms": 9.943004,
+      "encoded_projection_bytes": 1843
+    },
+    {
+      "request_id": "p0-44cbeca2155d3e2d-00001",
+      "success": true,
+      "latency_ms": 30.652931,
+      "encoded_projection_bytes": 1843
+    },
+    {
+      "request_id": "p0-44cbeca2155d3e2d-00002",
+      "success": true,
+      "latency_ms": 6.318195,
+      "encoded_projection_bytes": 1842
+    },
+    {
+      "request_id": "p0-44cbeca2155d3e2d-00002",
+      "success": true,
+      "latency_ms": 6.560532,
+      "encoded_projection_bytes": 1842
+    },
+    {
+      "request_id": "p0-44cbeca2155d3e2d-00002",
+      "success": true,
+      "latency_ms": 7.174819,
+      "encoded_projection_bytes": 1842
+    }
+  ],
+  "qualification": {
+    "V": {
+      "status": "NOT_RUN",
+      "reason": "authenticated bounded status materialisation and reference deployment"
+    },
+    "L": {
+      "status": "NOT_RUN",
+      "reason": "paced occupancy fixture and sustained baseline"
+    },
+    "S": {
+      "status": "NOT_RUN",
+      "reason": "qualified shared host, quota scope and hardware envelope"
+    },
+    "A": {
+      "status": "NOT_RUN",
+      "reason": "assignment mapping and bounded deterministic provider fixture"
+    },
+    "A+": {
+      "status": "NOT_RUN",
+      "reason": "adopted demand and independently qualified deployment"
+    },
+    "E": {
+      "status": "NOT_RUN",
+      "reason": "external telemetry pipeline benchmark"
+    },
+    "E+": {
+      "status": "NOT_RUN",
+      "reason": "distributed full-pipeline measurement"
+    }
+  },
+  "limits": {
+    "active_cli_processes": 1,
+    "count": 3,
+    "polls_per_run": 3,
+    "run_timeout_seconds": 60,
+    "observation_timeout_seconds": 10
+  },
+  "assignment_to_investigation_mapping": "UNESTABLISHED",
+  "deferral_observation_supported": false,
+  "build_ms": 1473.361222,
+  "retained_state_bytes": 233472,
+  "totals": {
+    "offered": 3,
+    "admission": {
+      "admitted": 3,
+      "deferred": 0,
+      "rejected": 0,
+      "unknown": 0
+    },
+    "execution": {
+      "not_started": 0,
+      "started": 0,
+      "completed": 3,
+      "failed": 0,
+      "unknown": 0
+    },
+    "started": 3,
+    "start_unknown": 0
+  },
+  "native_cli_latency": {
+    "count": 3,
+    "p50_ms": 4402.289477,
+    "p95_ms": 6412.991658,
+    "p99_ms": 6412.991658
+  },
+  "observation_cli_latency": {
+    "count": 9,
+    "p50_ms": 23.611302,
+    "p95_ms": 39.810204,
+    "p99_ms": 39.810204
+  }
+}

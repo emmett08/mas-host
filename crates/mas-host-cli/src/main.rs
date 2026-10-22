@@ -14,6 +14,7 @@ const HELP: &str = "mas-host: native applications on the MAS protocol\n\n\
   run     --bundle FILE --agent NAME --input FILE|- [--input-format json|toml|yaml] --state DIR --run ID\n\
   inspect --state DIR --run ID\n\
   describe --bundle FILE\n\
+  check-profile --profile FILE\n\
   serve-a2a --bundle FILE --state DIR --config FILE\n\
   observe --state DIR --run ID [--include-payloads true|false]\n\
   cancel  --state DIR --run ID\n\
@@ -55,6 +56,13 @@ fn sdk_root(args: &BTreeMap<String, String>) -> PathBuf {
 fn execute(args: &[String]) -> Result<Value, String> {
     let command = args.first().ok_or("missing command (try --help)")?;
     match command.as_str() {
+        "check-profile" => {
+            let args = options(&args[1..], &["--profile"])?;
+            mas_host_core::governance::check_profile(&config::read_json(Path::new(require(
+                &args,
+                "--profile",
+            )?))?)
+        }
         "describe" => {
             let args = options(&args[1..], &["--bundle"])?;
             mas_host_core::describe(&config::read_json(Path::new(require(&args, "--bundle")?))?)

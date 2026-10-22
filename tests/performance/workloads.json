@@ -1,0 +1,42 @@
+{
+  "version": "mas-host-workloads/1",
+  "source_cut": "2026-10-22",
+  "profile": "trusted-local",
+  "qualification_status": "NOT_RUN",
+  "freeze_status": "PROVISIONAL_HARDWARE_AND_COST_CEILING_REQUIRED",
+  "reference_hardware": null,
+  "cost_ceiling": null,
+  "assignment_to_investigation_mapping": "UNESTABLISHED",
+  "sampling": {"seed": 20261022, "distributions": ["uniform", "skewed-80-percent"]},
+  "preserved_invariants": [
+    "original-request-identity", "known-completion-distinct-from-unknown",
+    "observation-grants-no-execution", "no-duplicate-fresh-dispatch",
+    "no-tenant-disclosure", "bounded-count-bytes-and-time"
+  ],
+  "scenarios": {
+    "V": {"kind": "observation", "viewers": 5000, "refresh_ms": 10000,
+      "jitter_required": true, "maximum_page_bytes": 16384,
+      "p95_target_ms": 250, "p99_target_ms": 1000, "maximum_status_age_ms": 2000,
+      "status": "NOT_RUN", "missing": "authenticated bounded status materialisation and reference deployment"},
+    "L": {"kind": "local-compatibility", "investigations_per_second": "0.25",
+      "mean_occupancy_ms": 30000, "tenants": 1, "clusters": 1,
+      "status": "NOT_RUN", "missing": "paced occupancy fixture and sustained baseline"},
+    "S": {"kind": "shared-growth", "tenants": 100, "clusters": 20,
+      "submissions_per_second": 10, "burst_per_second": 50, "burst_ms": 60000,
+      "admission_p95_target_ms": 500, "minimum_admission_fraction": "0.99",
+      "eligible_queue_p95_target_ms": 5000,
+      "status": "NOT_RUN", "missing": "qualified shared host, quota scope and hardware envelope"},
+    "A": {"kind": "execution-capacity", "active_investigations": [16, 64, 256, 512],
+      "status": "NOT_RUN", "missing": "assignment mapping and bounded deterministic provider fixture"},
+    "A+": {"kind": "extended-execution-capacity", "active_investigations": [1024, 5000],
+      "status": "NOT_RUN", "missing": "adopted demand and independently qualified deployment"},
+    "E": {"kind": "event-processing", "events_per_second": [10000, 100000, 1000000],
+      "event_bytes": 500, "status": "NOT_RUN", "missing": "external telemetry pipeline benchmark"},
+    "E+": {"kind": "capacity-model", "events_per_second": 1000000000,
+      "event_bytes": 500, "status": "NOT_RUN", "missing": "distributed full-pipeline measurement"}
+  },
+  "qualification": {"warmup_required": true, "minimum_interleaved_runs": 3,
+    "minimum_sustained_duration_ms": 1800000,
+    "failure_recovery_tested_separately": true,
+    "unknown_provider_tokens_and_billing_remain_null": true}
+}
