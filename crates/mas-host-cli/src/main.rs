@@ -1,6 +1,7 @@
 //! Developer and administrative commands for the local native host.
 mod a2a;
 mod build;
+mod capabilities;
 mod config;
 mod privacy_inspect;
 use serde_json::{json, Value};
@@ -10,18 +11,20 @@ use std::{
 };
 
 const HELP: &str = "mas-host: native applications on the MAS protocol\n\n\
-  build   --project DIR [--sdk-root DIR] [--agents FILE] [--topology FILE] [--connections FILE]\n\
+  build   --project DIR [--sdk-root DIR] [--agents FILE] [--topology FILE] [--connections FILE] [--capabilities FILE --capability-policy FILE]\n\
   run     --project DIR --agent NAME --input FILE|- [--input-format json|toml|yaml] --state DIR --run ID [--sdk-root DIR] [--agents FILE] [--topology FILE] [--connections FILE]\n\
   run     --bundle FILE --agent NAME --input FILE|- [--input-format json|toml|yaml] --state DIR --run ID\n\
   inspect --state DIR --run ID\n\
   describe --bundle FILE\n\
   check-profile --profile FILE\n\
+  check-capability --declaration FILE\n\
   privacy-inspect --input FILE|- --python ABS --manifest FILE --assets DIR [--worker FILE] [--timeout-ms N] [--memory-mib N] [--include-details true|false]\n\
-  serve-a2a --bundle FILE --state DIR --config FILE\n\
+  serve-a2a --bundle FILE --state DIR --config FILE [--capability-policy FILE]\n\
   observe --state DIR --run ID [--include-payloads true|false]\n\
   cancel  --state DIR --run ID\n\
   resolve --state DIR --run ID --effect ID --output FILE --evidence FILE\n\n\
 Run builds automatically when --project is supplied. Reuse --run to resume.\n\
+Packaged runs require --capability-policy FILE; project runs may add --capabilities FILE.\n\
 Pass --revision-plan FILE to run a frozen assessment/revision workflow.\n\
 Input format follows the file extension; stdin defaults to JSON.\n\
 The state directory belongs to one local operator. Python agents require Python 3.11+.\n";
@@ -81,14 +84,23 @@ fn execute(args: &[String]) -> Result<Value, String> {
                 "--profile",
             )?))?)
         }
+        "check-capability" => {
+            let args = options(&args[1..], &["--declaration"])?;
+            capabilities::check(Path::new(require(&args, "--declaration")?))
+        }
         "describe" => {
             let args = options(&args[1..], &["--bundle"])?;
             mas_host_core::describe(&config::read_json(Path::new(require(&args, "--bundle")?))?)
         }
         "serve-a2a" => {
-            let args = options(&args[1..], &["--bundle", "--state", "--config"])?;
+            let args = options(
+                &args[1..],
+                &["--bundle", "--state", "--config", "--capability-policy"],
+            )?;
+            let bundle = config::read_json(Path::new(require(&args, "--bundle")?))?;
+            capabilities::validate_bundle(&bundle, args.get("--capability-policy").map(Path::new))?;
             a2a::serve(
-                config::read_json(Path::new(require(&args, "--bundle")?))?,
+                bundle,
                 Path::new(require(&args, "--state")?),
                 config::read_json(Path::new(require(&args, "--config")?))?,
             )
@@ -102,14 +114,18 @@ fn execute(args: &[String]) -> Result<Value, String> {
                     "--agents",
                     "--topology",
                     "--connections",
+                    "--capabilities",
+                    "--capability-policy",
                 ],
             )?;
-            let file = build::build_configured(
+            let file = build::build_with_capabilities(
                 Path::new(require(&args, "--project")?),
                 &sdk_root(&args),
                 args.get("--agents").map(Path::new),
                 args.get("--connections").map(Path::new),
                 args.get("--topology").map(Path::new),
+                args.get("--capabilities").map(Path::new),
+                args.get("--capability-policy").map(Path::new),
             )?;
             Ok(json!({"status":"built","bundle":file}))
         }
@@ -129,6 +145,8 @@ fn execute(args: &[String]) -> Result<Value, String> {
                     "--topology",
                     "--input-format",
                     "--revision-plan",
+                    "--capabilities",
+                    "--capability-policy",
                 ],
             )?;
             let input = config::authoring::read_input(
@@ -149,16 +167,33 @@ fn execute(args: &[String]) -> Result<Value, String> {
                 {
                     PathBuf::from(file)
                 }
-                (None, Some(project)) => build::build_configured(
+                (None, Some(project)) => build::build_with_capabilities(
                     Path::new(project),
                     &sdk_root(&args),
                     args.get("--agents").map(Path::new),
                     args.get("--connections").map(Path::new),
                     args.get("--topology").map(Path::new),
+                    args.get("--capabilities").map(Path::new),
+                    args.get("--capability-policy").map(Path::new),
                 )?,
                 _ => return Err("provide exactly one of --project and --bundle".into()),
             };
             let bundle = config::read_json(&bundle_path)?;
+            if args.contains_key("--bundle") && args.contains_key("--capabilities") {
+                return Err("--capabilities requires --project".into());
+            }
+            let capability_policy = args.get("--capability-policy").map(|path| {
+                let path = PathBuf::from(path);
+                if path.is_absolute() {
+                    path
+                } else {
+                    args.get("--project")
+                        .map(PathBuf::from)
+                        .unwrap_or_default()
+                        .join(path)
+                }
+            });
+            capabilities::validate_bundle(&bundle, capability_policy.as_deref())?;
             let engine = mas_host_core::Engine::open(&bundle, state, run)?;
             if let Some(path) = args.get("--revision-plan") {
                 let plan = config::read_json(Path::new(path))?;

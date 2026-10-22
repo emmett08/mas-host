@@ -1,0 +1,31 @@
+{
+  "source_commit": "06f150b5e6a32b42b9134f27f67c93256cfb544e",
+  "test_file_sha256": "c4dad8eb17faa8755de5f6788edcb84937b88b11785921453feb481a699dd985",
+  "results": [
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.54
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "mas-host",
+        "--test",
+        "a2a"
+      ],
+      "exit_code": 0,
+      "seconds": 19.63
+    }
+  ],
+  "log_sha256": "ff957d7933d33b7fd02a8227c7326d2072fe9cc9d8061eac405d6a002ddbf534"
+}

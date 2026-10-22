@@ -24,6 +24,9 @@ impl Inner {
     pub(crate) fn admit_request(&self, step: &Step, request: &Message) -> Result<()> {
         for attempt in 1..=ADMISSION_ATTEMPTS {
             self.check_live()?;
+            if let Some(session) = &self.governance {
+                session.check_current()?;
+            }
             let outcome = lock(&self.protocol)?.send_checked(request, &step.actor);
             let Err(failure) = outcome else {
                 return Ok(());
@@ -67,6 +70,9 @@ impl Inner {
         depth: usize,
     ) -> Result<Value> {
         self.check_live()?;
+        if let Some(session) = &self.governance {
+            session.check_current()?;
+        }
         if depth > MAX_DEPTH {
             return Err("delegation depth limit exhausted".into());
         }
@@ -75,18 +81,27 @@ impl Inner {
             .get(target)
             .ok_or("unknown application agent")?
             .clone();
-        if let Some(schema) = &agent.input_schema {
-            mas_host_schema::validate(schema, input)?;
+        if self.governance.is_none() {
+            if let Some(schema) = &agent.input_schema {
+                mas_host_schema::validate(schema, input)?;
+            }
         }
         self.check_reply_route(actor, target)?;
-        self.inherit_context(parent, &self.step_id(parent, key, "request"), target, input)?;
         let step = self.prepare(parent, key, "request", actor, target, input)?;
+        let input = &step.input;
+        if self.governance.is_some() {
+            if let Some(schema) = &agent.input_schema {
+                mas_host_schema::validate(schema, input).map_err(|e| self.governed_error(&e))?;
+            }
+        }
+        self.inherit_context(parent, &self.step_id(parent, key, "request"), target, input)?;
         if step.state == "completed" {
             self.settle_children(&step.id)?;
             let output = step
                 .output
                 .as_ref()
                 .ok_or("completed checkpoint has no output")?;
+            self.governed_request_delivery(&step, output)?;
             self.terminal(&step, Some(output), None)?;
             return Ok(output.clone());
         }
@@ -115,6 +130,9 @@ impl Inner {
             "Request",
             json!({"task_id":step.id,"operation":agent.operation,"input":input}),
         );
+        if let Some(session) = &self.governance {
+            session.check_current()?;
+        }
         self.admit_request(&step, &request)?;
         {
             let mut protocol = lock(&self.protocol)?;
@@ -155,6 +173,9 @@ impl Inner {
         if let Some(handler) = &agent.handler {
             start["handler"] = json!(handler);
         }
+        if let Some(session) = &self.governance {
+            session.check_current()?;
+        }
         let mut worker = match Worker::spawn_scoped(
             &agent.executable,
             &start,
@@ -184,21 +205,15 @@ impl Inner {
         }
         match outcome {
             Ok(output) => {
-                if let Some(schema) = &agent.output_schema {
-                    if let Err(failure) = mas_host_schema::validate(schema, &output) {
-                        self.mark_uncertain(&step.id)?;
-                        if self.has_unsettled_below(&step.id)? {
-                            self.set_state(
-                                &step.id,
-                                "blocked",
-                                None,
-                                Some(&json!({"error":failure})),
-                            )?;
-                        } else {
-                            self.known_failure(&step, &failure)?;
-                        }
-                        return Err(failure);
+                let output = self.governed_output(&step, &output);
+                if let Err(failure) = self.validate_worker_output(target, &output) {
+                    self.mark_uncertain(&step.id)?;
+                    if self.has_unsettled_below(&step.id)? {
+                        self.set_state(&step.id, "blocked", None, Some(&json!({"error":failure})))?;
+                    } else {
+                        self.known_failure(&step, &failure)?;
                     }
+                    return Err(failure);
                 }
                 if self.has_unsettled_below(&step.id)? {
                     self.mark_uncertain(&step.id)?;
@@ -222,9 +237,11 @@ impl Inner {
                     return Err(failure);
                 }
                 self.terminal(&step, Some(&output), None)?;
+                self.governed_request_delivery(&step, &output)?;
                 Ok(output)
             }
             Err(failure) => {
+                let failure = self.governed_error(&failure);
                 self.mark_uncertain(&step.id)?;
                 if self.has_unsettled_below(&step.id)? {
                     self.set_state(&step.id, "blocked", None, Some(&json!({"error":failure})))?;
@@ -258,7 +275,7 @@ impl Inner {
                 }
                 "error" => {
                     fields(&frame, &["type", "message"], &[])?;
-                    return Err(bounded_error(text(&frame, "message")?));
+                    return Err(self.governed_error(text(&frame, "message")?));
                 }
                 "request" => {
                     fields(&frame, &["type", "key", "target", "input"], &[])?;
@@ -339,7 +356,15 @@ impl Inner {
                         &frame["evidence"],
                     );
                     worker.write(&match result {
-                        Ok(()) => json!({"type":"response","ok":true}),
+                        Ok(()) => {
+                            let id = self.step_id(&step.id, step_key(&frame)?, "effect");
+                            match self.governed_completion_ack(&id)? {
+                                Some(completion) => {
+                                    json!({"type":"response","ok":true,"completion":completion})
+                                }
+                                None => json!({"type":"response","ok":true}),
+                            }
+                        }
                         Err(e) => json!({"type":"response","ok":false,"error":bounded_error(&e)}),
                     })?;
                 }

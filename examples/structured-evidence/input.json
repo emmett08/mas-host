@@ -1,0 +1,12 @@
+{
+  "operationId": "fixture-read-1",
+  "target": {
+    "cluster_uid": "fixture-cluster-001",
+    "namespace_uid": "fixture-namespace-001",
+    "namespace": "demo",
+    "kind": "Deployment",
+    "name": "web",
+    "uid": "fixture-deployment-001",
+    "resource_version": "17"
+  }
+}

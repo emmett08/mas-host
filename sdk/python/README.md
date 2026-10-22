@@ -108,6 +108,16 @@ acknowledgement or uncertain admission raises `EffectUncertain` and blocks furth
 context operations. The host retains uncertainty even if application code catches
 the exception. The SDK never retries an external operation automatically.
 
+A governed acknowledgement replaces the callback's local output with the host's
+safe projection. Fresh and cached calls return that same dictionary. A withheld
+payload returns the reserved `mas-governed-unavailable/1` marker and keeps the
+host effect completed. Malformed replacement metadata raises
+`HostError("invalid governed effect completion")` without exposing local raw
+output or setting `EffectUncertain`. The SDK does not retry. An acknowledgement
+without `completion` preserves the ordinary callback output. See the exact
+closed version, effect identity, external certainty and disposition fields in
+the [native contract](../../docs/native-contract.md#external-effects-and-recovery).
+
 Code outside effect boundaries must be deterministic and free of external
 effects. Threads and subprocesses do not create durable checkpoints. Worker
 stdout/stderr are application streams, not the framed private channel; the local

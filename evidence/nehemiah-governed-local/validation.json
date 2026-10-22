@@ -1,0 +1,211 @@
+{
+  "version": "mas-nehemiah-governed-local-validation/1",
+  "date": "2026-10-22",
+  "implementation_commit": "06f150b5e6a32b42b9134f27f67c93256cfb544e",
+  "implementation_tree": "b9e215030d4bd450283616f5a7349a39d8703157",
+  "parent_commit": "f651ddac8a5afabfbb955de805b3ff59b1ecde99",
+  "source_sha256": {
+    "Cargo.lock": "7145ced641a0ead95ce757c69271c05f799940bb7785f3571da360f4c23489e7",
+    "Makefile": "3aed7b5bf093e86fa287ca78856bbfe272710a21911aa08b37afa5d9b6a637aa",
+    "README.md": "4cc3e7a8e2e2ac075527d29bbeef61d4a4c9f57556ec64a60888148026c2329b",
+    "crates/mas-host-cli/src/a2a/configuration.rs": "8e68855a5aa990a871fb40081cb0bb83967d8aaa9df2e84f102a3d2b9a00783f",
+    "crates/mas-host-cli/src/a2a/governed.rs": "9943c80080eb4380de5fa3e170ce08d320b3c4273eb687080b2b9d870c69c936",
+    "crates/mas-host-cli/src/a2a/http.rs": "a5163735aa8059607e8980888c76fea15c1521b1e53e166c0728d951ed652886",
+    "crates/mas-host-cli/src/a2a/mod.rs": "038e395922b78198883ff649774fa388bb3bc330dcd575732d58ecc8efede0b0",
+    "crates/mas-host-cli/src/build.rs": "2ffe8f1a5434031c8aca2ff6a5ebaf96f36b91bdd552d6bc689454b003828b97",
+    "crates/mas-host-cli/src/build/assets.rs": "c30eba8a095d2f72b4efdca157d49ad9376a098285d57170bd0adb9733fbd672",
+    "crates/mas-host-cli/src/capabilities/approval.rs": "ad5eb524d2a110063d63c9fb51bdc0b2cd8ffdc8efcab897d536c7645b882d93",
+    "crates/mas-host-cli/src/capabilities/binding.rs": "91934572579b8a1edcd754eca1b6d74d08b8cc97dd02f56ec15677f6e25f7748",
+    "crates/mas-host-cli/src/capabilities/contract.rs": "b3de48d396000b6699e49e5e9e5f8b3eb62585d453425d26b29702820abb1012",
+    "crates/mas-host-cli/src/capabilities/files.rs": "4735fca0302ce0eeaae967652a9ef43c82c0121605e7aa4b49dd841f7d739da1",
+    "crates/mas-host-cli/src/capabilities/mod.rs": "4de03cbf05844bcf2601e56cef61ac2688dc12aaee08a839e3c53a693336e4ad",
+    "crates/mas-host-cli/src/capabilities/retained.rs": "33b79b68b6004934af8d71a963d254a66e444df8105f557cc4da913444765980",
+    "crates/mas-host-cli/src/main.rs": "efbd8e1ee949ab67c5f21bf5f90beec55f6ee96295c48d415940aa511710d48f",
+    "crates/mas-host-cli/tests/a2a_governed.rs": "07348dbbb397b5555bbc8cf770fe447363f90607d2f1f9096a5f7dc764e56503",
+    "crates/mas-host-cli/tests/capabilities.rs": "14e181072183a2140792a9cd5b561806762ad709969baa1f0c30b5843eaf5aa7",
+    "crates/mas-host-core/Cargo.toml": "724d145b8e10d4b51ff5bf8777eca84fe8a6a05298b2944c232cc1b4be955829",
+    "crates/mas-host-core/src/effects.rs": "444164c092c66c6b9119588f21c31dcf3c08b0171943dc4da5e6677e25adb6c1",
+    "crates/mas-host-core/src/execution.rs": "2e0382cf344ab5248796c9a62df7a62da95c93497bab4071e8b8abee803d0172",
+    "crates/mas-host-core/src/governance/mod.rs": "576bc89e38214b5abefe6c5ad9398d8b6b9ba8c205e2268099f91a12acd81fb9",
+    "crates/mas-host-core/src/governance/runtime/authority.rs": "410b5c854dda60f869dc15467f46fac61ec61ea7208e46e6e38a4533fb2499a0",
+    "crates/mas-host-core/src/governance/runtime/boundary.rs": "b246c4f24c20bc4b5353f553ab102ae06c031dbc023e36db28efc059489e3c60",
+    "crates/mas-host-core/src/governance/runtime/encoding.rs": "625ad642a199d1315b72e34b2abc8b2ba322271e6f692b818c98a4f4d1cfd486",
+    "crates/mas-host-core/src/governance/runtime/mod.rs": "ed363dba99188d9b99a27796791bcabed16c085d4aa319a23add09dbb6bf5af7",
+    "crates/mas-host-core/src/governance/runtime/schema.rs": "57e4cde6da607d4642d582a1bc3734c0aa169affaff90768758455a62ad7406d",
+    "crates/mas-host-core/src/governance/runtime/session.rs": "6947d97bb4800ca7c7e501a651e7c59d32b1485553d9c31fa6dd16c3abe0ab60",
+    "crates/mas-host-core/src/governance/runtime/storage.rs": "c6ff9af0b3b0d7e428ef736c3aa113502f9ee8f9339a3d6c6f48bc697a830940",
+    "crates/mas-host-core/src/governance/runtime/tests.rs": "6073d629aaab4a983a14448a6eedc2ac6ef622ed8872f578b905e81925c0c264",
+    "crates/mas-host-core/src/lib.rs": "34405bd78004f1d54644e59eb97c8d2564091d051ae443895fc3d5e0ef45a67a",
+    "crates/mas-host-core/src/observation.rs": "14566f980d40351ec077408c959583a7dd7fe196bc823e96bb7dc09ac54a8cd6",
+    "crates/mas-host-core/src/protocol.rs": "c6bfc69e019498f8c7eb97d1f048aa07785769f5665b420e593af63fddd46ba1",
+    "crates/mas-host-core/src/revision/mod.rs": "ae63ddca5f2dd0c046c07532acf7e5a6b574794413ac8082e1e6ee154b818201",
+    "crates/mas-host-core/src/revision/store.rs": "83e1b03dd6ece57a839ed70b1890a455e5f2c66503384b9f453cf679da1683ed",
+    "crates/mas-host-runtime/src/command/mod.rs": "47f6fa20abd06840e853cd850feb79ec4a5db41b30cae1f310bd6fdb04282e05",
+    "crates/mas-host-runtime/src/effect_result.rs": "7c0be1870293b972c5a1ac6c5fef7e1fb2ec8a403c64c96ea07c2639798e506a",
+    "crates/mas-host-runtime/src/inference.rs": "12949471f24abd820161afeabb095ce15be7a0e9587f08280660abd2d38dd6f0",
+    "crates/mas-host-runtime/src/lib.rs": "0d8dec55b9ae2d3996065143eecefbfa9311644cb0d3793e0f623abb57a89d0d",
+    "crates/mas-host-runtime/tests/projected_completion.rs": "de652ee8075b2c56bb4bd9b2f722de3b08567a521e44da04b35403e643425ab0",
+    "docs/capabilities.md": "20c2f47968b632d866cacf20a2d1d8313108eab0b2414a6f884b48631f9c9944",
+    "docs/commands.md": "1c1d33091b5a4026fb64c1d68cd432657db8985516dc389b7a5508b5c5c60d23",
+    "docs/governed-local.md": "dc8b0e4f978b2644261c468bacbe6fb146474aff3f9dd39f11bdf7364c781afe",
+    "docs/native-contract.md": "6a94af0637830167423f8d0b07094cd45b845ee6c6031681f63d7e75551d8a79",
+    "docs/nehemiah-governance.md": "4871e2b4a6d96ab2dfaf1335a22ba0f2a0440bb1968e3f51a245677596bb8fcb",
+    "docs/nehemiah-implementation.md": "b635fa9bbfe3aaeaa5bcf78f350c1c3405863262ecaaf743e3cd8a151c6c321c",
+    "examples/structured-evidence/.gitignore": "df4cc9846b4783db55cb16a121f1eb6def4cf05ced38703c551264a5cdec69d2",
+    "examples/structured-evidence/README.md": "b373e9f4e06c0c5ac06464ac15981638dc3db54d3a9b7abca8fc5ea0747d4a52",
+    "examples/structured-evidence/fixture.json": "4c5aa2d52f93d47b772a9908745d5d0c5312da0f5d72e593f53cf989ec2eae93",
+    "examples/structured-evidence/input.json": "60097bf9dccd255b02733c11d64e36b5463bb1eb6f36efe13ec190cceb2c3033",
+    "examples/structured-evidence/prepare.py": "d163ec91e624e1257264313e66d1b6dac8ce9a15f9a6da0a2bb2f34c9f709090",
+    "examples/structured-evidence/python/collector.py": "d8e40df356c936b3dcc18813b89cb8796166b05cf3420171b178f7b4b4ca19de",
+    "examples/structured-evidence/schemas/input.json": "2ab5b6cad1d95e15a071526fc6d3a5d3527680670e3a14c2b2489da4915e43fc",
+    "examples/structured-evidence/schemas/output.json": "3ff3124ba941a5434624a9690835eb8be4250c2dc63572a36982a5caefefa4e5",
+    "examples/structured-evidence/tests/test_collectors.py": "8819b02f59bbf535fe57c837d57a7119730233e1d74ab4e985450a3bd6af5717",
+    "examples/structured-evidence/typescript/capability.mts": "dc94584b80d78b524f4b0d89badfcd09640186d89e745f1e6377c9968558ab48",
+    "examples/structured-evidence/typescript/cli.mjs": "858ca88c6d11447c2851d30eb32048c1631fcec4c18e0e4a3881701350e34167",
+    "examples/structured-evidence/typescript/package-lock.json": "3b8b74794da553419271de8dbe82a157d04a3c732fff32f220b964d1596dc8f7",
+    "examples/structured-evidence/typescript/package.json": "ceea29f765234f961434bab99b041f59eba3dc5f3f9e945dd6e3ef80d8f2d036",
+    "examples/structured-evidence/typescript/tsconfig.json": "8c72566c740baf98a6dd635d2bfa8a048354eae609f22f029cd05c0806ae91d0",
+    "sdk/completion-conformance.json": "08f978437aa4c51ed735a02550372d58201fe8ddbf11cc7466ebc5c77a137de7",
+    "sdk/cpp/README.md": "1f2d080d2f1de709117d3315d1f856c1051d94d71bd5a1dfb3d47248079ac73c",
+    "sdk/cpp/include/mas.hpp": "41d2e203e6f6adf662b27414a3ac8a7425eaba2ea3079c81e00e1c96eacf4541",
+    "sdk/cpp/tests/conformance.cpp": "600cb268941681d3f0d6a0f083cff95a0973fed4d8d1998c81cf06a3a6252bdb",
+    "sdk/go/README.md": "db0c0ae90bfcad00acf0ce20dd352228e6066a44bfea58ce5aa8db5c8d451774",
+    "sdk/go/mas.go": "86c403ad9eb6bf92d5f9bc2ad51b0c780b102759197abae27129b9a778f287f6",
+    "sdk/go/mas_test.go": "b94ec06e0f12c299f3312693a7fe95a4892a70ded13e0c84ce3309d9b03cdcd8",
+    "sdk/python/README.md": "774cf05055894bbbe5fe48379efc7583823f48eb275f74c458916be497297a96",
+    "sdk/python/mas_host/context.py": "c8865c5e1de81ba5efe954fca8a99fc2a74d32f964cb92f7529acb8eaf1fec8c",
+    "sdk/python/tests/test_context.py": "f1ff54993507c8c18249a592877c5ee6a470883c5e320bef0e0d2e6b58e8fc80",
+    "sdk/rust/README.md": "f174ec7d02cdac35032d02afc2ddc98065855d5ee95b39a35674ecfeb1c53078",
+    "sdk/rust/src/lib.rs": "6f6984ae6fc2caedd7fee92feddb8599fcf8b354c171ed21291af8d1016f0be2"
+  },
+  "scope": {
+    "E1": "Approved trusted-local structured command package, TypeScript/Python contract examples",
+    "E2_E3_N2": "First bounded closed-structured single-owner path; complete N2 remains pending"
+  },
+  "checks": {
+    "make_test": {
+      "status": "PASS",
+      "rust_passed": 245,
+      "rust_failed": 0,
+      "rust_ignored": 3,
+      "python_sdk_passed": 59,
+      "workload_passed": 14,
+      "privacy_adapter_passed": 15,
+      "privacy_harness_passed": 13,
+      "typescript_python_fixture_passed": 6,
+      "rustfmt": "PASS",
+      "clippy_warnings_denied": "PASS",
+      "go_vet_race": "PASS",
+      "cpp_conformance": "PASS"
+    },
+    "native_acceptance": {
+      "status": "PASS",
+      "passed": 1,
+      "preserved_child_steps": 7,
+      "protocol_calls": 1,
+      "unchanged_effect_receipts": 1
+    },
+    "final_test_only_a2a_adjustment": {
+      "status": "PASS",
+      "passed": 4,
+      "rustfmt": "PASS"
+    },
+    "actual_current_host_packages": {
+      "status": "PASS",
+      "languages": [
+        "typescript",
+        "python"
+      ],
+      "original_replay_unchanged": true,
+      "binary_sha256": "dfe73caa3090cf7aa0898496dd908ea7735411b216d04fa232e263c9d93c2d5d"
+    },
+    "node_provider": {
+      "status": "PASS",
+      "passed": 5
+    },
+    "unchanged_formal_models": {
+      "status": "PASS",
+      "checks": 86,
+      "positive_zero_error_searches": 16,
+      "intended_replayed_counterexamples": 70,
+      "new_governed_runtime_model_claim": false
+    }
+  },
+  "evidence_cut": {
+    "clean_rebuild": "Discarded cached intermediate core artifacts; CARGO_INCREMENTAL=0. The clean linked binary contains validate_worker_output.",
+    "full_workspace_source_changed_during_run": false,
+    "post_workspace_changes": [
+      "crates/mas-host-cli/tests/a2a.rs",
+      "docs/nehemiah-implementation.md"
+    ],
+    "post_workspace_change_scope": "Only final A2A test waits and documentation commit references; all production code identical. Final A2A and formatting checks rerun on implementation commit.",
+    "superseded": "Earlier preclean and startup-timeout runs are diagnostic only, not accepted evidence.",
+    "actual_neural_model_rerun": false,
+    "model_evidence": "Historical N1 model receipt remains bound to its original source in ../nehemiah-local-detector/."
+  },
+  "environment": {
+    "rust": "1.99.0",
+    "go": "1.24.0",
+    "python": "3.12.14",
+    "node": "24.19.0",
+    "typescript": "5.8.3",
+    "cpp": "GCC 13.3.0",
+    "spin": "6.5.1",
+    "GOFLAGS": "-buildvcs=false",
+    "CARGO_INCREMENTAL": "0"
+  },
+  "not_implemented_or_qualified": [
+    "Arbitrary free-text privacy safety",
+    "General N2 all-boundary enforcement",
+    "Managed/shared worker isolation or distributed policy linearisation",
+    "E4 deletion/expiry/restore",
+    "N3 cases and notifications",
+    "P0 capacity or population model quality"
+  ],
+  "evidence_files": {
+    "README.md": {
+      "sha256": "7e55e158f3c1055dd09374d0ac4542907d7f6598403289ed0d6ba15f0fdd9077",
+      "bytes": 1938
+    },
+    "a2a-final.json": {
+      "sha256": "cf2679eb6fa21d7b4afd75576a888ab95d9c1f2f5fcb6125c11cb55b52da8d6a",
+      "bytes": 630
+    },
+    "a2a-final.log": {
+      "sha256": "ff957d7933d33b7fd02a8227c7326d2072fe9cc9d8061eac405d6a002ddbf534",
+      "bytes": 792
+    },
+    "acceptance.log": {
+      "sha256": "ab35de566d1effa190abab03adefa07ec5474f11c7a86d9022eff901e85a9a83",
+      "bytes": 480
+    },
+    "e1-host-smoke.json": {
+      "sha256": "bda571f9eaaebc8e14dc64089f659b8080169f2390adc985394e4cb3de1a669c",
+      "bytes": 70201
+    },
+    "formal-checks.tar.xz": {
+      "sha256": "c678f8989018cade20accf3813286beb927e69db21e13b2e4351077bed2933d0",
+      "bytes": 208276
+    },
+    "formal-summary.json": {
+      "sha256": "de03417dd0d6c4c1faa8e63cdc0b0776877ba551e837f96f4a5d76c804f471e4",
+      "bytes": 34766
+    },
+    "provider.log": {
+      "sha256": "f01f078849d2b3f5cef397f951b9e82e25426dc28044f904314f331c00b910ae",
+      "bytes": 546
+    },
+    "review.json": {
+      "sha256": "9eb39ccd3c797991ec9013ad97e1cc1804ecabeed16b2ae26d76ba453dcf4355",
+      "bytes": 1623
+    },
+    "workspace-run.json": {
+      "sha256": "799455337146ea8eaec7e60075e2362514e2556e7e6d16557d76b32306745816",
+      "bytes": 27599
+    },
+    "workspace.log": {
+      "sha256": "fdab9202cc234fcfdb06abd4133a440b1e1bdb42ef7b6177ef9241d6a243e01c",
+      "bytes": 46146
+    }
+  }
+}

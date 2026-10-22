@@ -39,6 +39,9 @@ impl Inner {
         .map_err(error)
     }
     pub(super) fn freeze_revision(&self, plan: &Value, input: &Value) -> Result<()> {
+        if self.governance.is_some() {
+            return Err("governed-revision-unsupported".into());
+        }
         let db = lock(&self.journal)?;
         create(&db)?;
         let started: bool = db

@@ -47,6 +47,33 @@ def _success(response: dict[str, Any]) -> None:
         raise HostError("invalid host response")
 
 
+def _completed_output(response: dict[str, Any], effect_id: str,
+                      original: dict[str, Any]) -> dict[str, Any]:
+    if "completion" not in response:
+        return original
+    completion = response["completion"]
+    fields = {"version", "effect_id", "host_settlement", "external_execution",
+              "payload_disposition", "output"}
+    if (type(completion) is not dict or set(completion) != fields
+            or completion["version"] != "mas-governed-effect-completion/1"
+            or completion["effect_id"] != effect_id
+            or completion["host_settlement"] != "completed"
+            or completion["external_execution"] not in ("completed", "not-sent", "refused", "unknown")
+            or completion["payload_disposition"] not in ("available", "withheld")
+            or type(completion["output"]) is not dict):
+        raise HostError("invalid governed effect completion")
+    output = completion["output"]
+    if (completion["payload_disposition"] == "available"
+            and output.get("version") == "mas-governed-unavailable/1"):
+        raise HostError("invalid governed effect completion")
+    if completion["payload_disposition"] == "withheld" and output != {
+            "version": "mas-governed-unavailable/1",
+            "external_execution": completion["external_execution"],
+            "payload_disposition": "withheld"}:
+        raise HostError("invalid governed effect completion")
+    return output
+
+
 class Context:
     """One invocation's actor identity, original deadline and private channel."""
 
@@ -137,8 +164,9 @@ class Context:
                 or not response["invocation_id"]):
             self._uncertain = True
             raise EffectUncertain("effect admission requires reconciliation")
+        effect_id = response["invocation_id"]
         try:
-            result = execute(response["invocation_id"])
+            result = execute(effect_id)
             if not isinstance(result, EffectResult):
                 raise TypeError("effect callback must return EffectResult")
             output, evidence = encode(result.output), encode(result.evidence)
@@ -148,10 +176,13 @@ class Context:
             command = {"type": "effect_complete", "key": key,
                        "output": output, "evidence": evidence}
             dumps_object(command)
-            _success(self._exchange(command))
+            completion = self._exchange(command)
+            _success(completion)
         except BaseException as error:
             self._uncertain = True
             if isinstance(error, (KeyboardInterrupt, SystemExit)):
                 raise
             raise EffectUncertain("admitted effect requires reconciliation") from error
-        return output
+        # A successful host settlement is known even if its delivery projection
+        # is malformed or withheld. Never fall back to the local raw output.
+        return _completed_output(completion, effect_id, output)

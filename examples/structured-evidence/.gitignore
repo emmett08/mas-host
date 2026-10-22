@@ -1,0 +1,4 @@
+typescript/node_modules/
+typescript/dist/
+__pycache__/
+tests/__pycache__/

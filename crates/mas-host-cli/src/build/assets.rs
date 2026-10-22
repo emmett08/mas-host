@@ -77,6 +77,10 @@ pub(super) fn retain_binary(source: &Path, out: &Path) -> Result<(PathBuf, Strin
     retain(source, out, "artifacts", None, 0o500)
 }
 
+pub(super) fn retain_resource(source: &Path, out: &Path) -> Result<(PathBuf, String), String> {
+    retain(source, out, "resources", source.file_name(), 0o400)
+}
+
 fn retain(
     source: &Path,
     out: &Path,

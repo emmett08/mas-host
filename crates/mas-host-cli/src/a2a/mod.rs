@@ -1,7 +1,9 @@
 //! Optional A2A service boundary. The protocol and worker wire formats are unchanged.
 mod configuration;
+mod governed;
 mod http;
 use configuration::Configuration;
+use governed::Caller;
 use rusqlite::{params, Connection, OptionalExtension};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
@@ -105,8 +107,17 @@ impl Service {
         let mut db = Connection::open(db_path).map_err(error)?;
         db.busy_timeout(Duration::from_secs(2)).map_err(error)?;
         db.execute_batch("PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; CREATE TABLE IF NOT EXISTS metadata(singleton INTEGER PRIMARY KEY CHECK(singleton=1), fingerprint TEXT NOT NULL); CREATE TABLE IF NOT EXISTS tasks(id TEXT PRIMARY KEY,principal TEXT NOT NULL,message_id TEXT NOT NULL,content TEXT NOT NULL,agent TEXT NOT NULL,context TEXT NOT NULL,state TEXT NOT NULL,output TEXT,error TEXT,cancelled INTEGER NOT NULL DEFAULT 0,UNIQUE(principal,message_id));").map_err(error)?;
+        if configuration.governed.is_some() {
+            db.execute_batch("CREATE TABLE IF NOT EXISTS governed_tasks(id TEXT PRIMARY KEY, fingerprint TEXT NOT NULL)").map_err(error)?;
+        }
         let binary = std::fs::read(std::env::current_exe().map_err(error)?).map_err(error)?;
-        let fingerprint=digest(json!({"version":"mas-host-a2a/1","config":config,"bundle":bundle,"host_digest":digest(&binary)}).to_string().as_bytes());
+        let fingerprint = digest(
+            json!({"version":config["version"],"config":config,"bundle":bundle,
+            "governance":configuration.governed.as_ref().map(|g|g.identity()),
+            "host_digest":digest(&binary)})
+            .to_string()
+            .as_bytes(),
+        );
         let tx = db.transaction().map_err(error)?;
         let prior: Option<String> = tx
             .query_row(
@@ -141,7 +152,10 @@ impl Service {
             _owner: owner,
         }))
     }
-    fn task(&self, principal: &str, id: &str) -> RpcResult<Value> {
+    fn task(&self, principal: &Caller, id: &str) -> RpcResult<Value> {
+        principal
+            .current()
+            .map_err(|_| RpcError(-32001, "task_not_found"))?;
         let db = self
             .db
             .lock()
@@ -149,7 +163,7 @@ impl Service {
         let row = db
             .query_row(
                 "SELECT agent,context,state,output,cancelled FROM tasks WHERE id=? AND principal=?",
-                params![id, principal],
+                params![id, principal.owner],
                 |r| {
                     Ok((
                         r.get::<_, String>(0)?,
@@ -163,6 +177,21 @@ impl Service {
             .optional()
             .map_err(|_| RpcError(-32603, "storage_unavailable"))?
             .ok_or(RpcError(-32001, "task_not_found"))?;
+        if !principal.agents.contains(&row.0) {
+            return Err(RpcError(-32001, "task_not_found"));
+        }
+        if let Some(session) = &principal.session {
+            let fingerprint: String = db
+                .query_row(
+                    "SELECT fingerprint FROM governed_tasks WHERE id=?",
+                    [id],
+                    |r| r.get(0),
+                )
+                .map_err(|_| RpcError(-32001, "task_not_found"))?;
+            if fingerprint != session.fingerprint() {
+                return Err(RpcError(-32001, "task_not_found"));
+            }
+        }
         let wire = match row.2.as_str() {
             "submitted" => "TASK_STATE_SUBMITTED",
             "working" => "TASK_STATE_WORKING",
@@ -174,15 +203,25 @@ impl Service {
         if let Some(output) = row.3 {
             let output = mas_protocol_codec::parse_json(&output)
                 .map_err(|_| RpcError(-32603, "retained_output_invalid"))?;
+            principal
+                .delivery(&row.0, &output)
+                .map_err(|_| RpcError(-32001, "task_not_found"))?;
             task["artifacts"] = json!([{"artifactId":format!("{id}-result"),"name":"result","parts":[{"data":output,"mediaType":"application/json"}]}]);
+        }
+        if let Some(session) = &principal.session {
+            session
+                .check_status_value(&row.0, &task)
+                .map_err(|_| RpcError(-32001, "task_not_found"))?;
         }
         Ok(task)
     }
-    fn submit(self: &Arc<Self>, principal: &str, params: &Value) -> RpcResult<Value> {
+    fn submit(self: &Arc<Self>, principal: &Caller, params: &Value) -> RpcResult<Value> {
         fields(params, &["message"], &["configuration"])?;
         let message = &params["message"];
         fields(message, &["messageId", "role", "parts"], &["contextId"])?;
-        let message_id = text(message, "messageId")?;
+        let message_id = principal
+            .message_key(&text(message, "messageId")?)
+            .map_err(|_| RpcError(-32603, "handling_unavailable"))?;
         if message["role"] != "ROLE_USER" {
             return Err(RpcError(-32602, "invalid_message_role"));
         }
@@ -200,7 +239,7 @@ impl Service {
         let data = &parts[0]["data"];
         fields(data, &["agent", "input", "descriptorDigest"], &[])?;
         let agent = text(data, "agent")?;
-        if !self.configuration.principals[principal].1.contains(&agent) {
+        if !principal.agents.contains(&agent) {
             return Err(RpcError(-32001, "export_not_found"));
         }
         if data["descriptorDigest"] != self.descriptor["bundle_digest"] {
@@ -215,7 +254,10 @@ impl Service {
             .iter()
             .find(|v| v["name"] == agent)
             .unwrap();
-        mas_host_schema::validate(&contract["input_schema"], &data["input"])
+        let input = principal
+            .input(&agent, &data["input"])
+            .map_err(|_| RpcError(-32602, "input_withheld"))?;
+        mas_host_schema::validate(&contract["input_schema"], &input)
             .map_err(|_| RpcError(-32602, "input_contract_violation"))?;
         if let Some(configuration) = params.get("configuration") {
             fields(
@@ -237,14 +279,20 @@ impl Service {
                 return Err(RpcError(-32005, "content_type_not_supported"));
             }
         }
-        let content = params.to_string();
+        let content = principal
+            .content(params)
+            .map_err(|_| RpcError(-32603, "handling_unavailable"))?;
         let id = format!(
             "a2a-{}",
-            &digest(json!([principal, message_id]).to_string().as_bytes())[..56]
+            &digest(json!([principal.owner, message_id]).to_string().as_bytes())[..56]
         );
         let context = match message.get("contextId") {
             None => format!("context-{id}"),
-            Some(_) => text(message, "contextId")?,
+            Some(_) if principal.session.is_none() => text(message, "contextId")?,
+            Some(_) => {
+                text(message, "contextId")?;
+                format!("context-{id}")
+            }
         };
         let mut db = self
             .db
@@ -256,7 +304,7 @@ impl Service {
         let prior: Option<String> = tx
             .query_row(
                 "SELECT content FROM tasks WHERE principal=? AND message_id=?",
-                params![principal, message_id],
+                params![principal.owner, message_id],
                 |r| r.get(0),
             )
             .optional()
@@ -277,19 +325,29 @@ impl Service {
         {
             return Err(RpcError(-32603, "service_capacity_exhausted"));
         }
-        tx.execute("INSERT INTO tasks(id,principal,message_id,content,agent,context,state) VALUES(?,?,?,?,?,?,'submitted')",params![id,principal,message_id,content,agent,context]).map_err(|_|RpcError(-32603,"storage_unavailable"))?;
+        principal
+            .current()
+            .map_err(|_| RpcError(-32603, "authority_unavailable"))?;
+        tx.execute("INSERT INTO tasks(id,principal,message_id,content,agent,context,state) VALUES(?,?,?,?,?,?,'submitted')",params![id,principal.owner,message_id,content,agent,context]).map_err(|_|RpcError(-32603,"storage_unavailable"))?;
+        if let Some(session) = &principal.session {
+            tx.execute(
+                "INSERT INTO governed_tasks(id,fingerprint) VALUES(?,?)",
+                params![id, session.fingerprint()],
+            )
+            .map_err(|_| RpcError(-32603, "storage_unavailable"))?;
+        }
         tx.commit()
             .map_err(|_| RpcError(-32603, "admission_outcome_unknown_repeat_original_message"))?;
         self.active.fetch_add(1, Ordering::SeqCst);
         drop(db);
         let service = Arc::clone(self);
         let run_id = id.clone();
-        let input = data["input"].clone();
+        let caller = principal.clone();
         // Failure to create a thread retains submitted work. Restart marks it
         // unknown; identical requests never take the dispatch path again.
         if std::thread::Builder::new()
             .name("a2a-task".into())
-            .spawn(move || service.execute(&run_id, &agent, &input))
+            .spawn(move || service.execute(&run_id, &agent, &input, &caller))
             .is_err()
         {
             self.active.fetch_sub(1, Ordering::SeqCst);
@@ -299,7 +357,7 @@ impl Service {
         }
         Ok(json!({"task":self.task(principal,&id)?}))
     }
-    fn execute(&self, id: &str, agent: &str, input: &Value) {
+    fn execute(&self, id: &str, agent: &str, input: &Value, caller: &Caller) {
         struct Active<'a>(&'a AtomicUsize);
         impl Drop for Active<'_> {
             fn drop(&mut self) {
@@ -333,23 +391,29 @@ impl Service {
         } else {
             return;
         }
-        let outcome =
-            mas_host_core::Engine::open(&self.bundle, &run_state, id).and_then(|engine| {
-                // A cancellation may have arrived between the service transaction and
-                // journal creation. Transfer the durable intent before execution.
-                let cancelled = self
-                    .db
-                    .lock()
-                    .map_err(|_| "service lock poisoned".to_string())?
-                    .query_row("SELECT cancelled FROM tasks WHERE id=?", [id], |r| {
-                        r.get::<_, bool>(0)
-                    })
-                    .map_err(error)?;
-                if cancelled {
-                    mas_host_core::cancel(&run_state, id)?;
-                }
-                engine.run(agent, input)
-            });
+        let engine = match &caller.session {
+            Some(session) => {
+                mas_host_core::Engine::open_governed(&self.bundle, &run_state, id, session.clone())
+            }
+            None => mas_host_core::Engine::open(&self.bundle, &run_state, id),
+        };
+        let outcome = engine.and_then(|engine| {
+            caller.current()?;
+            // A cancellation may have arrived between the service transaction and
+            // journal creation. Transfer the durable intent before execution.
+            let cancelled = self
+                .db
+                .lock()
+                .map_err(|_| "service lock poisoned".to_string())?
+                .query_row("SELECT cancelled FROM tasks WHERE id=?", [id], |r| {
+                    r.get::<_, bool>(0)
+                })
+                .map_err(error)?;
+            if cancelled {
+                mas_host_core::cancel(&run_state, id)?;
+            }
+            engine.run(agent, input)
+        });
         // Do not infer no external effect from any error, deadline or lost reply.
         // Unknown remains explicitly operator-reconcilable in the core journal.
         if let Ok(db) = self.db.lock() {
@@ -358,7 +422,11 @@ impl Service {
                     let _=db.execute("UPDATE tasks SET state=CASE WHEN cancelled=0 THEN 'completed' ELSE 'unknown' END,output=CASE WHEN cancelled=0 THEN ? ELSE NULL END WHERE id=?",params![output.to_string(),id]);
                 }
                 Err(error) => {
-                    let diagnostic: String = error.chars().take(2048).collect();
+                    let diagnostic: String = if caller.session.is_some() {
+                        "governed_execution_unavailable".into()
+                    } else {
+                        error.chars().take(2048).collect()
+                    };
                     let _ = db.execute(
                         "UPDATE tasks SET state='unknown',error=? WHERE id=?",
                         params![diagnostic, id],
@@ -367,9 +435,13 @@ impl Service {
             }
         }
     }
-    fn cancel(&self, principal: &str, params: &Value) -> RpcResult<Value> {
+    fn cancel(&self, principal: &Caller, params: &Value) -> RpcResult<Value> {
+        principal
+            .current()
+            .map_err(|_| RpcError(-32001, "task_not_found"))?;
         fields(params, &["id"], &[])?;
         let id = text(params, "id")?;
+        self.task(principal, &id)?;
         let mut db = self
             .db
             .lock()
@@ -380,7 +452,7 @@ impl Service {
         let state: Option<String> = tx
             .query_row(
                 "SELECT state FROM tasks WHERE id=? AND principal=?",
-                params![id, principal],
+                params![id, principal.owner],
                 |r| r.get(0),
             )
             .optional()
@@ -391,7 +463,7 @@ impl Service {
         }
         tx.execute(
             "UPDATE tasks SET cancelled=1 WHERE id=? AND principal=?",
-            params![id, principal],
+            params![id, principal.owner],
         )
         .map_err(|_| RpcError(-32603, "storage_unavailable"))?;
         tx.commit()
@@ -404,9 +476,16 @@ impl Service {
             "cancellation_intent_recorded_poll_original_task",
         ))
     }
-    fn rpc(self: &Arc<Self>, principal: &str, request: &Value, extension: bool) -> Value {
-        let id = response_id(request);
+    fn rpc(self: &Arc<Self>, principal: &Caller, request: &Value, extension: bool) -> Value {
+        let id = if principal.session.is_some() && !governed::rpc_id_allowed(&request["id"]) {
+            Value::Null
+        } else {
+            response_id(request)
+        };
         let result = (|| -> RpcResult<Value> {
+            principal
+                .current()
+                .map_err(|_| RpcError(-32603, "authority_unavailable"))?;
             fields(request, &["jsonrpc", "id", "method"], &["params"])
                 .map_err(|_| RpcError(-32600, "invalid_request"))?;
             if request["jsonrpc"] != "2.0" || !(id.is_string() || id.is_i64() || id.is_u64()) {

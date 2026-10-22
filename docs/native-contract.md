@@ -94,7 +94,7 @@ access. A handler may send these commands:
 | `request` | `key`, `target`, `input` | `response`, `ok`, `output` or `error` |
 | `parallel` | `requests`: array of `{key,target,input}` | `response`, `ok`, `outputs` in input order or `error` |
 | `effect_begin` | `key`, `descriptor` | `effect`, `state: execute`, `invocation_id`; or `state: cached`, `output`; or `response`, `ok:false`, `error` |
-| `effect_complete` | `key`, `output`, `evidence` | `response`, `ok:true`; or `ok:false`, `error` |
+| `effect_complete` | `key`, `output`, `evidence` | `response`, `ok:true`, optional governed `completion`; or `ok:false`, `error` |
 | `complete` | `output` | Ends worker execution |
 | `error` | `message` | Ends worker execution as a failure |
 
@@ -112,6 +112,43 @@ The host records an effect intent and reserves a MAS call before replying
 both output and evidence. An interrupted admitted effect remains uncertain and
 prevents successful completion, even if application code catches its error.
 There is no automatic retry of an uncertain effect and no exactly-once claim.
+
+A governed host may replace the callback's output with an authoritative safe
+projection in its successful completion acknowledgement:
+
+```json
+{"type":"response","ok":true,"completion":{"version":"mas-governed-effect-completion/1","effect_id":"effect-1","host_settlement":"completed","external_execution":"completed","payload_disposition":"available","output":{"redacted":true}}}
+```
+
+`completion` is a closed object with exactly the six fields shown. Its version
+is `mas-governed-effect-completion/1`. `effect_id` must equal the identity granted
+by `effect_begin`, and `host_settlement` must be `completed`.
+`external_execution` is one of `completed`, `not-sent`, `refused` or `unknown`.
+This records external certainty separately from the host's completed settlement.
+`payload_disposition` is `available` or `withheld`, and `output` is an object.
+The SDK returns this host output immediately. Cached admission returns the same
+host-retained output without invoking the callback. When `completion` is absent,
+the SDK retains the ordinary behaviour of returning the callback's output.
+
+For `withheld`, `output` has exactly these three fields, with
+`external_execution` matching the completion envelope:
+
+```json
+{"version":"mas-governed-unavailable/1","external_execution":"completed","payload_disposition":"withheld"}
+```
+
+This marker is reserved and cannot be used as an `available` projection. The
+SDK returns it as an ordinary object. The host effect remains completed, and
+replay never grants another external execution. Built-in command and inference
+workers recognise the marker before outcome or schema processing and return
+the static error `effect completed; result unavailable under current handling policy`.
+This delivery failure does not convert known host settlement into uncertainty.
+An unknown version, extra or missing field, mismatched identity, invalid enum,
+non-object output or malformed withheld marker fails with
+`invalid governed effect completion`. SDKs neither expose the callback's raw
+output as a fallback nor retry the operation. Python raises `HostError` for
+this post-settlement validation failure without setting `EffectUncertain`.
+Loss of the acknowledgement itself still requires reconciliation.
 
 An operator may resolve an uncertain effect with a confirmed output and
 non-empty evidence using the administrative CLI. This records an operator

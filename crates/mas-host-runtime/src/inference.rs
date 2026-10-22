@@ -92,6 +92,7 @@ pub fn execute(
             let (output, evidence) = classify(provider.infer(&request), &schema)?;
             Ok((output, evidence))
         })?;
+        super::effect_result::require_available(&outcome)?;
         if outcome["certainty"] != "completed" || outcome["output_status"] != "valid" {
             return Err(format!(
                 "provider outcome: {} / {}{}",

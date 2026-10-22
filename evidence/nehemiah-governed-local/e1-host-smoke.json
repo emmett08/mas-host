@@ -1,0 +1,1557 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/1ad2c1661ab9/mas-host/examples/structured-evidence/prepare.py",
+        "--language",
+        "python",
+        "--destination",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/python"
+      ],
+      "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host",
+      "elapsed_seconds": 0.1856,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "/tmp/nehemiah-final-clean-e1-y64brdyj/python\n"
+    },
+    {
+      "argv": [
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/mas-host",
+        "check-capability",
+        "--declaration",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/python/capability.json"
+      ],
+      "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host",
+      "elapsed_seconds": 0.0116,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\n  \"approval_granted\": false,\n  \"package_id\": \"structured-deployment-python\",\n  \"sha256\": \"d14505c00e5fac55eb6d7465ff84568857e0cdb26b0b3b39e2f9bd9325208a28\",\n  \"version\": \"mas-capability-check/1\"\n}\n"
+    },
+    {
+      "argv": [
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/mas-host",
+        "build",
+        "--project",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/python",
+        "--sdk-root",
+        "/workspace/scratch/1ad2c1661ab9/mas-host",
+        "--capabilities",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/python/capabilities.json",
+        "--capability-policy",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/python/approvals.json"
+      ],
+      "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host",
+      "elapsed_seconds": 24.5537,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\n  \"bundle\": \"/tmp/nehemiah-final-clean-e1-y64brdyj/python/.mas/build/bundles/35a9fa979b0d04ffc69d335efa4adafc88861df56a910809b5eadbe4cfb5e2b3.json\",\n  \"status\": \"built\"\n}\n"
+    },
+    {
+      "argv": [
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/mas-host",
+        "run",
+        "--bundle",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/python/.mas/build/bundles/35a9fa979b0d04ffc69d335efa4adafc88861df56a910809b5eadbe4cfb5e2b3.json",
+        "--agent",
+        "evidence_python",
+        "--input",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/python/input.json",
+        "--state",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/python-state",
+        "--run",
+        "e1-final-clean-python",
+        "--capability-policy",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/python/approvals.json"
+      ],
+      "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host",
+      "elapsed_seconds": 35.1905,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\n  \"output\": {\n    \"assessment\": \"NOT_RUN\",\n    \"coverage\": {\n      \"omissions\": [\n        \"pods\",\n        \"images\",\n        \"events\",\n        \"logs\",\n        \"live-freshness\"\n      ],\n      \"scope\": \"one-deployment-point\"\n    },\n    \"facts\": {\n      \"available_replicas\": 2,\n      \"desired_replicas\": 3,\n      \"generation\": 4,\n      \"observed_generation\": 4,\n      \"ready_replicas\": 2,\n      \"replicas\": 3,\n      \"unavailable_replicas\": 1,\n      \"updated_replicas\": 3\n    },\n    \"freshness\": \"NOT_RUN\",\n    \"invocation_id\": \"eff-aa61ff61a149efbb5412997b1e735b6dfdedf3d95377dc891ff182b69bc256fd\",\n    \"operationId\": \"fixture-read-1\",\n    \"source\": \"synthetic-fixture/1\",\n    \"target\": {\n      \"cluster_uid\": \"fixture-cluster-001\",\n      \"kind\": \"Deployment\",\n      \"name\": \"web\",\n      \"namespace\": \"demo\",\n      \"namespace_uid\": \"fixture-namespace-001\",\n      \"resource_version\": \"17\",\n      \"uid\": \"fixture-deployment-001\"\n    },\n    \"version\": \"structured-deployment-observation/1\"\n  },\n  \"run_id\": \"e1-final-clean-python\",\n  \"status\": \"completed\"\n}\n"
+    },
+    {
+      "argv": [
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/mas-host",
+        "run",
+        "--bundle",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/python/.mas/build/bundles/35a9fa979b0d04ffc69d335efa4adafc88861df56a910809b5eadbe4cfb5e2b3.json",
+        "--agent",
+        "evidence_python",
+        "--input",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/python/input.json",
+        "--state",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/python-state",
+        "--run",
+        "e1-final-clean-python",
+        "--capability-policy",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/python/approvals.json"
+      ],
+      "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host",
+      "elapsed_seconds": 8.2347,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\n  \"output\": {\n    \"assessment\": \"NOT_RUN\",\n    \"coverage\": {\n      \"omissions\": [\n        \"pods\",\n        \"images\",\n        \"events\",\n        \"logs\",\n        \"live-freshness\"\n      ],\n      \"scope\": \"one-deployment-point\"\n    },\n    \"facts\": {\n      \"available_replicas\": 2,\n      \"desired_replicas\": 3,\n      \"generation\": 4,\n      \"observed_generation\": 4,\n      \"ready_replicas\": 2,\n      \"replicas\": 3,\n      \"unavailable_replicas\": 1,\n      \"updated_replicas\": 3\n    },\n    \"freshness\": \"NOT_RUN\",\n    \"invocation_id\": \"eff-aa61ff61a149efbb5412997b1e735b6dfdedf3d95377dc891ff182b69bc256fd\",\n    \"operationId\": \"fixture-read-1\",\n    \"source\": \"synthetic-fixture/1\",\n    \"target\": {\n      \"cluster_uid\": \"fixture-cluster-001\",\n      \"kind\": \"Deployment\",\n      \"name\": \"web\",\n      \"namespace\": \"demo\",\n      \"namespace_uid\": \"fixture-namespace-001\",\n      \"resource_version\": \"17\",\n      \"uid\": \"fixture-deployment-001\"\n    },\n    \"version\": \"structured-deployment-observation/1\"\n  },\n  \"run_id\": \"e1-final-clean-python\",\n  \"status\": \"completed\"\n}\n"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/1ad2c1661ab9/mas-host/examples/structured-evidence/prepare.py",
+        "--language",
+        "typescript",
+        "--destination",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/typescript"
+      ],
+      "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host",
+      "elapsed_seconds": 0.6747,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "/tmp/nehemiah-final-clean-e1-y64brdyj/typescript\n"
+    },
+    {
+      "argv": [
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/mas-host",
+        "check-capability",
+        "--declaration",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/typescript/capability.json"
+      ],
+      "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host",
+      "elapsed_seconds": 0.0105,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\n  \"approval_granted\": false,\n  \"package_id\": \"structured-deployment-typescript\",\n  \"sha256\": \"1ec7e69d830058d82d333d2fed376562321c1b510d6a42dc1058c81bb1b4964b\",\n  \"version\": \"mas-capability-check/1\"\n}\n"
+    },
+    {
+      "argv": [
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/mas-host",
+        "build",
+        "--project",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/typescript",
+        "--sdk-root",
+        "/workspace/scratch/1ad2c1661ab9/mas-host",
+        "--capabilities",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/typescript/capabilities.json",
+        "--capability-policy",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/typescript/approvals.json"
+      ],
+      "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host",
+      "elapsed_seconds": 41.1773,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\n  \"bundle\": \"/tmp/nehemiah-final-clean-e1-y64brdyj/typescript/.mas/build/bundles/7f05493d34c6f4372010488016d4b354b9ee79155fb57a648b5213a9dbad97ce.json\",\n  \"status\": \"built\"\n}\n"
+    },
+    {
+      "argv": [
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/mas-host",
+        "run",
+        "--bundle",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/typescript/.mas/build/bundles/7f05493d34c6f4372010488016d4b354b9ee79155fb57a648b5213a9dbad97ce.json",
+        "--agent",
+        "evidence_typescript",
+        "--input",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/typescript/input.json",
+        "--state",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/typescript-state",
+        "--run",
+        "e1-final-clean-typescript",
+        "--capability-policy",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/typescript/approvals.json"
+      ],
+      "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host",
+      "elapsed_seconds": 21.1718,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\n  \"output\": {\n    \"assessment\": \"NOT_RUN\",\n    \"coverage\": {\n      \"omissions\": [\n        \"pods\",\n        \"images\",\n        \"events\",\n        \"logs\",\n        \"live-freshness\"\n      ],\n      \"scope\": \"one-deployment-point\"\n    },\n    \"facts\": {\n      \"available_replicas\": 2,\n      \"desired_replicas\": 3,\n      \"generation\": 4,\n      \"observed_generation\": 4,\n      \"ready_replicas\": 2,\n      \"replicas\": 3,\n      \"unavailable_replicas\": 1,\n      \"updated_replicas\": 3\n    },\n    \"freshness\": \"NOT_RUN\",\n    \"invocation_id\": \"eff-ec5f3c6aa90ddef9aabc92873c5a2efa0e6e61a664eae863b420aca7240b7f50\",\n    \"operationId\": \"fixture-read-1\",\n    \"source\": \"synthetic-fixture/1\",\n    \"target\": {\n      \"cluster_uid\": \"fixture-cluster-001\",\n      \"kind\": \"Deployment\",\n      \"name\": \"web\",\n      \"namespace\": \"demo\",\n      \"namespace_uid\": \"fixture-namespace-001\",\n      \"resource_version\": \"17\",\n      \"uid\": \"fixture-deployment-001\"\n    },\n    \"version\": \"structured-deployment-observation/1\"\n  },\n  \"run_id\": \"e1-final-clean-typescript\",\n  \"status\": \"completed\"\n}\n"
+    },
+    {
+      "argv": [
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/mas-host",
+        "run",
+        "--bundle",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/typescript/.mas/build/bundles/7f05493d34c6f4372010488016d4b354b9ee79155fb57a648b5213a9dbad97ce.json",
+        "--agent",
+        "evidence_typescript",
+        "--input",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/typescript/input.json",
+        "--state",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/typescript-state",
+        "--run",
+        "e1-final-clean-typescript",
+        "--capability-policy",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/typescript/approvals.json"
+      ],
+      "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host",
+      "elapsed_seconds": 20.9151,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\n  \"output\": {\n    \"assessment\": \"NOT_RUN\",\n    \"coverage\": {\n      \"omissions\": [\n        \"pods\",\n        \"images\",\n        \"events\",\n        \"logs\",\n        \"live-freshness\"\n      ],\n      \"scope\": \"one-deployment-point\"\n    },\n    \"facts\": {\n      \"available_replicas\": 2,\n      \"desired_replicas\": 3,\n      \"generation\": 4,\n      \"observed_generation\": 4,\n      \"ready_replicas\": 2,\n      \"replicas\": 3,\n      \"unavailable_replicas\": 1,\n      \"updated_replicas\": 3\n    },\n    \"freshness\": \"NOT_RUN\",\n    \"invocation_id\": \"eff-ec5f3c6aa90ddef9aabc92873c5a2efa0e6e61a664eae863b420aca7240b7f50\",\n    \"operationId\": \"fixture-read-1\",\n    \"source\": \"synthetic-fixture/1\",\n    \"target\": {\n      \"cluster_uid\": \"fixture-cluster-001\",\n      \"kind\": \"Deployment\",\n      \"name\": \"web\",\n      \"namespace\": \"demo\",\n      \"namespace_uid\": \"fixture-namespace-001\",\n      \"resource_version\": \"17\",\n      \"uid\": \"fixture-deployment-001\"\n    },\n    \"version\": \"structured-deployment-observation/1\"\n  },\n  \"run_id\": \"e1-final-clean-typescript\",\n  \"status\": \"completed\"\n}\n"
+    }
+  ],
+  "comparison": {
+    "distinct_admitted_invocation_ids": true,
+    "equal_except_invocation_id": true,
+    "normalised_output": {
+      "assessment": "NOT_RUN",
+      "coverage": {
+        "omissions": [
+          "pods",
+          "images",
+          "events",
+          "logs",
+          "live-freshness"
+        ],
+        "scope": "one-deployment-point"
+      },
+      "facts": {
+        "available_replicas": 2,
+        "desired_replicas": 3,
+        "generation": 4,
+        "observed_generation": 4,
+        "ready_replicas": 2,
+        "replicas": 3,
+        "unavailable_replicas": 1,
+        "updated_replicas": 3
+      },
+      "freshness": "NOT_RUN",
+      "operationId": "fixture-read-1",
+      "source": "synthetic-fixture/1",
+      "target": {
+        "cluster_uid": "fixture-cluster-001",
+        "kind": "Deployment",
+        "name": "web",
+        "namespace": "demo",
+        "namespace_uid": "fixture-namespace-001",
+        "resource_version": "17",
+        "uid": "fixture-deployment-001"
+      },
+      "version": "structured-deployment-observation/1"
+    }
+  },
+  "compiled_typescript": {
+    "build_repeated": false,
+    "path": "examples/structured-evidence/typescript/dist/capability.mjs",
+    "sha256": "fefd63aa2675773c060133b406c1859865399cc4cb55753c5685bd5fc0419712",
+    "unit_tests_repeated": false
+  },
+  "completed_at": "2026-10-22T16:41:21.340163+00:00",
+  "created_at": "2026-10-22T16:38:48.329581+00:00",
+  "fixture_root": "/tmp/nehemiah-final-clean-e1-y64brdyj",
+  "git_dirty": true,
+  "git_head": "a675ba828468d117d6c66389b62c1b4da7d99743",
+  "host": {
+    "copied_file_mode": "0o555",
+    "copied_path": "/tmp/nehemiah-final-clean-e1-y64brdyj/mas-host",
+    "copy_immutable_for_run": true,
+    "sha256": "dfe73caa3090cf7aa0898496dd908ea7735411b216d04fa232e263c9d93c2d5d",
+    "source_binary_equal_at_start": true,
+    "source_path": "/workspace/scratch/1ad2c1661ab9/mas-host/target/debug/mas-host"
+  },
+  "packages": {
+    "python": {
+      "agent": "evidence_python",
+      "assertions": {
+        "assessment_and_freshness_remain_NOT_RUN": true,
+        "completed": true,
+        "exact_original_replay_output_equal": true,
+        "one_completed_effect": true,
+        "one_completed_request": true,
+        "operation_identity_preserved": true,
+        "output_invocation_id_equals_admitted_effect_id": true,
+        "retained_steps_unchanged_on_replay": true,
+        "target_preserved": true
+      },
+      "bundle": "/tmp/nehemiah-final-clean-e1-y64brdyj/python/.mas/build/bundles/35a9fa979b0d04ffc69d335efa4adafc88861df56a910809b5eadbe4cfb5e2b3.json",
+      "bundle_file_sha256": "35a9fa979b0d04ffc69d335efa4adafc88861df56a910809b5eadbe4cfb5e2b3",
+      "check_capability": {
+        "approval_granted": false,
+        "package_id": "structured-deployment-python",
+        "sha256": "d14505c00e5fac55eb6d7465ff84568857e0cdb26b0b3b39e2f9bd9325208a28",
+        "version": "mas-capability-check/1"
+      },
+      "initial": {
+        "output": {
+          "assessment": "NOT_RUN",
+          "coverage": {
+            "omissions": [
+              "pods",
+              "images",
+              "events",
+              "logs",
+              "live-freshness"
+            ],
+            "scope": "one-deployment-point"
+          },
+          "facts": {
+            "available_replicas": 2,
+            "desired_replicas": 3,
+            "generation": 4,
+            "observed_generation": 4,
+            "ready_replicas": 2,
+            "replicas": 3,
+            "unavailable_replicas": 1,
+            "updated_replicas": 3
+          },
+          "freshness": "NOT_RUN",
+          "invocation_id": "eff-aa61ff61a149efbb5412997b1e735b6dfdedf3d95377dc891ff182b69bc256fd",
+          "operationId": "fixture-read-1",
+          "source": "synthetic-fixture/1",
+          "target": {
+            "cluster_uid": "fixture-cluster-001",
+            "kind": "Deployment",
+            "name": "web",
+            "namespace": "demo",
+            "namespace_uid": "fixture-namespace-001",
+            "resource_version": "17",
+            "uid": "fixture-deployment-001"
+          },
+          "version": "structured-deployment-observation/1"
+        },
+        "run_id": "e1-final-clean-python",
+        "status": "completed"
+      },
+      "package_declaration_sha256": "d14505c00e5fac55eb6d7465ff84568857e0cdb26b0b3b39e2f9bd9325208a28",
+      "project": "/tmp/nehemiah-final-clean-e1-y64brdyj/python",
+      "replay": {
+        "output": {
+          "assessment": "NOT_RUN",
+          "coverage": {
+            "omissions": [
+              "pods",
+              "images",
+              "events",
+              "logs",
+              "live-freshness"
+            ],
+            "scope": "one-deployment-point"
+          },
+          "facts": {
+            "available_replicas": 2,
+            "desired_replicas": 3,
+            "generation": 4,
+            "observed_generation": 4,
+            "ready_replicas": 2,
+            "replicas": 3,
+            "unavailable_replicas": 1,
+            "updated_replicas": 3
+          },
+          "freshness": "NOT_RUN",
+          "invocation_id": "eff-aa61ff61a149efbb5412997b1e735b6dfdedf3d95377dc891ff182b69bc256fd",
+          "operationId": "fixture-read-1",
+          "source": "synthetic-fixture/1",
+          "target": {
+            "cluster_uid": "fixture-cluster-001",
+            "kind": "Deployment",
+            "name": "web",
+            "namespace": "demo",
+            "namespace_uid": "fixture-namespace-001",
+            "resource_version": "17",
+            "uid": "fixture-deployment-001"
+          },
+          "version": "structured-deployment-observation/1"
+        },
+        "run_id": "e1-final-clean-python",
+        "status": "completed"
+      },
+      "retained_steps_after": [
+        {
+          "actor": "evidence_python",
+          "evidence": "{\"adapter\":\"mas-command/1\",\"execution\":\"completed\",\"execution_scope\":\"command-process\",\"exit_code\":0,\"invocation_id\":\"eff-aa61ff61a149efbb5412997b1e735b6dfdedf3d95377dc891ff182b69bc256fd\",\"stdout_bytes\":716,\"stdout_sha256\":\"b41764be45027c3f443e388b0e86d4b076ee5b29c88aeee398acb1322ecb7e92\"}",
+          "id": "eff-aa61ff61a149efbb5412997b1e735b6dfdedf3d95377dc891ff182b69bc256fd",
+          "input": "{\"configuration_sha256\":\"08e92cd8dfa44c183eec2a6c85043b7abdc8da3f9faa0eae4f01bba973a70876\",\"format\":\"mas-command/2\",\"input\":{\"operationId\":\"fixture-read-1\",\"target\":{\"cluster_uid\":\"fixture-cluster-001\",\"kind\":\"Deployment\",\"name\":\"web\",\"namespace\":\"demo\",\"namespace_uid\":\"fixture-namespace-001\",\"resource_version\":\"17\",\"uid\":\"fixture-deployment-001\"}}}",
+          "kind": "effect",
+          "output": "{\"output\":{\"assessment\":\"NOT_RUN\",\"coverage\":{\"omissions\":[\"pods\",\"images\",\"events\",\"logs\",\"live-freshness\"],\"scope\":\"one-deployment-point\"},\"facts\":{\"available_replicas\":2,\"desired_replicas\":3,\"generation\":4,\"observed_generation\":4,\"ready_replicas\":2,\"replicas\":3,\"unavailable_replicas\":1,\"updated_replicas\":3},\"freshness\":\"NOT_RUN\",\"invocation_id\":\"eff-aa61ff61a149efbb5412997b1e735b6dfdedf3d95377dc891ff182b69bc256fd\",\"operationId\":\"fixture-read-1\",\"source\":\"synthetic-fixture/1\",\"target\":{\"cluster_uid\":\"fixture-cluster-001\",\"kind\":\"Deployment\",\"name\":\"web\",\"namespace\":\"demo\",\"namespace_uid\":\"fixture-namespace-001\",\"resource_version\":\"17\",\"uid\":\"fixture-deployment-001\"},\"version\":\"structured-deployment-observation/1\"},\"status\":\"completed\"}",
+          "parent": "task-344f8c34e051fb3d1a3a68e2509606ccae2e4515ee170b342f36a2524532ca92",
+          "state": "completed",
+          "target": ""
+        },
+        {
+          "actor": "client",
+          "evidence": null,
+          "id": "task-344f8c34e051fb3d1a3a68e2509606ccae2e4515ee170b342f36a2524532ca92",
+          "input": "{\"operationId\":\"fixture-read-1\",\"target\":{\"cluster_uid\":\"fixture-cluster-001\",\"kind\":\"Deployment\",\"name\":\"web\",\"namespace\":\"demo\",\"namespace_uid\":\"fixture-namespace-001\",\"resource_version\":\"17\",\"uid\":\"fixture-deployment-001\"}}",
+          "kind": "request",
+          "output": "{\"assessment\":\"NOT_RUN\",\"coverage\":{\"omissions\":[\"pods\",\"images\",\"events\",\"logs\",\"live-freshness\"],\"scope\":\"one-deployment-point\"},\"facts\":{\"available_replicas\":2,\"desired_replicas\":3,\"generation\":4,\"observed_generation\":4,\"ready_replicas\":2,\"replicas\":3,\"unavailable_replicas\":1,\"updated_replicas\":3},\"freshness\":\"NOT_RUN\",\"invocation_id\":\"eff-aa61ff61a149efbb5412997b1e735b6dfdedf3d95377dc891ff182b69bc256fd\",\"operationId\":\"fixture-read-1\",\"source\":\"synthetic-fixture/1\",\"target\":{\"cluster_uid\":\"fixture-cluster-001\",\"kind\":\"Deployment\",\"name\":\"web\",\"namespace\":\"demo\",\"namespace_uid\":\"fixture-namespace-001\",\"resource_version\":\"17\",\"uid\":\"fixture-deployment-001\"},\"version\":\"structured-deployment-observation/1\"}",
+          "parent": "",
+          "state": "completed",
+          "target": "evidence_python"
+        }
+      ],
+      "retained_steps_before": [
+        {
+          "actor": "evidence_python",
+          "evidence": "{\"adapter\":\"mas-command/1\",\"execution\":\"completed\",\"execution_scope\":\"command-process\",\"exit_code\":0,\"invocation_id\":\"eff-aa61ff61a149efbb5412997b1e735b6dfdedf3d95377dc891ff182b69bc256fd\",\"stdout_bytes\":716,\"stdout_sha256\":\"b41764be45027c3f443e388b0e86d4b076ee5b29c88aeee398acb1322ecb7e92\"}",
+          "id": "eff-aa61ff61a149efbb5412997b1e735b6dfdedf3d95377dc891ff182b69bc256fd",
+          "input": "{\"configuration_sha256\":\"08e92cd8dfa44c183eec2a6c85043b7abdc8da3f9faa0eae4f01bba973a70876\",\"format\":\"mas-command/2\",\"input\":{\"operationId\":\"fixture-read-1\",\"target\":{\"cluster_uid\":\"fixture-cluster-001\",\"kind\":\"Deployment\",\"name\":\"web\",\"namespace\":\"demo\",\"namespace_uid\":\"fixture-namespace-001\",\"resource_version\":\"17\",\"uid\":\"fixture-deployment-001\"}}}",
+          "kind": "effect",
+          "output": "{\"output\":{\"assessment\":\"NOT_RUN\",\"coverage\":{\"omissions\":[\"pods\",\"images\",\"events\",\"logs\",\"live-freshness\"],\"scope\":\"one-deployment-point\"},\"facts\":{\"available_replicas\":2,\"desired_replicas\":3,\"generation\":4,\"observed_generation\":4,\"ready_replicas\":2,\"replicas\":3,\"unavailable_replicas\":1,\"updated_replicas\":3},\"freshness\":\"NOT_RUN\",\"invocation_id\":\"eff-aa61ff61a149efbb5412997b1e735b6dfdedf3d95377dc891ff182b69bc256fd\",\"operationId\":\"fixture-read-1\",\"source\":\"synthetic-fixture/1\",\"target\":{\"cluster_uid\":\"fixture-cluster-001\",\"kind\":\"Deployment\",\"name\":\"web\",\"namespace\":\"demo\",\"namespace_uid\":\"fixture-namespace-001\",\"resource_version\":\"17\",\"uid\":\"fixture-deployment-001\"},\"version\":\"structured-deployment-observation/1\"},\"status\":\"completed\"}",
+          "parent": "task-344f8c34e051fb3d1a3a68e2509606ccae2e4515ee170b342f36a2524532ca92",
+          "state": "completed",
+          "target": ""
+        },
+        {
+          "actor": "client",
+          "evidence": null,
+          "id": "task-344f8c34e051fb3d1a3a68e2509606ccae2e4515ee170b342f36a2524532ca92",
+          "input": "{\"operationId\":\"fixture-read-1\",\"target\":{\"cluster_uid\":\"fixture-cluster-001\",\"kind\":\"Deployment\",\"name\":\"web\",\"namespace\":\"demo\",\"namespace_uid\":\"fixture-namespace-001\",\"resource_version\":\"17\",\"uid\":\"fixture-deployment-001\"}}",
+          "kind": "request",
+          "output": "{\"assessment\":\"NOT_RUN\",\"coverage\":{\"omissions\":[\"pods\",\"images\",\"events\",\"logs\",\"live-freshness\"],\"scope\":\"one-deployment-point\"},\"facts\":{\"available_replicas\":2,\"desired_replicas\":3,\"generation\":4,\"observed_generation\":4,\"ready_replicas\":2,\"replicas\":3,\"unavailable_replicas\":1,\"updated_replicas\":3},\"freshness\":\"NOT_RUN\",\"invocation_id\":\"eff-aa61ff61a149efbb5412997b1e735b6dfdedf3d95377dc891ff182b69bc256fd\",\"operationId\":\"fixture-read-1\",\"source\":\"synthetic-fixture/1\",\"target\":{\"cluster_uid\":\"fixture-cluster-001\",\"kind\":\"Deployment\",\"name\":\"web\",\"namespace\":\"demo\",\"namespace_uid\":\"fixture-namespace-001\",\"resource_version\":\"17\",\"uid\":\"fixture-deployment-001\"},\"version\":\"structured-deployment-observation/1\"}",
+          "parent": "",
+          "state": "completed",
+          "target": "evidence_python"
+        }
+      ],
+      "run_id": "e1-final-clean-python",
+      "state": "/tmp/nehemiah-final-clean-e1-y64brdyj/python-state"
+    },
+    "typescript": {
+      "agent": "evidence_typescript",
+      "assertions": {
+        "assessment_and_freshness_remain_NOT_RUN": true,
+        "completed": true,
+        "exact_original_replay_output_equal": true,
+        "one_completed_effect": true,
+        "one_completed_request": true,
+        "operation_identity_preserved": true,
+        "output_invocation_id_equals_admitted_effect_id": true,
+        "retained_steps_unchanged_on_replay": true,
+        "target_preserved": true
+      },
+      "bundle": "/tmp/nehemiah-final-clean-e1-y64brdyj/typescript/.mas/build/bundles/7f05493d34c6f4372010488016d4b354b9ee79155fb57a648b5213a9dbad97ce.json",
+      "bundle_file_sha256": "7f05493d34c6f4372010488016d4b354b9ee79155fb57a648b5213a9dbad97ce",
+      "check_capability": {
+        "approval_granted": false,
+        "package_id": "structured-deployment-typescript",
+        "sha256": "1ec7e69d830058d82d333d2fed376562321c1b510d6a42dc1058c81bb1b4964b",
+        "version": "mas-capability-check/1"
+      },
+      "initial": {
+        "output": {
+          "assessment": "NOT_RUN",
+          "coverage": {
+            "omissions": [
+              "pods",
+              "images",
+              "events",
+              "logs",
+              "live-freshness"
+            ],
+            "scope": "one-deployment-point"
+          },
+          "facts": {
+            "available_replicas": 2,
+            "desired_replicas": 3,
+            "generation": 4,
+            "observed_generation": 4,
+            "ready_replicas": 2,
+            "replicas": 3,
+            "unavailable_replicas": 1,
+            "updated_replicas": 3
+          },
+          "freshness": "NOT_RUN",
+          "invocation_id": "eff-ec5f3c6aa90ddef9aabc92873c5a2efa0e6e61a664eae863b420aca7240b7f50",
+          "operationId": "fixture-read-1",
+          "source": "synthetic-fixture/1",
+          "target": {
+            "cluster_uid": "fixture-cluster-001",
+            "kind": "Deployment",
+            "name": "web",
+            "namespace": "demo",
+            "namespace_uid": "fixture-namespace-001",
+            "resource_version": "17",
+            "uid": "fixture-deployment-001"
+          },
+          "version": "structured-deployment-observation/1"
+        },
+        "run_id": "e1-final-clean-typescript",
+        "status": "completed"
+      },
+      "package_declaration_sha256": "1ec7e69d830058d82d333d2fed376562321c1b510d6a42dc1058c81bb1b4964b",
+      "project": "/tmp/nehemiah-final-clean-e1-y64brdyj/typescript",
+      "replay": {
+        "output": {
+          "assessment": "NOT_RUN",
+          "coverage": {
+            "omissions": [
+              "pods",
+              "images",
+              "events",
+              "logs",
+              "live-freshness"
+            ],
+            "scope": "one-deployment-point"
+          },
+          "facts": {
+            "available_replicas": 2,
+            "desired_replicas": 3,
+            "generation": 4,
+            "observed_generation": 4,
+            "ready_replicas": 2,
+            "replicas": 3,
+            "unavailable_replicas": 1,
+            "updated_replicas": 3
+          },
+          "freshness": "NOT_RUN",
+          "invocation_id": "eff-ec5f3c6aa90ddef9aabc92873c5a2efa0e6e61a664eae863b420aca7240b7f50",
+          "operationId": "fixture-read-1",
+          "source": "synthetic-fixture/1",
+          "target": {
+            "cluster_uid": "fixture-cluster-001",
+            "kind": "Deployment",
+            "name": "web",
+            "namespace": "demo",
+            "namespace_uid": "fixture-namespace-001",
+            "resource_version": "17",
+            "uid": "fixture-deployment-001"
+          },
+          "version": "structured-deployment-observation/1"
+        },
+        "run_id": "e1-final-clean-typescript",
+        "status": "completed"
+      },
+      "retained_steps_after": [
+        {
+          "actor": "evidence_typescript",
+          "evidence": "{\"adapter\":\"mas-command/1\",\"execution\":\"completed\",\"execution_scope\":\"command-process\",\"exit_code\":0,\"invocation_id\":\"eff-ec5f3c6aa90ddef9aabc92873c5a2efa0e6e61a664eae863b420aca7240b7f50\",\"stdout_bytes\":716,\"stdout_sha256\":\"27a825e590de7045e73030eacf82f65d5813babeee2eff516f8a298947e15e5c\"}",
+          "id": "eff-ec5f3c6aa90ddef9aabc92873c5a2efa0e6e61a664eae863b420aca7240b7f50",
+          "input": "{\"configuration_sha256\":\"67f86f70a34fa0042d641253f53560caa2c9b7004e2e1c287a8a092dbe464e3f\",\"format\":\"mas-command/2\",\"input\":{\"operationId\":\"fixture-read-1\",\"target\":{\"cluster_uid\":\"fixture-cluster-001\",\"kind\":\"Deployment\",\"name\":\"web\",\"namespace\":\"demo\",\"namespace_uid\":\"fixture-namespace-001\",\"resource_version\":\"17\",\"uid\":\"fixture-deployment-001\"}}}",
+          "kind": "effect",
+          "output": "{\"output\":{\"assessment\":\"NOT_RUN\",\"coverage\":{\"omissions\":[\"pods\",\"images\",\"events\",\"logs\",\"live-freshness\"],\"scope\":\"one-deployment-point\"},\"facts\":{\"available_replicas\":2,\"desired_replicas\":3,\"generation\":4,\"observed_generation\":4,\"ready_replicas\":2,\"replicas\":3,\"unavailable_replicas\":1,\"updated_replicas\":3},\"freshness\":\"NOT_RUN\",\"invocation_id\":\"eff-ec5f3c6aa90ddef9aabc92873c5a2efa0e6e61a664eae863b420aca7240b7f50\",\"operationId\":\"fixture-read-1\",\"source\":\"synthetic-fixture/1\",\"target\":{\"cluster_uid\":\"fixture-cluster-001\",\"kind\":\"Deployment\",\"name\":\"web\",\"namespace\":\"demo\",\"namespace_uid\":\"fixture-namespace-001\",\"resource_version\":\"17\",\"uid\":\"fixture-deployment-001\"},\"version\":\"structured-deployment-observation/1\"},\"status\":\"completed\"}",
+          "parent": "task-3958439531f5ef84c091a2536239ed37bffb54dfa2a7d9ba304d31ab506f4820",
+          "state": "completed",
+          "target": ""
+        },
+        {
+          "actor": "client",
+          "evidence": null,
+          "id": "task-3958439531f5ef84c091a2536239ed37bffb54dfa2a7d9ba304d31ab506f4820",
+          "input": "{\"operationId\":\"fixture-read-1\",\"target\":{\"cluster_uid\":\"fixture-cluster-001\",\"kind\":\"Deployment\",\"name\":\"web\",\"namespace\":\"demo\",\"namespace_uid\":\"fixture-namespace-001\",\"resource_version\":\"17\",\"uid\":\"fixture-deployment-001\"}}",
+          "kind": "request",
+          "output": "{\"assessment\":\"NOT_RUN\",\"coverage\":{\"omissions\":[\"pods\",\"images\",\"events\",\"logs\",\"live-freshness\"],\"scope\":\"one-deployment-point\"},\"facts\":{\"available_replicas\":2,\"desired_replicas\":3,\"generation\":4,\"observed_generation\":4,\"ready_replicas\":2,\"replicas\":3,\"unavailable_replicas\":1,\"updated_replicas\":3},\"freshness\":\"NOT_RUN\",\"invocation_id\":\"eff-ec5f3c6aa90ddef9aabc92873c5a2efa0e6e61a664eae863b420aca7240b7f50\",\"operationId\":\"fixture-read-1\",\"source\":\"synthetic-fixture/1\",\"target\":{\"cluster_uid\":\"fixture-cluster-001\",\"kind\":\"Deployment\",\"name\":\"web\",\"namespace\":\"demo\",\"namespace_uid\":\"fixture-namespace-001\",\"resource_version\":\"17\",\"uid\":\"fixture-deployment-001\"},\"version\":\"structured-deployment-observation/1\"}",
+          "parent": "",
+          "state": "completed",
+          "target": "evidence_typescript"
+        }
+      ],
+      "retained_steps_before": [
+        {
+          "actor": "evidence_typescript",
+          "evidence": "{\"adapter\":\"mas-command/1\",\"execution\":\"completed\",\"execution_scope\":\"command-process\",\"exit_code\":0,\"invocation_id\":\"eff-ec5f3c6aa90ddef9aabc92873c5a2efa0e6e61a664eae863b420aca7240b7f50\",\"stdout_bytes\":716,\"stdout_sha256\":\"27a825e590de7045e73030eacf82f65d5813babeee2eff516f8a298947e15e5c\"}",
+          "id": "eff-ec5f3c6aa90ddef9aabc92873c5a2efa0e6e61a664eae863b420aca7240b7f50",
+          "input": "{\"configuration_sha256\":\"67f86f70a34fa0042d641253f53560caa2c9b7004e2e1c287a8a092dbe464e3f\",\"format\":\"mas-command/2\",\"input\":{\"operationId\":\"fixture-read-1\",\"target\":{\"cluster_uid\":\"fixture-cluster-001\",\"kind\":\"Deployment\",\"name\":\"web\",\"namespace\":\"demo\",\"namespace_uid\":\"fixture-namespace-001\",\"resource_version\":\"17\",\"uid\":\"fixture-deployment-001\"}}}",
+          "kind": "effect",
+          "output": "{\"output\":{\"assessment\":\"NOT_RUN\",\"coverage\":{\"omissions\":[\"pods\",\"images\",\"events\",\"logs\",\"live-freshness\"],\"scope\":\"one-deployment-point\"},\"facts\":{\"available_replicas\":2,\"desired_replicas\":3,\"generation\":4,\"observed_generation\":4,\"ready_replicas\":2,\"replicas\":3,\"unavailable_replicas\":1,\"updated_replicas\":3},\"freshness\":\"NOT_RUN\",\"invocation_id\":\"eff-ec5f3c6aa90ddef9aabc92873c5a2efa0e6e61a664eae863b420aca7240b7f50\",\"operationId\":\"fixture-read-1\",\"source\":\"synthetic-fixture/1\",\"target\":{\"cluster_uid\":\"fixture-cluster-001\",\"kind\":\"Deployment\",\"name\":\"web\",\"namespace\":\"demo\",\"namespace_uid\":\"fixture-namespace-001\",\"resource_version\":\"17\",\"uid\":\"fixture-deployment-001\"},\"version\":\"structured-deployment-observation/1\"},\"status\":\"completed\"}",
+          "parent": "task-3958439531f5ef84c091a2536239ed37bffb54dfa2a7d9ba304d31ab506f4820",
+          "state": "completed",
+          "target": ""
+        },
+        {
+          "actor": "client",
+          "evidence": null,
+          "id": "task-3958439531f5ef84c091a2536239ed37bffb54dfa2a7d9ba304d31ab506f4820",
+          "input": "{\"operationId\":\"fixture-read-1\",\"target\":{\"cluster_uid\":\"fixture-cluster-001\",\"kind\":\"Deployment\",\"name\":\"web\",\"namespace\":\"demo\",\"namespace_uid\":\"fixture-namespace-001\",\"resource_version\":\"17\",\"uid\":\"fixture-deployment-001\"}}",
+          "kind": "request",
+          "output": "{\"assessment\":\"NOT_RUN\",\"coverage\":{\"omissions\":[\"pods\",\"images\",\"events\",\"logs\",\"live-freshness\"],\"scope\":\"one-deployment-point\"},\"facts\":{\"available_replicas\":2,\"desired_replicas\":3,\"generation\":4,\"observed_generation\":4,\"ready_replicas\":2,\"replicas\":3,\"unavailable_replicas\":1,\"updated_replicas\":3},\"freshness\":\"NOT_RUN\",\"invocation_id\":\"eff-ec5f3c6aa90ddef9aabc92873c5a2efa0e6e61a664eae863b420aca7240b7f50\",\"operationId\":\"fixture-read-1\",\"source\":\"synthetic-fixture/1\",\"target\":{\"cluster_uid\":\"fixture-cluster-001\",\"kind\":\"Deployment\",\"name\":\"web\",\"namespace\":\"demo\",\"namespace_uid\":\"fixture-namespace-001\",\"resource_version\":\"17\",\"uid\":\"fixture-deployment-001\"},\"version\":\"structured-deployment-observation/1\"}",
+          "parent": "",
+          "state": "completed",
+          "target": "evidence_typescript"
+        }
+      ],
+      "run_id": "e1-final-clean-typescript",
+      "state": "/tmp/nehemiah-final-clean-e1-y64brdyj/typescript-state"
+    }
+  },
+  "prepared_git_tree": "179df6b08329a768d15bcf40d49a6c273d7d52a9",
+  "prior_governed_doc_smoke": {
+    "callback_count": 1,
+    "fixture_root": "/tmp/nehemiah-governed-doc-current-hnmk2j5t",
+    "host_sha256": "245906951db13d76429d048d8e1d5992dafcd19926c4f447d3f5cd6d56ffb874",
+    "initial_and_restart_replay_passed": true,
+    "observed_receipts": [
+      {
+        "effect_id": "eff-fc2fc81d70e3f5bc46c2f752d9571b4c0c8a6748d31cd539e51a8ad4edead72f",
+        "external_execution": "completed",
+        "host_settlement": "completed",
+        "output": {
+          "external_execution": "completed",
+          "payload_disposition": "withheld",
+          "version": "mas-governed-unavailable/1"
+        },
+        "payload_disposition": "withheld",
+        "version": "mas-governed-effect-completion/1"
+      }
+    ],
+    "same_host_as_current_e1": false,
+    "scope": "Earlier host-bound documentation smoke and restart replay, separately recorded; not current-host governed evidence",
+    "source_snapshot_retained": false
+  },
+  "production_binary_provenance": {
+    "independent_symbol_probe": {
+      "host_sha256": "dfe73caa3090cf7aa0898496dd908ea7735411b216d04fa232e263c9d93c2d5d",
+      "matching_symbols": [
+        "0000000000658650 t <mas_host_core::Inner>::validate_worker_output"
+      ],
+      "probe": [
+        "nm",
+        "-C",
+        "/tmp/nehemiah-final-clean-e1-y64brdyj/mas-host"
+      ]
+    },
+    "parent_reported_CARGO_INCREMENTAL": "0",
+    "parent_reported_clean_core_rebuild": true,
+    "qualification": "This current-host receipt supersedes the preclean artifact. Symbol presence supplements the clean rebuild provenance; runtime assertions below are the smoke evidence."
+  },
+  "repository": "/workspace/scratch/1ad2c1661ab9/mas-host",
+  "scope": "E1 trusted-local synthetic command-package execution and retained replay; not a governed free-text or live Kubernetes qualification",
+  "source_manifest": [
+    {
+      "bytes": 21152,
+      "path": "Cargo.lock",
+      "sha256": "7145ced641a0ead95ce757c69271c05f799940bb7785f3571da360f4c23489e7"
+    },
+    {
+      "bytes": 1036,
+      "path": "Cargo.toml",
+      "sha256": "b027adbe08580f9554dd5d3b191b70a135892d884775f07180146f311dc41de4"
+    },
+    {
+      "bytes": 1734,
+      "path": "Makefile",
+      "sha256": "3aed7b5bf093e86fa287ca78856bbfe272710a21911aa08b37afa5d9b6a637aa"
+    },
+    {
+      "bytes": 11164,
+      "path": "README.md",
+      "sha256": "4cc3e7a8e2e2ac075527d29bbeef61d4a4c9f57556ec64a60888148026c2329b"
+    },
+    {
+      "bytes": 1105,
+      "path": "crates/mas-host-cli/Cargo.toml",
+      "sha256": "c01431979f9479ae4740e12dc6fc990c0d45588bd634c3fd8a9afc273999d959"
+    },
+    {
+      "bytes": 9954,
+      "path": "crates/mas-host-cli/src/a2a/configuration.rs",
+      "sha256": "8e68855a5aa990a871fb40081cb0bb83967d8aaa9df2e84f102a3d2b9a00783f"
+    },
+    {
+      "bytes": 10763,
+      "path": "crates/mas-host-cli/src/a2a/governed.rs",
+      "sha256": "9943c80080eb4380de5fa3e170ce08d320b3c4273eb687080b2b9d870c69c936"
+    },
+    {
+      "bytes": 10548,
+      "path": "crates/mas-host-cli/src/a2a/http.rs",
+      "sha256": "a5163735aa8059607e8980888c76fea15c1521b1e53e166c0728d951ed652886"
+    },
+    {
+      "bytes": 22607,
+      "path": "crates/mas-host-cli/src/a2a/mod.rs",
+      "sha256": "038e395922b78198883ff649774fa388bb3bc330dcd575732d58ecc8efede0b0"
+    },
+    {
+      "bytes": 8489,
+      "path": "crates/mas-host-cli/src/build.rs",
+      "sha256": "2ffe8f1a5434031c8aca2ff6a5ebaf96f36b91bdd552d6bc689454b003828b97"
+    },
+    {
+      "bytes": 5888,
+      "path": "crates/mas-host-cli/src/build/assets.rs",
+      "sha256": "c30eba8a095d2f72b4efdca157d49ad9376a098285d57170bd0adb9733fbd672"
+    },
+    {
+      "bytes": 3009,
+      "path": "crates/mas-host-cli/src/capabilities/approval.rs",
+      "sha256": "ad5eb524d2a110063d63c9fb51bdc0b2cd8ffdc8efcab897d536c7645b882d93"
+    },
+    {
+      "bytes": 5978,
+      "path": "crates/mas-host-cli/src/capabilities/binding.rs",
+      "sha256": "91934572579b8a1edcd754eca1b6d74d08b8cc97dd02f56ec15677f6e25f7748"
+    },
+    {
+      "bytes": 4555,
+      "path": "crates/mas-host-cli/src/capabilities/contract.rs",
+      "sha256": "b3de48d396000b6699e49e5e9e5f8b3eb62585d453425d26b29702820abb1012"
+    },
+    {
+      "bytes": 3346,
+      "path": "crates/mas-host-cli/src/capabilities/files.rs",
+      "sha256": "4735fca0302ce0eeaae967652a9ef43c82c0121605e7aa4b49dd841f7d739da1"
+    },
+    {
+      "bytes": 4324,
+      "path": "crates/mas-host-cli/src/capabilities/mod.rs",
+      "sha256": "4de03cbf05844bcf2601e56cef61ac2688dc12aaee08a839e3c53a693336e4ad"
+    },
+    {
+      "bytes": 6837,
+      "path": "crates/mas-host-cli/src/capabilities/retained.rs",
+      "sha256": "33b79b68b6004934af8d71a963d254a66e444df8105f557cc4da913444765980"
+    },
+    {
+      "bytes": 11120,
+      "path": "crates/mas-host-cli/src/config.rs",
+      "sha256": "9f1c52e1453c54e1bb119473ebd02d11f80fca37bfe7ac0f4b34a8f2a0c8449b"
+    },
+    {
+      "bytes": 3977,
+      "path": "crates/mas-host-cli/src/config/authoring.rs",
+      "sha256": "6a6cfb06d9ddc496be6e5c990659385cac054c1494af1b5c077a05efd4fbedfe"
+    },
+    {
+      "bytes": 4618,
+      "path": "crates/mas-host-cli/src/config/authoring/tests.rs",
+      "sha256": "6eba68e7f5ddf65d798d39888b4d8f6443f7dfaf6a154243d14abfd74a0a4889"
+    },
+    {
+      "bytes": 2403,
+      "path": "crates/mas-host-cli/src/config/authoring/toml.rs",
+      "sha256": "3555d687c7d0ab8b6d14629bcc63d13f13d106381ce1d33513af3bccc87c2bd5"
+    },
+    {
+      "bytes": 5704,
+      "path": "crates/mas-host-cli/src/config/authoring/yaml.rs",
+      "sha256": "70b64c491572dc1f24ebd1ce31d4949e4f71c0b28b868eb5d7f77fd9f64d2c20"
+    },
+    {
+      "bytes": 14477,
+      "path": "crates/mas-host-cli/src/config/bindings.rs",
+      "sha256": "71039bbbfdff050f4f9b8c3e10820d17592cd64d539b53b8cf4581d17860dfd9"
+    },
+    {
+      "bytes": 2054,
+      "path": "crates/mas-host-cli/src/config/launch.rs",
+      "sha256": "ea6f33501be62000acf93910ebc15934f044531234e2f80f041de7c33cae3397"
+    },
+    {
+      "bytes": 1003,
+      "path": "crates/mas-host-cli/src/config/model.rs",
+      "sha256": "648b8886f62352b749ec01bfd096900386cdc43a6bf20f1931e07a6052842ef6"
+    },
+    {
+      "bytes": 11702,
+      "path": "crates/mas-host-cli/src/main.rs",
+      "sha256": "efbd8e1ee949ab67c5f21bf5f90beec55f6ee96295c48d415940aa511710d48f"
+    },
+    {
+      "bytes": 5558,
+      "path": "crates/mas-host-cli/src/privacy_inspect/config.rs",
+      "sha256": "b8d35150e4935f8a52a638deb8ee09a980156a03b66306c013ff9664d850d9f1"
+    },
+    {
+      "bytes": 3058,
+      "path": "crates/mas-host-cli/src/privacy_inspect/mod.rs",
+      "sha256": "8441bf38b7c440f00f1e6b281cdf4771fd5c31d34b077d603c73f10208e5bca7"
+    },
+    {
+      "bytes": 3011,
+      "path": "crates/mas-host-cli/src/privacy_inspect/runner.rs",
+      "sha256": "7df11521cd3a80839f6dc4f11c74e12cc138afd583329191d5a0939d504ac197"
+    },
+    {
+      "bytes": 21923,
+      "path": "crates/mas-host-cli/tests/a2a.rs",
+      "sha256": "984963ca3bdab18f23180f3c27fab9c424384cc60688d9030dabd119e1d5ce1a"
+    },
+    {
+      "bytes": 22356,
+      "path": "crates/mas-host-cli/tests/a2a_governed.rs",
+      "sha256": "07348dbbb397b5555bbc8cf770fe447363f90607d2f1f9096a5f7dc764e56503"
+    },
+    {
+      "bytes": 7654,
+      "path": "crates/mas-host-cli/tests/acceptance.rs",
+      "sha256": "69ca990e965a8c253aa881beb3c3eee04b6f40469b06789b4f46fd3a5be4f89d"
+    },
+    {
+      "bytes": 7680,
+      "path": "crates/mas-host-cli/tests/authoring.rs",
+      "sha256": "7b346cd5c0713415f817dcd58ce125ee10fcddb8f1c13f734323ef110c2601fa"
+    },
+    {
+      "bytes": 15731,
+      "path": "crates/mas-host-cli/tests/capabilities.rs",
+      "sha256": "14e181072183a2140792a9cd5b561806762ad709969baa1f0c30b5843eaf5aa7"
+    },
+    {
+      "bytes": 16269,
+      "path": "crates/mas-host-cli/tests/commands.rs",
+      "sha256": "94c50cdfddd55c50fdeba7d0d8a5f5fd05a3c855be38058796739c34208c214e"
+    },
+    {
+      "bytes": 34819,
+      "path": "crates/mas-host-cli/tests/configured.rs",
+      "sha256": "c7adc9230bf93da344e091203bc298b844455cff47c6dda7cab55e7da9939c02"
+    },
+    {
+      "bytes": 7911,
+      "path": "crates/mas-host-cli/tests/privacy_inspect.rs",
+      "sha256": "ce70024f12e73329a9d82f0ab339ed42df5a32161944adf878473aa7ac9493a1"
+    },
+    {
+      "bytes": 3135,
+      "path": "crates/mas-host-cli/tests/profile.rs",
+      "sha256": "4dec83e7eb3c07230df6d34e25f55cbb30ddc7a4777bf379b0f62f5e7ff5ca47"
+    },
+    {
+      "bytes": 5021,
+      "path": "crates/mas-host-cli/tests/python.rs",
+      "sha256": "4ce2c901e9e17b5352c0b9c6547a84e2ce19e63bde95a7e83ac7f32610d20fcc"
+    },
+    {
+      "bytes": 10633,
+      "path": "crates/mas-host-cli/tests/revision.rs",
+      "sha256": "1f5ff4dbddf2a75e84eac0661683afef79b057e1a5413136fb246c40c60dbd90"
+    },
+    {
+      "bytes": 12241,
+      "path": "crates/mas-host-cli/tests/revision_adversarial.rs",
+      "sha256": "48054f8c8f3b478ed164f3eace0fd664c1c48250e3be67df66a159d42af2410b"
+    },
+    {
+      "bytes": 405,
+      "path": "crates/mas-host-core/Cargo.toml",
+      "sha256": "724d145b8e10d4b51ff5bf8777eca84fe8a6a05298b2944c232cc1b4be955829"
+    },
+    {
+      "bytes": 6519,
+      "path": "crates/mas-host-core/src/effects.rs",
+      "sha256": "444164c092c66c6b9119588f21c31dcf3c08b0171943dc4da5e6677e25adb6c1"
+    },
+    {
+      "bytes": 16406,
+      "path": "crates/mas-host-core/src/execution.rs",
+      "sha256": "2e0382cf344ab5248796c9a62df7a62da95c93497bab4071e8b8abee803d0172"
+    },
+    {
+      "bytes": 3884,
+      "path": "crates/mas-host-core/src/governance/evidence.rs",
+      "sha256": "846dd92cc2ac3393c600e8cab6c30457c7e8e3cbe4b9936d0a164c9503bdf8cf"
+    },
+    {
+      "bytes": 5426,
+      "path": "crates/mas-host-core/src/governance/fixtures/decisions.json",
+      "sha256": "d8541958194220c5f7757e0fb522cf8cd7631e37c79d2360d223256b869ea6f1"
+    },
+    {
+      "bytes": 2980,
+      "path": "crates/mas-host-core/src/governance/identity.rs",
+      "sha256": "7ab1f8e81b931a3767e0507a7afbdcc059e2f8c2496efc7c871a03fc5c4aa660"
+    },
+    {
+      "bytes": 2492,
+      "path": "crates/mas-host-core/src/governance/mod.rs",
+      "sha256": "576bc89e38214b5abefe6c5ad9398d8b6b9ba8c205e2268099f91a12acd81fb9"
+    },
+    {
+      "bytes": 17908,
+      "path": "crates/mas-host-core/src/governance/policy.rs",
+      "sha256": "a4dcb9dc7f229e56d7dfecd9412272cbaa886e8730b6b72807b62a6fd90e03cd"
+    },
+    {
+      "bytes": 2658,
+      "path": "crates/mas-host-core/src/governance/profile.rs",
+      "sha256": "e61de90e343b1e879886810708aba45d60cb343dd3f50d570b6777fdc9a8bb63"
+    },
+    {
+      "bytes": 3400,
+      "path": "crates/mas-host-core/src/governance/result.rs",
+      "sha256": "0b29962d423dbcd116e35b2962e8d7f5666fa9396549387ae50f8d22b56ae7c2"
+    },
+    {
+      "bytes": 3981,
+      "path": "crates/mas-host-core/src/governance/runtime/authority.rs",
+      "sha256": "410b5c854dda60f869dc15467f46fac61ec61ea7208e46e6e38a4533fb2499a0"
+    },
+    {
+      "bytes": 8923,
+      "path": "crates/mas-host-core/src/governance/runtime/boundary.rs",
+      "sha256": "b246c4f24c20bc4b5353f553ab102ae06c031dbc023e36db28efc059489e3c60"
+    },
+    {
+      "bytes": 852,
+      "path": "crates/mas-host-core/src/governance/runtime/encoding.rs",
+      "sha256": "625ad642a199d1315b72e34b2abc8b2ba322271e6f692b818c98a4f4d1cfd486"
+    },
+    {
+      "bytes": 281,
+      "path": "crates/mas-host-core/src/governance/runtime/mod.rs",
+      "sha256": "ed363dba99188d9b99a27796791bcabed16c085d4aa319a23add09dbb6bf5af7"
+    },
+    {
+      "bytes": 3949,
+      "path": "crates/mas-host-core/src/governance/runtime/schema.rs",
+      "sha256": "57e4cde6da607d4642d582a1bc3734c0aa169affaff90768758455a62ad7406d"
+    },
+    {
+      "bytes": 18974,
+      "path": "crates/mas-host-core/src/governance/runtime/session.rs",
+      "sha256": "6947d97bb4800ca7c7e501a651e7c59d32b1485553d9c31fa6dd16c3abe0ab60"
+    },
+    {
+      "bytes": 4681,
+      "path": "crates/mas-host-core/src/governance/runtime/storage.rs",
+      "sha256": "c6ff9af0b3b0d7e428ef736c3aa113502f9ee8f9339a3d6c6f48bc697a830940"
+    },
+    {
+      "bytes": 18263,
+      "path": "crates/mas-host-core/src/governance/runtime/tests.rs",
+      "sha256": "6073d629aaab4a983a14448a6eedc2ac6ef622ed8872f578b905e81925c0c264"
+    },
+    {
+      "bytes": 11649,
+      "path": "crates/mas-host-core/src/governance/tests.rs",
+      "sha256": "c04e33ff15cf2f819755d21b0752822123300d3400132b12c29ed490c60edefe"
+    },
+    {
+      "bytes": 2844,
+      "path": "crates/mas-host-core/src/journal.rs",
+      "sha256": "3ae6293ec8191b123b7d6b925703bf4d5488955b0ab96d90ec0a03a92fa25bae"
+    },
+    {
+      "bytes": 31679,
+      "path": "crates/mas-host-core/src/lib.rs",
+      "sha256": "34405bd78004f1d54644e59eb97c8d2564091d051ae443895fc3d5e0ef45a67a"
+    },
+    {
+      "bytes": 5997,
+      "path": "crates/mas-host-core/src/observation.rs",
+      "sha256": "14566f980d40351ec077408c959583a7dd7fe196bc823e96bb7dc09ac54a8cd6"
+    },
+    {
+      "bytes": 6508,
+      "path": "crates/mas-host-core/src/protocol.rs",
+      "sha256": "c6bfc69e019498f8c7eb97d1f048aa07785769f5665b420e593af63fddd46ba1"
+    },
+    {
+      "bytes": 781,
+      "path": "crates/mas-host-core/src/request_routes.rs",
+      "sha256": "ab749f0189839f21531f3c6fe4ef1e94a46d373ca3e3219fa17c7e42cef79d3c"
+    },
+    {
+      "bytes": 5400,
+      "path": "crates/mas-host-core/src/revision/context.rs",
+      "sha256": "e22e3cdf1eab8a81838d146e187079171214d3aac01eb14c29b2d9c5700c79fe"
+    },
+    {
+      "bytes": 2026,
+      "path": "crates/mas-host-core/src/revision/evaluation.rs",
+      "sha256": "80a7a6b6f902962e828800774d6e2636be6ec0fb665c90b98e3ce848f66b2c76"
+    },
+    {
+      "bytes": 11956,
+      "path": "crates/mas-host-core/src/revision/mod.rs",
+      "sha256": "ae63ddca5f2dd0c046c07532acf7e5a6b574794413ac8082e1e6ee154b818201"
+    },
+    {
+      "bytes": 4646,
+      "path": "crates/mas-host-core/src/revision/plan.rs",
+      "sha256": "9dbdcd86e8d563817335e91bb9c66ae42199077e887995b0df0cae1607683058"
+    },
+    {
+      "bytes": 2632,
+      "path": "crates/mas-host-core/src/revision/projection.rs",
+      "sha256": "fe5d87c98bad8190747c68475ac0a1b6ed1826dbbacc5a0ec7163a0d6999d9fb"
+    },
+    {
+      "bytes": 18047,
+      "path": "crates/mas-host-core/src/revision/store.rs",
+      "sha256": "83e1b03dd6ece57a839ed70b1890a455e5f2c66503384b9f453cf679da1683ed"
+    },
+    {
+      "bytes": 20623,
+      "path": "crates/mas-host-core/src/revision/tests.rs",
+      "sha256": "673851034d398e51636c0a188f8720406e49d7c778f1496302807563f53a1696"
+    },
+    {
+      "bytes": 34516,
+      "path": "crates/mas-host-core/src/tests.rs",
+      "sha256": "0904d680f8acc08bed898bf56ee94723f5858807846241f15aa05eb8a975906c"
+    },
+    {
+      "bytes": 160,
+      "path": "crates/mas-host-native-build/Cargo.toml",
+      "sha256": "6f3e9a4f538b39a832e77520bc0df6db900a9cd1dd50c23a18d15893d843f9d4"
+    },
+    {
+      "bytes": 1315,
+      "path": "crates/mas-host-native-build/src/cpp.rs",
+      "sha256": "e97776efe84490fbbcc5e9a2a0bd915d83272b43ffd5df970dc4c6c9990ba404"
+    },
+    {
+      "bytes": 3691,
+      "path": "crates/mas-host-native-build/src/lib.rs",
+      "sha256": "f0c2b4215d001e3d1da63f9288a1ee531a34cb62c2f805fb14d54e812f3616c9"
+    },
+    {
+      "bytes": 10350,
+      "path": "crates/mas-host-native-build/src/python.rs",
+      "sha256": "3c2cb3dd4b8e040eb0507f7030b5b5368ea8c9eb29768d55c8460718d72df7b3"
+    },
+    {
+      "bytes": 5757,
+      "path": "crates/mas-host-native-build/src/python_zipapp.py",
+      "sha256": "31acf88c421a1d771a42ba60e6c15987a344b991bc9690e2a5081aab183e5094"
+    },
+    {
+      "bytes": 2021,
+      "path": "crates/mas-host-native-build/src/rust.rs",
+      "sha256": "a03fee56b14ac83f30e81ae692843a95f5b99e634df0416ff4172d694b9a28d3"
+    },
+    {
+      "bytes": 297,
+      "path": "crates/mas-host-privacy/Cargo.toml",
+      "sha256": "b5674220f2d68f7ec99806451da709b23246ee29aaf503a23059f62eeff6169a"
+    },
+    {
+      "bytes": 5156,
+      "path": "crates/mas-host-privacy/README.md",
+      "sha256": "e4c29f40fcc2b73931a3cab8829fce43d0406b36b3a779027095ec22425c0ae0"
+    },
+    {
+      "bytes": 1612,
+      "path": "crates/mas-host-privacy/examples/synthetic.rs",
+      "sha256": "544b19488deaf7a0f9ac9de2ecf599f7551a120b3468e664e24b954061baae2d"
+    },
+    {
+      "bytes": 11993,
+      "path": "crates/mas-host-privacy/src/assessment.rs",
+      "sha256": "a32806dc38816a075d6ebbe62720869580fe37c33119c447aa9d206cee2ba920"
+    },
+    {
+      "bytes": 3291,
+      "path": "crates/mas-host-privacy/src/combined.rs",
+      "sha256": "b4321d9ae7f884d94b78d4e340349bb8c3f6503cd7307c2a37ac91a54a8774a9"
+    },
+    {
+      "bytes": 3599,
+      "path": "crates/mas-host-privacy/src/handling.rs",
+      "sha256": "3b5d713f4f34122a9c0e94b174af0a852e8b913fdd9771ad3619fb7d01fbe040"
+    },
+    {
+      "bytes": 1368,
+      "path": "crates/mas-host-privacy/src/lib.rs",
+      "sha256": "9f1621c6b8b1544cbdc0d50247ab7e34fc2c9bb9c12ad3835efe74ff8e7b79d1"
+    },
+    {
+      "bytes": 11380,
+      "path": "crates/mas-host-privacy/src/neural.rs",
+      "sha256": "0478b0a13b22dbb34a2a5cb9d84e826b47e0dd279e8e9e562b5decbfd343aaa2"
+    },
+    {
+      "bytes": 2816,
+      "path": "crates/mas-host-privacy/src/neural_pins.rs",
+      "sha256": "19e1dc195b6979284f716ec104f194cc5327ae04c2974909873e78bdd277013f"
+    },
+    {
+      "bytes": 1609,
+      "path": "crates/mas-host-privacy/src/record.rs",
+      "sha256": "8c92cb7cd6f8fe06d51f9567c490491dec666f9ab506a9f27d6b2d75a3dbe3b6"
+    },
+    {
+      "bytes": 3302,
+      "path": "crates/mas-host-privacy/src/scanner.rs",
+      "sha256": "70a254ca9540a05e646a7ac3c750aa21fd919c60062a6f00f8484b1203361e47"
+    },
+    {
+      "bytes": 2317,
+      "path": "crates/mas-host-privacy/src/source.rs",
+      "sha256": "7259c318f8d30a85d2ac6a4b7394ce5b34df0c4ff0c790460b7ba560462e3d39"
+    },
+    {
+      "bytes": 2654,
+      "path": "crates/mas-host-privacy/src/spans.rs",
+      "sha256": "90df662c159d32ee5b382260b4e5198dda275c44c80cb8d612e4bc413cb2cdb6"
+    },
+    {
+      "bytes": 14035,
+      "path": "crates/mas-host-privacy/tests/conformance.rs",
+      "sha256": "775bef6b7d24aeaf18b6246ff3ecb69ab3f73f7b006d4c37412f96e6653ae55b"
+    },
+    {
+      "bytes": 15339,
+      "path": "crates/mas-host-privacy/tests/neural.rs",
+      "sha256": "91ee7c161701b14a1ef1e229fdd940ef03fc5578a041e08f740f6501bb855f91"
+    },
+    {
+      "bytes": 1693,
+      "path": "crates/mas-host-privacy/tests/neural_omissions.rs",
+      "sha256": "3ea6ff635b84b26b697a13015c75159bf5c93a49ac240e67392c12471f377bfe"
+    },
+    {
+      "bytes": 222,
+      "path": "crates/mas-host-process/Cargo.toml",
+      "sha256": "4f3abd73ad18638436fd855a914d1656190036a0b055db53ed677f2bbed71583"
+    },
+    {
+      "bytes": 6961,
+      "path": "crates/mas-host-process/src/lib.rs",
+      "sha256": "1fe1ee7334774dc424c869de64b32e996368ab534313c612c51cf4024125c75f"
+    },
+    {
+      "bytes": 279,
+      "path": "crates/mas-host-providers/Cargo.toml",
+      "sha256": "18483314bc110ef148f624b6e03ae7cb97e4183739325d9a2aec61263fd219b1"
+    },
+    {
+      "bytes": 8106,
+      "path": "crates/mas-host-providers/README.md",
+      "sha256": "c02ea9c0369f35109527899addba28be899e6db0136f843825c4b7a3f3436f37"
+    },
+    {
+      "bytes": 10440,
+      "path": "crates/mas-host-providers/src/command.rs",
+      "sha256": "9b9a5e5ec4709e892401f93d2f74d19896358f633683051023668a8243c45d18"
+    },
+    {
+      "bytes": 40853,
+      "path": "crates/mas-host-providers/src/http.rs",
+      "sha256": "f115c3293f8f1898f0adee1956420e1b764278561d5b4f80d15ab410e4e6d82e"
+    },
+    {
+      "bytes": 3457,
+      "path": "crates/mas-host-providers/src/http_error.rs",
+      "sha256": "1b0cba93385d11c6fddd28faa14398378a8598b80ad8e1e81ca91c9728b1b582"
+    },
+    {
+      "bytes": 9541,
+      "path": "crates/mas-host-providers/src/lib.rs",
+      "sha256": "cd3cabd3b2916480ffbdbdfbf67956b205e9b8af789348b82d09b5d5db3471d6"
+    },
+    {
+      "bytes": 506,
+      "path": "crates/mas-host-runtime/Cargo.toml",
+      "sha256": "cfb750132d1143f36e2a6918d51f0e5cf81757fe8b36aaa8471b5102d649992f"
+    },
+    {
+      "bytes": 4105,
+      "path": "crates/mas-host-runtime/src/command/mod.rs",
+      "sha256": "47f6fa20abd06840e853cd850feb79ec4a5db41b30cae1f310bd6fdb04282e05"
+    },
+    {
+      "bytes": 6381,
+      "path": "crates/mas-host-runtime/src/command/spec.rs",
+      "sha256": "32b67f80ed704b7b4c3d75004179cd65a0ea7e3722cf3a5ebecf5c9a7841f8be"
+    },
+    {
+      "bytes": 1053,
+      "path": "crates/mas-host-runtime/src/effect_result.rs",
+      "sha256": "7c0be1870293b972c5a1ac6c5fef7e1fb2ec8a403c64c96ea07c2639798e506a"
+    },
+    {
+      "bytes": 613,
+      "path": "crates/mas-host-runtime/src/identity.rs",
+      "sha256": "93d2fa709df4c41e83d00afecfc6d30258c8b9f72a508a0526d4e8207749eb75"
+    },
+    {
+      "bytes": 15229,
+      "path": "crates/mas-host-runtime/src/inference.rs",
+      "sha256": "12949471f24abd820161afeabb095ce15be7a0e9587f08280660abd2d38dd6f0"
+    },
+    {
+      "bytes": 1510,
+      "path": "crates/mas-host-runtime/src/lib.rs",
+      "sha256": "0d8dec55b9ae2d3996065143eecefbfa9311644cb0d3793e0f623abb57a89d0d"
+    },
+    {
+      "bytes": 9199,
+      "path": "crates/mas-host-runtime/tests/projected_completion.rs",
+      "sha256": "de652ee8075b2c56bb4bd9b2f722de3b08567a521e44da04b35403e643425ab0"
+    },
+    {
+      "bytes": 249,
+      "path": "crates/mas-host-schema/Cargo.toml",
+      "sha256": "aff125befe3ca39cbfa2f6b29ebc491d91b4716ab687967969323126b0582fe0"
+    },
+    {
+      "bytes": 7756,
+      "path": "crates/mas-host-schema/src/lib.rs",
+      "sha256": "5b8ba71073384d01bff18854f806a4e171313c4cf20bad2632b5825e8691c43d"
+    },
+    {
+      "bytes": 212,
+      "path": "crates/mas-host-worker/Cargo.toml",
+      "sha256": "cde04d46a711e2352fb92d0bf2567a987da01ec5638985b9652b95fc05b5badd"
+    },
+    {
+      "bytes": 33374,
+      "path": "crates/mas-host-worker/src/lib.rs",
+      "sha256": "e11934a43e08ab8541c445a90d13e152463f7e0483f851118f3b8bdb60f110a4"
+    },
+    {
+      "bytes": 329,
+      "path": "crates/mas-host-workflow/Cargo.toml",
+      "sha256": "08aab7ac98872101d9cc070672585af97542aa4cd0b6834f3747866828bf5ff6"
+    },
+    {
+      "bytes": 8038,
+      "path": "crates/mas-host-workflow/README.md",
+      "sha256": "a8a80afc90a3f42b3ce4103538cc1105eccf16504912f1b9e34d4de12c03ce91"
+    },
+    {
+      "bytes": 20466,
+      "path": "crates/mas-host-workflow/src/execution.rs",
+      "sha256": "2635182e3ace90d5cca1127c3e85a95e047a0618ec62623e67fafc5aef75843c"
+    },
+    {
+      "bytes": 670,
+      "path": "crates/mas-host-workflow/src/lib.rs",
+      "sha256": "4628bbf9c088a5c0458c80886a9f350a42e9dcd6e531b2cf023cffd352960f23"
+    },
+    {
+      "bytes": 16291,
+      "path": "crates/mas-host-workflow/src/plan.rs",
+      "sha256": "5de632097453e9dd37488d7037918a87ddf8d002abc5a5ad672d964d96a53ae0"
+    },
+    {
+      "bytes": 2704,
+      "path": "crates/mas-host-workflow/src/quorum.rs",
+      "sha256": "f82061bbba876738dcc27f05aabbbc2a063980e73089d0472b39dff25037b637"
+    },
+    {
+      "bytes": 15583,
+      "path": "crates/mas-host-workflow/src/tests.rs",
+      "sha256": "2049b1362e98c66a8779df4f341fac8d8edf5d3a9479536e73f5c2da79fcbf54"
+    },
+    {
+      "bytes": 8961,
+      "path": "docs/a2a.md",
+      "sha256": "55181f153b7b3af04f932bf91e745399830bfa13dabaf21881ec8f699441e152"
+    },
+    {
+      "bytes": 13918,
+      "path": "docs/architecture.md",
+      "sha256": "68d0868f5fa31ae44eea73ea75e4666429302074bc83e82aae46041233a30fc9"
+    },
+    {
+      "bytes": 8873,
+      "path": "docs/assessment-revision.md",
+      "sha256": "1f96173cd6d3dce4d2d7f9770d78ab535f43a60974002e70f9cb301116c67d62"
+    },
+    {
+      "bytes": 5355,
+      "path": "docs/authoring.md",
+      "sha256": "dd2952b7b09ba514b56c68fc35a7f90ffc2d198642a06e415871ac80e914a8e0"
+    },
+    {
+      "bytes": 8987,
+      "path": "docs/capabilities.md",
+      "sha256": "20c2f47968b632d866cacf20a2d1d8313108eab0b2414a6f884b48631f9c9944"
+    },
+    {
+      "bytes": 8082,
+      "path": "docs/commands.md",
+      "sha256": "1c1d33091b5a4026fb64c1d68cd432657db8985516dc389b7a5508b5c5c60d23"
+    },
+    {
+      "bytes": 21312,
+      "path": "docs/governed-local.md",
+      "sha256": "dc8b0e4f978b2644261c468bacbe6fb146474aff3f9dd39f11bdf7364c781afe"
+    },
+    {
+      "bytes": 9360,
+      "path": "docs/inference-results.md",
+      "sha256": "5607da07d052cf6e21d2f460d3805f7d13b80b286731f2561d6daaf866b527a3"
+    },
+    {
+      "bytes": 11381,
+      "path": "docs/llm-workflows.md",
+      "sha256": "ebad87bab07188f6cdb8cf319dcb96ae71d1baceb126bfeeb9d3d76e02408bc6"
+    },
+    {
+      "bytes": 9820,
+      "path": "docs/mcp-tools.md",
+      "sha256": "969a1d06aa80e03f04b77188b08a84847958c3b06ddbbfbc7bf379990bf41e95"
+    },
+    {
+      "bytes": 11437,
+      "path": "docs/native-contract.md",
+      "sha256": "6a94af0637830167423f8d0b07094cd45b845ee6c6031681f63d7e75551d8a79"
+    },
+    {
+      "bytes": 5122,
+      "path": "docs/nehemiah-governance.md",
+      "sha256": "4871e2b4a6d96ab2dfaf1335a22ba0f2a0440bb1968e3f51a245677596bb8fcb"
+    },
+    {
+      "bytes": 7635,
+      "path": "docs/nehemiah-implementation.md",
+      "sha256": "570e7555814faf8824e7b560d493530cd3e6e13c2fb193ce5184a24cc4448726"
+    },
+    {
+      "bytes": 5308,
+      "path": "docs/observation.md",
+      "sha256": "954fb0827f3a9f1a7e3d824bb0e43d2aeacef61e3caec7eb682626a630b53c5d"
+    },
+    {
+      "bytes": 12994,
+      "path": "docs/privacy-detector.md",
+      "sha256": "70b8fc0db6415b4d86d750b3fc1445023c57b6f9a2a2c8f4fb2291488bb27538"
+    },
+    {
+      "bytes": 5042,
+      "path": "docs/workload-baseline.md",
+      "sha256": "3e87b932b9228d915aeece88fa14c8ba65b125f63f4d409001034c281afe9276"
+    },
+    {
+      "bytes": 74,
+      "path": "examples/structured-evidence/.gitignore",
+      "sha256": "df4cc9846b4783db55cb16a121f1eb6def4cf05ced38703c551264a5cdec69d2"
+    },
+    {
+      "bytes": 5652,
+      "path": "examples/structured-evidence/README.md",
+      "sha256": "b373e9f4e06c0c5ac06464ac15981638dc3db54d3a9b7abca8fc5ea0747d4a52"
+    },
+    {
+      "bytes": 629,
+      "path": "examples/structured-evidence/fixture.json",
+      "sha256": "4c5aa2d52f93d47b772a9908745d5d0c5312da0f5d72e593f53cf989ec2eae93"
+    },
+    {
+      "bytes": 281,
+      "path": "examples/structured-evidence/input.json",
+      "sha256": "60097bf9dccd255b02733c11d64e36b5463bb1eb6f36efe13ec190cceb2c3033"
+    },
+    {
+      "bytes": 5208,
+      "path": "examples/structured-evidence/prepare.py",
+      "sha256": "d163ec91e624e1257264313e66d1b6dac8ce9a15f9a6da0a2bb2f34c9f709090"
+    },
+    {
+      "bytes": 4451,
+      "path": "examples/structured-evidence/python/collector.py",
+      "sha256": "d8e40df356c936b3dcc18813b89cb8796166b05cf3420171b178f7b4b4ca19de"
+    },
+    {
+      "bytes": 1317,
+      "path": "examples/structured-evidence/schemas/input.json",
+      "sha256": "2ab5b6cad1d95e15a071526fc6d3a5d3527680670e3a14c2b2489da4915e43fc"
+    },
+    {
+      "bytes": 3889,
+      "path": "examples/structured-evidence/schemas/output.json",
+      "sha256": "3ff3124ba941a5434624a9690835eb8be4250c2dc63572a36982a5caefefa4e5"
+    },
+    {
+      "bytes": 5559,
+      "path": "examples/structured-evidence/tests/test_collectors.py",
+      "sha256": "8819b02f59bbf535fe57c837d57a7119730233e1d74ab4e985450a3bd6af5717"
+    },
+    {
+      "bytes": 4392,
+      "path": "examples/structured-evidence/typescript/capability.mts",
+      "sha256": "dc94584b80d78b524f4b0d89badfcd09640186d89e745f1e6377c9968558ab48"
+    },
+    {
+      "bytes": 2336,
+      "path": "examples/structured-evidence/typescript/cli.mjs",
+      "sha256": "858ca88c6d11447c2851d30eb32048c1631fcec4c18e0e4a3881701350e34167"
+    },
+    {
+      "bytes": 755,
+      "path": "examples/structured-evidence/typescript/package-lock.json",
+      "sha256": "3b8b74794da553419271de8dbe82a157d04a3c732fff32f220b964d1596dc8f7"
+    },
+    {
+      "bytes": 270,
+      "path": "examples/structured-evidence/typescript/package.json",
+      "sha256": "ceea29f765234f961434bab99b041f59eba3dc5f3f9e945dd6e3ef80d8f2d036"
+    },
+    {
+      "bytes": 300,
+      "path": "examples/structured-evidence/typescript/tsconfig.json",
+      "sha256": "8c72566c740baf98a6dd635d2bfa8a048354eae609f22f029cd05c0806ae91d0"
+    },
+    {
+      "bytes": 12012,
+      "path": "sdk/completion-conformance.json",
+      "sha256": "08f978437aa4c51ed735a02550372d58201fe8ddbf11cc7466ebc5c77a137de7"
+    },
+    {
+      "bytes": 3495,
+      "path": "sdk/cpp/README.md",
+      "sha256": "1f2d080d2f1de709117d3315d1f856c1051d94d71bd5a1dfb3d47248079ac73c"
+    },
+    {
+      "bytes": 11301,
+      "path": "sdk/cpp/include/mas.hpp",
+      "sha256": "41d2e203e6f6adf662b27414a3ac8a7425eaba2ea3079c81e00e1c96eacf4541"
+    },
+    {
+      "bytes": 1075,
+      "path": "sdk/cpp/include/nlohmann/LICENSE.MIT",
+      "sha256": "c0d068392ea65358b798b8c165103560f06e9e3b38c4ab4e2d8810a7b931af86"
+    },
+    {
+      "bytes": 953436,
+      "path": "sdk/cpp/include/nlohmann/json.hpp",
+      "sha256": "aaf127c04cb31c406e5b04a63f1ae89369fccde6d8fa7cdda1ed4f32dfc5de63"
+    },
+    {
+      "bytes": 4844,
+      "path": "sdk/cpp/tests/conformance.cpp",
+      "sha256": "600cb268941681d3f0d6a0f083cff95a0973fed4d8d1998c81cf06a3a6252bdb"
+    },
+    {
+      "bytes": 4915,
+      "path": "sdk/go/README.md",
+      "sha256": "db0c0ae90bfcad00acf0ce20dd352228e6066a44bfea58ce5aa8db5c8d451774"
+    },
+    {
+      "bytes": 1116,
+      "path": "sdk/go/cmd/mas-go-gen/main.go",
+      "sha256": "af51ee3896da7f1d776eeccc34657c58031c7a6be9546757ba55e6bf49d5c624"
+    },
+    {
+      "bytes": 54,
+      "path": "sdk/go/go.mod",
+      "sha256": "7e3df5073b69778f21fcb9e8011c51bf5226e033e43c35f8f5c73c87e99faf60"
+    },
+    {
+      "bytes": 11084,
+      "path": "sdk/go/internal/generate/generate.go",
+      "sha256": "fcbd0b4005020031ed84ffff0b60f5e953d02d43f5077afac4a069b085a5cfd7"
+    },
+    {
+      "bytes": 4400,
+      "path": "sdk/go/internal/generate/generate_test.go",
+      "sha256": "0b296b132fe00a75cc0f0c4ea7c333228a8c23ad9add6997619600606fd37f8e"
+    },
+    {
+      "bytes": 6030,
+      "path": "sdk/go/json.go",
+      "sha256": "f531486bf7ebb1c8fa93cbd00867ddcded97c2d2c8510f0819c63e35c26058bd"
+    },
+    {
+      "bytes": 10772,
+      "path": "sdk/go/mas.go",
+      "sha256": "86c403ad9eb6bf92d5f9bc2ad51b0c780b102759197abae27129b9a778f287f6"
+    },
+    {
+      "bytes": 8960,
+      "path": "sdk/go/mas_test.go",
+      "sha256": "b94ec06e0f12c299f3312693a7fe95a4892a70ded13e0c84ce3309d9b03cdcd8"
+    },
+    {
+      "bytes": 48,
+      "path": "sdk/python/.gitignore",
+      "sha256": "c5ab4053ec8ca6b413bb1ec5b5581b493e04434088a59f26c8d06a298fa89189"
+    },
+    {
+      "bytes": 8086,
+      "path": "sdk/python/README.md",
+      "sha256": "774cf05055894bbbe5fe48379efc7583823f48eb275f74c458916be497297a96"
+    },
+    {
+      "bytes": 771,
+      "path": "sdk/python/mas_host/__init__.py",
+      "sha256": "a02da2b5d1f38b910564f27a477675e429c3f4d999a8dc5002212bc3ca6ead11"
+    },
+    {
+      "bytes": 6530,
+      "path": "sdk/python/mas_host/adaptation.py",
+      "sha256": "b75da723b5070ed5db1464a144261524238858ba72e8199c68050a4af394bbaf"
+    },
+    {
+      "bytes": 3754,
+      "path": "sdk/python/mas_host/client.py",
+      "sha256": "a262e4d17580ff663adbd251b77ffd3bba8e00003b68a35dd3ffc141d09f3ee5"
+    },
+    {
+      "bytes": 5631,
+      "path": "sdk/python/mas_host/codec.py",
+      "sha256": "6bf5da7af8ceeaf5734cc8a4f6377e74fb379a5bf5490aafb8ebd0fdfd96df45"
+    },
+    {
+      "bytes": 10536,
+      "path": "sdk/python/mas_host/configuration.py",
+      "sha256": "cb56a7d94b4b9b0d5118f0e273c57e16e78e149fd28b0d221819e8647b04380c"
+    },
+    {
+      "bytes": 8144,
+      "path": "sdk/python/mas_host/context.py",
+      "sha256": "c8865c5e1de81ba5efe954fca8a99fc2a74d32f964cb92f7529acb8eaf1fec8c"
+    },
+    {
+      "bytes": 310,
+      "path": "sdk/python/mas_host/errors.py",
+      "sha256": "f25c70f1872e5b2d019bcf61bb89db5433a28722bf8b9dfd7734f5ba3170fb5a"
+    },
+    {
+      "bytes": 0,
+      "path": "sdk/python/mas_host/py.typed",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2013,
+      "path": "sdk/python/mas_host/transport.py",
+      "sha256": "8dff1625eff2ab852cfa0b67d8bdf86fa4f7b0b991ad1e2902cf80f395a85c6b"
+    },
+    {
+      "bytes": 3763,
+      "path": "sdk/python/mas_host/worker.py",
+      "sha256": "f9016cce3dd439e286fe0ebb0e42cd8176fb923244aceacbd82771d0ca8a162f"
+    },
+    {
+      "bytes": 392,
+      "path": "sdk/python/pyproject.toml",
+      "sha256": "99dc5fc955e7f4dbef3fd6294f416c93c044412e7db11fee89e56928b66c6e31"
+    },
+    {
+      "bytes": 5680,
+      "path": "sdk/python/tests/test_adaptation.py",
+      "sha256": "72505ddccd0f80f7e0b5c2f7aca33fbfe40d205d29de2af2897ad560221b9904"
+    },
+    {
+      "bytes": 5039,
+      "path": "sdk/python/tests/test_client.py",
+      "sha256": "96532d13439b04106fac223d2e18118a76145e6eda218b3295379b8e185a5716"
+    },
+    {
+      "bytes": 4270,
+      "path": "sdk/python/tests/test_codec.py",
+      "sha256": "2456b92e76cef3ae13cc5a072b4b9d5d8bd7a1564cc38425e3b852d5f498ac00"
+    },
+    {
+      "bytes": 8246,
+      "path": "sdk/python/tests/test_configuration.py",
+      "sha256": "7b580be79252b4761bd5ebda7f552f5f717caad07c04b42b0fe2d8b2c40626b5"
+    },
+    {
+      "bytes": 21178,
+      "path": "sdk/python/tests/test_context.py",
+      "sha256": "f1ff54993507c8c18249a592877c5ee6a470883c5e320bef0e0d2e6b58e8fc80"
+    },
+    {
+      "bytes": 265,
+      "path": "sdk/rust/Cargo.toml",
+      "sha256": "09ad0e6ae9b315efde8bac14c830958916c5871ed9794f666d9645727db4c361"
+    },
+    {
+      "bytes": 3462,
+      "path": "sdk/rust/README.md",
+      "sha256": "f174ec7d02cdac35032d02afc2ddc98065855d5ee95b39a35674ecfeb1c53078"
+    },
+    {
+      "bytes": 22684,
+      "path": "sdk/rust/src/lib.rs",
+      "sha256": "6f6984ae6fc2caedd7fee92feddb8599fcf8b354c171ed21291af8d1016f0be2"
+    }
+  ],
+  "source_snapshot": {
+    "encoding": "SHA-256 of compact sorted-key UTF-8 JSON array source_manifest, ordered by path",
+    "file_count": 187,
+    "scope": "Tracked and nonignored source/config/docs in crates, sdk, structured-evidence, docs, plus Cargo.toml, Cargo.lock, Makefile, README.md. Excludes evidence reports and ignored generated/build/dependency files.",
+    "sha256": "da81777d5e4fe3651bbdac2ceff9d542d36b43d5276abcec0b7009f852f42e09",
+    "unchanged_after_run": true
+  },
+  "status": "passed",
+  "supersedes": {
+    "host_sha256": "1160780d436be444b13ec781137e8744b5e8aa5987d6a1dfbf331553c7b455ce",
+    "path": "/workspace/scratch/1ad2c1661ab9/validation/preclean-governed-e1-host-smoke.json",
+    "reason": "Earlier production executable could contain a cached transitional core compile, despite a frozen source tree. Retained separately and not used as final-current-host evidence.",
+    "sha256": "b4bbf9502a262132f7e225a1a292259457d13081ebd7b29f3d4debddc50aafd0"
+  },
+  "version": "nehemiah-e1-host-smoke/1"
+}

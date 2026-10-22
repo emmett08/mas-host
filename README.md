@@ -16,6 +16,9 @@ The [Nehemiah implementation sequence](docs/nehemiah-implementation.md) starts
 the scaling, governed-data and PII plans with workload baselines, strict
 [profile preflight](docs/nehemiah-governance.md) and synthetic privacy fixtures.
 Managed and shared profiles report their missing enforcement capabilities.
+[Approved capability packages](docs/capabilities.md) and the first
+[governed structured local path](docs/governed-local.md) are available with
+explicit operator policy. Complete protected deployment remains gated.
 
 [`mas-agents/3`](docs/llm-workflows.md) configures maintained OpenAI Responses,
 OpenAI-compatible, Cursor SDK, command and explicit mock providers. Workflow

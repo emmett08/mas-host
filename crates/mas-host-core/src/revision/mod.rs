@@ -23,6 +23,9 @@ impl Engine {
     /// Evaluators are registered workers; their identity is supplied by the host,
     /// never accepted from an evaluator's result. No remediation effect is allowed.
     pub fn revise(&self, plan: &Value, input: &Value) -> Result<Value> {
+        if self.inner.governance.is_some() {
+            return Err("governed-revision-unsupported".into());
+        }
         if self.inner.running.swap(true, Ordering::SeqCst) {
             return Err("engine already running".into());
         }

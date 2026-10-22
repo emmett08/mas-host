@@ -201,6 +201,7 @@ struct Inner {
     owner: File,
     active: AtomicUsize,
     running: AtomicBool,
+    governance: Option<governance::GovernedSession>,
 }
 
 /// One trusted local owner. Workers inherit no authority beyond their channel.
@@ -354,11 +355,32 @@ pub fn describe(bundle: &Value) -> Result<Value> {
 
 impl Engine {
     pub fn open(bundle: &Value, state_dir: &Path, run_id: &str) -> Result<Self> {
+        Self::open_profile(bundle, state_dir, run_id, None)
+    }
+
+    /// Open a separately identified trusted-local structured execution namespace.
+    pub fn open_governed(
+        bundle: &Value,
+        state_dir: &Path,
+        run_id: &str,
+        session: governance::GovernedSession,
+    ) -> Result<Self> {
+        session.check_current()?;
+        Self::open_profile(bundle, state_dir, run_id, Some(session))
+    }
+
+    fn open_profile(
+        bundle: &Value,
+        state_dir: &Path,
+        run_id: &str,
+        governance: Option<governance::GovernedSession>,
+    ) -> Result<Self> {
         let agents = validated_agents(bundle)?;
         let topology = &bundle["topology"];
         let directory = run_directory(state_dir, run_id)?;
         let owner = ownership(&directory)?;
         let mut db = journal(&directory)?;
+        governance::runtime::open_namespace(&db, governance.as_ref())?;
         let encoded = bundle.to_string();
         let host_binary = std::env::current_exe().map_err(error)?;
         let host_digest = digest(
@@ -439,6 +461,7 @@ impl Engine {
                 owner,
                 active: AtomicUsize::new(0),
                 running: AtomicBool::new(false),
+                governance,
             }),
         })
     }
@@ -472,11 +495,28 @@ impl Engine {
     }
 
     pub fn status(&self) -> Result<Value> {
-        snapshot(
+        if let Some(session) = &self.inner.governance {
+            session.check_current()?;
+        }
+        let value = snapshot(
             &self.inner.journal,
             &self.inner.protocol,
             &self.inner.run_id,
-        )
+        )?;
+        if let Some(session) = &self.inner.governance {
+            if value["steps"].as_array().unwrap().is_empty() {
+                return Err("governed-status-requires-bound-actor".into());
+            }
+            for step in value["steps"].as_array().unwrap() {
+                let actor = if step["target"].as_str().is_some_and(|s| !s.is_empty()) {
+                    step["target"].as_str().unwrap()
+                } else {
+                    step["actor"].as_str().unwrap()
+                };
+                session.check_status_value(actor, &value)?;
+            }
+        }
+        Ok(value)
     }
     pub fn state_directory(&self) -> &Path {
         &self.inner.directory
@@ -589,9 +629,19 @@ impl Inner {
                 "input"
             },
         )?;
+        let governed = self.governed_input(kind, actor, target, input)?;
+        let input = governed.as_ref().map(|v| &v.0).unwrap_or(input);
         let id = self.step_id(parent, key, kind);
+        let storage_key = if let Some(session) = &self.governance {
+            session.identity_commitment(&json!([parent, key]))?
+        } else {
+            key.into()
+        };
         let mut db = lock(&self.journal)?;
         let tx = db.transaction().map_err(error)?;
+        if let Some((_, commitment, decision)) = &governed {
+            governance::runtime::storage::bind_input(&tx, &id, commitment, decision)?;
+        }
         if let Some(step) = read_step(&tx, &id)? {
             if step.kind != kind
                 || step.actor != actor
@@ -606,7 +656,7 @@ impl Inner {
         let existing: bool = tx
             .query_row(
                 "SELECT EXISTS(SELECT 1 FROM steps WHERE parent=? AND key=?)",
-                params![parent, key],
+                params![parent, storage_key],
                 |r| r.get(0),
             )
             .map_err(error)?;
@@ -620,7 +670,7 @@ impl Inner {
             return Err("run checkpoint limit exhausted".into());
         }
         tx.execute("INSERT INTO steps(id,parent,key,kind,actor,target,input,state) VALUES(?,?,?,?,?,?,?,'prepared')",
-            params![id,parent,key,kind,actor,target,input.to_string()]).map_err(error)?;
+            params![id,parent,storage_key,kind,actor,target,input.to_string()]).map_err(error)?;
         let step = read_step(&tx, &id)?.ok_or("checkpoint missing after insertion")?;
         tx.commit().map_err(error)?;
         Ok(step)
@@ -632,6 +682,12 @@ impl Inner {
         output: Option<&Value>,
         evidence: Option<&Value>,
     ) -> Result<()> {
+        let protected_evidence = evidence.map(|_| json!({"error":"governed-operation-failed"}));
+        let evidence = if self.governance.is_some() && !matches!(state, "completed" | "resolved") {
+            protected_evidence.as_ref()
+        } else {
+            evidence
+        };
         lock(&self.journal)?
             .execute(
                 "UPDATE steps SET state=?,output=?,evidence=? WHERE id=?",
@@ -733,6 +789,7 @@ pub fn inspect(state_dir: &Path, run_id: &str) -> Result<Value> {
     if !directory.join("execution.sqlite").is_file() {
         return Err("unknown run".into());
     }
+    governance::runtime::require_ordinary(&journal(&directory)?)?;
     snapshot(
         &Mutex::new(journal(&directory)?),
         &Mutex::new(Store::open(directory.join("protocol.sqlite"))?),
@@ -760,6 +817,7 @@ pub fn resolve(
     }
     let _owner = ownership(&directory)?;
     let db = journal(&directory)?;
+    governance::runtime::require_ordinary(&db)?;
     let mut step = read_step(&db, effect_id)?.ok_or("unknown effect")?;
     if step.kind != "effect" {
         return Err("only effects can be resolved".into());

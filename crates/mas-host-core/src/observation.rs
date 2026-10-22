@@ -34,6 +34,7 @@ fn optional_json(value: Option<String>) -> Result<Value> {
 pub fn observe(state_dir: &Path, run_id: &str, include_payloads: bool) -> Result<Value> {
     let directory = run_directory(state_dir, run_id)?;
     let mut journal = reader(&directory.join("execution.sqlite"))?;
+    super::governance::runtime::require_ordinary(&journal)?;
     let journal = journal.transaction().map_err(error)?;
     let metadata: Option<(i64, String, bool)> = journal
         .query_row(
