@@ -1,0 +1,6 @@
+{"id": "english-name-email", "status": "PASS", "seconds": 15.8933}
+{"id": "unicode-name-email", "status": "PASS", "seconds": 14.0044}
+{"id": "combining-email", "status": "PASS", "seconds": 12.6488}
+{"id": "final-token-email", "status": "PASS", "seconds": 44.5246}
+{"id": "benign", "status": "PASS", "seconds": 9.3927}
+{"id": "empty", "status": "PASS", "seconds": 8.6313}

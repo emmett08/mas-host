@@ -1,0 +1,147 @@
+{"name": "go-sdk-vet", "argv": ["go", "vet", "./..."], "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host/sdk/go", "exit_code": 0, "seconds": 0.5}
+
+{"name": "go-sdk-race", "argv": ["go", "test", "-race", "-v", "./..."], "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host/sdk/go", "exit_code": 0, "seconds": 1.999}
+=== RUN   TestStrictJSON
+--- PASS: TestStrictJSON (0.00s)
+=== RUN   TestUnixProtocolDelegationAndEffectReplay
+--- PASS: TestUnixProtocolDelegationAndEffectReplay (0.01s)
+=== RUN   TestRejectedAdmissionDoesNotRunCallback
+--- PASS: TestRejectedAdmissionDoesNotRunCallback (0.00s)
+=== RUN   TestFrameBoundBeforeAllocation
+--- PASS: TestFrameBoundBeforeAllocation (0.00s)
+PASS
+ok  	github.com/emmett08/mas-host/sdk/go	1.023s
+?   	github.com/emmett08/mas-host/sdk/go/cmd/mas-go-gen	[no test files]
+=== RUN   TestGenerateBuildAndExecuteWithModuleReplacement
+--- PASS: TestGenerateBuildAndExecuteWithModuleReplacement (0.45s)
+=== RUN   TestRejectSourceEscape
+--- PASS: TestRejectSourceEscape (0.00s)
+=== RUN   TestRejectMissingExportedHandler
+--- PASS: TestRejectMissingExportedHandler (0.00s)
+PASS
+ok  	github.com/emmett08/mas-host/sdk/go/internal/generate	1.485s
+
+{"name": "go-fixture-vet", "argv": ["go", "vet", "./..."], "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host/tests/fixtures/go-release", "exit_code": 0, "seconds": 0.124}
+
+{"name": "go-fixture-race", "argv": ["go", "test", "-race", "-v", "./..."], "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host/tests/fixtures/go-release", "exit_code": 0, "seconds": 1.383}
+=== RUN   TestAssessmentsAndIndependentCheck
+=== RUN   TestAssessmentsAndIndependentCheck/ready
+=== RUN   TestAssessmentsAndIndependentCheck/capacity
+=== RUN   TestAssessmentsAndIndependentCheck/security
+=== RUN   TestAssessmentsAndIndependentCheck/large_integer
+--- PASS: TestAssessmentsAndIndependentCheck (0.00s)
+    --- PASS: TestAssessmentsAndIndependentCheck/ready (0.00s)
+    --- PASS: TestAssessmentsAndIndependentCheck/capacity (0.00s)
+    --- PASS: TestAssessmentsAndIndependentCheck/security (0.00s)
+    --- PASS: TestAssessmentsAndIndependentCheck/large_integer (0.00s)
+PASS
+ok  	example.org/release-qualification	1.023s
+
+{"name": "cpp-build", "argv": ["c++", "-std=c++17", "-Wall", "-Wextra", "-Werror", "-pthread", "-Isdk/cpp/include", "sdk/cpp/tests/conformance.cpp", "-o", "target/cpp-conformance"], "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host", "exit_code": 0, "seconds": 4.382}
+
+{"name": "cpp-conformance", "argv": ["target/cpp-conformance"], "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host", "exit_code": 0, "seconds": 0.005}
+
+{"name": "python-sdk", "argv": ["make", "python-test"], "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host", "exit_code": 0, "seconds": 0.277}
+PYTHONPATH=sdk/python python3 -m unittest discover -s sdk/python/tests -v
+test_adapt_rejects_non_object_handler_result (test_adaptation.AdaptationTests.test_adapt_rejects_non_object_handler_result) ... ok
+test_adapt_resolves_postponed_annotations_and_returns_object (test_adaptation.AdaptationTests.test_adapt_resolves_postponed_annotations_and_returns_object) ... ok
+test_dictionary_keys_must_be_strings (test_adaptation.AdaptationTests.test_dictionary_keys_must_be_strings) ... ok
+test_encoding_rejects_invalid_nested_values (test_adaptation.AdaptationTests.test_encoding_rejects_invalid_nested_values) ... ok
+test_missing_required_optional_field_is_still_missing (test_adaptation.AdaptationTests.test_missing_required_optional_field_is_still_missing) ... ok
+test_nested_dataclasses_and_default_factories_round_trip (test_adaptation.AdaptationTests.test_nested_dataclasses_and_default_factories_round_trip) ... ok
+test_output_validation_does_not_reconstruct_application_dataclass (test_adaptation.AdaptationTests.test_output_validation_does_not_reconstruct_application_dataclass) ... ok
+test_primitive_types_never_coerce (test_adaptation.AdaptationTests.test_primitive_types_never_coerce) ... ok
+test_unions_and_literals_preserve_json_types (test_adaptation.AdaptationTests.test_unions_and_literals_preserve_json_types) ... ok
+test_unknown_and_missing_fields_are_rejected (test_adaptation.AdaptationTests.test_unknown_and_missing_fields_are_rejected) ... ok
+test_completion_requires_the_requested_run_identity (test_client.ClientTests.test_completion_requires_the_requested_run_identity) ... ok
+test_existing_bundle_run_avoids_project_build_arguments (test_client.ClientTests.test_existing_bundle_run_avoids_project_build_arguments) ... ok
+test_host_failure_surfaces_stderr_without_retry (test_client.ClientTests.test_host_failure_surfaces_stderr_without_retry) ... ok
+test_invalid_input_never_launches_host (test_client.ClientTests.test_invalid_input_never_launches_host) ... ok
+test_malformed_success_response_is_rejected (test_client.ClientTests.test_malformed_success_response_is_rejected) ... ok
+test_pretty_cli_envelope_can_exceed_native_frame_size (test_client.ClientTests.test_pretty_cli_envelope_can_exceed_native_frame_size) ... ok
+test_project_run_serialises_dataclass_on_stdin_and_decodes_output (test_client.ClientTests.test_project_run_serialises_dataclass_on_stdin_and_decodes_output) ... ok
+test_requires_exactly_one_project_or_bundle (test_client.ClientTests.test_requires_exactly_one_project_or_bundle) ... ok
+test_container_depth_counts_the_root (test_codec.CodecTests.test_container_depth_counts_the_root) ... ok
+test_exact_integer_and_unicode_round_trip (test_codec.CodecTests.test_exact_integer_and_unicode_round_trip) ... ok
+test_frame_byte_limit_includes_object_syntax (test_codec.CodecTests.test_frame_byte_limit_includes_object_syntax) ... ok
+test_integer_decimal_digit_limit (test_codec.CodecTests.test_integer_decimal_digit_limit) ... ok
+test_rejects_cycles_without_hanging (test_codec.CodecTests.test_rejects_cycles_without_hanging) ... ok
+test_rejects_duplicate_keys_even_when_spelled_with_escapes (test_codec.CodecTests.test_rejects_duplicate_keys_even_when_spelled_with_escapes) ... ok
+test_rejects_invalid_unicode_in_values_and_keys (test_codec.CodecTests.test_rejects_invalid_unicode_in_values_and_keys) ... ok
+test_rejects_non_integer_numbers_and_non_json_constants (test_codec.CodecTests.test_rejects_non_integer_numbers_and_non_json_constants) ... ok
+test_requires_an_object_and_one_complete_document (test_codec.CodecTests.test_requires_an_object_and_one_complete_document) ... ok
+test_command_builder_preserves_explicit_bindings_and_operation_contract (test_configuration.ConfigurationTests.test_command_builder_preserves_explicit_bindings_and_operation_contract) ... ok
+test_export_leaves_domain_validation_to_host (test_configuration.ConfigurationTests.test_export_leaves_domain_validation_to_host) ... ok
+test_export_preserves_exact_host_bindings_and_topology (test_configuration.ConfigurationTests.test_export_preserves_exact_host_bindings_and_topology) ... ok
+test_exports_are_deterministic_independent_documents (test_configuration.ConfigurationTests.test_exports_are_deterministic_independent_documents) ... ok
+test_invalid_python_types_are_rejected_before_writing (test_configuration.ConfigurationTests.test_invalid_python_types_are_rejected_before_writing) ... ok
+test_optional_fields_remain_omitted_and_paths_are_not_read (test_configuration.ConfigurationTests.test_optional_fields_remain_omitted_and_paths_are_not_read) ... ok
+test_relative_export_paths_can_be_passed_directly_to_project_client (test_configuration.ConfigurationTests.test_relative_export_paths_can_be_passed_directly_to_project_client) ... ok
+test_admitted_effect_uses_stable_invocation_and_completes_with_evidence (test_context.ContextTests.test_admitted_effect_uses_stable_invocation_and_completes_with_evidence) ... ok
+test_cached_effect_never_executes_callback (test_context.ContextTests.test_cached_effect_never_executes_callback) ... ok
+test_callback_failure_after_admission_is_uncertain_and_not_repeated (test_context.ContextTests.test_callback_failure_after_admission_is_uncertain_and_not_repeated) ... ok
+test_host_rejection_is_reported_without_retry (test_context.ContextTests.test_host_rejection_is_reported_without_retry) ... ok
+test_invalid_completion_evidence_keeps_admitted_effect_uncertain (test_context.ContextTests.test_invalid_completion_evidence_keeps_admitted_effect_uncertain) ... ok
+test_invalid_step_keys_fail_before_any_channel_io (test_context.ContextTests.test_invalid_step_keys_fail_before_any_channel_io) ... ok
+test_lost_admission_acknowledgement_blocks_requests_without_callback (test_context.ContextTests.test_lost_admission_acknowledgement_blocks_requests_without_callback) ... ok
+test_lost_completion_acknowledgement_is_uncertain (test_context.ContextTests.test_lost_completion_acknowledgement_is_uncertain) ... ok
+test_parallel_accepts_eight_requests (test_context.ContextTests.test_parallel_accepts_eight_requests) ... ok
+test_parallel_cardinality_is_validated_before_any_channel_io (test_context.ContextTests.test_parallel_cardinality_is_validated_before_any_channel_io) ... ok
+test_parallel_preserves_request_and_result_order (test_context.ContextTests.test_parallel_preserves_request_and_result_order) ... ok
+test_parallel_rejects_missing_result (test_context.ContextTests.test_parallel_rejects_missing_result) ... ok
+test_rejected_effect_admission_never_executes_callback (test_context.ContextTests.test_rejected_effect_admission_never_executes_callback) ... ok
+test_request_encodes_application_dataclass_and_decodes_result (test_context.ContextTests.test_request_encodes_application_dataclass_and_decodes_result) ... ok
+test_step_key_accepts_exactly_128_utf8_bytes (test_context.ContextTests.test_step_key_accepts_exactly_128_utf8_bytes) ... ok
+test_expired_original_deadline_stops_channel_io (test_context.FramingTests.test_expired_original_deadline_stops_channel_io) ... ok
+test_frame_reader_enforces_strict_json (test_context.FramingTests.test_frame_reader_enforces_strict_json) ... ok
+test_invalid_length_and_truncated_payload_are_rejected (test_context.FramingTests.test_invalid_length_and_truncated_payload_are_rejected) ... ok
+test_receives_fragmented_big_endian_frames (test_context.FramingTests.test_receives_fragmented_big_endian_frames) ... ok
+test_sends_one_big_endian_object_frame (test_context.FramingTests.test_sends_one_big_endian_object_frame) ... ok
+test_handler_exception_is_an_error_frame (test_context.ServeTests.test_handler_exception_is_an_error_frame) ... ok
+test_module_import_sees_private_socket_with_inheritance_revoked (test_context.ServeTests.test_module_import_sees_private_socket_with_inheritance_revoked) ... ok
+test_serves_typed_handler_on_private_socket (test_context.ServeTests.test_serves_typed_handler_on_private_socket) ... ok
+test_unknown_handler_cannot_execute_application (test_context.ServeTests.test_unknown_handler_cannot_execute_application) ... ok
+
+----------------------------------------------------------------------
+Ran 58 tests in 0.138s
+
+OK
+
+{"name": "workload", "argv": ["make", "workload-test"], "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host", "exit_code": 0, "seconds": 0.077}
+python3 -m unittest discover -s tests/performance -p 'test_*.py' -v
+test_aggregate_counts_do_not_hide_per_request_duplicate_or_loss (test_workload.OutcomeTests.test_aggregate_counts_do_not_hide_per_request_duplicate_or_loss) ... ok
+test_lost_response_and_known_failure_have_distinct_projections (test_workload.OutcomeTests.test_lost_response_and_known_failure_have_distinct_projections) ... ok
+test_prepared_snapshot_is_not_reported_as_definite_deferral (test_workload.OutcomeTests.test_prepared_snapshot_is_not_reported_as_definite_deferral) ... ok
+test_process_failure_does_not_imply_failed_or_rejected_work (test_workload.OutcomeTests.test_process_failure_does_not_imply_failed_or_rejected_work) ... ok
+test_quantiles_are_nearest_rank_and_missing_is_explicit (test_workload.OutcomeTests.test_quantiles_are_nearest_rank_and_missing_is_explicit) ... ok
+test_rejected_and_completed_have_different_admission_knowledge (test_workload.OutcomeTests.test_rejected_and_completed_have_different_admission_knowledge) ... ok
+test_request_identity_is_required_for_admission_evidence (test_workload.OutcomeTests.test_request_identity_is_required_for_admission_evidence) ... ok
+test_stable_empty_or_contradictory_observations_cannot_pass_completion (test_workload.OutcomeTests.test_stable_empty_or_contradictory_observations_cannot_pass_completion) ... ok
+test_zero_categories_remain_explicit (test_workload.OutcomeTests.test_zero_categories_remain_explicit) ... ok
+test_canonical_manifest_keeps_unmeasured_scenarios_unrun (test_workload.WorkloadTests.test_canonical_manifest_keeps_unmeasured_scenarios_unrun) ... ok
+test_encoded_input_size_is_exact_and_separate_from_envelope (test_workload.WorkloadTests.test_encoded_input_size_is_exact_and_separate_from_envelope) ... ok
+test_generation_preserves_prefixes_and_binds_workload_parameters (test_workload.WorkloadTests.test_generation_preserves_prefixes_and_binds_workload_parameters) ... ok
+test_invalid_load_rejected_before_materialisation (test_workload.WorkloadTests.test_invalid_load_rejected_before_materialisation) ... ok
+test_skew_is_exact_and_nonhot_tenants_stay_distinct (test_workload.WorkloadTests.test_skew_is_exact_and_nonhot_tenants_stay_distinct) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.004s
+
+OK
+
+{"name": "provider", "argv": ["make", "provider-test"], "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host", "exit_code": 0, "seconds": 0.276}
+node --test assets/providers/cursor.test.mjs
+✔ Cursor uses the documented text-only SDK contract in a clean temporary workspace (8.576585ms)
+✔ Missing credentials fail before SDK acquisition (0.451148ms)
+✔ A failed send remains unknown and does not reveal or retry errors (3.576034ms)
+✔ Raw output and failed disposal retain separate evidence for Rust validation (1.857677ms)
+✔ Application integers and raw output reach Rust without JavaScript rounding (2.647722ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 154.450327
+

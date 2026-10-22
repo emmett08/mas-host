@@ -1,0 +1,67 @@
+{
+  "status": "PASS",
+  "scope": "official-native-cpu-api-synthetic-smoke",
+  "source_revision": "f7f00ca7fb869683eb732c010299d901457f19c3",
+  "model_revision": "7ffa9a043d54d1be65afb281eddf0ffbe629385b",
+  "backend": "opf-cpu-bfloat16/1",
+  "torch": "2.14.1+cpu",
+  "device": "cpu",
+  "parameter_dtype": "torch.bfloat16",
+  "load_seconds": 18.114,
+  "total_seconds": 31.815,
+  "max_rss_kib": 3887680,
+  "address_space_limit_bytes": 12884901888,
+  "network_attempts": [],
+  "cases": [
+    {
+      "case": "english-name-email",
+      "input_bytes": 63,
+      "tokens": 15,
+      "spans": [
+        {
+          "label": "private_person",
+          "utf8_start": 11,
+          "utf8_end": 22
+        },
+        {
+          "label": "private_email",
+          "utf8_start": 39,
+          "utf8_end": 62
+        }
+      ],
+      "seconds": 7.8268
+    },
+    {
+      "case": "unicode-name-email",
+      "input_bytes": 53,
+      "tokens": 13,
+      "spans": [
+        {
+          "label": "private_person",
+          "utf8_start": 13,
+          "utf8_end": 26
+        },
+        {
+          "label": "private_email",
+          "utf8_start": 30,
+          "utf8_end": 52
+        }
+      ],
+      "seconds": 4.2322
+    },
+    {
+      "case": "benign",
+      "input_bytes": 57,
+      "tokens": 8,
+      "spans": [],
+      "seconds": 1.6417
+    },
+    {
+      "case": "empty",
+      "input_bytes": 0,
+      "tokens": 0,
+      "spans": [],
+      "seconds": 0.0001
+    }
+  ]
+}

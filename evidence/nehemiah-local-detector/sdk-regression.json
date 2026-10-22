@@ -1,0 +1,138 @@
+{
+  "version": "nehemiah-sdk-regression/1",
+  "source_revision": "dcdd73971aecd8e3962f582937e721b04d6a1379",
+  "working_tree": "candidate-uncommitted",
+  "environment": {
+    "GOFLAGS": "-buildvcs=false"
+  },
+  "commands": [
+    {
+      "name": "go-sdk-vet",
+      "argv": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host/sdk/go",
+      "exit_code": 0,
+      "seconds": 0.5
+    },
+    {
+      "name": "go-sdk-race",
+      "argv": [
+        "go",
+        "test",
+        "-race",
+        "-v",
+        "./..."
+      ],
+      "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host/sdk/go",
+      "exit_code": 0,
+      "seconds": 1.999,
+      "passing_go_tests": 7,
+      "passing_go_packages": 2,
+      "packages_without_tests": 1
+    },
+    {
+      "name": "go-fixture-vet",
+      "argv": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host/tests/fixtures/go-release",
+      "exit_code": 0,
+      "seconds": 0.124
+    },
+    {
+      "name": "go-fixture-race",
+      "argv": [
+        "go",
+        "test",
+        "-race",
+        "-v",
+        "./..."
+      ],
+      "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host/tests/fixtures/go-release",
+      "exit_code": 0,
+      "seconds": 1.383,
+      "passing_go_tests": 1,
+      "passing_go_packages": 1,
+      "packages_without_tests": 0
+    },
+    {
+      "name": "cpp-build",
+      "argv": [
+        "c++",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-Isdk/cpp/include",
+        "sdk/cpp/tests/conformance.cpp",
+        "-o",
+        "target/cpp-conformance"
+      ],
+      "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host",
+      "exit_code": 0,
+      "seconds": 4.382
+    },
+    {
+      "name": "cpp-conformance",
+      "argv": [
+        "target/cpp-conformance"
+      ],
+      "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host",
+      "exit_code": 0,
+      "seconds": 0.005
+    },
+    {
+      "name": "python-sdk",
+      "argv": [
+        "make",
+        "python-test"
+      ],
+      "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host",
+      "exit_code": 0,
+      "seconds": 0.277,
+      "tests": 58
+    },
+    {
+      "name": "workload",
+      "argv": [
+        "make",
+        "workload-test"
+      ],
+      "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host",
+      "exit_code": 0,
+      "seconds": 0.077,
+      "tests": 14
+    },
+    {
+      "name": "provider",
+      "argv": [
+        "make",
+        "provider-test"
+      ],
+      "cwd": "/workspace/scratch/1ad2c1661ab9/mas-host",
+      "exit_code": 0,
+      "seconds": 0.276,
+      "tests": 5,
+      "passed_tests": 5,
+      "failed_tests": 0
+    }
+  ],
+  "passed": true,
+  "log": "/workspace/scratch/1ad2c1661ab9/validation/n1-sdk-regression.log",
+  "summary": {
+    "commands_passed": 9,
+    "commands_failed": 0,
+    "go_sdk_tests": 7,
+    "go_fixture_tests": 1,
+    "cpp_conformance_executables_passed": 1,
+    "python_sdk_tests": 58,
+    "workload_tests": 14,
+    "provider_tests": 5
+  }
+}
