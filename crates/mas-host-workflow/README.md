@@ -1,10 +1,10 @@
 # Workflow composition
 
-`mas-host-workflow` supplies a recursive Composite interpreter and a Runtime
-Strategy. The SDK adapter delegates ready requests through the same host request
-and MAS admission path used by application code. Workflow structure is independent
-of agent topology: star, tree and mesh applications use ordinary actors and edges.
-The host enforces which actor may contact each target.
+`mas-host-workflow` composes actor requests into recursive plans. Its interpreter finds
+ready requests and passes them through the SDK adapter to the same host admission path
+used by application code. Plans determine execution order, while topology determines who
+may communicate. Star, tree and mesh applications therefore use the same nodes with
+different permitted edges.
 
 `validate(plan, agents)` checks the complete plan, including unused definitions and
 unselected branches. `execute(context, plan, input)` executes it. `execute_with`
@@ -44,18 +44,18 @@ one of these fields substitutes a JSON Pointer (RFC 6901):
 | `{"$item":"/name"}` | Current foreach item |
 | `{"$iteration":"/index"}` | Zero-based repeat/foreach iteration |
 
-The empty pointer selects the complete source. Pointer escapes are `~0` for `~`
-and `~1` for `/`. Missing values return an error; they are never silently replaced
-with null. `$`-prefixed template keys are reserved and cannot encode literal keys.
+The empty pointer selects the complete source. Pointer escapes are `~0` for `~` and `~1`
+for `/`. Missing values return an error, preserving the distinction between an absent
+binding and an explicit null. `$`-prefixed template keys are reserved and cannot encode
+literal keys.
 
-A root sequence initially sees the workflow input as `$previous`. Nested groups
-inherit their parent's context. A sequence updates `$previous` after each child.
-Parallel branches inherit the same context and cannot observe sibling results
-until the group finishes. A branch or call preserves context. Repeat updates
-`$previous` to each completed body result before evaluating `until`. Sequential
-foreach also passes the previous item result into the next item. `$input` remains
-the original input throughout. Outside a foreach, `$item` is null; the initial
-iteration index is zero.
+A root sequence initially sees the workflow input as `$previous`. Nested groups inherit
+their parent's context. A sequence updates `$previous` after each child. Parallel
+branches inherit the same context and cannot observe sibling results until the group
+finishes. A branch or call preserves context. Repeat updates `$previous` to each
+completed body result before evaluating `until`. Sequential foreach also passes the
+previous item result into the next item. `$input` remains the original input throughout.
+Outside a foreach, `$item` is null. The initial iteration index is zero.
 
 ```json
 {
@@ -78,26 +78,26 @@ iteration index is zero.
 
 ## Scheduling, recovery and bounds
 
-The interpreter advances each branch until it needs an actor response. It collects
-the ready requests in deterministic depth-first plan order and submits batches of
-at most eight to the host. Nested parallel groups share these batches. Subsequent
-steps become ready after their predecessor results are available. A group with
-more than eight ready leaves executes in consecutive batches; this is bounded
-concurrency rather than a promise of simultaneous execution.
+The interpreter advances each branch until it needs an actor response. It collects the
+ready requests in deterministic depth-first plan order and submits batches of at most
+eight to the host. Nested parallel groups share these batches. Subsequent steps become
+ready after their predecessor results are available. A group with more than eight ready
+leaves executes in consecutive batches. The batch size bounds concurrency, and
+scheduling determines when each leaf actually runs.
 
-Each request key hashes its structural path, definition call sites, iteration
-indices and declared key. This keeps keys within host limits and reproducible
-across replay. Invocation identities, retained outputs, admission, deadlines,
-failures and effect recovery remain the host's responsibility. Plan changes
-require a new run; changed request inputs cannot reuse a retained checkpoint.
+Each request key hashes its structural path, definition call sites, iteration indices
+and declared key. This keeps keys within host limits and reproducible across replay.
+Invocation identities, retained outputs, admission, deadlines, failures and effect
+recovery remain the host's responsibility. Plan changes require a new run. Reusing a
+retained checkpoint requires the same request input.
 
-Plans and materialised values obey MAS's JSON rules: exact integers, at most
-65536 serialised bytes and the codec's depth bound of 32. There are at most 4096
-declared nodes, 1024 iterations per repeat/foreach, 64 expanded control levels
-and 100000 node evaluations. The host's own worker, request, deadline and call
-limits still apply. These limits bound execution; finite composition does not
-promise unlimited resources. Any failed request stops the workflow; retry,
-fallback and compensation policies must be explicit application operations.
+Plans and materialised values obey MAS's JSON rules: exact integers, at most 65536
+serialised bytes and the codec's depth bound of 32. There are at most 4096 declared
+nodes, 1024 iterations per repeat/foreach, 64 expanded control levels and 100000 node
+evaluations. The host's own worker, request, deadline and call limits still apply. These
+limits bound the resources available to composed plans. A failed request stops the
+workflow. Declare retry, fallback and compensation as explicit application operations so
+they retain their own admission and recovery semantics.
 
 ## Agreement on one candidate
 
@@ -120,38 +120,37 @@ adds the versioned `mas-candidate-quorum/1` agreement contract:
 }
 ```
 
-The expected `candidate` resolves to an exact `{"id":"…","sha256":"…"}`
-reference with a valid protocol identity and lowercase SHA-256 digest. The
-expected `context` resolves to a non-empty object. The application supplies the
-frozen rubric, criterion, evidence and input identities needed to distinguish
-the judgement being requested. Both bindings are resolved and validated before
-dispatch; worker output cannot select the expected candidate or context.
-Reference shape validation does not resolve the referenced record or establish
-the truth of its contents. The application must supply an integrity-checked
-candidate reference and the complete context for its decision.
+The expected `candidate` resolves to an exact `{"id":"…","sha256":"…"}` reference with a
+valid protocol identity and lowercase SHA-256 digest. The expected `context` resolves to
+a non-empty object. The application supplies the frozen rubric, criterion, evidence and
+input identities needed to distinguish the judgement being requested. Both bindings are
+resolved and validated before dispatch, fixing the expected candidate and context
+independently of worker output. Shape validation checks the reference representation.
+The application must separately verify the candidate's integrity and supply the complete
+decision context.
 
-Every joined branch must directly request a distinct registered actor. Each
-review result has `candidate`, `context` and a Boolean `accepted` field; other
-output fields remain available. A vote counts only when its candidate and entire
-context equal the expected bindings and `accepted` is `true`. Malformed records,
-different candidates and stale contexts cannot contribute to one quorum. Actor
-identity comes from the declared request target rather than a field returned by
-the worker. Distinct actors do not establish independent models, evidence or
-judgement; those remain application properties.
+Every joined branch must directly request a distinct registered actor. Each review
+result has `candidate`, `context` and a Boolean `accepted` field. Other output fields
+remain available. A vote counts only when its candidate and entire context equal the
+expected bindings and `accepted` is `true`. Malformed records, different candidates and
+stale contexts cannot contribute to one quorum. Actor identity comes from the declared
+request target rather than a field returned by the worker. Distinct actor identities
+establish whose votes count. Independence of their models, evidence or judgements
+requires separate application evidence.
 
-All branches finish through the existing request path. The result retains every
-output in `results`, including rejected and conflicting reviews. Its `join`
-receipt contains `version`, Boolean `accepted`, `minimum`, the expected
-`candidate` and `context`, `binding_sha256`, `selected` and `observations`.
-`binding_sha256` hashes the canonical JSON object containing `version`, `minimum`,
-`candidate` and `context`. `selected` names the first `minimum` qualifying branches
-in plan order as `{"branch":0,"actor":"reviewer"}` records; it is empty when
-the threshold is unmet. Each observation records that branch and actor with
-`status` equal to `accepted`, `rejected`, `mismatched` or `invalid`. A rejected
-quorum returns this inspectable receipt; a following branch can select behaviour
-using `{"$previous":"/join/accepted"}`. Request failures retain the existing
-workflow failure behaviour. No early cancellation or claim of factual
-correctness is added.
+All branches finish through the existing request path. The result retains every output
+in `results`, including rejected and conflicting reviews. Its `join` receipt contains
+`version`, Boolean `accepted`, `minimum`, the expected `candidate` and `context`,
+`binding_sha256`, `selected` and `observations`. `binding_sha256` hashes the canonical
+JSON object containing `version`, `minimum`, `candidate` and `context`. `selected` names
+the first `minimum` qualifying branches in plan order as
+`{"branch":0,"actor":"reviewer"}` records. It is empty when the threshold is unmet. Each
+observation records that branch and actor with `status` equal to `accepted`, `rejected`,
+`mismatched` or `invalid`. A rejected quorum still returns the receipt. A following
+branch can inspect `{"$previous":"/join/accepted"}` to select the next action. Request
+failures retain the existing workflow failure behaviour. Every branch completes under
+the existing request contract. A factual correctness claim requires evidence beyond vote
+agreement.
 
 Replaying a retained run reuses the same request identities and results, then
 recomputes the same selection and receipt. The plan, expected bindings and host

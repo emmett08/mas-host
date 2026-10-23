@@ -1,10 +1,10 @@
 # Workload baseline
 
-`tests/performance/workloads.json` is the canonical provisional P0 workload
-manifest for the Nehemiah scaling plan dated 22 October 2026. It records the
-seven proposed workload families, qualification conditions and missing evidence.
-Reference hardware, cost ceilings and the investigation-to-assignment mapping
-must be fixed before capacity comparison. Their values remain explicit unknowns.
+Use `tests/performance/workloads.json` to select one of seven provisional workload
+families from the Nehemiah scaling plan dated 22 October 2026. The manifest records
+qualification conditions and missing evidence. Before comparing capacity, fix the
+reference hardware, cost ceilings and investigation-to-assignment mapping, which remain
+unknown.
 
 The first executable slice measures existing trusted local execution and
 payload-free CLI observation. It reuses `tests/fixtures/rust-invoice` and the
@@ -19,55 +19,56 @@ python3 tests/performance/baseline.py smoke --host target/debug/mas-host --count
 ```
 
 The generator supplies stable original request IDs, synthetic tenant/cluster and
-permission labels, hot objects and exact encoded input sizes. Eight of each ten
-skewed requests address the hot tenant. Labels describe demand and confer no
-authority. They do not establish multi-tenant isolation. Fixture generation
-records no executed work. Request count, input bytes and smoke duration are
-bounded, including a 64 MiB aggregate fixture-input ceiling. The smoke is sequential and unpaced. It exercises neither the L
-scenario's thirty-second occupancy nor its offered rate.
+permission labels, hot objects and exact encoded input sizes. Eight of each ten skewed
+requests address the hot tenant. Labels describe synthetic demand. Authority and
+multi-tenant isolation require separate enforcement. Fixture generation records demand
+only, with executed work measured by the host smoke. Request count, input bytes and
+smoke duration are bounded, including a 64 MiB aggregate fixture-input ceiling. The
+smoke is sequential and unpaced. Exercising the L scenario requires a later run with its
+declared thirty-second occupancy and offered rate.
 
-Each smoke request runs through the actual native host. The runner retains
-separate admission and execution knowledge, original identity, input size and
-CLI duration. The returned run ID and invoice result are checked against the
-original request. A contradictory or empty post-completion root projection
-fails the smoke. Application assessment remains separate from task completion.
-A successful task supplies known admission, start and completion.
-A retained root rejection establishes non-admission. A root Request in the
-protocol observation supplies admission evidence. A failed CLI or a prepared
-checkpoint without that evidence retains unknown admission. A payload-free
-snapshot cannot distinguish a retryable refusal from every other prepared
-history, so this slice does not report a definite deferral. Future shared-service
-adapters must supply typed deferral evidence before that count can increase.
+Each smoke request runs through the actual native host. The runner retains separate
+admission and execution knowledge, original identity, input size and CLI duration. The
+returned run ID and invoice result are checked against the original request. A
+contradictory or empty post-completion root projection fails the smoke. Application
+assessment remains separate from task completion. Classify each request using the
+retained evidence. A successful task establishes admission, start and completion. A
+retained root rejection establishes non-admission, while a root Request in protocol
+observation establishes admission. A failed CLI or a prepared checkpoint without that
+evidence leaves admission unknown. A payload-free snapshot cannot distinguish a
+retryable refusal from every other prepared history, so this slice does not report a
+definite deferral. Future shared-service adapters must supply typed deferral evidence
+before that count can increase.
 
-Completion, failure and unknown outcome remain separate. `started` counts known
-host starts, while `start_unknown` preserves missing transition evidence. Polls
-can miss intermediate states. Totals supplement per-request records because equal
-totals can conceal duplicates and lost work. The generated IDs remain in every
-native invocation, observation sample and report row.
+Completion, failure and unknown outcome remain separate. `started` counts known host
+starts, while `start_unknown` preserves missing transition evidence. Polls can miss
+intermediate states. Keep per-request records beside the totals so duplicate identities
+and lost work remain detectable even when aggregate counts agree. The generated IDs
+remain in every native invocation, observation sample and report row.
 
-Observation samples follow completion and compare payload-free committed state
-across repeated polls, ignoring only the observation timestamp. This checks the
-exercised observer path for changes to its projected state. It does not establish
-absence of every possible database mutation. Protocol and journal snapshots
-retain their separate consistency boundaries. Latencies include CLI process
-startup, JSON parsing and local storage access. Tiny nearest-rank p95/p99 samples
-describe the smoke only. They cannot qualify V's API latency or capacity targets.
+Observation samples follow completion and compare payload-free committed state across
+repeated polls, ignoring only the observation timestamp. This checks whether the
+exercised observer path changes its projected state. Establishing that every database
+byte remains unchanged would require a broader check. Protocol and journal snapshots
+retain their separate consistency boundaries. Latencies include CLI process startup,
+JSON parsing and local storage access. Nearest-rank p95/p99 values from these small
+samples describe this smoke. Qualifying V's API latency or capacity targets requires the
+declared sustained workload and reference deployment.
 
-Reports bind the workload, executable, Cargo lock and workspace manifest by
-SHA-256, bind the harness source separately, and record the checkout revision,
-tracked diff, compiler availability,
-Python version and basic hardware. Storage and database versions, reference
-cost ceiling, provider token counts and billing remain unknown where unmeasured.
-The runner uses a temporary state directory and synthetic integer invoice inputs.
-No external effect is part of this fixture. Reports retain safe metadata rather
+Reports bind the workload, executable, Cargo lock and workspace manifest by SHA-256,
+bind the harness source separately, and record the checkout revision, tracked diff,
+compiler availability, Python version and basic hardware. Storage and database versions,
+reference cost ceiling, provider token counts and billing remain unknown where
+unmeasured. The runner uses a temporary state directory and synthetic integer invoice
+inputs. No external effect is part of this fixture. Reports retain safe metadata rather
 than command output or application payloads. Reports flag an incomplete source-tree
-binding whenever untracked files remain. Stage intended changes before retaining
-an implementation baseline. The executable hash identifies the actual binary.
-Its source revision remains unknown until separate build provenance binds it
-to source. The checkout revision describes the harness and fixture checkout.
-The command runner captures compiler/CLI output in
-memory and assumes these trusted processes produce bounded diagnostics. It
-does not qualify hostile-output confinement or a full process-memory ceiling.
+binding whenever untracked files remain. Stage intended changes before retaining an
+implementation baseline. The executable hash identifies the actual binary. Its source
+revision remains unknown until separate build provenance binds it to source. The
+checkout revision describes the harness and fixture checkout. The command runner
+captures compiler/CLI output in memory and assumes trusted processes produce bounded
+diagnostics. Hostile-output confinement and a full process-memory ceiling require
+separate controls and measurement.
 
 All V/L/S/A/A+/E/E+ qualification rows remain `NOT_RUN`, including after a
 successful smoke. P0 remains partial until actual PostgreSQL query/admission

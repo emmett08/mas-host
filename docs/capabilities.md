@@ -1,11 +1,10 @@
 # Approved local capability packages
 
-E1 packages an existing command operation through the ordinary `agents.toml`
-builder. The selected slice supports a structured Kubernetes evidence read in
-both TypeScript and Python. Each package declares its operation contract,
-implementation identity, file closure, runtime requirements and recovery rule.
-The operator explicitly approves its canonical declaration digest before build
-or retained-bundle execution.
+Approve an exact command package before allowing the builder or a retained bundle to use
+it. E1 adds this approval boundary to the existing `agents.toml` command path. A package
+binds the operation to its implementation bytes, declared files and runtime
+requirements, with an explicit recovery rule. The first supported package reads
+structured Kubernetes evidence in TypeScript or Python.
 
 The [structured evidence example](../examples/structured-evidence/README.md)
 supplies both implementations, strict schemas and a deterministic source.
@@ -35,12 +34,11 @@ Each declaration has these closed, versioned fields:
 | `limits` | Exact command `timeout_seconds` and `max_output_bytes` |
 | `recovery` | `effect: read`, `replay: retained-observation`, `unknown: operator-reconciliation` |
 
-Both operation schemas are required. Unsupported schema keywords fail through
-the existing schema validator. Packaged commands use fixed arguments with JSON
-stdin and JSON-object stdout. Input-derived argv is rejected. The declared
-credential-reference set must equal the agent's existing environment-name set.
-Package installation adds no environment references, credential values or target
-permissions.
+Both operation schemas are required. Unsupported schema keywords fail through the
+existing schema validator. Packaged commands use fixed arguments with JSON stdin and
+JSON-object stdout. Input-derived argv is rejected. The declared credential-reference
+set must equal the agent's existing environment-name set. The existing environment
+declaration and target grants remain authoritative when a package is installed.
 
 An absolute executable must appear in the runtime file list. Project files stay
 within the project, use ordinary relative path components and reject symlinks.
@@ -84,18 +82,18 @@ mas-host run --bundle BUNDLE --agent ACTOR --input INPUT --state STATE --run ID 
 
 The operator approves the exact declaration digest and supplies each named static
 requirement. Keeping a package name while changing its bytes, command arguments,
-schemas, required runtime or declared closure requires new approval.
-`check-capability` reports `approval_granted: false`. Approval and file/binding
-checks occur separately during build and execution. Signature-required policies
-and stronger deployment profiles reject until their verifiers and enforcement
-capabilities are implemented.
+schemas, required runtime or declared closure requires new approval. `check-capability`
+reports `approval_granted: false`. Approval and file/binding checks occur separately
+during build and execution. Policies requiring signatures and stronger deployment
+profiles remain unavailable until their verifiers and enforcement capabilities are
+implemented.
 
 ## Retained identity and dispatch
 
 The builder embeds `mas-capability-binding/1` metadata inside the existing worker
-configuration. Existing `mas-agents/3`, `mas-bundle/3`, native frames, public
-handler APIs and core execution policy retain their schemas and responsibilities.
-Projects with no sidecar follow the existing build path.
+configuration. Existing `mas-agents/3`, `mas-bundle/3`, native frames, public handler
+APIs and core execution policy retain their schemas and responsibilities. Projects that
+omit a sidecar follow the existing build path.
 
 Declared project files are copied through the existing immutable resource
 retention mechanism. Runtime files remain digest-bound in their approved
@@ -124,14 +122,14 @@ build must match the newly declared bytes and obtain approval for them. Changed
 in-place runtime files prevent fresh dispatch. Lost or uncertain external
 outcomes continue through the existing evidence-backed reconciliation path.
 
-The selected profile trusts the local operator and registered implementation.
-Digests establish byte identity under the declared immutable deployment
-assumptions. Publisher approval, signatures and model or source quality retain
-their own evidence obligations. The runtime ID and declared file list express
-an approved dependency contract. The operator still owns completeness and
-immutability of standard libraries, shared libraries and other installed runtime
-state. Managed isolation, current grant epochs and credential rotation remain
-E2/E5 requirements.
+The selected profile trusts the local operator and registered implementation. Digests
+establish byte identity under the declared immutable deployment assumptions. Publisher
+approval, signatures and model or source quality retain their own evidence obligations.
+The runtime ID and declared file list express an approved dependency contract. The
+operator must keep the declared runtime closure complete and immutable, including
+standard libraries, shared libraries and other installed state required by the command.
+Managed isolation, current grant epochs and credential rotation remain E2/E5
+requirements.
 
 ## Design and verification
 
@@ -153,10 +151,11 @@ TypeScript compiler is locked separately and its generated command uses no
 runtime package dependency. Dependency builds use an environment without
 deployment credentials.
 
-The focused CLI tests exercise real collector execution, retained replay,
-same-name substitution, missing prerequisites, incompatible runtimes, strict
-versions and schemas, file escapes, changed argv, runtime drift, dispatch asset
-checks and aggregate bundle rejection. The TypeScript/Python example tests
-compare the shared structured operation. Record executed commands and results
-in the increment's validation evidence. Static package acceptance grants no
-managed disclosure or production execution authority.
+The focused CLI tests exercise real collector execution, retained replay, same-name
+substitution, missing prerequisites, incompatible runtimes, strict versions and schemas,
+file escapes, changed argv, runtime drift, dispatch asset checks and aggregate bundle
+rejection. The TypeScript/Python example tests compare the shared structured operation.
+Record executed commands and results in the increment's validation evidence. Static
+package acceptance establishes the declared approval and identity checks. Managed
+disclosure and production execution require their own authority and qualified deployment
+controls.

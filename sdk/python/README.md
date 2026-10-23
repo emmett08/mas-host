@@ -1,14 +1,15 @@
 # Python SDK
 
-Python 3.11 or later, with no third-party runtime dependencies. Application
-functions run through the shared Rust host and its `mas-native/1` contract.
-The generated launcher and frozen application archive are build outputs.
+Write typed Python handlers and let the shared Rust host supply execution and recovery
+through `mas-native/1`. The SDK requires Python 3.11 or later and uses only the standard
+library. Building an application produces a generated launcher and a frozen archive of
+its sources.
 
-For source-checkout use, add `sdk/python` to `PYTHONPATH`; an installed host
-distribution includes the SDK assets. The generated worker bundles its own SDK
-copy and application `.py` files, so it does not depend on your current
-`PYTHONPATH`. The selected Python interpreter and installed external packages
-remain deployment dependencies.
+For source-checkout use, add `sdk/python` to `PYTHONPATH`. An installed host
+distribution includes the SDK assets. The generated worker bundles its own SDK copy and
+application `.py` files, so it does not depend on your current `PYTHONPATH`. The
+selected Python interpreter and installed external packages remain deployment
+dependencies.
 
 ## Typed handlers
 
@@ -54,23 +55,23 @@ The interpreter's earlier site initialisation, including installed `.pth` and
 do not supply launchers or protocol codecs. `serve(name, function)` is also
 available for an already imported function.
 
-Dataclass payloads support nested dataclasses, `list[T]`, `dict[str, T]`, strict
-`str`, `int` and `bool`, `None`, `Any`, `Literal` and unions with exactly one
-matching variant. Required fields remain required even when their annotation
-allows `None`; defaults and default factories are supported. Unknown fields,
-boolean-to-integer coercion and unsupported annotations are rejected.
-Dataclass fields must participate in `__init__`; `InitVar`, custom field aliases,
-tuple/set payloads, arbitrary Python objects and asynchronous handlers are outside
-this profile. A synchronous handler has two positional arguments and returns
-an object or dataclass instance. Postponed annotations are resolved with
-`typing.get_type_hints` in the application's module.
+Dataclass payloads support nested dataclasses, `list[T]`, `dict[str, T]`, strict `str`,
+`int` and `bool`, `None`, `Any`, `Literal` and unions with exactly one matching variant.
+An annotation allowing `None` still requires the field to be present unless it has a
+default. Defaults and default factories are supported. Unknown fields,
+boolean-to-integer coercion and unsupported annotations are rejected. Dataclass fields
+must participate in `__init__`. Supporting `InitVar`, custom field aliases, tuple/set
+payloads, arbitrary Python objects or asynchronous handlers requires a wider adapter
+profile. A synchronous handler has two positional arguments and returns an object or
+dataclass instance. Postponed annotations are resolved with `typing.get_type_hints` in
+the application's module.
 
-Inputs, outputs, effect descriptors and effect evidence use exact integer JSON:
-no floating-point values, at most 1024 decimal digits per integer, valid Unicode,
-unique keys, at most 32 nested containers and a 65536-byte native frame. Python
-integers retain their exact value. Encode decimal quantities as scaled integers
-or strings. Dataclass constructors and `__post_init__` are application code;
-they must obey the deterministic orchestration rule.
+Inputs, outputs, effect descriptors and effect evidence use exact integer JSON: no
+floating-point values, at most 1024 decimal digits per integer, valid Unicode, unique
+keys, at most 32 nested containers and a 65536-byte native frame. Python integers retain
+their exact value. Encode decimal quantities as scaled integers or strings. Dataclass
+constructors and `__post_init__` execute as application code and must obey the
+deterministic orchestration rule.
 
 ## Requests and effects
 
@@ -93,20 +94,20 @@ receipt = ctx.effect(
 )
 ```
 
-`request` returns a dictionary unless `output_type` is supplied. `parallel`
-accepts 1..8 requests and returns dictionaries in request order. Step keys must
-be stable and distinct within their parent invocation, contain 1..128 UTF-8
-bytes and exclude control characters. The host owns topology admission, request replay,
-parallelism, cancellation and the original deadline. `ctx.actor`,
-`ctx.invocation_id`, `ctx.deadline_ms` and `ctx.remaining_seconds` identify the
-current invocation; a context cannot be reused after its handler ends.
+`request` returns a dictionary unless `output_type` is supplied. `parallel` accepts 1..8
+requests and returns dictionaries in request order. Step keys must be stable and
+distinct within their parent invocation, contain 1..128 UTF-8 bytes and exclude control
+characters. The host owns topology admission, request replay, parallelism, cancellation
+and the original deadline. `ctx.actor`, `ctx.invocation_id`, `ctx.deadline_ms` and
+`ctx.remaining_seconds` identify the current invocation. The context remains valid only
+for that handler's lifetime.
 
-An effect callback receives its stable effect invocation ID and runs only after
-host admission. A cached effect skips the callback. Return `EffectResult` with
-object output and non-empty object evidence. A callback error, missing completion
-acknowledgement or uncertain admission raises `EffectUncertain` and blocks further
-context operations. The host retains uncertainty even if application code catches
-the exception. The SDK never retries an external operation automatically.
+An effect callback receives its stable effect invocation ID and runs only after host
+admission. A cached effect skips the callback. Return `EffectResult` with object output
+and non-empty object evidence. A callback error, missing completion acknowledgement or
+uncertain admission raises `EffectUncertain` and blocks further context operations. The
+host retains uncertainty even if application code catches the exception. Another
+external attempt requires the host's explicit admission and recovery contract.
 
 A governed acknowledgement replaces the callback's local output with the host's
 safe projection. Fresh and cached calls return that same dictionary. A withheld
@@ -118,10 +119,10 @@ without `completion` preserves the ordinary callback output. See the exact
 closed version, effect identity, external certainty and disposition fields in
 the [native contract](../../docs/native-contract.md#external-effects-and-recovery).
 
-Code outside effect boundaries must be deterministic and free of external
-effects. Threads and subprocesses do not create durable checkpoints. Worker
-stdout/stderr are application streams, not the framed private channel; the local
-guardian currently discards them.
+Keep code outside effect boundaries deterministic and free of external effects because
+the handler may restart between durable checkpoints. Threads and subprocesses remain
+ordinary application computation. The SDK exchanges frames through the private channel,
+while the local guardian discards worker stdout/stderr.
 
 ## Typed root input and configuration
 
@@ -145,18 +146,19 @@ client = Client(
 result = client.run("assessor", Proposal(12_500), output_type=Assessment)
 ```
 
-`Client.run` sends input on stdin using `--input -`; an input file is optional.
-Repeated calls with the same run ID and retained identity reuse recorded work.
-When omitted, the client creates a run ID once per client instance; retain
-`client.run_id` to resume later. `bundle=...` selects a retained bundle instead
-of rebuilding a project. `host`, `sdk_root` and `connections` accept explicit
-host executable, SDK distribution and connection-profile paths.
+`Client.run` sends input on stdin using `--input -`, allowing callers to supply typed
+input directly. Repeated calls with the same run ID and retained identity reuse recorded
+work. When the run ID is omitted, the client creates one per instance. Retain
+`client.run_id` to resume that run later. `bundle=...` selects a retained bundle instead
+of rebuilding a project. `host`, `sdk_root` and `connections` accept explicit host
+executable, SDK distribution and connection-profile paths.
 
-The typed authoring API also supplies `Workflow(plan)` and
-`Llm(connection, model, instructions, ...)` with schemas on `Agent`. Export is an explicit
-application action that produces ordinary configuration documents. The host
-validates operation identities, paths, schemas, provider settings and topology.
-It never imports Python configuration code while inspecting or resuming a run.
+The typed authoring API also supplies `Workflow(plan)` and `Llm(connection, model,
+instructions, ...)` with schemas on `Agent`. Export is an explicit application action
+that produces ordinary configuration documents. The host validates the exported
+operation identities, paths, schemas, provider settings and topology. Inspection and
+resume consume those documents, keeping Python configuration execution an explicit
+application action.
 
 ## Verify
 

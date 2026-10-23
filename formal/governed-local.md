@@ -1,9 +1,10 @@
 # Governed local control model
 
-`governed-local.pml` extends the existing host checks for the trusted-local
-structured path and its optional exact-source inspection gate. Run it alone with
-`python3 formal/verify.py --model governed-local`, or run the existing default
-command to include every host model. CI uses the default command.
+`governed-local.pml` asks whether the trusted-local structured path preserves authority,
+source identity and known completion across inspection, interruption and replay. It
+extends the existing host checks with the optional exact-source inspection gate. Run it
+alone with `python3 formal/verify.py --model governed-local`, or run the existing
+default command to include every host model. CI uses the default command.
 
 ## Service and finite environment
 
@@ -26,23 +27,27 @@ permission, including before actual external dispatch, conservatively leaves an
 unknown effect. A crash after the execution-journal completion transaction
 retains its receipt and can repair the separate protocol completion.
 
-Input, effect-descriptor, completion and retained-output inspection each use
-the same five representative callback classes: complete, exact
-and clean; the same clean projection with a positive finding in removed original
-content; incomplete or failed coverage; wrong source/detector identity; and a
-finding in the retained projection. The latter three refuse input admission or
-withhold a known completion's payload. The original-positive case can use the
-explicitly approved narrower structured projection. Current authority is checked
-before the callback and again after it. Available retained output is inspected
-again for delivery. An exact host-owned withheld marker retains safe completion
-facts without depending on detector availability.
+Each input, effect-descriptor, completion and retained-output inspection uses the same
+five callback classes:
 
-`Safe`, `Raw` and `Withheld` denote representations, rather than JSON parsers or
-detector quality. `inspection_exact` abstracts exact source and detector/config
-bindings. `inspection_complete` includes full admitted coverage and successful
-termination within the implementation's registered bounds. The model has no
-real-time clock. Rust checks separately cover the 16 KiB/128-text-unit limits,
-UTF-8 offsets, decoded JSON keys/values and the shared callback deadline.
+1. Complete, exact-source inspection with clean content.
+2. A clean projection with a positive finding in removed original content.
+3. Incomplete or failed coverage.
+4. Wrong source or detector identity.
+5. A finding in the retained projection.
+
+The final three classes refuse input admission or withhold a known completion's payload.
+The original-positive case can use the explicitly approved narrower structured
+projection. Current authority is checked before the callback and again after it.
+Available retained output is inspected again for delivery. An exact host-owned withheld
+marker retains safe completion facts without depending on detector availability.
+
+`Safe`, `Raw` and `Withheld` name representation classes. Parsing and detector quality
+require separate implementation and empirical evidence. `inspection_exact` abstracts
+exact source and detector/config bindings. `inspection_complete` includes full admitted
+coverage and successful termination within the implementation's registered bounds. The
+model has no real-time clock. Rust checks separately cover the 16 KiB/128-text-unit
+limits, UTF-8 offsets, decoded JSON keys/values and the shared callback deadline.
 
 ## Properties and actual atomicity
 
@@ -71,16 +76,16 @@ requires stronger authority/storage coordination.
 | Recheck after inspection | A callback cannot reuse its earlier positive authority check after revocation | `inspect_boundary` and subsequent `authorize_inspected` |
 | Immutable known completion | Receipt and completed step agree, payload disposition and external certainty remain sealed | `storage::save_completion`, `Inner::complete_effect` transaction |
 | Independent result dimensions | Withholding never erases host settlement or promotes external uncertainty to completion | `boundary::certainty`, `completion_values`, `governed_effect_completion` |
-| Repair and replay | Completed/unknown effects never dispatch again; protocol repair copies only retained safe values | `Inner::reconcile_completed_effects`, `Inner::begin_effect`, `protocol::finish_effect` |
+| Repair and replay | Completed/unknown effects retain their dispatch count. Protocol repair copies only retained safe values. | `Inner::reconcile_completed_effects`, `Inner::begin_effect`, `protocol::finish_effect` |
 | Tenant separation | A foreign tenant cannot receive the represented result | A2A owner derivation and retained task ownership checks |
 | Exact host marker | An unrelated parent or actor cannot borrow another effect's completed certainty | `Inner::governed_output` exact parent/actor/output receipt lookup |
 | Finite settlement | `governed_local_settles`: every represented execution finishes with delivery, denial or blockage | Bounded returning-work abstraction, rather than a wall-clock or eventual-reconciliation theorem |
 
-The model composes the listed admission, completion and recovery transitions.
-It is an implementation-correspondence model, with no formal refinement proof.
-The Rust implementation applies the shared inspection gate to additional task
-assembly and peer delivery. Their exact serialization and
-call-site coverage require the separate implementation tests.
+The model composes the listed admission, completion and recovery transitions. The source
+mapping supplies implementation correspondence. Establishing refinement requires a
+separate proof over the implementation and model executions. The Rust implementation
+applies the shared inspection gate to additional task assembly and peer delivery. Their
+exact serialisation and call-site coverage require the separate implementation tests.
 
 Core replay is an explicitly requested retry using retained identity. A2A's
 service recovery keeps submitted/working tasks unknown after restart and returns
@@ -102,22 +107,22 @@ or stale authority after inspection. A permanent external-stall mutation must
 produce an acceptance cycle. Every expected assertion or cycle is replayed and
 retained with its source, generated verifier and trail.
 
-Inverted assertions witness successful available delivery, known completed
-withheld output, cached replay, unknown effects, restart with protocol repair,
-completion after revocation, changed-input and foreign-tenant refusal, the
-snapshot race, same-policy epoch refresh, positive-original minimisation,
-inspection refusal and inspection-induced completion withholding. These witness
-failures establish reachability in the positive model rather than a defect.
+Inverted assertions witness successful available delivery, known completed withheld
+output, cached replay, unknown effects, restart with protocol repair, completion after
+revocation, changed-input and foreign-tenant refusal, the snapshot race, same-policy
+epoch refresh, positive-original minimisation, inspection refusal and inspection-induced
+completion withholding. Each inverted assertion deliberately fails when the named path
+is reachable. Its counterexample establishes that reachability in the positive model.
 The restart-repair witness requires the crash to occur after execution-journal
-completion and before protocol completion. An additional witness attempts an
-explicit retry of an unknown effect and reaches blockage without dispatch.
+completion and before protocol completion. An additional witness attempts an explicit
+retry of an unknown effect and reaches blockage without dispatch.
 
 Storage loss, malicious callbacks/workers, hash collisions, arbitrary participant
-counts, shared ownership, notifications, deletion/restore, general free-text
-release and actual detector population performance remain outside this model.
-The concrete callback implementation must return or reach its enforced deadline.
-The zero-error progress result uses this finite-return premise and grants no
-unbounded provider-progress or availability guarantee.
+counts, shared ownership, notifications, deletion/restore, general free-text release and
+actual detector population performance remain outside this model. The concrete callback
+implementation must return or reach its enforced deadline. The progress claim depends on
+this finite-return premise. Extending it to unbounded provider progress or deployment
+availability requires stronger assumptions and evidence.
 
 The runner hashes every model and itself before and after execution, records
 selected models, versions, commands, resource limits and complete-search results,
