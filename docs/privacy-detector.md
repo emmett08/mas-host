@@ -1,12 +1,11 @@
 # Local Privacy Filter inspection
 
-`mas-host privacy-inspect` adds N1's local neural-detector path to the N0
-assessment contracts. Its default packaged path runs the pinned OpenAI Privacy
-Filter Python adapter under the existing Linux worker guardian, validates the
-result against the original text, and combines it with the deterministic
-recognisers. The command
-returns inspection metadata with `release_permitted: false`. Protected release
-remains held until N2 and E2/E3 mediate the complete execution path.
+`mas-host privacy-inspect` inspects bounded local text with the pinned OpenAI Privacy
+Filter adapter. The Linux worker guardian supervises inference, then the host validates
+the assessment against the original text and combines it with deterministic findings.
+This N1 path extends the N0 assessment contracts. Its result always carries
+`release_permitted: false`: inspection supplies evidence, while protected release
+requires N2 and E2/E3 mediation across the complete execution path.
 
 ## Prepare a local bundle
 
@@ -16,14 +15,13 @@ local assets and an exact bundle manifest. Model acquisition and dependency
 installation belong to a separate provisioning step with the operator's network
 and storage permissions.
 
-The reviewed package's backend is `opf-cpu-bfloat16/1`, using CPU inference,
-bfloat16 weights, the `o200k_base` encoding and Viterbi decoding. The initial profile has
-a 4,096-token context setting and a 16,384-byte source limit. Whole-input
-inspection or an explicit incomplete result remains required within these
-bounds. More than 4,096 tokens produces an unsupported `input-token-limit`
-assessment, preserving the original input rather than silently truncating it.
-Language/domain quality remains unqualified in this increment. Additional
-backends and quantisation choices need their own evaluation.
+The reviewed backend, `opf-cpu-bfloat16/1`, runs CPU inference with bfloat16 weights. It
+uses the `o200k_base` encoding and Viterbi decoding. The initial profile has a
+4,096-token context setting and a 16,384-byte source limit. Whole-input inspection or an
+explicit incomplete result remains required within these bounds. More than 4,096 tokens
+produces an unsupported `input-token-limit` assessment, preserving the original input
+rather than silently truncating it. Language/domain quality remains unqualified in this
+increment. Additional backends and quantisation choices need their own evaluation.
 
 | Component | Bound identity |
 |---|---|
@@ -70,14 +68,12 @@ The model weights occupy approximately 2.8 GB before runtime and other storage
 overheads. `seal` verifies the selected assets and runtime, then writes the
 identified manifest. It performs no model inference.
 
-Runtime checks preserve the locked dependency versions and interpreter digest.
-The operator retains responsibility for immutability of the installed native
-runtime and dependencies. Recorded wheel provenance and package version labels
-support identity checks while full installed-runtime byte isolation remains a
-separate deployment property. Shared-library byte identity and integrity remain
-operator deployment obligations. Optional unused `pip` and `opf==0.1.0`
-installations are tolerated. The adapter imports OPF from its verified local
-source tree.
+Runtime checks verify the locked dependency versions and interpreter digest. The
+operator must also keep the installed runtime and dependencies immutable, including
+shared libraries. Wheel provenance and version labels support the recorded identity
+checks. Full isolation of installed runtime bytes requires separate deployment controls.
+Optional unused `pip` and `opf==0.1.0` installations are tolerated. The adapter imports
+OPF from its verified local source tree.
 
 ## Inspect bounded UTF-8 text
 
@@ -109,10 +105,10 @@ are rejected before launching the model.
 | `--include-details` | `false`, with explicit `true` enabling restricted category/span metadata |
 | `--worker` | Source-tree adapter path compiled into this host, with an explicit override for relocated installations |
 
-The Python executable must be an absolute existing file. Its virtual-environment
-path is preserved so that interpreter symlink resolution cannot silently select
-the base runtime. Provisioned worker and asset paths must remain under the
-operator's control throughout inspection.
+The Python executable must be an absolute existing file. Its virtual-environment path is
+preserved so the launcher selects that environment rather than resolving the interpreter
+to the base runtime. Provisioned worker and asset paths must remain under the operator's
+control throughout inspection.
 
 The CLI follows the trusted local registered-worker contract. `--worker` can
 select an operator-trusted alternative whose response follows the same wire
@@ -136,11 +132,11 @@ handling and response operations remain N2/N3 responsibilities.
 
 ## Interpret the result
 
-The default `mas-privacy-inspection/1` result reports source byte count,
-detector identity, completion, finding count, handling reason and disposition.
-Raw source text and detected values stay out of this response. Explicit details
-add category/span metadata whose locations and classifications still require
-appropriate handling.
+The default `mas-privacy-inspection/1` result reports source byte count, detector
+identity, completion, finding count, handling reason and disposition. The default
+response contains inspection metadata while keeping source text and detected values
+private. Explicit details add category/span metadata, whose locations and
+classifications also require appropriate handling.
 
 | Field or state | Interpretation |
 |---|---|
@@ -152,13 +148,13 @@ appropriate handling.
 | `release_permitted: false` | Protected disclosure and execution remain subject to their host-owned admission gates |
 | `hold` / `withhold` | Conservative local handling remains in force |
 
-Deterministic positive findings survive a neural timeout, unavailable model or
-invalid neural response. A completed deterministic pattern pass supplies its own
-limited evidence while neural completion remains failed. Empty findings and
-complete coverage still require labelled-domain evaluation before any release
-policy can rely on them. Assessment metadata records `score_semantics:
-not-exposed`. Future score exposure requires a versioned definition and any
-calibration needed by its intended use.
+Deterministic positive findings survive a neural timeout, unavailable model or invalid
+neural response. A completed deterministic pattern pass supplies its own limited
+evidence while neural completion remains failed. A release policy can rely on empty
+findings and complete coverage only after labelled-domain evaluation establishes the
+required detection quality. Assessment metadata records `score_semantics: not-exposed`.
+Future score exposure requires a versioned definition and any calibration needed by its
+intended use.
 
 The worker returns half-open ranges in original Unicode codepoints. Rust maps
 each endpoint through the unchanged source's Unicode-scalar boundaries into
@@ -189,12 +185,11 @@ findings. The Python package separates bundle/runtime verification, wire records
 and model execution. These responsibilities accommodate a later evaluated
 backend without moving host admission into the classifier.
 
-Configuration, result parsing and model integration are extracted responsibilities
-because they change for different reasons and have independent failure tests.
-The worker's existing lifetime machinery remains the cleanup owner. Its new
-resource-limit validation stays beside worker construction because it checks one
-bounded launch invariant. The span merger remains the single owner of overlap
-and provenance rules.
+Separate configuration, result parsing and model integration modules keep each
+boundary's changes and failure tests local. The worker's existing lifetime machinery
+remains the cleanup owner. Its new resource-limit validation stays beside worker
+construction because it checks one bounded launch invariant. The span merger remains the
+single owner of overlap and provenance rules.
 
 Rust follows the existing 2021 edition, selected toolchain, `rustfmt` and Clippy
 profile. The adapter uses Python 3.11+ standard-library transport/provisioning
@@ -204,10 +199,14 @@ explicit provisioning.
 
 ## Acceptance still required
 
-Contract tests, synthetic failures and an actual model smoke each supply evidence
-for their exercised paths. Their commands and outcomes belong in the retained
-validation record. Model quality, throughput, isolation and deployment claims
-need separately identified evidence.
+Contract tests, synthetic failure controls and actual-model execution supply evidence
+for different questions. Retain each command and outcome with its source revision. Model
+quality, throughput, isolation and deployment claims need separately identified
+evidence.
+
+The table below records the remaining gates at the N1 checkpoint. The [implementation
+sequence](nehemiah-implementation.md) records later structured mediation,
+retained-reader and response slices, together with their remaining acceptance work.
 
 | Plan increment | Status and remaining gate |
 |---|---|

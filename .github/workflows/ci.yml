@@ -15,9 +15,14 @@ concurrency:
 
 jobs:
   runtime:
+    name: Native tests
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     env:
+      # Keep full debug information in sidecars to reduce executable hashing.
+      # Debug assertions, overflow checks and optimisation retain their defaults.
+      CARGO_PROFILE_DEV_SPLIT_DEBUGINFO: unpacked
+      CARGO_PROFILE_TEST_SPLIT_DEBUGINFO: unpacked
       RUST_TEST_THREADS: '2'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -52,8 +57,9 @@ jobs:
           retention-days: 14
 
   formal:
+    name: SPIN verification
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:

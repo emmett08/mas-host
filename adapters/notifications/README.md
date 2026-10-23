@@ -1,18 +1,18 @@
 # Trusted-local privacy response
 
-`privacy_response` adds two application operations through the existing Python
-`Context.effect` API. The first retains a safe case event and notification
-intent in the host journal. The second submits its fixed projection to one
-operator-configured route. Each operation has its own host admission and durable
-identity. This package introduces no case database or second effect engine.
+`privacy_response` records intent before attempting a notification. Two Python
+`Context.effect` operations make that ordering durable: the first retains the safe case
+event and notification intent, and the second submits its fixed projection to an
+operator-configured route. Each has its own admission and identity in the existing host
+journal.
 
 `CaseEvent` accepts bounded enumerated reasons, dispositions, exposure states,
-categories and counts. The application must obtain those facts from a trusted
-handling decision. A withheld output alone supports `handling-withheld` with
-zero reported findings. It supplies no evidence that PII was detected or that an
-unauthorised recipient received it. Routes follow fixed rules: coverage failures
-use `service-operations`, credentials or suspected exposure use
-`security-response`, and other review events use `data-owner`.
+categories and counts. The application must obtain those facts from a trusted handling
+decision. A withheld output alone supports `handling-withheld` with zero reported
+findings. Claiming PII detection or unauthorised recipient exposure requires additional
+evidence about the source or delivery. Routes follow fixed rules: coverage failures use
+`service-operations`, credentials or suspected exposure use `security-response`, and
+other review events use `data-owner`.
 
 Case identity derives from the original host invocation. Notification action
 identity additionally binds the event version and symbolic route. The host's
@@ -23,11 +23,11 @@ configuration digest. A changed destination/contract therefore
 conflicts under the retained effect identity. Bearer-secret rotation preserves
 the target digest and remains subject to the host's current grant checks.
 
-The callback rechecks the sink binding before any send. A changed local target
-produces a known `not-sent` receipt. Fresh admissions and retained deliveries
-remain subject to the configured host policy. These checks operate within the
-trusted native-worker profile. They supply no confinement against a worker that
-uses its credentials or filesystem access outside the declared operation.
+The callback rechecks the sink binding before any send. A changed local target produces
+a known `not-sent` receipt. Fresh admissions and retained deliveries remain subject to
+the configured host policy. These checks apply to host-mediated operations in the
+trusted native-worker profile. Confining a worker's other credential or filesystem
+access requires additional deployment controls.
 
 ## Adapters
 
@@ -73,20 +73,20 @@ and invocation from task ownership and checks current `resolve` authority.
 The caller supplies neither a filesystem path nor another actor's identity.
 
 The consumer requires an available completed case intent and exact agreement on
-namespace, actor and parent invocation. Available notification descriptors must
-also match the safe event and destination binding. The case and action IDs are
-recomputed from the original invocation. The result preserves acceptance,
-refusal, throttling, known non-transmission and uncertainty; recipient delivery
-remains unknown. An inaccessible notification body preserves the host's safe
-execution metadata but reports an unknown submission and unavailable binding.
-An authorised `not-recorded` view also means unknown; a failed lookup cannot be
-substituted for such a view.
+namespace, actor and parent invocation. Available notification descriptors must also
+match the safe event and destination binding. The case and action IDs are recomputed
+from the original invocation. The result preserves acceptance, refusal, throttling,
+known non-transmission and uncertainty. Recipient delivery remains unknown in every
+case. An inaccessible notification body preserves the host's safe execution metadata but
+reports an unknown submission and unavailable binding. An authorised `not-recorded` view
+also means unknown. A failed lookup leaves access or availability unresolved and must
+remain a separate outcome.
 
-This function performs no authentication or reads. Supplied JSON alone grants
-no authority. The example obtains both records from the host and re-reads the
-immutable intent after the notification lookup to check current access again.
-Those reads are separate snapshots, so the result does not claim an atomic
-case history or continuing access after the final response. It starts no
+This pure function validates supplied views. Authentication and authorised reads belong
+to the host boundary that obtains those views. The example obtains both records from the
+host and re-reads the immutable intent after the notification lookup to check current
+access again. Those reads are separate snapshots. An atomic case history or continuing
+access after the final response requires additional guarantees. It starts no
 notification, retry, acknowledgement or adjudication operation.
 
 ## Validation and remaining work
@@ -96,11 +96,10 @@ metadata, deadline, capacity and replay tests. The actual-host scenarios in
 `examples/privacy-response/verify.py` exercise the pinned native application,
 host inspection gate, case intent, notification, restart and revocation.
 
-The trusted-local N3 response slice now includes a read-only case projection
-over the first governed effect resolver. Full N3 still requires complete case
-history, adjudication against original assessments,
-durable cross-invocation queues and suppression, timed escalation, and qualified
-provider reconciliation. The synthetic example demonstrates one event per
-original request. A new request does not automatically deduplicate a repeated
-real-world incident. Deployment privacy, model quality and endpoint delivery
-qualification remain separate gates.
+The trusted-local N3 response slice now includes a read-only case projection over the
+first governed effect resolver. Completing N3 requires authorised original assessments
+for adjudication and a complete case history. Durable queues and suppression must extend
+across invocations, with timed escalation and provider reconciliation qualified
+separately. The synthetic example demonstrates one event per original request. A new
+request does not automatically deduplicate a repeated real-world incident. Deployment
+privacy, model quality and endpoint delivery qualification remain separate gates.

@@ -5,10 +5,11 @@ in [Nehemiah integration and qualification](nehemiah-integration-status.md).
 The foundation account and historical validation receipts below identify their
 own source revisions.
 
-Implementation follows the three plans updated on 22 October 2026. The original
-foundation starts from `mas-host@6508042ea86d26bb35106d919a8699d5f1a2e782`.
-Review repairs are published in PR #15 at
-`7558168f6b05f478773207fa94d3b3988f197cda` and PR #16 at
+Use this sequence to distinguish the implemented slices from the acceptance work that
+still blocks the three plans updated on 22 October 2026. Implementation follows
+those plans. The original foundation starts from
+`mas-host@6508042ea86d26bb35106d919a8699d5f1a2e782`. Review repairs are published
+in PR #15 at `7558168f6b05f478773207fa94d3b3988f197cda` and PR #16 at
 `f651ddac8a5afabfbb955de805b3ff59b1ecde99`. Their original validation receipts
 remain historical evidence for the source revisions they identify. Review
 receipts under `evidence/nehemiah-review/` bind the corrected files and the
@@ -19,9 +20,9 @@ current plan snapshots.
 | Enterprise P0 | Provisional canonical workload manifest, deterministic demand generator and actual-host native/observer smoke | Reference hardware/cost, assignment mapping, paced occupancy, PostgreSQL contention and full workloads |
 | Extensibility E0 | Profile preflight, distinct scope identities, conjunctive policy contracts, bounded exact decision bindings and separate protected result dimensions | Stronger profiles remain disabled until their runtime dependencies are qualified |
 | Extensibility E1 | Explicitly approved command capability packages, retained implementation/schema/runtime closure, TypeScript and Python structured evidence examples | Managed activation, attestation verification when required, broader package forms and deployment closure qualification |
-| PII N0/N1 | Exact-source assessments, deterministic fixtures, pinned local neural adapter and supervised inspection | Labelled deployment-domain quality thresholds and qualification; inspection never grants unstructured release |
+| PII N0/N1 | Exact-source assessments, deterministic fixtures, pinned local neural adapter and supervised inspection | Labelled deployment-domain quality thresholds and qualification. Unstructured release also requires host admission. |
 | E2/E3 and N2 first structured slice | Authenticated A2A2/core sessions, pre-persistence projection, keyed original-request conflicts, current admission/delivery checks, safe effect completion and replay | Complete N2 coverage, shared acquisition/subscribers, general evidence lineage/resolution, revision integration, dynamic runtime credentials and unstructured handling |
-| N2 detector mediation | Optional operator-pinned local inspection at structured ingress, invocation, effect arguments, result/evidence retention and retained payload delivery; exact-source coverage, current processing authority and version-bound receipts | Cross-field/conversational inspection, numeric identifiers, arbitrary text qualification and remaining acquisition/inference/revision paths |
+| N2 detector mediation | Optional operator-pinned local inspection at structured ingress, invocation, effect arguments, result/evidence retention and retained payload delivery, with exact-source coverage, current processing authority and version-bound receipts | Cross-field/conversational inspection, numeric identifiers, arbitrary text qualification and remaining acquisition/inference/revision paths |
 | N2/E3 retained-effect reader | Current-authority, read-only resolution of an exact retained effect, with separate metadata/payload checks and no execution recovery | Broader source/assessment access and shared-reader qualification |
 | E2/E3 structured acquisition | Opt-in version 2 baseline/source-policy association, durable pending acquisition, host-owned ancestry/exposure and authorised retained projection reads through existing journals | Exact assessment custody, source-byte adjudication, protected revision, larger closure and shared-subscriber qualification |
 | N3 first response slice | Trusted native safe-case intent and separately admitted notification through existing effects; bounded memory fixture, HTTPS incident-submission adapter and authorised retained case-status projection | Exact component-assessment/source-byte resolution, adjudication, durable queue, timed retry/escalation, provider reconciliation and endpoint/deployment qualification |
@@ -32,27 +33,27 @@ current plan snapshots.
 | E4 namespace lifecycle | Independent tombstones, holds, monotone access expiry, restore denial and stopped-namespace local payload purge | Individual-object lifecycle, automatic purge, all external copies and physical-erasure qualification |
 | E5 and N4/N5 deployment | Concrete hardened placement renderer, least-privilege collector and qualification commands; managed profile remains gated | Live images/CNI/volumes, hostile-worker isolation, consumer and measured deployment qualification |
 
-The first governed path is a single-owner trusted-local implementation. Its
-schemas allow closed objects, enumerated strings, bounded integers/arrays,
-booleans and null. Arbitrary text remains unavailable. Minimized output can
-still be sensitive: all admitted content is classified restricted, and every
-applicable policy must explicitly permit inline immutable retention. The
-profile does not claim declassification, deletion or isolation from native
-callbacks. Managed and shared deployment profiles continue to fail preflight.
+The first governed path is a single-owner trusted-local implementation. Its schemas
+allow closed objects, enumerated strings, bounded integers/arrays, booleans and null.
+Arbitrary text remains unavailable. Minimised output can still be sensitive. All
+admitted content is classified restricted, so every applicable policy must explicitly
+permit inline immutable retention. Declassification, deletion and isolation from native
+callbacks require further mechanisms. Managed and shared deployment profiles continue to
+fail preflight.
 
 ## Ownership and design
 
-The core owns scope checks, bounded projection, keyed bindings and mediation in
-the existing execution, effect and protocol owners. The CLI owns current
-credential lookup, A2A task handling and package approval. The command builder
-and retained-resource mechanism own approved package identity; existing command
-asset checks revalidate it at dispatch. SDKs return the host-approved effect
-projection on both fresh completion and replay.
+The core owns scope checks, bounded projection, keyed bindings and mediation in the
+existing execution, effect and protocol owners. The CLI owns current credential lookup,
+A2A task handling and package approval. The command builder and retained-resource
+mechanism bind the approved package identity. Existing command asset checks revalidate
+that binding at dispatch. SDKs return the host-approved effect projection on both fresh
+completion and replay.
 
-The privacy crate and pinned local Python adapter retain source/coverage and
-inspection responsibilities. The new structured gate does not interpret neural
-success as permission to release arbitrary text. The workload harness remains
-separate from capacity claims.
+The privacy crate and pinned local Python adapter retain source/coverage and inspection
+responsibilities. The structured gate uses neural results as inspection evidence, with
+release governed by the structured schema and current policy. The workload harness
+supplies measurements whose scope must be checked before making capacity claims.
 
 The detector integration reuses that adapter through the existing guardian. A
 separate processing permission precedes each inspection boundary. Exact JSON
@@ -73,37 +74,38 @@ invocation. Its case-status consumer now reads the original intent and
 notification records through the host's authorised retained-effect reader.
 Full N3 lifecycle and scheduling remain subsequent work.
 
-The retained-effect reader extends the existing read-only observation pattern.
-It selects an exact governed namespace, parent invocation, actor and logical key,
-then checks current rights before delivering a bounded record. It preserves
-completion and uncertainty without opening an execution engine. The A2A service
-derives the run and root invocation from an authenticated, owned task. This first
-resolver increment supplies no source-lineage or shared-reader qualification.
+The retained-effect reader extends the existing read-only observation pattern. It
+selects an exact governed namespace, parent invocation, actor and logical key, then
+checks current rights before delivering a bounded record. It preserves completion and
+uncertainty without opening an execution engine. The A2A service derives the run and
+root invocation from an authenticated, owned task. The following acquisition increment
+extends this read boundary with source ancestry. Shared-reader qualification remains
+separate work.
 
 The opt-in [structured acquisition contract](governed-acquisition.md) now binds
-registered source policies to acquired projections. The host carries complete
-bounded ancestry through invocation assembly and subsequent operations. A
-pending acquisition constrains its native callback before execution permission;
-completion and delivery retain exposure through the existing journal. Current
-task, effect and source readers enforce these inherited restrictions. Discarded
-original bytes remain unavailable. Complete E3 and protected revision retain
-their remaining qualification gates.
+registered source policies to acquired projections. The host carries complete bounded
+ancestry through invocation assembly and subsequent operations. Pending acquisition is
+recorded before the native callback receives execution permission. Completion and
+delivery preserve exposure through the existing journal. Current task, effect and source
+readers enforce these inherited restrictions. Discarded original bytes remain
+unavailable. Complete E3 and protected revision retain their remaining qualification
+gates.
 
 The selected design adds explicit A2A2 and `Engine::open_governed` entry points.
-Existing local APIs and configuration versions retain their behavior. A
-namespace cannot switch between ordinary and governed modes, and ordinary
-inspect/observe/resolve/revision paths reject governed state. New receipt and
-original-binding tables live in the existing journal; no second effect engine,
-scheduler, notification owner or general plugin runtime is introduced.
+Existing local APIs and configuration versions retain their behaviour. A namespace
+cannot switch between ordinary and governed modes, and ordinary
+inspect/observe/resolve/revision paths reject governed state. The existing journal
+stores the new receipt and original-binding tables. Execution, scheduling and
+notification admission retain their existing owners.
 
-Separate authenticated transport identity from purpose/grant binding so a grant
-change cannot reset a request's replay identity. A fixed private commitment key
-binds original content without retaining predictable plain hashes. Current
-credential and policy snapshots are reread at admission and delivery. Changing
-an epoch stops an existing session; a newly authenticated session with the same
-policy can retrieve the same retained task. Policy, key and namespace migration
-remain explicit later work. The file-backed profile makes no distributed
-linearisation claim and cannot recall an already admitted action.
+Separate authenticated transport identity from purpose/grant binding so a grant change
+cannot reset a request's replay identity. A fixed private commitment key binds original
+content without retaining predictable plain hashes. Current credential and policy
+snapshots are reread at admission and delivery. Changing an epoch stops an existing
+session. A newly authenticated session with the same policy can retrieve the same
+retained task. Policy, key and namespace migration remain explicit later work. The
+file-backed profile checks authority through local snapshots. Distributed linearisation
+and recall of an already admitted action require stronger coordination.
 
 Implementation follows the repository's Rust 2021 edition, selected toolchain,
 formatter and strict Clippy settings. Python helpers use the existing Python
@@ -120,16 +122,16 @@ restart without redispatch. Core tests cover the same contracts at journal and
 protocol boundaries. SDK/runtime conformance preserves completion truth and
 validates complete native response framing.
 
-The E1 tests exercise real collector execution and reject changed declarations,
-command kinds, runners, argv, files, runtimes, schemas and aggregate bundles.
-TypeScript and Python implement the same identified synthetic Kubernetes
-observation. Full workspace and native-acceptance checks remain the regression
-gate; each retained validation receipt states exactly which commands ran.
+The E1 tests exercise real collector execution and reject changed declarations, command
+kinds, runners, argv, files, runtimes, schemas and aggregate bundles. TypeScript and
+Python implement the same identified synthetic Kubernetes observation. Full workspace
+and native-acceptance checks remain the regression gate. Each retained validation
+receipt states exactly which commands ran.
 
-No population PII error rate, production confidentiality, reference hardware
-capacity, deletion guarantee or shared takeover result follows from these tests.
-N1 actual-model receipts remain bound to their original implementation; model
-qualification is not silently transferred to later source revisions.
+Population PII error rates and production confidentiality require evidence from the
+intended domain and deployment. Capacity, deletion and shared takeover require their own
+qualification. N1 actual-model receipts apply to their identified implementation. Later
+source revisions need evidence for the claims they change.
 
 The new [governed control model](../formal/governed-local.md) composes snapshot
 authority checks, exact-source inspection, completion withholding and recovery.
@@ -159,8 +161,8 @@ Its implementation and formal receipts are kept under
    revision, evidence and diagnostic paths, with version-bound unstructured
    inspection and declared handling outcomes. Keep unsupported paths closed.
 2. Extend E3 beyond the local profile's complete 64-source closure to larger
-   closures and shared subscriber delivery; qualify revocation and
-   resolver-failure cases with more than 32 consumers. Complete dynamic
+   closures and shared subscriber delivery. Qualify revocation and resolver-failure cases with
+more than 32 consumers. Complete dynamic
    credential lifecycle before protected sharing.
 3. Extend N3's case-status reader with authorised exact component-assessment
    and source-byte resolution, adjudication, a durable queue, permitted retry/escalation and

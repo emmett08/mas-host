@@ -1,9 +1,9 @@
 # Governed local detector mediation
 
-The governed A2A service can require the existing pinned offline detector before
-its structured admission, effect, retention and delivery boundaries. Enable this
-through the operator's `mas-host-a2a/2` configuration. Existing configurations
-retain their previous behaviour when the field is absent.
+Enable the pinned offline detector in the operator's `mas-host-a2a/2` configuration to
+require inspection at structured admission, effect, retention and delivery boundaries.
+The host checks inspection evidence alongside the existing schemas and policy. Omitting
+the field preserves the previous structured handling behaviour.
 
 ```json
 {
@@ -51,8 +51,9 @@ stops use by the existing session. Configuration, detector, destination and
 inspection contract join the retained session identity. Adopting a different
 contract requires a fresh namespace or an explicit future migration.
 
-Inspection requires its own current processing permission. Add a correlated
-rule for each authorised workflow actor to every applicable policy, for example:
+Inspection itself processes governed content, so it requires a separate current
+processing permission. Add a correlated rule for each authorised workflow actor to every
+applicable policy, for example:
 
 ```json
 {
@@ -76,11 +77,11 @@ the inspector. Existing invocation, effect and delivery rules remain necessary.
 Revocation or unavailable policy blocks later inspection and admission.
 
 The host extracts JSON keys and decoded string values into exact immutable UTF-8
-sources. It validates each neural response against that source, its random
-source token and the approved detector. The existing deterministic recognisers
-and overlap rules contribute findings. Identical text within one boundary reuses
-the same validated result. Context across separate JSON components remains
-outside this extraction contract.
+sources. It validates each neural response against that source, its random source token
+and the approved detector. The existing deterministic recognisers and overlap rules
+contribute findings. Identical text within one boundary reuses the same validated
+result. Each component is inspected as its own source, leaving context that spans
+separate fields outside this extraction contract.
 
 Each boundary admits at most 16,384 encoded bytes for the original and projected
 values together, at most 128 text components and one shared deadline of
@@ -90,11 +91,11 @@ limit, within 256–65,536 MiB. Source text uses the existing private framed cha
 Worker standard output and error are discarded and descendants are reaped before
 a result is accepted.
 
-One detector guardian may run at a time for the configured service. The shared
-slot remains occupied until descendant cleanup completes. Concurrent excess
-inspection fails closed without a queue, retaining the caller's hold/withhold
-behaviour. This bounds cold model residency independently of the HTTP connection
-count. Queueing, fairness and throughput qualification remain later capacity work.
+One detector guardian may run at a time for the configured service. The shared slot
+remains occupied until descendant cleanup completes. When the slot is occupied, another
+inspection retains the caller's hold/withhold outcome. This immediate capacity refusal
+bounds cold model residency independently of the HTTP connection count. Queueing,
+fairness and throughput qualification remain later capacity work.
 
 The HTTP connection budget includes two inspection deadlines plus ten seconds,
 up to 250 seconds. A repeated completed `SendMessage` may inspect both its input
@@ -105,12 +106,13 @@ connection bound. Clients using the inspector must configure their response
 timeout for the selected inspection budget. A disconnected response preserves
 the original task identity and its uncertainty obligations.
 
-Complete coverage is required for every admitted component. Invalid source or
-detector identity, missing coverage, malformed output, timeout and worker failure
-stop the boundary. Findings in a retained component stop its release. A finding
-removed by the already approved structured projection can coexist with a
-permitted projection. Inspection receipts retain keyed original/output bindings
-and bounded counts without copying private values or span locations.
+Every admitted component requires complete coverage from the approved detector over its
+exact source. An identity mismatch or incomplete assessment therefore stops the
+boundary, as do malformed output, timeout and worker failure. Findings in a retained
+component stop its release. A finding removed by the already approved structured
+projection can coexist with a permitted projection. Inspection receipts retain keyed
+original/output bindings and bounded counts without copying private values or span
+locations.
 
 The structured schema and current policy continue to determine permissible
 content. The detector supplies additional inspection evidence. Arbitrary text
@@ -123,9 +125,9 @@ separately and reuses the same effect identity after restart. A lost response
 continues to require reconciliation. Changing detector availability cannot
 authorise redispatch.
 
-The actual HTTP regression tests use an explicitly synthetic detector worker
-through the same guardian and exact-source response contract. They exercise
-complete, partial, malformed, wrong-source, positive-finding, timeout and changed
-implementation paths, including a completed effect whose output is withheld.
-Those fixtures establish host handling behaviour. Actual-model execution and
+The actual HTTP regression tests use an explicitly synthetic detector worker through the
+same guardian and exact-source response contract. They exercise complete, partial,
+malformed, wrong-source, positive-finding, timeout and changed implementation paths,
+including a completed effect whose output is withheld. Those fixtures establish how the
+host handles the represented detector outcomes. Actual-model execution and
 deployment-domain quality require their own source-bound evidence.
