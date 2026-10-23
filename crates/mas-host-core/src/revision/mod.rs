@@ -1,6 +1,7 @@
 //! Durable, bounded assessment and revision above existing request/effect execution.
 mod context;
 mod evaluation;
+mod governed;
 mod plan;
 mod projection;
 use plan::Plan;
@@ -23,8 +24,8 @@ impl Engine {
     /// Evaluators are registered workers; their identity is supplied by the host,
     /// never accepted from an evaluator's result. No remediation effect is allowed.
     pub fn revise(&self, plan: &Value, input: &Value) -> Result<Value> {
-        if self.inner.governance.is_some() {
-            return Err("governed-revision-unsupported".into());
+        if let Some(session) = &self.inner.governance {
+            session.check_revision_support()?;
         }
         if self.inner.running.swap(true, Ordering::SeqCst) {
             return Err("engine already running".into());
@@ -39,6 +40,8 @@ impl Engine {
         checked_object(input, "revision input")?;
         context::check_sources(input)?;
         let parsed = Plan::read(plan, &self.inner)?;
+        self.inner
+            .mediate_revision_record("plan", &json!({"plan":plan,"input":input}))?;
         // Reject invalid/forbidden host-managed references before any worker starts.
         context::assemble(
             &parsed.draft,
@@ -242,9 +245,11 @@ impl Engine {
                 && candidate.is_some_and(|c| r["id"] == c.id)
                 && r["readers"] == json!(["*"])
         });
-        Ok(
-            json!({"output":if visible {candidate.unwrap().output.clone()} else {Value::Null},"revision":public_audit(audit,true)}),
-        )
+        let result = json!({"output":if visible {candidate.unwrap().output.clone()} else {Value::Null},"revision":public_audit(audit,self.inner.governance.is_none())});
+        if let Some(session) = &self.inner.governance {
+            session.revision_delivery(&result, &self.inner.revision_exposure()?)?;
+        }
+        Ok(result)
     }
 }
 
@@ -257,7 +262,27 @@ impl Inner {
     ) -> Result<Value> {
         self.check_live()?;
         let input = &context["input"];
+        let exposure = self.revision_exposure()?;
+        if let Some(session) = &self.governance {
+            let projected = session
+                .prepare_request_with_exposure(target, input, &exposure)?
+                .0;
+            for field in ["evidence", "evidence_refs", "feedback", "rubric"] {
+                if input.get(field) != projected.get(field) {
+                    return Err("governed-revision-required-input-would-change".into());
+                }
+            }
+            if let Some(candidate) = input.get("candidate").filter(|v| !v.is_null()) {
+                for field in ["schema_version", "id", "output", "output_sha256"] {
+                    if candidate.get(field) != projected["candidate"].get(field) {
+                        return Err("governed-revision-candidate-would-change".into());
+                    }
+                }
+            } else if input.get("candidate") != projected.get("candidate") {
+                return Err("governed-revision-candidate-would-change".into());
+            }
+        }
         self.bind_context(&self.step_id("", key, "request"), context)?;
-        self.request("", key, "client", target, input, 0)
+        self.request_with_exposure("", key, "client", target, input, 0, Some(&exposure))
     }
 }

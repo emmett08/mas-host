@@ -20,8 +20,13 @@ pub use policy::{decide_disclosure, CurrentAuthority, DataUsePolicy, DisclosureR
 pub use profile::check_profile;
 pub use result::validate_result_view;
 pub use runtime::{
-    read_governed_effect, read_governed_root_delivery, read_governed_root_effect,
-    read_governed_root_source, GovernedSession, PrivacyInspector,
+    adjudicate_governed_root_assessment, adjudicate_governed_source_quarantine,
+    authorize_governed_source_publication, govern_namespace_lifecycle, govern_source_quarantine,
+    initialize_governed_source_quarantine, list_governed_source_quarantine,
+    list_governed_source_quarantine_page, read_governed_effect, read_governed_root_assessment,
+    read_governed_root_delivery, read_governed_root_effect, read_governed_root_source,
+    read_governed_shared_source, read_governed_source_lineage_page,
+    read_governed_source_quarantine, GovernedSession, PrivacyInspector,
 };
 
 use serde_json::Value;

@@ -1,0 +1,12 @@
+{
+  "version": "nehemiah-ci-only-amendment/1",
+  "qualified_runtime_cut": "0f2ab6f518ea0f00f85b76374bbb538a6985720e",
+  "changed_non_evidence_files": [
+    ".github/workflows/ci.yml"
+  ],
+  "workflow_before_sha256": "c935acb3a35c0ba3e735991f104d6abbbe77b8fbe28fddc81eb6ef368b39172a",
+  "workflow_after_sha256": "b895da6689ebfacebcd7b626a04fd3cc4e0368ad715cff56c764f649ff38e446",
+  "other_qualified_source_files_unchanged": 376,
+  "validation": "YAML parse and fail-closed aggregate/timeout/thread/continue-on-error assertions passed; automatic hosted workflow remains pending",
+  "reason": "Runtime tests took 990.019 seconds and complete formal checking took 961.747 seconds; independent jobs preserve required linux aggregate while avoiding contention and a nearly exhausted serial timeout."
+}

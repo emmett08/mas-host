@@ -25,7 +25,12 @@ impl GovernedSession {
                 original,
                 projection,
             )?;
-            self.inspect_boundary(actor, original, projection)?
+            self.inspect_disclosure_with_exposure(
+                actor,
+                original,
+                projection,
+                &crate::governance::runtime::exposure::Exposure::default(),
+            )?
         } else {
             None
         };

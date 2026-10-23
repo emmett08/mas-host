@@ -1,0 +1,1051 @@
+cargo fmt --all -- --check
+cargo clippy --locked --workspace --all-targets -- -D warnings
+    Checking memchr v2.8.3
+    Checking tokio v1.53.3
+    Checking serde_json v1.0.152
+    Checking nom v8.0.0
+    Checking mas-host-privacy v0.1.0 (/workspace/scratch/7e4732696542/nehemiah-integrated/crates/mas-host-privacy)
+    Checking mas-host-schema v0.1.0 (/workspace/scratch/7e4732696542/nehemiah-integrated/crates/mas-host-schema)
+    Checking mas-host-native-build v0.1.0 (/workspace/scratch/7e4732696542/nehemiah-integrated/crates/mas-host-native-build)
+    Checking hyper v1.12.0
+    Checking mas-protocol-codec v0.1.0 (https://github.com/emmett08/mas?rev=e1257fb7125cdc971d94e38221c5185818bb577d#e1257fb7)
+    Checking hyper-util v0.1.21
+    Checking mas-host-sdk v0.1.0 (/workspace/scratch/7e4732696542/nehemiah-integrated/sdk/rust)
+    Checking mas-host-providers v0.1.0 (/workspace/scratch/7e4732696542/nehemiah-integrated/crates/mas-host-providers)
+    Checking mas-host-worker v0.1.0 (/workspace/scratch/7e4732696542/nehemiah-integrated/crates/mas-host-worker)
+    Checking mas-host-core v0.1.0 (/workspace/scratch/7e4732696542/nehemiah-integrated/crates/mas-host-core)
+    Checking mas-host-workflow v0.1.0 (/workspace/scratch/7e4732696542/nehemiah-integrated/crates/mas-host-workflow)
+    Checking mas-host-runtime v0.1.0 (/workspace/scratch/7e4732696542/nehemiah-integrated/crates/mas-host-runtime)
+    Checking mas-host v0.1.0 (/workspace/scratch/7e4732696542/nehemiah-integrated/crates/mas-host-cli)
+    Finished `dev` profile [unoptimized] target(s) in 10.29s
+cd sdk/go && go vet ./...
+go: downloading go1.24.0 (linux/amd64)
+cd tests/fixtures/go-release && go vet ./...
+npm --prefix examples/structured-evidence/typescript ci --ignore-scripts
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+added 1 package in 799ms
+npm --prefix examples/structured-evidence/typescript run check
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> nehemiah-structured-evidence-fixture@0.1.0 check
+> tsc --noEmit -p tsconfig.json
+
+npm --prefix examples/structured-evidence/typescript run build
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> nehemiah-structured-evidence-fixture@0.1.0 build
+> tsc -p tsconfig.json
+
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s examples/structured-evidence/tests -v
+test_each_changed_target_field_is_rejected (test_collectors.Collectors.test_each_changed_target_field_is_rejected) ... ok
+test_prepared_packages_have_same_contract_with_distinct_approved_implementation (test_collectors.Collectors.test_prepared_packages_have_same_contract_with_distinct_approved_implementation) ... ok
+test_quantities_cannot_be_booleans_fractional_negative_or_unbounded (test_collectors.Collectors.test_quantities_cannot_be_booleans_fractional_negative_or_unbounded) ... ok
+test_same_observation_and_original_application_host_identities (test_collectors.Collectors.test_same_observation_and_original_application_host_identities) ... ok
+test_transport_rejects_duplicate_members_invalid_utf8_and_oversize_input (test_collectors.Collectors.test_transport_rejects_duplicate_members_invalid_utf8_and_oversize_input) ... ok
+test_unknown_fields_and_file_or_endpoint_selection_are_rejected (test_collectors.Collectors.test_unknown_fields_and_file_or_endpoint_selection_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 4.539s
+
+OK
+cargo test --locked --workspace
+   Compiling mas-protocol-codec v0.1.0 (https://github.com/emmett08/mas?rev=e1257fb7125cdc971d94e38221c5185818bb577d#e1257fb7)
+   Compiling mas-host-sdk v0.1.0 (/workspace/scratch/7e4732696542/nehemiah-integrated/sdk/rust)
+   Compiling mas-host-providers v0.1.0 (/workspace/scratch/7e4732696542/nehemiah-integrated/crates/mas-host-providers)
+   Compiling mas-host-worker v0.1.0 (/workspace/scratch/7e4732696542/nehemiah-integrated/crates/mas-host-worker)
+   Compiling mas-host-core v0.1.0 (/workspace/scratch/7e4732696542/nehemiah-integrated/crates/mas-host-core)
+   Compiling mas-host-workflow v0.1.0 (/workspace/scratch/7e4732696542/nehemiah-integrated/crates/mas-host-workflow)
+   Compiling mas-host-runtime v0.1.0 (/workspace/scratch/7e4732696542/nehemiah-integrated/crates/mas-host-runtime)
+   Compiling mas-host v0.1.0 (/workspace/scratch/7e4732696542/nehemiah-integrated/crates/mas-host-cli)
+    Finished `test` profile [unoptimized] target(s) in 11.30s
+     Running unittests src/main.rs (target/debug/deps/mas_host-4d9feee604af78d8)
+
+running 20 tests
+test a2a::configuration::timeout_tests::only_configured_inspection_adds_two_bounded_rpc_scan_budgets ... ok
+test a2a::publication::tests::publication_requires_explicit_boolean_in_supported_profile ... ok
+test a2a::lineage::tests::lineage_selection_retains_exact_unsigned_offset_and_bounded_reference ... ok
+test a2a::shared_source::tests::exports_require_supported_profile_and_exact_bound_selection ... ok
+test a2a::status::tests::materialisation_is_atomic_and_never_contains_application_values ... ok
+test config::authoring::tests::formats_resolve_to_identical_values_with_exact_integers ... ok
+test config::authoring::tests::non_decimal_toml_integers_are_lossless_beyond_u64 ... ok
+test config::authoring::tests::rejects_ambiguous_and_unsupported_yaml_before_execution ... ok
+test config::authoring::tests::rejects_lossy_toml_values_and_duplicate_keys ... ok
+test config::authoring::tests::authoring_integers_obey_protocol_digit_limit ... ok
+test config::authoring::tests::strict_json_keeps_original_rejections_and_exact_integer_semantics ... ok
+test config::authoring::tests::yaml_core_scalars_and_quoted_values_have_explicit_semantics ... ok
+test config::bindings::tests::minimum_delegate_calls_is_optional_bounded_and_requires_delegates ... ok
+test config::bindings::tests::required_delegates_are_a_unique_subset_with_a_completion_turn ... ok
+test config::tests::public_operations_are_explicit_mas_identities ... ok
+test config::tests::rejects_implicit_permissions_bad_limits_and_unknown_settings ... ok
+test config::tests::requires_current_version_and_explicit_implementation_kind ... ok
+test privacy_inspect::governed::tests::occupied_inspector_rejects_concurrent_work_without_a_launch_or_queue ... ok
+test privacy_inspect::governed::tests::revoked_configuration_invalidates_identity_without_launching_a_text_scan ... ok
+test config::authoring::tests::size_and_depth_are_bounded_in_source_and_resolved_values ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/a2a.rs (target/debug/deps/a2a-ca8309f9f82b0ace)
+
+running 5 tests
+test blocking_unknown_outcome_preserves_task_identity_and_negotiated_extension ... ok
+test descriptor_exposes_contracts_without_execution_configuration ... ok
+test bounded_status_reads_do_not_load_payloads_or_repeat_provider_work ... ok
+test gateway_enforces_profile_owner_and_exact_retry_and_retains_completed_tasks ... ok
+test interrupted_task_becomes_unknown_and_retry_does_not_repeat_work ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.12s
+
+     Running tests/a2a_governed.rs (target/debug/deps/a2a_governed-d22fe15014d41a49)
+
+running 36 tests
+test changed_governed_detector_implementation_is_rejected_before_dispatch ... ok
+test authentication_revocation_stops_later_effect_admission ... ok
+test changed_grant_reference_cannot_reset_request_identity_and_key_changes_stop_use ... ok
+test current_authority_controls_cached_delivery_and_same_policy_credential_rotation ... ok
+test faulty_or_incomplete_governed_detector_blocks_before_task_or_effect_storage ... ok
+test governed_detector_output_failure_preserves_effect_completion_across_restart ... ok
+test governed_ingress_minimises_before_persistence_preserves_original_conflicts_and_replays ... ok
+test invalid_governed_detector_configuration_prevents_service_startup ... ok
+test known_effect_completion_with_prohibited_output_survives_withholding_and_restart ... ok
+test lost_effect_response_keeps_uncertainty_and_authorised_recovery_ids ... ok
+test governed_detector_runs_before_persistence_and_uses_only_approved_projection ... ok
+test materialised_status_rechecks_current_governed_authority_without_payloads ... ok
+test retained_effect::authorised_missing_effect_and_unknown_effect_never_become_unsent_or_executable ... ok
+test retained_effect::corrupted_completion_or_root_association_returns_uniform_denial_without_repair ... ok
+test retained_effect::live_effect_reader_observes_executing_without_owner_lock_recovery_or_dispatch ... ok
+test retained_effect::retained_reader_hides_foreign_tasks_and_rejects_scope_or_path_substitution ... ok
+test retained_effect::retained_reader_preserves_completion_withholding_and_read_only_history_after_restart ... ok
+test retained_effect::retained_reader_requires_both_extensions_and_advertises_only_on_governed_services ... ok
+test retained_effect::current_payload_inspection_failure_withholds_known_facts_but_query_failure_denies_lookup ... ok
+test retained_effect::retained_reader_requires_current_resolve_rights_and_supports_same_scope_credential_rotation ... ok
+test retained_source::materialised_status_inherits_restricted_source_delivery_policy ... ok
+test retained_source::nested_native_consumer_cannot_remove_inherited_restrictions_with_empty_lineage ... ok
+test retained_source::source_expiry_survives_same_epoch_grant_renewal_and_old_delivery_methods ... ok
+test retained_source::source_reader_hides_foreign_tasks_and_rejects_user_selected_scope_or_paths ... ok
+test retained_source::source_reader_preserves_known_withholding_and_authorised_absence_without_refetch ... ok
+test retained_source::source_reader_delivers_exact_projection_and_complete_metadata_without_mutating_history ... ok
+test retained_source::source_reader_rechecks_current_authority_and_same_scope_credential_rotation ... ok
+test retained_source::source_reader_requires_activation_and_advertises_only_for_source_enabled_profiles ... ok
+test shared_source::dynamic_source_publication_is_owned_immutable_and_privately_named ... ok
+test retained_source::source_reader_preserves_more_than_thirty_two_ancestors_and_rejects_missing_parent ... ok
+test shared_source::dynamic_source_publication_requires_current_permission_for_every_original_source ... ok
+test shared_source::dynamic_source_publication_survives_restart_but_rechecks_both_current_parties ... ok
+test shared_source::shared_reader_negotiates_independent_extension_and_hides_owner_selection ... ok
+test shared_source::referenced_lineage_http_pages_bind_the_complete_source_for_owner_and_recipient ... ok
+test shared_source::shared_reader_revalidates_producer_and_subscriber_across_restart_and_rotation ... ok
+test shared_source::shared_reader_serves_more_than_thirty_two_current_subscribers_without_reacquisition ... ok
+
+test result: ok. 36 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 149.56s
+
+     Running tests/acceptance.rs (target/debug/deps/acceptance-521c2fe81be949dd)
+
+running 1 test
+test code_only_apps_and_real_effect_recovery ... ignored, requires Go, C++ and Rust toolchains; run make acceptance
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/authoring.rs (target/debug/deps/authoring-fb415b4c4268d54d)
+
+running 3 tests
+test invalid_authoring_fails_before_build_or_state_creation ... ok
+test ambiguous_defaults_require_explicit_selection_before_build ... ok
+test toml_yaml_and_json_preserve_bundle_digest_and_resume_input ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.73s
+
+     Running tests/capabilities.rs (target/debug/deps/capabilities-0d0e124b1d0dffb5)
+
+running 8 tests
+test aggregate_bundle_limit_preserves_previous_valid_publication ... ok
+test changed_executable_bytes_cannot_reuse_approved_package ... ok
+test closed_versions_signature_requirements_and_unsupported_schemas_reject ... ok
+test changed_runtime_is_rejected_by_cli_and_existing_command_dispatch_gate ... ok
+test file_escape_missing_argument_and_changed_argv_cannot_keep_old_approval ... ok
+test exact_approval_binds_real_collector_and_retained_observation_replay ... ok
+test same_name_substitution_and_missing_static_requirements_reject_before_publication ... ok
+test retained_package_cannot_switch_implementation_runner_or_schemas ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 14.99s
+
+     Running tests/commands.rs (target/debug/deps/commands-98ce1311a32d67b8)
+
+running 8 tests
+test absolute_executable_drift_blocks_dispatch_and_failed_spawn_is_known ... ok
+test argv_stdin_environment_and_directory_are_explicit_and_replay_is_cached ... ok
+test interrupted_external_write_requires_resolution_and_is_never_repeated ... ok
+test operation_schemas_apply_to_workflows_and_commands_before_dispatch_and_completion ... ok
+test invalid_output_is_a_recorded_observation_and_bad_arguments_never_dispatch ... ok
+test retained_commands_preserve_configured_names_and_normalise_permissions ... ok
+test timeout_and_output_overflow_remain_uncertain_without_retry ... ok
+test retained_script_survives_source_change_and_new_bundle_cannot_resume ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 29.78s
+
+     Running tests/configured.rs (target/debug/deps/configured-ab43b4614d49408b)
+
+running 14 tests
+test configured_workflow_runs_llm_peer_requests_through_mas_and_replays_without_calls ... ok
+test final_turn_does_not_spend_a_peer_call_that_cannot_contribute_to_completion ... ok
+test early_completion_is_allowed_by_default_but_required_delegation_failure_is_retained ... ok
+test inference_keeps_large_task_input_without_repeating_immutable_configuration ... ok
+test llm_delegates_to_an_ordinary_cli_with_the_same_admission_and_replay ... ok
+test known_refusal_and_invalid_output_are_recorded_while_unknown_execution_blocks_replay ... ok
+test model_delegation_cannot_bypass_the_frozen_topology ... ok
+test oversized_rebuild_preserves_the_previous_published_bundle ... ok
+test prompt_and_schema_drift_cannot_resume_the_original_configured_run ... ok
+test required_delegations_gate_provider_schema_until_results_are_recorded_and_replay ... ok
+test partial_or_repeated_coverage_and_final_turn_requests_fail_without_dispatch_or_retry ... ok
+test reserved_ingress_cannot_be_a_workflow_or_model_delegate ... ok
+test resolved_provider_outputs_cannot_bypass_required_peer_runtime_checks ... ok
+test required_peer_coverage_allows_model_order_and_additional_count_then_replays ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 59.56s
+
+     Running tests/governed_acquisition.rs (target/debug/deps/governed_acquisition-82097a1781067d16)
+
+running 1 test
+test acquired_source_restricts_baseline_actions_and_survives_restart_without_recollection has been running for over 60 seconds
+test acquired_source_restricts_baseline_actions_and_survives_restart_without_recollection ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 162.11s
+
+     Running tests/privacy_inspect.rs (target/debug/deps/privacy_inspect-f07025465dfa6047)
+
+running 7 tests
+test changed_worker_is_rejected_before_execution ... ok
+test guardian_reaps_classifier_descendants_before_returning_assessment ... ok
+test invalid_encoding_and_oversized_source_have_explicit_safe_outcomes ... ok
+test non_utf8_resolved_worker_paths_are_rejected_without_lossy_conversion ... ok
+test timeout_and_large_encoded_requests_do_not_release_content ... ok
+test faulty_neural_results_preserve_deterministic_positive_findings ... ok
+test valid_local_scan_never_admits_release_and_hides_worker_output ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+     Running tests/privacy_lifecycle.rs (target/debug/deps/privacy_lifecycle-eec7a4f45d5b6e30)
+
+running 3 tests
+test queued_retries_and_read_only_reconciliation_preserve_original_action_on_replay ... ok
+test recipient_acknowledgement_and_timed_escalation_remain_distinct_from_acceptance ... ok
+test contextual_inspection_custody_notification_recovery_and_adjudication_compose has been running for over 60 seconds
+test contextual_inspection_custody_notification_recovery_and_adjudication_compose ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 132.03s
+
+     Running tests/privacy_response.rs (target/debug/deps/privacy_response-fb4e42d2e025fba4)
+
+running 4 tests
+test completed_withheld_collection_creates_safe_case_and_one_notification_across_restart has been running for over 60 seconds
+test lost_notification_acknowledgement_retains_intent_and_original_unknown_without_redispatch has been running for over 60 seconds
+test lost_notification_acknowledgement_retains_intent_and_original_unknown_without_redispatch ... ok
+test revocation_after_safe_intent_blocks_fresh_notification_admission ... ok
+test completed_withheld_collection_creates_safe_case_and_one_notification_across_restart ... ok
+test throttling_remains_refused_with_retry_eligibility_and_replay_does_not_resend has been running for over 60 seconds
+test throttling_remains_refused_with_retry_eligibility_and_replay_does_not_resend ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 167.06s
+
+     Running tests/profile.rs (target/debug/deps/profile-5af31c53da74cfe1)
+
+running 3 tests
+test trusted_local_preflight_has_no_execution_side_effects ... ok
+test managed_and_shared_profiles_cannot_self_declare_runtime_support ... ok
+test unknown_profile_fields_and_versions_are_rejected ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/python.rs (target/debug/deps/python-bd0e39c17ec531b1)
+
+running 1 test
+test python_dataclasses_peer_calls_and_crashed_effect_reconcile_without_repetition ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.10s
+
+     Running tests/revision.rs (target/debug/deps/revision-257cf53926631425)
+
+running 1 test
+test revision_replays_immutable_records_and_filters_all_public_channels ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.89s
+
+     Running tests/revision_adversarial.rs (target/debug/deps/revision_adversarial-e704ec1784686293)
+
+running 4 tests
+test cancellation_is_terminal_and_replay_does_not_restart_the_worker ... ok
+test crash_during_assessment_reuses_the_completed_draft ... ok
+test shared_evidence_keeps_its_own_readers_across_conflicting_contexts ... ok
+test deadline_is_terminal_and_replay_does_not_extend_it ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.03s
+
+     Running tests/shared_native.rs (target/debug/deps/shared_native-e55c318c5c44f30e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/shared_queue.rs (target/debug/deps/shared_queue-fd3c196c559c0f9b)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/mas_host_core-0cc1f9abf5976f66)
+
+running 142 tests
+test governance::runtime::boundary::tests::exact_native_ack_envelope_limits_preserve_small_completion_receipt ... ok
+test governance::runtime::exposure_adversarial_tests::acquired_restriction_denies_empty_lineage_action_before_preparation ... ok
+test governance::runtime::exposure_adversarial_tests::aborting_execute_transition_cannot_strand_a_pending_prepared_acquisition ... ok
+test governance::runtime::exposure_adversarial_tests::acquisition_callback_cannot_act_before_reporting_its_source_completion ... ok
+test governance::runtime::exposure_adversarial_tests::cached_effect_payload_obeys_recipient_sources_even_when_descriptor_is_permitted ... ok
+test governance::runtime::exposure_adversarial_tests::ancestor_beyond_thirty_two_still_constrains_the_current_action ... ok
+test governance::runtime::exposure_adversarial_tests::earlier_retained_effect_and_source_cannot_bypass_later_invocation_resolve_denial ... ok
+test governance::runtime::exposure_adversarial_tests::every_source_metadata_component_is_bound_and_missing_ancestors_hold ... ok
+test governance::runtime::exposure_adversarial_tests::frozen_child_reply_obeys_recipient_sources_acquired_after_input_freeze ... ok
+test governance::runtime::exposure_adversarial_tests::identical_acquisition_with_baseline_source_policy_keeps_action_permitted ... ok
+test governance::runtime::exposure_adversarial_tests::inherited_inspection_denial_stops_the_detector_before_child_persistence ... ok
+test governance::runtime::exposure_adversarial_tests::invalid_stored_inspection_receipt_cannot_hide_behind_source_projection ... ok
+test governance::runtime::exposure_adversarial_tests::missing_or_edited_exposure_manifest_cannot_become_an_empty_scope ... ok
+test governance::runtime::exposure_adversarial_tests::parallel_children_keep_frozen_input_but_parent_accumulates_returned_exposure ... ok
+test governance::runtime::exposure_adversarial_tests::registered_source_permissions_apply_before_acquisition_execute ... ok
+test governance::runtime::exposure_adversarial_tests::closure_beyond_sixty_four_holds_without_reexecuting_known_completion ... ok
+test governance::runtime::exposure_adversarial_tests::source_projection_cannot_reconstruct_discarded_original_bytes ... ok
+test governance::runtime::exposure_adversarial_tests::source_reader_rejects_foreign_namespace_actor_and_current_revocation ... ok
+test governance::runtime::exposure_adversarial_tests::source_restriction_survives_restart_and_does_not_refetch ... ok
+test governance::runtime::exposure_adversarial_tests::v1_configuration_rejects_v2_policy_selection_instead_of_ignoring_it ... ok
+test governance::runtime::inspection::tests::all_numeric_and_empty_values_have_no_unchecked_text ... ok
+test governance::runtime::inspection::tests::contextual_extraction_preserves_full_numeric_and_cross_field_source ... ok
+test governance::runtime::inspection::tests::contextual_units_cannot_exceed_the_original_boundary_unit_limit ... ok
+test governance::runtime::inspection::tests::decoded_keys_and_values_are_exact_bounded_text_sources ... ok
+test governance::runtime::inspection_adversarial_tests::contextual_numeric_finding_stops_projection_and_changes_namespace_contract ... ok
+test governance::runtime::inspection_adversarial_tests::detector_failure_after_external_completion_retains_known_withheld_fact ... ok
+test governance::runtime::exposure_adversarial_tests::renewing_current_grant_cannot_extend_original_source_expiry ... ok
+test governance::runtime::inspection_adversarial_tests::exact_component_custody_requires_distinct_retention_and_read_permissions ... ok
+test governance::runtime::inspection_adversarial_tests::incomplete_or_late_detector_results_cannot_release_the_projection ... ok
+test governance::runtime::inspection_adversarial_tests::inspection_requires_processing_authority_before_the_callback ... ok
+test governance::runtime::inspection_adversarial_tests::inspected_private_originals_keep_distinct_commitments_after_equal_projection ... ok
+test governance::runtime::inspection_adversarial_tests::inspector_configuration_and_destination_are_part_of_retained_namespace_identity ... ok
+test governance::runtime::inspection_adversarial_tests::policy_byte_scope_includes_inspection_receipt_before_persistence ... ok
+test governance::runtime::inspection_adversarial_tests::revocation_during_final_inspection_callback_prevents_input_persistence ... ok
+test governance::runtime::inspection_adversarial_tests::same_policy_grant_epoch_refresh_replays_under_stable_inspected_namespace ... ok
+test governance::runtime::inspection_adversarial_tests::stale_source_tokens_and_substituted_detector_results_cannot_authorise_input ... ok
+test governance::runtime::lineage_page::tests::dense_metadata_uses_exact_byte_bounded_page_boundaries ... ok
+test governance::runtime::inspection_adversarial_tests::retired_and_restored_assessment_custody_cannot_admit_new_reviews ... ok
+test governance::runtime::quarantine::tests::authenticated_encryption_rejects_modified_ciphertext_even_with_rebound_envelope ... ok
+test governance::runtime::quarantine::tests::completed_effect_source_reads_accept_custody_receipts_and_case_expiry_blocks_derived_views ... ok
+test governance::runtime::quarantine::tests::failed_scanner_case_keeps_exact_bytes_and_bounded_failure_without_task_or_dispatch ... ok
+test governance::runtime::quarantine::tests::fresh_store_requires_explicit_private_independent_control_and_capacity_is_bounded ... ok
+test governance::runtime::quarantine::tests::hold_expiry_retirement_and_old_ciphertext_restore_use_independent_current_keys ... ok
+test governance::runtime::quarantine::tests::inherited_source_policy_and_current_grant_are_required_for_raw_review ... ok
+test governance::runtime::quarantine::tests::discovery_pages_reconstruct_more_than_sixty_four_immutable_cases ... ok
+test governance::runtime::quarantine::tests::raw_read_admission_finishes_before_concurrent_retirement_commits ... ok
+test governance::runtime::quarantine::tests::namespace_retirement_retires_bound_custody_and_preserves_unadmitted_cases ... ok
+test governance::runtime::quarantine::tests::review_ciphertext_cannot_outlive_newly_shortened_retention_authority ... ok
+test governance::runtime::quarantine::tests::rejected_projection_has_encrypted_exact_source_assessment_and_immutable_review ... ok
+test governance::runtime::referenced_lineage_tests::compact_receipt_counts_actual_encoded_bytes_at_exact_policy_boundary ... ok
+test governance::runtime::referenced_lineage_tests::repeated_policy_conjunction_keeps_all_matching_obligations_and_source_intervals ... ok
+test governance::runtime::referenced_lineage_tests::one_hundred_twenty_eight_sources_preserve_last_source_restriction_and_exact_ancestry ... ok
+test governance::runtime::resolver_adversarial_tests::authorised_parent_absence_does_not_certify_external_non_execution ... ok
+test governance::runtime::referenced_lineage_tests::sixty_five_sources_preserve_last_source_restriction_and_exact_ancestry ... ok
+test governance::runtime::resolver_adversarial_tests::completed_host_settlement_never_promotes_unknown_external_execution ... ok
+test governance::runtime::resolver_adversarial_tests::completed_payload_inspection_outage_preserves_authorised_host_facts ... ok
+test governance::runtime::resolver_adversarial_tests::copied_journal_under_another_run_name_cannot_rebind_the_namespace ... ok
+test governance::runtime::resolver_adversarial_tests::conflicting_or_missing_completion_receipts_fail_without_repairing_storage ... ok
+test governance::runtime::resolver_adversarial_tests::execution_authority_does_not_grant_resolution_or_query_processing ... ok
+test governance::runtime::resolver_adversarial_tests::live_owner_reads_are_exact_read_only_and_do_not_recover_executing_effects ... ok
+test governance::runtime::resolver_adversarial_tests::foreign_namespace_parent_actor_and_denied_queries_share_one_public_failure ... ok
+test governance::runtime::resolver_adversarial_tests::oversized_multibyte_retained_text_is_rejected_by_bytes_before_decoding ... ok
+test governance::runtime::resolver_adversarial_tests::read_snapshot_is_released_before_privacy_callbacks ... ok
+test governance::runtime::resolver_adversarial_tests::nonobject_retained_descriptor_cannot_bypass_current_payload_schemas ... ok
+test governance::runtime::resolver_adversarial_tests::revocation_during_payload_callback_denies_the_entire_view ... ok
+test governance::runtime::resolver_adversarial_tests::root_helper_and_explicit_parent_select_the_same_bound_effect ... ok
+test governance::runtime::resolver_adversarial_tests::resolution_byte_limit_covers_the_entire_envelope_and_metadata_fallback ... ok
+test governance::runtime::resolver_adversarial_tests::substituted_valid_descriptor_and_missing_admission_commitment_are_unavailable ... ok
+test governance::runtime::resolver_tests::completion_reader_rejects_missing_or_extra_untrusted_payload_fields ... ok
+test governance::runtime::resolver_tests::completion_truth_requires_matching_retained_receipt_dimensions ... ok
+test governance::runtime::resolver_tests::withheld_completion_preserves_exact_host_marker_without_reported_payloads ... ok
+test governance::runtime::resolver_adversarial_tests::total_query_inspection_outage_denies_even_known_completion_metadata ... ok
+test governance::runtime::shared_source_tests::original_source_policy_and_current_subscriber_revocation_both_constrain_delivery ... ok
+test governance::runtime::source_resolver_tests::absent_and_unfinished_source_views_do_not_infer_non_execution ... ok
+test governance::runtime::source_resolver_tests::completed_withheld_source_preserves_certainty_without_returning_original ... ok
+test governance::runtime::source_resolver_tests::exact_source_projection_has_closed_shape_and_read_only_restart_identity ... ok
+test governance::runtime::source_resolver_tests::root_delivery_reloads_exposure_and_rebinds_payload_beyond_small_status_marker ... ok
+test governance::runtime::tests::accepted_output_and_evidence_are_projected_once_for_ack_replay_and_both_stores ... ok
+test governance::runtime::tests::application_schema_exception_requires_exact_host_unavailable_marker ... ok
+test governance::runtime::tests::completion_policy_limit_covers_evidence_and_receipt_not_only_output ... ok
+test governance::runtime::tests::credential_rotation_preserves_identity_while_policy_or_key_change_requires_migration ... ok
+test governance::runtime::tests::governed_namespace_has_no_ordinary_or_revision_bypass ... ok
+test governance::runtime::tests::known_completion_with_withheld_payload_survives_restart_without_fresh_permission ... ok
+test governance::runtime::tests::lifecycle_tests::credential_scope_missing_secret_and_grant_epoch_revoke_launch ... ok
+test governance::runtime::tests::lifecycle_tests::current_credentials_rotate_without_changing_namespace_identity_and_reject_rollback ... ok
+test governance::runtime::tests::lifecycle_tests::hold_expiry_and_ownership_are_independent_of_execution_permission ... ok
+test governance::runtime::tests::lifecycle_tests::replacing_a_retired_namespace_cannot_register_a_fresh_identity_epoch ... ok
+test governance::runtime::tests::lifecycle_tests::retirement_preserves_effect_certainty_and_refuses_restored_payloads ... ok
+test governance::runtime::tests::lifecycle_tests::unresolved_external_obligation_stops_destructive_retirement ... ok
+test governance::runtime::tests::revocation_blocks_new_work_and_delivery_but_preserves_observed_completion ... ok
+test governance::runtime::tests::structured_projection_hides_originals_but_preserves_conflicts ... ok
+test governance::runtime::tests::trusted_credential_callback_is_checked_at_every_boundary_and_free_text_is_rejected ... ok
+test governance::tests::aggregate_decision_limit_never_permits_or_implies_complete_exposure ... ok
+test governance::tests::decisions_bind_exact_operation_payload_and_recipient ... ok
+test governance::tests::deployment_declarations_cannot_enable_unimplemented_enforcement ... ok
+test governance::tests::held_decisions_preserve_distinct_operation_output_and_recipient_bindings ... ok
+test governance::tests::inherited_policy_permissions_intersect_and_obligations_accumulate ... ok
+test governance::tests::mismatched_and_expired_decisions_retain_requested_and_observed_facts ... ok
+test governance::tests::protected_result_dimensions_remain_independent ... ok
+test governance::tests::published_policy_counterexamples ... ok
+test governance::tests::strict_contracts_reject_unknown_versions_fields_and_identity_wildcards ... ok
+test revision::tests::audit_records_and_contexts_cannot_be_rewritten_or_deleted ... ok
+test revision::tests::derived_output_intersects_restrictions_and_feedback_is_filtered ... ok
+test revision::tests::evaluator_failure_and_forged_identity_cannot_pass ... ok
+test revision::tests::exact_evidence_and_frozen_authority_are_required_and_inconclusive_is_preserved ... ok
+test revision::tests::governed_revision_gates_actual_frozen_plan_context_and_audit_sinks ... ok
+test revision::tests::host_evidence_names_are_rejected_before_any_draft_dispatch ... ok
+test revision::tests::invocation_identity_is_reserved_once_and_audit_conflicts_are_rejected ... ok
+test revision::tests::restart_reuses_terminal_error_assessment_without_reclassifying_completed_worker_output ... ok
+test revision::tests::retained_assessment_revalidates_every_binding_and_original_context ... ok
+test revision::tests::retained_terminal_replay_survives_later_stop_without_reclassification ... ok
+test revision::tests::scoped_inference_unknown_effect_remains_blocked_after_restart ... ok
+test revision::tests::stop_after_assessment_prevents_new_reservation_at_transaction_boundary ... ok
+test revision::tests::withheld_peer_content_does_not_affect_independent_input_or_policy ... ok
+test tests::bundle_two_binds_configuration_arguments_and_public_operation ... ok
+test tests::cancellation_interrupts_admission_backoff_without_dispatch ... ok
+test tests::cancellation_persists_without_resolving_an_effect ... ok
+test tests::cancellation_prevents_durable_final_result_and_retains_known_effect_completion ... ok
+test tests::completed_output_survives_a_missing_protocol_finish ... ok
+test tests::effect_identity_and_evidence_fail_closed ... ok
+test tests::environment_scope_is_independent_of_implementation_kind ... ok
+test tests::executable_verification_cache_does_not_trust_a_different_digest ... ok
+test tests::execution_permission_is_uncertain_after_restart_and_requires_resolution ... ok
+test tests::exhausted_capacity_retry_keeps_child_and_ancestor_replayable ... ok
+test tests::explicit_resume_of_uncertain_admission_reuses_committed_request ... ok
+test tests::forbidden_route_uses_protocol_authority ... ok
+test tests::identity_drift_and_reused_root_input_are_rejected ... ok
+test tests::independent_run_namespaces_have_distinct_effect_identities ... ok
+test tests::live_observation_is_read_only_ordered_and_payloads_require_opt_in ... ok
+test tests::observation_rejects_missing_and_incompatible_runs_without_creating_state ... ok
+test tests::original_deadline_expires_during_capacity_backoff_without_dispatch ... ok
+test tests::parallel_sibling_effect_does_not_block_independent_branch_completion ... ok
+test tests::parent_failure_waits_until_cached_child_terminal_can_be_admitted ... ok
+test tests::parent_repairs_retained_child_output_before_success ... ok
+test tests::permitted_request_without_reply_route_is_rejected_before_preparation_or_execution ... ok
+test tests::prepared_reservation_recovers_without_a_second_charge ... ok
+test tests::rejects_previous_bundle_version_and_missing_public_operation ... ok
+test tests::removed_binary_does_not_reclassify_an_admitted_child_as_rejected ... ok
+test tests::storage_admission_failure_is_blocked_without_automatic_retry ... ok
+test tests::transient_admission_retries_same_identity_after_acknowledgement ... ok
+test tests::unfinished_child_prevents_parent_success_but_rejected_route_is_settled ... ok
+test governance::runtime::shared_source_tests::forty_independent_subscribers_share_one_retained_projection_without_new_acquisition ... ok
+
+test result: ok. 142 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 165.41s
+
+     Running unittests src/lib.rs (target/debug/deps/mas_host_native_build-b3c344b03066439f)
+
+running 13 tests
+test cpp::tests::cpp_include_rejects_source_delimiters ... ok
+test python::tests::excludes_generated_and_hidden_directories_and_never_imports_at_build ... ok
+test python::tests::accepts_package_initialisers_as_entry_modules ... ok
+test python::tests::preserves_namespace_package_imports ... ok
+test python::tests::rejects_launcher_and_sdk_name_conflicts ... ok
+test python::tests::rebuilds_are_deterministic_and_helper_changes_change_worker_bytes ... ok
+test python::tests::rejects_oversized_snapshots_before_compiling_or_publishing ... ok
+test python::tests::rejects_project_symlinks_including_internal_ones ... ok
+test python::tests::rejects_syntax_errors_and_non_importable_entry_modules ... ok
+test python::tests::revokes_channel_inheritance_before_sdk_imports_application_named_json ... ok
+test python::tests::sdk_source_changes_alter_the_frozen_worker ... ok
+test tests::generated_symbols_cannot_inject_source ... ok
+test python::tests::snapshots_regular_packages_helpers_and_sdk_before_source_removal ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.71s
+
+     Running unittests src/lib.rs (target/debug/deps/mas_host_privacy-3e0919d934e3125d)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/conformance.rs (target/debug/deps/conformance-9811c68c222f1f7d)
+
+running 20 tests
+test assessment_rejects_same_id_equal_length_replacement_before_and_after_wire_roundtrip ... ok
+test byte_ranges_reject_reversed_out_of_bounds_and_empty ... ok
+test authority_and_policy_failures_never_permit_synthetic_data ... ok
+test complete_coverage_rejects_gaps_missing_final_chunk_and_reordering ... ok
+test complete_records_cannot_hide_omissions_or_overlap_rules ... ok
+test empty_source_can_be_completely_checked_without_a_fake_range ... ok
+test deterministic_full_range_still_has_unqualified_neural_coverage ... ok
+test fixture_taxonomy_roundtrips_its_categories_and_rejects_neural_only_categories ... ok
+test known_completion_and_uncertainty_are_preserved_when_output_is_withheld ... ok
+test input_and_finding_limits_fail_explicitly ... ok
+test no_record_can_claim_qualified_neural_by_changing_detector_fields ... ok
+test only_explicit_synthetic_fixture_profile_can_permit_complete_fixture ... ok
+test overlap_union_preserves_categories_and_provenance ... ok
+test positive_finding_must_be_inside_checked_coverage ... ok
+test public_merger_validates_directly_constructed_recogniser_sets ... ok
+test positive_findings_survive_partial_inspection_and_route_by_policy ... ok
+test safe_metadata_and_debug_contain_no_detected_values_or_fingerprints ... ok
+test unsupported_json_and_attachments_have_no_guessed_mapping ... ok
+test utf8_byte_boundaries_include_combining_text ... ok
+test strict_records_reject_fields_versions_offsets_and_missing_coverage ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/neural.rs (target/debug/deps/neural-f0f7e1163dae12f9)
+
+running 16 tests
+test all_eight_labels_retain_original_meaning_and_distinct_categories ... ok
+test complete_neural_candidate_cannot_unlock_fixture_or_protected_release ... ok
+test complete_neural_responses_require_every_final_codepoint_and_no_gaps ... ok
+test declared_wrong_units_and_impossible_codepoint_offsets_are_rejected ... ok
+test combined_output_still_rejects_more_than_the_finding_limit ... ok
+test exact_schema_and_all_output_limits_are_enforced ... ok
+test finding_outside_observed_ranges_and_reordered_ranges_are_rejected ... ok
+test overlap_merger_keeps_pattern_and_neural_provenance ... ok
+test partial_unsupported_and_failed_coverage_remain_distinct_with_valid_findings ... ok
+test pin_identity_is_closed_and_supports_only_the_implemented_backend ... ok
+test request_binds_exact_private_source_and_pins_without_qualification_fields ... ok
+test source_replacement_and_detector_changes_invalidate_responses ... ok
+test unicode_codepoints_convert_to_original_bytes_without_normalisation ... ok
+test unknown_model_labels_and_model_scores_are_rejected ... ok
+test worker_failure_preserves_deterministic_positive_findings_and_safe_metadata ... ok
+test duplicate_detector_contributions_use_the_merged_finding_limit ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/neural_omissions.rs (target/debug/deps/neural_omissions-190130a7cf41e374)
+
+running 2 tests
+test host_failure_reasons_cannot_copy_arbitrary_exception_data ... ok
+test incomplete_statuses_require_a_fixed_content_free_worker_reason ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/mas_host_process-6d3709d362a1b3e9)
+
+running 3 tests
+test tests::output_overflow_stops_a_running_process_before_its_deadline ... ok
+test tests::output_limit_rejects_a_completed_oversized_process ... ok
+test tests::timeout_returns_without_waiting_for_open_inherited_streams ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running unittests src/lib.rs (target/debug/deps/mas_host_providers-24ed9548e05a0f98)
+
+running 26 tests
+test command::tests::a_spawned_command_with_no_valid_envelope_is_unknown ... ok
+test command::tests::command_contract_and_cursor_fixture_use_the_same_port ... ok
+test command::tests::command_never_retries_or_copies_provider_error_text ... ok
+test http::tests::chat_finish_reason_and_json_are_required ... ok
+test http::tests::endpoint_validation_rejects_credential_urls_and_remote_plaintext ... ok
+test command::tests::cursor_raw_output_uses_the_exact_mas_json_parser ... ok
+test http::tests::loopback_invalid_output_diagnostics_are_bounded_and_content_free ... ok
+test http::tests::loopback_rejections_omit_arbitrary_strings_even_in_diagnostic_fields ... ok
+test http::tests::loopback_repeated_messages_return_one_result_without_retry ... ok
+test http::tests::loopback_server_failure_remains_unknown ... ok
+test http::tests::loopback_transport_uses_responses_contract_and_records_usage ... ok
+test http::tests::model_json_retains_exact_integers_and_rejects_duplicate_or_decimal_syntax ... ok
+test http::tests::responses_accept_legacy_missing_null_and_explicit_final_phases ... ok
+test http::tests::responses_accept_only_one_distinct_json_value_across_complete_messages ... ok
+test http::tests::responses_distinguish_refusal_incomplete_and_invalid_output ... ok
+test http::tests::responses_do_not_stitch_or_choose_between_conflicting_outputs ... ok
+test http::tests::responses_equivalence_preserves_exact_json_types_and_string_contents ... ok
+test http::tests::responses_never_ignore_malformed_siblings_of_valid_json ... ok
+test http::tests::responses_never_promote_valid_json_from_an_explicit_nonfinal_phase ... ok
+test http::tests::responses_preserve_refusal_and_ignore_nonmessage_outputs ... ok
+test http::tests::responses_select_final_answer_without_commentary ... ok
+test http_error::tests::malformed_or_non_object_error_diagnostics_are_omitted ... ok
+test tests::metadata_does_not_retain_errors_or_decimal_usage ... ok
+test tests::missing_deadline_is_not_dispatched ... ok
+test tests::mock_has_the_same_contract_and_echoes_only_when_output_is_absent ... ok
+test http::tests::loopback_rejections_retain_safe_schema_authentication_and_quota_identifiers ... ok
+
+test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+
+     Running unittests src/lib.rs (target/debug/deps/mas_host_runtime-819ada099474763b)
+
+running 4 tests
+test effect_result::tests::withheld_delivery_keeps_known_settlement_separate_from_external_execution ... ok
+test inference::tests::known_invalid_completion_does_not_become_an_unknown_effect ... ok
+test inference::tests::rejection_diagnostics_distinguish_local_validation_without_retaining_output ... ok
+test inference::tests::required_delegation_schema_excludes_early_completion ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/projected_completion.rs (target/debug/deps/projected_completion-10ad8f29c333a272)
+
+running 2 tests
+test worker_entry ... ignored, private subprocess fixture
+test runtime_uses_safe_fresh_projection_and_never_dispatches_cached_or_withheld_work ... ok
+
+test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running unittests src/lib.rs (target/debug/deps/mas_host_schema-987785676029e7b3)
+
+running 1 test
+test tests::schema_rejects_unsupported_rules_and_preserves_large_integer_bounds ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/mas_host_sdk-0460efc876319395)
+
+running 7 tests
+test tests::admitted_effect_reports_output_and_evidence ... ok
+test tests::cached_effect_does_not_execute_and_ordered_parallel_is_checked ... ok
+test tests::configured_dispatch_keeps_configuration_separate_from_task_input ... ok
+test tests::framing_rejects_invalid_json_and_preserves_integer_unicode ... ok
+test tests::configured_worker_channel_does_not_escape_into_exec_children ... ok
+test tests::native_dispatch_still_rejects_another_handler ... ok
+test tests::governed_completion_is_authoritative_and_never_reexecutes_on_replay ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running unittests src/lib.rs (target/debug/deps/mas_host_worker-d564ab36bd96ca64)
+
+running 10 tests
+test tests::exact_integer_and_unicode_round_trip ... ok
+test tests::guardian_entry ... ignored, subprocess entrypoint invoked by supervisor cleanup test
+test tests::guardian_reaps_descendants_retains_lock_and_preserves_parent_fd ... ok
+test tests::guardian_applies_selected_address_space_and_disables_core_dumps ... ok
+test tests::interruptible_read_cancels_without_waiting_for_deadline ... ok
+test tests::partial_frame_uses_original_deadline_and_reports_eof ... ok
+test tests::protocol_rejects_invalid_json_and_frames ... ok
+test tests::resource_bounds_are_validated_before_launch_or_descriptor_access ... ok
+test tests::scoped_worker_receives_arguments_and_only_declared_environment ... ok
+test tests::interruptible_read_retains_partial_header_and_body ... ok
+
+test result: ok. 9 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.27s
+
+     Running unittests src/lib.rs (target/debug/deps/mas_host_workflow-d980c883d8a5d0be)
+
+running 13 tests
+test tests::conflicting_candidates_and_stale_review_contexts_cannot_form_a_quorum ... ok
+test tests::dynamic_wrong_types_fail_before_any_following_request ... ok
+test tests::exhausted_repeat_is_failure_and_runtime_cannot_omit_outputs ... ok
+test tests::candidate_quorum_retains_all_reviews_and_selects_distinct_actors_in_plan_order ... ok
+test tests::nested_parallel_sequences_share_ready_frontiers_and_preserve_order ... ok
+test tests::foreach_parallel_matches_direct_arithmetic_oracle_and_chunks_frontier ... ok
+test tests::pointers_escape_correctly_and_missing_data_never_invokes_actor ... ok
+test tests::quorum_binding_is_validated_before_dispatch_and_actor_aliases_cannot_add_votes ... ok
+test tests::quorum_context_comparison_preserves_exact_integers_and_json_types ... ok
+test tests::sequential_foreach_passes_accumulator_and_empty_array_returns_no_requests ... ok
+test tests::repeat_named_definition_and_branch_carry_outputs_and_unique_replay_keys ... ok
+test tests::validation_rejects_hidden_unknown_targets_cycles_and_malformed_nodes ... ok
+test tests::static_expansion_and_materialised_values_have_independent_limits ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+   Doc-tests mas_host_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests mas_host_native_build
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests mas_host_privacy
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests mas_host_process
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests mas_host_providers
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests mas_host_runtime
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests mas_host_schema
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests mas_host_sdk
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests mas_host_worker
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests mas_host_workflow
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+cd sdk/go && go test -race ./...
+ok  	github.com/emmett08/mas-host/sdk/go	1.095s
+?   	github.com/emmett08/mas-host/sdk/go/cmd/mas-go-gen	[no test files]
+ok  	github.com/emmett08/mas-host/sdk/go/internal/generate	1.683s
+cd tests/fixtures/go-release && go test -race ./...
+ok  	example.org/release-qualification	1.023s
+mkdir -p target
+c++ -std=c++17 -Wall -Wextra -Werror -pthread -Isdk/cpp/include sdk/cpp/tests/conformance.cpp -o target/cpp-conformance
+target/cpp-conformance
+make python-test
+make[1]: Entering directory '/workspace/scratch/7e4732696542/nehemiah-integrated'
+PYTHONPATH=sdk/python python3 -m unittest discover -s sdk/python/tests -v
+test_adapt_rejects_non_object_handler_result (test_adaptation.AdaptationTests.test_adapt_rejects_non_object_handler_result) ... ok
+test_adapt_resolves_postponed_annotations_and_returns_object (test_adaptation.AdaptationTests.test_adapt_resolves_postponed_annotations_and_returns_object) ... ok
+test_dictionary_keys_must_be_strings (test_adaptation.AdaptationTests.test_dictionary_keys_must_be_strings) ... ok
+test_encoding_rejects_invalid_nested_values (test_adaptation.AdaptationTests.test_encoding_rejects_invalid_nested_values) ... ok
+test_missing_required_optional_field_is_still_missing (test_adaptation.AdaptationTests.test_missing_required_optional_field_is_still_missing) ... ok
+test_nested_dataclasses_and_default_factories_round_trip (test_adaptation.AdaptationTests.test_nested_dataclasses_and_default_factories_round_trip) ... ok
+test_output_validation_does_not_reconstruct_application_dataclass (test_adaptation.AdaptationTests.test_output_validation_does_not_reconstruct_application_dataclass) ... ok
+test_primitive_types_never_coerce (test_adaptation.AdaptationTests.test_primitive_types_never_coerce) ... ok
+test_unions_and_literals_preserve_json_types (test_adaptation.AdaptationTests.test_unions_and_literals_preserve_json_types) ... ok
+test_unknown_and_missing_fields_are_rejected (test_adaptation.AdaptationTests.test_unknown_and_missing_fields_are_rejected) ... ok
+test_completion_requires_the_requested_run_identity (test_client.ClientTests.test_completion_requires_the_requested_run_identity) ... ok
+test_existing_bundle_run_avoids_project_build_arguments (test_client.ClientTests.test_existing_bundle_run_avoids_project_build_arguments) ... ok
+test_host_failure_surfaces_stderr_without_retry (test_client.ClientTests.test_host_failure_surfaces_stderr_without_retry) ... ok
+test_invalid_input_never_launches_host (test_client.ClientTests.test_invalid_input_never_launches_host) ... ok
+test_malformed_success_response_is_rejected (test_client.ClientTests.test_malformed_success_response_is_rejected) ... ok
+test_pretty_cli_envelope_can_exceed_native_frame_size (test_client.ClientTests.test_pretty_cli_envelope_can_exceed_native_frame_size) ... ok
+test_project_run_serialises_dataclass_on_stdin_and_decodes_output (test_client.ClientTests.test_project_run_serialises_dataclass_on_stdin_and_decodes_output) ... ok
+test_requires_exactly_one_project_or_bundle (test_client.ClientTests.test_requires_exactly_one_project_or_bundle) ... ok
+test_container_depth_counts_the_root (test_codec.CodecTests.test_container_depth_counts_the_root) ... ok
+test_exact_integer_and_unicode_round_trip (test_codec.CodecTests.test_exact_integer_and_unicode_round_trip) ... ok
+test_frame_byte_limit_includes_object_syntax (test_codec.CodecTests.test_frame_byte_limit_includes_object_syntax) ... ok
+test_integer_decimal_digit_limit (test_codec.CodecTests.test_integer_decimal_digit_limit) ... ok
+test_rejects_cycles_without_hanging (test_codec.CodecTests.test_rejects_cycles_without_hanging) ... ok
+test_rejects_duplicate_keys_even_when_spelled_with_escapes (test_codec.CodecTests.test_rejects_duplicate_keys_even_when_spelled_with_escapes) ... ok
+test_rejects_invalid_unicode_in_values_and_keys (test_codec.CodecTests.test_rejects_invalid_unicode_in_values_and_keys) ... ok
+test_rejects_non_integer_numbers_and_non_json_constants (test_codec.CodecTests.test_rejects_non_integer_numbers_and_non_json_constants) ... ok
+test_requires_an_object_and_one_complete_document (test_codec.CodecTests.test_requires_an_object_and_one_complete_document) ... ok
+test_command_builder_preserves_explicit_bindings_and_operation_contract (test_configuration.ConfigurationTests.test_command_builder_preserves_explicit_bindings_and_operation_contract) ... ok
+test_export_leaves_domain_validation_to_host (test_configuration.ConfigurationTests.test_export_leaves_domain_validation_to_host) ... ok
+test_export_preserves_exact_host_bindings_and_topology (test_configuration.ConfigurationTests.test_export_preserves_exact_host_bindings_and_topology) ... ok
+test_exports_are_deterministic_independent_documents (test_configuration.ConfigurationTests.test_exports_are_deterministic_independent_documents) ... ok
+test_invalid_python_types_are_rejected_before_writing (test_configuration.ConfigurationTests.test_invalid_python_types_are_rejected_before_writing) ... ok
+test_optional_fields_remain_omitted_and_paths_are_not_read (test_configuration.ConfigurationTests.test_optional_fields_remain_omitted_and_paths_are_not_read) ... ok
+test_relative_export_paths_can_be_passed_directly_to_project_client (test_configuration.ConfigurationTests.test_relative_export_paths_can_be_passed_directly_to_project_client) ... ok
+test_admitted_effect_uses_stable_invocation_and_completes_with_evidence (test_context.ContextTests.test_admitted_effect_uses_stable_invocation_and_completes_with_evidence) ... ok
+test_cached_effect_never_executes_callback (test_context.ContextTests.test_cached_effect_never_executes_callback) ... ok
+test_callback_failure_after_admission_is_uncertain_and_not_repeated (test_context.ContextTests.test_callback_failure_after_admission_is_uncertain_and_not_repeated) ... ok
+test_governed_completion_is_authoritative_and_replay_never_reexecutes (test_context.ContextTests.test_governed_completion_is_authoritative_and_replay_never_reexecutes) ... ok
+test_host_rejection_is_reported_without_retry (test_context.ContextTests.test_host_rejection_is_reported_without_retry) ... ok
+test_invalid_completion_evidence_keeps_admitted_effect_uncertain (test_context.ContextTests.test_invalid_completion_evidence_keeps_admitted_effect_uncertain) ... ok
+test_invalid_step_keys_fail_before_any_channel_io (test_context.ContextTests.test_invalid_step_keys_fail_before_any_channel_io) ... ok
+test_lost_admission_acknowledgement_blocks_requests_without_callback (test_context.ContextTests.test_lost_admission_acknowledgement_blocks_requests_without_callback) ... ok
+test_lost_completion_acknowledgement_is_uncertain (test_context.ContextTests.test_lost_completion_acknowledgement_is_uncertain) ... ok
+test_parallel_accepts_eight_requests (test_context.ContextTests.test_parallel_accepts_eight_requests) ... ok
+test_parallel_cardinality_is_validated_before_any_channel_io (test_context.ContextTests.test_parallel_cardinality_is_validated_before_any_channel_io) ... ok
+test_parallel_preserves_request_and_result_order (test_context.ContextTests.test_parallel_preserves_request_and_result_order) ... ok
+test_parallel_rejects_missing_result (test_context.ContextTests.test_parallel_rejects_missing_result) ... ok
+test_rejected_effect_admission_never_executes_callback (test_context.ContextTests.test_rejected_effect_admission_never_executes_callback) ... ok
+test_request_encodes_application_dataclass_and_decodes_result (test_context.ContextTests.test_request_encodes_application_dataclass_and_decodes_result) ... ok
+test_step_key_accepts_exactly_128_utf8_bytes (test_context.ContextTests.test_step_key_accepts_exactly_128_utf8_bytes) ... ok
+test_expired_original_deadline_stops_channel_io (test_context.FramingTests.test_expired_original_deadline_stops_channel_io) ... ok
+test_frame_reader_enforces_strict_json (test_context.FramingTests.test_frame_reader_enforces_strict_json) ... ok
+test_invalid_length_and_truncated_payload_are_rejected (test_context.FramingTests.test_invalid_length_and_truncated_payload_are_rejected) ... ok
+test_receives_fragmented_big_endian_frames (test_context.FramingTests.test_receives_fragmented_big_endian_frames) ... ok
+test_sends_one_big_endian_object_frame (test_context.FramingTests.test_sends_one_big_endian_object_frame) ... ok
+test_handler_exception_is_an_error_frame (test_context.ServeTests.test_handler_exception_is_an_error_frame) ... ok
+test_module_import_sees_private_socket_with_inheritance_revoked (test_context.ServeTests.test_module_import_sees_private_socket_with_inheritance_revoked) ... ok
+test_serves_typed_handler_on_private_socket (test_context.ServeTests.test_serves_typed_handler_on_private_socket) ... ok
+test_unknown_handler_cannot_execute_application (test_context.ServeTests.test_unknown_handler_cannot_execute_application) ... ok
+
+----------------------------------------------------------------------
+Ran 59 tests in 0.197s
+
+OK
+make[1]: Leaving directory '/workspace/scratch/7e4732696542/nehemiah-integrated'
+make workload-test
+make[1]: Entering directory '/workspace/scratch/7e4732696542/nehemiah-integrated'
+python3 -m unittest discover -s tests/performance -p 'test_*.py' -v
+test_before_effect_refusal_must_have_no_source_dispatch (test_history.HistoryTests.test_before_effect_refusal_must_have_no_source_dispatch) ... ok
+test_duplicate_and_missing_result_with_equal_totals_fails (test_history.HistoryTests.test_duplicate_and_missing_result_with_equal_totals_fails) ... ok
+test_duplicate_source_execution_even_with_same_effect_id_fails (test_history.HistoryTests.test_duplicate_source_execution_even_with_same_effect_id_fails) ... ok
+test_foreign_source_or_swapped_effect_identity_fails (test_history.HistoryTests.test_foreign_source_or_swapped_effect_identity_fails) ... ok
+test_host_completion_alone_does_not_establish_application_outcome (test_history.HistoryTests.test_host_completion_alone_does_not_establish_application_outcome) ... ok
+test_lost_host_completion_preserves_external_fact_without_reexecution (test_history.HistoryTests.test_lost_host_completion_preserves_external_fact_without_reexecution) ... ok
+test_lost_reply_cannot_be_reported_as_host_completion (test_history.HistoryTests.test_lost_reply_cannot_be_reported_as_host_completion) ... ok
+test_lost_reply_without_replay_check_is_inconclusive (test_history.HistoryTests.test_lost_reply_without_replay_check_is_inconclusive) ... ok
+test_missing_source_is_inconclusive (test_history.HistoryTests.test_missing_source_is_inconclusive) ... ok
+test_status_capture_cannot_repair_missing_independent_source_history (test_history.HistoryTests.test_status_capture_cannot_repair_missing_independent_source_history) ... ok
+test_two_identified_completions_pass (test_history.HistoryTests.test_two_identified_completions_pass) ... ok
+test_unknown_host_failure_does_not_establish_fixture_refusal (test_history.HistoryTests.test_unknown_host_failure_does_not_establish_fixture_refusal) ... ok
+test_zero_width_source_interval_has_no_negative_occupancy (test_history.HistoryTests.test_zero_width_source_interval_has_no_negative_occupancy) ... ok
+test_declared_local_limits_reject_unbounded_or_nonfinite_load (test_history.PacedBoundsTests.test_declared_local_limits_reject_unbounded_or_nonfinite_load) ... ok
+test_source_ledger_is_bounded_and_malformed_events_fail (test_history.PacedBoundsTests.test_source_ledger_is_bounded_and_malformed_events_fail) ... ok
+test_aggregate_counts_do_not_hide_per_request_duplicate_or_loss (test_workload.OutcomeTests.test_aggregate_counts_do_not_hide_per_request_duplicate_or_loss) ... ok
+test_lost_response_and_known_failure_have_distinct_projections (test_workload.OutcomeTests.test_lost_response_and_known_failure_have_distinct_projections) ... ok
+test_prepared_snapshot_is_not_reported_as_definite_deferral (test_workload.OutcomeTests.test_prepared_snapshot_is_not_reported_as_definite_deferral) ... ok
+test_process_failure_does_not_imply_failed_or_rejected_work (test_workload.OutcomeTests.test_process_failure_does_not_imply_failed_or_rejected_work) ... ok
+test_quantiles_are_nearest_rank_and_missing_is_explicit (test_workload.OutcomeTests.test_quantiles_are_nearest_rank_and_missing_is_explicit) ... ok
+test_rejected_and_completed_have_different_admission_knowledge (test_workload.OutcomeTests.test_rejected_and_completed_have_different_admission_knowledge) ... ok
+test_request_identity_is_required_for_admission_evidence (test_workload.OutcomeTests.test_request_identity_is_required_for_admission_evidence) ... ok
+test_stable_empty_or_contradictory_observations_cannot_pass_completion (test_workload.OutcomeTests.test_stable_empty_or_contradictory_observations_cannot_pass_completion) ... ok
+test_zero_categories_remain_explicit (test_workload.OutcomeTests.test_zero_categories_remain_explicit) ... ok
+test_canonical_manifest_keeps_unmeasured_scenarios_unrun (test_workload.WorkloadTests.test_canonical_manifest_keeps_unmeasured_scenarios_unrun) ... ok
+test_encoded_input_size_is_exact_and_separate_from_envelope (test_workload.WorkloadTests.test_encoded_input_size_is_exact_and_separate_from_envelope) ... ok
+test_generation_preserves_prefixes_and_binds_workload_parameters (test_workload.WorkloadTests.test_generation_preserves_prefixes_and_binds_workload_parameters) ... ok
+test_invalid_load_rejected_before_materialisation (test_workload.WorkloadTests.test_invalid_load_rejected_before_materialisation) ... ok
+test_skew_is_exact_and_nonhot_tenants_stay_distinct (test_workload.WorkloadTests.test_skew_is_exact_and_nonhot_tenants_stay_distinct) ... ok
+
+----------------------------------------------------------------------
+Ran 29 tests in 0.038s
+
+OK
+make[1]: Leaving directory '/workspace/scratch/7e4732696542/nehemiah-integrated'
+make privacy-test
+make[1]: Entering directory '/workspace/scratch/7e4732696542/nehemiah-integrated'
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s adapters/privacy -p test_qualification.py -v
+test_real_privacy_inspect_collection_and_exact_replay (test_qualification.ActualHost.test_real_privacy_inspect_collection_and_exact_replay) ... ok
+test_changed_source_same_byte_length_or_frozen_manifest_is_rejected (test_qualification.CorpusAndAssessment.test_changed_source_same_byte_length_or_frozen_manifest_is_rejected) ... ok
+test_cli_replay_emits_only_aggregate_restricted_result (test_qualification.CorpusAndAssessment.test_cli_replay_emits_only_aggregate_restricted_result) ... ok
+test_contradictory_annotations_and_wrong_unicode_units_reject (test_qualification.CorpusAndAssessment.test_contradictory_annotations_and_wrong_unicode_units_reject) ... ok
+test_conversation_repetition_is_one_inference_unit (test_qualification.CorpusAndAssessment.test_conversation_repetition_is_one_inference_unit) ... ok
+test_duplicate_keys_and_nonfinite_json_reject (test_qualification.CorpusAndAssessment.test_duplicate_keys_and_nonfinite_json_reject) ... ok
+test_empty_or_unmeasured_stratum_cannot_pass (test_qualification.CorpusAndAssessment.test_empty_or_unmeasured_stratum_cannot_pass) ... ok
+test_exact_source_manifest_and_unicode_offsets (test_qualification.CorpusAndAssessment.test_exact_source_manifest_and_unicode_offsets) ... ok
+test_incomplete_scan_is_withheld_but_fails_complete_gate_and_false_blocks (test_qualification.CorpusAndAssessment.test_incomplete_scan_is_withheld_but_fails_complete_gate_and_false_blocks) ... ok
+test_many_correlated_documents_do_not_establish_299_trials (test_qualification.CorpusAndAssessment.test_many_correlated_documents_do_not_establish_299_trials) ... ok
+test_missing_domain_annotation_or_sampling_attestation_reject (test_qualification.CorpusAndAssessment.test_missing_domain_annotation_or_sampling_attestation_reject) ... ok
+test_replay_order_and_duplicate_ids_reject (test_qualification.CorpusAndAssessment.test_replay_order_and_duplicate_ids_reject) ... ok
+test_residual_disclosure_and_required_fact_loss_are_independent (test_qualification.CorpusAndAssessment.test_residual_disclosure_and_required_fact_loss_are_independent) ... ok
+test_silent_truncation_wrong_units_changed_detector_or_range_reject (test_qualification.CorpusAndAssessment.test_silent_truncation_wrong_units_changed_detector_or_range_reject) ... ok
+test_wrong_category_can_remove_bytes_while_lowering_category_recall (test_qualification.CorpusAndAssessment.test_wrong_category_can_remove_bytes_while_lowering_category_recall) ... ok
+test_bound_is_monotone_and_conservative (test_qualification.ExactBounds.test_bound_is_monotone_and_conservative) ... ok
+test_zero_failures_planning_bound_and_endpoints (test_qualification.ExactBounds.test_zero_failures_planning_bound_and_endpoints) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.377s
+
+OK
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=adapters/privacy python3 -m unittest discover -s adapters/privacy/tests -p 'test_*.py' -v
+test_extra_importable_extension_bytecode_and_symlink_fail (test_adapter.Assets.test_extra_importable_extension_bytecode_and_symlink_fail) ... ok
+test_offline_assets_missing_changed_and_path_escape_fail (test_adapter.Assets.test_offline_assets_missing_changed_and_path_escape_fail) ... ok
+test_provisioning_preserves_another_transfers_partial_file (test_adapter.Assets.test_provisioning_preserves_another_transfers_partial_file) ... ok
+test_runtime_unknown_or_missing_version_never_imports_model (test_adapter.Assets.test_runtime_unknown_or_missing_version_never_imports_model) ... ok
+test_worker_rejects_extra_extension_before_first_package_import (test_adapter.Assets.test_worker_rejects_extra_extension_before_first_package_import) ... ok
+test_character_coordinates_preserve_unicode_and_overlap_categories (test_adapter.Contracts.test_character_coordinates_preserve_unicode_and_overlap_categories) ... ok
+test_duplicate_json_nonfinite_truncation_and_surrogates_reject (test_adapter.Contracts.test_duplicate_json_nonfinite_truncation_and_surrogates_reject) ... ok
+test_positive_findings_survive_explicit_limit_as_partial (test_adapter.Contracts.test_positive_findings_survive_explicit_limit_as_partial) ... ok
+test_response_has_only_permitted_correlated_metadata (test_adapter.Contracts.test_response_has_only_permitted_correlated_metadata) ... ok
+test_strict_source_identity_byte_bounds_and_versions (test_adapter.Contracts.test_strict_source_identity_byte_bounds_and_versions) ... ok
+test_decoder_length_failure_cannot_fall_back_to_argmax (test_adapter.CoverageGuards.test_decoder_length_failure_cannot_fall_back_to_argmax) ... ok
+test_missing_final_token_or_nonfinite_scores_cannot_be_complete (test_adapter.CoverageGuards.test_missing_final_token_or_nonfinite_scores_cannot_be_complete) ... ok
+test_model_checks_original_tokens_full_mask_and_exact_output (test_adapter.CoverageGuards.test_model_checks_original_tokens_full_mask_and_exact_output) ... ok
+test_asset_and_model_exception_text_never_leaves_response (test_adapter.FailureAndTransport.test_asset_and_model_exception_text_never_leaves_response) ... ok
+test_private_fd_roundtrip_and_oversized_prefix (test_adapter.FailureAndTransport.test_private_fd_roundtrip_and_oversized_prefix) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.114s
+
+OK
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests/privacy -p 'test_*.py' -v
+test_codepoint_offset_mistaken_for_byte_offset_fails (test_qualification.QualificationTests.test_codepoint_offset_mistaken_for_byte_offset_fails) ... ok
+test_complete_byte_correct_synthetic_result_passes (test_qualification.QualificationTests.test_complete_byte_correct_synthetic_result_passes) ... ok
+test_coverage_check_permits_surrounding_whitespace (test_qualification.QualificationTests.test_coverage_check_permits_surrounding_whitespace) ... ok
+test_different_detector_bundle_is_rejected (test_qualification.QualificationTests.test_different_detector_bundle_is_rejected) ... ok
+test_duplicate_keys_and_nonfinite_json_are_rejected (test_qualification.QualificationTests.test_duplicate_keys_and_nonfinite_json_are_rejected) ... ok
+test_failed_scan_or_missing_coverage_cannot_pass (test_qualification.QualificationTests.test_failed_scan_or_missing_coverage_cannot_pass) ... ok
+test_missing_entity_cannot_pass_with_equal_aggregate_count (test_qualification.QualificationTests.test_missing_entity_cannot_pass_with_equal_aggregate_count) ... ok
+test_outer_cli_deadline_is_bounded_without_model_assets (test_qualification.QualificationTests.test_outer_cli_deadline_is_bounded_without_model_assets) ... ok
+test_partial_progress_remains_running_until_every_case_passes (test_qualification.QualificationTests.test_partial_progress_remains_running_until_every_case_passes) ... ok
+test_policy_release_and_quality_claims_are_rejected (test_qualification.QualificationTests.test_policy_release_and_quality_claims_are_rejected) ... ok
+test_preflight_failure_replaces_a_stale_pass_receipt (test_qualification.QualificationTests.test_preflight_failure_replaces_a_stale_pass_receipt) ... ok
+test_source_leak_is_found_after_json_unescaping (test_qualification.QualificationTests.test_source_leak_is_found_after_json_unescaping) ... ok
+test_stderr_is_rejected (test_qualification.QualificationTests.test_stderr_is_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.057s
+
+OK
+make[1]: Leaving directory '/workspace/scratch/7e4732696542/nehemiah-integrated'
+make notification-test
+make[1]: Entering directory '/workspace/scratch/7e4732696542/nehemiah-integrated'
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=sdk/python:adapters/notifications python3 -m unittest discover -s adapters/notifications/tests -p 'test_*.py' -v
+test_changed_endpoint_cannot_reuse_an_earlier_targets_acceptance (test_boundary_adversarial.BoundaryTests.test_changed_endpoint_cannot_reuse_an_earlier_targets_acceptance) ... ok
+test_direct_notification_construction_rejects_unvalidated_header_identities (test_boundary_adversarial.BoundaryTests.test_direct_notification_construction_rejects_unvalidated_header_identities) ... ok
+test_guaranteed_refusal_survives_unusable_response_metadata (test_boundary_adversarial.BoundaryTests.test_guaranteed_refusal_survives_unusable_response_metadata) ... ok
+test_route_mismatch_is_known_unsent_and_credentials_do_not_rebind_target (test_boundary_adversarial.BoundaryTests.test_route_mismatch_is_known_unsent_and_credentials_do_not_rebind_target) ... ok
+test_target_rotation_after_intent_is_known_unsent_before_dispatch (test_boundary_adversarial.BoundaryTests.test_target_rotation_after_intent_is_known_unsent_before_dispatch) ... ok
+test_tls_exhausting_deadline_prevents_starting_post (test_boundary_adversarial.BoundaryTests.test_tls_exhausting_deadline_prevents_starting_post) ... ok
+test_a_generic_lookup_failure_is_not_an_absent_notification_record (test_case_status.CaseStatusTests.test_a_generic_lookup_failure_is_not_an_absent_notification_record) ... ok
+test_changed_event_target_route_or_format_cannot_borrow_another_notification (test_case_status.CaseStatusTests.test_changed_event_target_route_or_format_cannot_borrow_another_notification) ... ok
+test_closed_versioned_records_reject_private_fields_and_malformed_identifiers (test_case_status.CaseStatusTests.test_closed_versioned_records_reject_private_fields_and_malformed_identifiers) ... ok
+test_completed_case_and_notification_preserve_exact_original_identities (test_case_status.CaseStatusTests.test_completed_case_and_notification_preserve_exact_original_identities) ... ok
+test_receipt_certainty_and_payload_consistency_are_checked (test_case_status.CaseStatusTests.test_receipt_certainty_and_payload_consistency_are_checked) ... ok
+test_refusal_throttle_and_unsent_remain_separate_from_acceptance (test_case_status.CaseStatusTests.test_refusal_throttle_and_unsent_remain_separate_from_acceptance) ... ok
+test_scope_actor_parent_and_logical_keys_must_match (test_case_status.CaseStatusTests.test_scope_actor_parent_and_logical_keys_must_match) ... ok
+test_unavailable_or_incomplete_case_intent_does_not_create_a_case (test_case_status.CaseStatusTests.test_unavailable_or_incomplete_case_intent_does_not_create_a_case) ... ok
+test_unsettled_and_unrecorded_states_never_create_permission_to_send_again (test_case_status.CaseStatusTests.test_unsettled_and_unrecorded_states_never_create_permission_to_send_again) ... ok
+test_withheld_record_preserves_known_execution_without_inventing_submission (test_case_status.CaseStatusTests.test_withheld_record_preserves_known_execution_without_inventing_submission) ... ok
+test_completed_metadata_without_a_descriptor_never_claims_endpoint_acceptance (test_case_status_adversarial.CaseProjectionBoundaryTests.test_completed_metadata_without_a_descriptor_never_claims_endpoint_acceptance) ... ok
+test_different_logical_effect_keys_cannot_borrow_the_same_retained_effect_identity (test_case_status_adversarial.CaseProjectionBoundaryTests.test_different_logical_effect_keys_cannot_borrow_the_same_retained_effect_identity) ... ok
+test_impossible_host_state_settlement_pairs_do_not_become_case_facts (test_case_status_adversarial.CaseProjectionBoundaryTests.test_impossible_host_state_settlement_pairs_do_not_become_case_facts) ... ok
+test_missing_or_unsettled_effects_preserve_uncertainty_without_a_retry_projection (test_case_status_adversarial.CaseProjectionBoundaryTests.test_missing_or_unsettled_effects_preserve_uncertainty_without_a_retry_projection) ... ok
+test_optional_inspection_is_validated_before_its_metadata_is_discarded (test_case_status_adversarial.CaseProjectionBoundaryTests.test_optional_inspection_is_validated_before_its_metadata_is_discarded) ... ok
+test_real_n2_completion_evidence_can_include_a_valid_inspection_receipt (test_case_status_adversarial.CaseProjectionBoundaryTests.test_real_n2_completion_evidence_can_include_a_valid_inspection_receipt) ... ok
+test_acknowledgement_and_escalation_keep_distinct_logical_actions (test_lifecycle.AcknowledgementTests.test_acknowledgement_and_escalation_keep_distinct_logical_actions) ... ok
+test_revocation_between_acknowledgement_and_escalation_stops_new_admission (test_lifecycle.AcknowledgementTests.test_revocation_between_acknowledgement_and_escalation_stops_new_admission) ... ok
+test_known_accepted_attempt_survives_recovery_after_queue_expiry (test_lifecycle.LateRecoveryTests.test_known_accepted_attempt_survives_recovery_after_queue_expiry) ... ok
+test_expiry_and_attempt_quota_stop_without_further_submission (test_lifecycle.LifecycleTests.test_expiry_and_attempt_quota_stop_without_further_submission) ... ok
+test_only_authoritative_absence_allows_retry_after_ambiguous_send (test_lifecycle.LifecycleTests.test_only_authoritative_absence_allows_retry_after_ambiguous_send) ... ok
+test_policy_validates_boolean_limits_and_fresh_policy_conflicts (test_lifecycle.LifecycleTests.test_policy_validates_boolean_limits_and_fresh_policy_conflicts) ... ok
+test_revocation_after_queue_intent_prevents_fresh_timer_or_submission (test_lifecycle.LifecycleTests.test_revocation_after_queue_intent_prevents_fresh_timer_or_submission) ... ok
+test_throttle_retries_same_action_and_restart_replays_without_new_send (test_lifecycle.LifecycleTests.test_throttle_retries_same_action_and_restart_replays_without_new_send) ... ok
+test_unavailable_or_malformed_retained_state_cannot_start_or_retry_send (test_lifecycle.LifecycleTests.test_unavailable_or_malformed_retained_state_cannot_start_or_retry_send) ... ok
+test_unknown_lookup_does_not_resubmit_and_acceptance_reconciles_same_action (test_lifecycle.LifecycleTests.test_unknown_lookup_does_not_resubmit_and_acceptance_reconciles_same_action) ... ok
+test_exact_action_same_origin_lookup_preserves_unknown_statuses (test_lifecycle.LookupTests.test_exact_action_same_origin_lookup_preserves_unknown_statuses) ... ok
+test_unqualified_lookup_contract_or_dynamic_path_rejects (test_lifecycle.LookupTests.test_unqualified_lookup_contract_or_dynamic_path_rejects) ... ok
+test_categories_choose_symbolic_route_without_supplied_recipient (test_response.ContractTests.test_categories_choose_symbolic_route_without_supplied_recipient) ... ok
+test_default_withheld_event_does_not_infer_pii_or_exposure (test_response.ContractTests.test_default_withheld_event_does_not_infer_pii_or_exposure) ... ok
+test_direct_notification_constructor_rejects_header_injection_and_identity_substitution (test_response.ContractTests.test_direct_notification_constructor_rejects_header_injection_and_identity_substitution) ... ok
+test_invalid_private_metadata_counts_and_routes_reject (test_response.ContractTests.test_invalid_private_metadata_counts_and_routes_reject) ... ok
+test_logical_action_stable_and_host_scope_event_route_separate (test_response.ContractTests.test_logical_action_stable_and_host_scope_event_route_separate) ... ok
+test_flood_capacity_is_explicit_refusal_and_dedup_does_not_spend (test_response.FlowTests.test_flood_capacity_is_explicit_refusal_and_dedup_does_not_spend) ... ok
+test_intent_precedes_send_and_same_action_replays_after_restart (test_response.FlowTests.test_intent_precedes_send_and_same_action_replays_after_restart) ... ok
+test_lost_acceptance_retains_original_uncertainty_without_resend (test_response.FlowTests.test_lost_acceptance_retains_original_uncertainty_without_resend) ... ok
+test_missing_or_revoked_case_intent_cannot_start_notification (test_response.FlowTests.test_missing_or_revoked_case_intent_cannot_start_notification) ... ok
+test_adapter_concurrency_rejection_is_unsent (test_response.HttpsTests.test_adapter_concurrency_rejection_is_unsent) ... ok
+test_connection_failure_is_proved_unsent_without_credential_or_endpoint_diagnostics (test_response.HttpsTests.test_connection_failure_is_proved_unsent_without_credential_or_endpoint_diagnostics) ... ok
+test_endpoint_acceptance_is_separate_from_recipient_delivery_and_body (test_response.HttpsTests.test_endpoint_acceptance_is_separate_from_recipient_delivery_and_body) ... ok
+test_expired_connect_or_tls_deadline_cannot_start_a_post (test_response.HttpsTests.test_expired_connect_or_tls_deadline_cannot_start_a_post) ... ok
+test_https_config_rejects_dynamic_credential_injection_and_unapproved_contract (test_response.HttpsTests.test_https_config_rejects_dynamic_credential_injection_and_unapproved_contract) ... ok
+test_known_acceptance_survives_invalid_or_oversized_metadata (test_response.HttpsTests.test_known_acceptance_survives_invalid_or_oversized_metadata) ... ok
+test_redirect_server_failure_and_lost_response_remain_uncertain (test_response.HttpsTests.test_redirect_server_failure_and_lost_response_remain_uncertain) ... ok
+test_throttling_and_known_refusal_are_retained_without_automatic_retry (test_response.HttpsTests.test_throttling_and_known_refusal_are_retained_without_automatic_retry) ... ok
+
+----------------------------------------------------------------------
+Ran 51 tests in 0.046s
+
+OK
+make[1]: Leaving directory '/workspace/scratch/7e4732696542/nehemiah-integrated'
+make acquisition-test
+make[1]: Entering directory '/workspace/scratch/7e4732696542/nehemiah-integrated'
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s adapters/acquisition/tests -v
+test_host_429_never_inherits_github_reset_or_mutation_refusal_contract (test_coalescing.GenericHostProviderTests.test_host_429_never_inherits_github_reset_or_mutation_refusal_contract) ... ok
+test_actual_host_throttle_gates_read_but_never_claims_external_quota (test_coalescing.HTTPTests.test_actual_host_throttle_gates_read_but_never_claims_external_quota) ... ok
+test_actual_http_suppresses_errors_and_never_follows_redirects (test_coalescing.HTTPTests.test_actual_http_suppresses_errors_and_never_follows_redirects) ... ok
+test_actual_http_uses_current_separate_bearer_and_exact_extensions (test_coalescing.HTTPTests.test_actual_http_uses_current_separate_bearer_and_exact_extensions) ... ok
+test_actual_oversize_mismatched_reply_or_dripping_server_cannot_deliver (test_coalescing.HTTPTests.test_actual_oversize_mismatched_reply_or_dripping_server_cannot_deliver) ... ok
+test_endpoint_or_bearer_cannot_redirect_or_inject_headers (test_coalescing.HTTPTests.test_endpoint_or_bearer_cannot_redirect_or_inject_headers) ... ok
+test_caller_mutations_do_not_change_frozen_replay_content (test_coalescing.ProtocolTests.test_caller_mutations_do_not_change_frozen_replay_content) ... ok
+test_cancellation_or_deadline_during_http_read_discards_own_delivery (test_coalescing.ProtocolTests.test_cancellation_or_deadline_during_http_read_discards_own_delivery) ... ok
+test_exact_key_binds_scope_generation_policy_epochs_and_input (test_coalescing.ProtocolTests.test_exact_key_binds_scope_generation_policy_epochs_and_input) ... ok
+test_expired_or_stale_source_is_never_refetched_or_timestamp_renewed (test_coalescing.ProtocolTests.test_expired_or_stale_source_is_never_refetched_or_timestamp_renewed) ... ok
+test_failed_unknown_or_changed_identity_never_publishes (test_coalescing.ProtocolTests.test_failed_unknown_or_changed_identity_never_publishes) ... ok
+test_follower_cannot_extend_upstream_submission_cutoff (test_coalescing.ProtocolTests.test_follower_cannot_extend_upstream_submission_cutoff) ... ok
+test_known_task_can_resolve_after_submission_cutoff_without_new_acquisition (test_coalescing.ProtocolTests.test_known_task_can_resolve_after_submission_cutoff_without_new_acquisition) ... ok
+test_lost_publication_ack_replays_same_alias_without_new_submission (test_coalescing.ProtocolTests.test_lost_publication_ack_replays_same_alias_without_new_submission) ... ok
+test_lost_submission_ack_reuses_exact_original_host_identity (test_coalescing.ProtocolTests.test_lost_submission_ack_reuses_exact_original_host_identity) ... ok
+test_private_checkpoint_requires_exact_registration_binding (test_coalescing.ProtocolTests.test_private_checkpoint_requires_exact_registration_binding) ... ok
+test_private_identity_key_hides_dictionary_inputs_and_rotation_cannot_restore_old_checkpoint (test_coalescing.ProtocolTests.test_private_identity_key_hides_dictionary_inputs_and_rotation_cannot_restore_old_checkpoint) ... ok
+test_registration_rejects_floats_duplicates_unbounded_or_secret_bearing_unknown_fields (test_coalescing.ProtocolTests.test_registration_rejects_floats_duplicates_unbounded_or_secret_bearing_unknown_fields) ... ok
+test_subscribers_use_independent_authority_and_cancel_only_own_delivery (test_coalescing.ProtocolTests.test_subscribers_use_independent_authority_and_cancel_only_own_delivery) ... ok
+test_withheld_invalid_or_unbound_source_never_delivers_projection (test_coalescing.ProtocolTests.test_withheld_invalid_or_unbound_source_never_delivers_projection) ... ok
+test_body_and_unapproved_headers_never_enter_the_result (test_provider.ContractTests.test_body_and_unapproved_headers_never_enter_the_result) ... ok
+test_conditional_response_and_redirect_have_distinct_actions (test_provider.ContractTests.test_conditional_response_and_redirect_have_distinct_actions) ... ok
+test_duplicate_observation_does_not_renew_its_cooldown (test_provider.ContractTests.test_duplicate_observation_does_not_renew_its_cooldown) ... ok
+test_exception_chains_do_not_preserve_private_header_text (test_provider.ContractTests.test_exception_chains_do_not_preserve_private_header_text) ... ok
+test_forged_transport_or_payload_fields_cannot_enable_mutation_retry (test_provider.ContractTests.test_forged_transport_or_payload_fields_cannot_enable_mutation_retry) ... ok
+test_gone_watch_records_lost_interval_and_requires_new_snapshot (test_provider.ContractTests.test_gone_watch_records_lost_interval_and_requires_new_snapshot) ... ok
+test_http_date_is_parsed_without_preserving_original_header (test_provider.ContractTests.test_http_date_is_parsed_without_preserving_original_header) ... ok
+test_known_throttle_refusal_and_established_not_sent_can_defer (test_provider.ContractTests.test_known_throttle_refusal_and_established_not_sent_can_defer) ... ok
+test_large_hint_is_never_clamped_to_an_earlier_retry (test_provider.ContractTests.test_large_hint_is_never_clamped_to_an_earlier_retry) ... ok
+test_mutation_acceptance_preserves_reconciliation_obligation (test_provider.ContractTests.test_mutation_acceptance_preserves_reconciliation_obligation) ... ok
+test_primary_reset_and_retry_after_are_both_lower_bounds (test_provider.ContractTests.test_primary_reset_and_retry_after_are_both_lower_bounds) ... ok
+test_primary_without_reset_and_duplicate_or_invalid_hints_hold (test_provider.ContractTests.test_primary_without_reset_and_duplicate_or_invalid_hints_hold) ... ok
+test_secondary_limit_has_one_minute_floor_and_bounded_backoff (test_provider.ContractTests.test_secondary_limit_has_one_minute_floor_and_bounded_backoff) ... ok
+test_unbounded_or_malformed_contract_values_are_rejected (test_provider.ContractTests.test_unbounded_or_malformed_contract_values_are_rejected) ... ok
+test_unknown_mutations_reconcile_even_after_original_deadline (test_provider.ContractTests.test_unknown_mutations_reconcile_even_after_original_deadline) ... ok
+test_actual_http_gone_requires_relist_with_explicit_history_gap (test_provider.HTTPFixtureTests.test_actual_http_gone_requires_relist_with_explicit_history_gap) ... ok
+test_actual_http_rate_refusals_preserve_only_scheduling_fields (test_provider.HTTPFixtureTests.test_actual_http_rate_refusals_preserve_only_scheduling_fields) ... ok
+test_actual_timeout_and_server_error_do_not_retry_unknown_mutation (test_provider.HTTPFixtureTests.test_actual_timeout_and_server_error_do_not_retry_unknown_mutation) ... ok
+test_actual_read_retains_only_approved_structured_projection (test_read_worker.ReadTests.test_actual_read_retains_only_approved_structured_projection) ... ok
+test_conditional_get_keeps_not_modified_distinct_from_fresh_evidence (test_read_worker.ReadTests.test_conditional_get_keeps_not_modified_distinct_from_fresh_evidence) ... ok
+test_deadline_expiry_prevents_any_network_request (test_read_worker.ReadTests.test_deadline_expiry_prevents_any_network_request) ... ok
+test_kubernetes_gone_relist_preserves_lost_interval (test_read_worker.ReadTests.test_kubernetes_gone_relist_preserves_lost_interval) ... ok
+test_oversized_duplicate_or_slow_body_cannot_deliver_or_retry (test_read_worker.ReadTests.test_oversized_duplicate_or_slow_body_cannot_deliver_or_retry) ... ok
+test_refusal_or_redirect_retains_no_body_or_followup (test_read_worker.ReadTests.test_refusal_or_redirect_retains_no_body_or_followup) ... ok
+test_registered_contract_is_snapshotted_and_input_has_no_endpoint_seam (test_read_worker.ReadTests.test_registered_contract_is_snapshotted_and_input_has_no_endpoint_seam) ... ok
+test_throttle_keeps_secondary_floor_without_http_retry (test_read_worker.ReadTests.test_throttle_keeps_secondary_floor_without_http_retry) ... ok
+test_unregistered_authentication_endpoints_and_mutations_are_rejected (test_read_worker.ReadTests.test_unregistered_authentication_endpoints_and_mutations_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 47 tests in 1.671s
+
+OK
+make[1]: Leaving directory '/workspace/scratch/7e4732696542/nehemiah-integrated'
+make observation-test
+make[1]: Entering directory '/workspace/scratch/7e4732696542/nehemiah-integrated'
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s adapters/observations/tests -v
+test_actual_http_uses_current_bearer_and_only_status_method (test_capture.CaptureTests.test_actual_http_uses_current_bearer_and_only_status_method) ... ok
+test_byte_overflow_and_buffer_eviction_are_counted_with_bounded_storage (test_capture.CaptureTests.test_byte_overflow_and_buffer_eviction_are_counted_with_bounded_storage) ... ok
+test_capture_checker_supplements_independent_history_without_fabricating_source_events (test_capture.CaptureTests.test_capture_checker_supplements_independent_history_without_fabricating_source_events) ... ok
+test_checker_rejects_unclassified_extra_fields (test_capture.CaptureTests.test_checker_rejects_unclassified_extra_fields) ... ok
+test_empty_zero_width_window_still_reports_missing_observation (test_capture.CaptureTests.test_empty_zero_width_window_still_reports_missing_observation) ... ok
+test_expiry_deletes_rows_and_old_reference_never_reads (test_capture.CaptureTests.test_expiry_deletes_rows_and_old_reference_never_reads) ... ok
+test_fixed_schema_rejects_payloads_and_identity_substitution (test_capture.CaptureTests.test_fixed_schema_rejects_payloads_and_identity_substitution) ... ok
+test_invalid_limits_and_backwards_clock_are_rejected (test_capture.CaptureTests.test_invalid_limits_and_backwards_clock_are_rejected) ... ok
+test_late_response_does_not_enter_an_expired_post_window (test_capture.CaptureTests.test_late_response_does_not_enter_an_expired_post_window) ... ok
+test_only_current_ordinary_source_profile_can_activate_capture (test_capture.CaptureTests.test_only_current_ordinary_source_profile_can_activate_capture) ... ok
+test_overlapping_spool_owners_cannot_bypass_capture_capacity (test_capture.CaptureTests.test_overlapping_spool_owners_cannot_bypass_capture_capacity) ... ok
+test_pre_post_projection_preserves_uncertainty_and_no_plain_identities (test_capture.CaptureTests.test_pre_post_projection_preserves_uncertainty_and_no_plain_identities) ... ok
+test_restart_preserves_completed_metadata_and_marks_open_window_incomplete (test_capture.CaptureTests.test_restart_preserves_completed_metadata_and_marks_open_window_incomplete) ... ok
+test_revision_gaps_faulty_revisions_and_lost_polls_remain_visible (test_capture.CaptureTests.test_revision_gaps_faulty_revisions_and_lost_polls_remain_visible) ... ok
+test_scope_key_and_row_tampering_fail_closed (test_capture.CaptureTests.test_scope_key_and_row_tampering_fail_closed) ... ok
+test_shared_token_scope_never_creates_cross_authority_correlation (test_capture.CaptureTests.test_shared_token_scope_never_creates_cross_authority_correlation) ... ok
+test_spool_uri_metacharacters_do_not_change_the_locked_file (test_capture.CaptureTests.test_spool_uri_metacharacters_do_not_change_the_locked_file) ... ok
+test_status_refreshes_are_bounded_by_sampling_interval (test_capture.CaptureTests.test_status_refreshes_are_bounded_by_sampling_interval) ... ok
+test_trigger_storm_coalesces_without_extending_windows_and_capacity_is_hard (test_capture.CaptureTests.test_trigger_storm_coalesces_without_extending_windows_and_capacity_is_hard) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 1.836s
+
+OK
+make[1]: Leaving directory '/workspace/scratch/7e4732696542/nehemiah-integrated'
+make governance-test
+make[1]: Entering directory '/workspace/scratch/7e4732696542/nehemiah-integrated'
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s deploy/managed/tests -v
+test_actual_host_flags_and_loopback_service (test_prepare.DeploymentTests.test_actual_host_flags_and_loopback_service) ... ok
+test_all_pods_hardened_no_host_or_wide_storage (test_prepare.DeploymentTests.test_all_pods_hardened_no_host_or_wide_storage) ... ok
+test_bounded_network_defaults (test_prepare.DeploymentTests.test_bounded_network_defaults) ... ok
+test_cluster_api_errors_are_not_successful_rbac_denials (test_prepare.DeploymentTests.test_cluster_api_errors_are_not_successful_rbac_denials) ... ok
+test_collector_read_only_namespace_and_separate_action_identity (test_prepare.DeploymentTests.test_collector_read_only_namespace_and_separate_action_identity) ... ok
+test_credential_names_not_values_and_no_runtime_injection (test_prepare.DeploymentTests.test_credential_names_not_values_and_no_runtime_injection) ... ok
+test_duplicate_json_fields_unknown_contracts_and_nonfinite_reject (test_prepare.DeploymentTests.test_duplicate_json_fields_unknown_contracts_and_nonfinite_reject) ... ok
+test_every_execution_change_changes_binding (test_prepare.DeploymentTests.test_every_execution_change_changes_binding) ... ok
+test_images_must_be_digest_pinned (test_prepare.DeploymentTests.test_images_must_be_digest_pinned) ... ok
+test_lifecycle_not_restored_with_execution (test_prepare.DeploymentTests.test_lifecycle_not_restored_with_execution) ... ok
+test_private_key_uses_init_only_source_and_private_mode (test_prepare.DeploymentTests.test_private_key_uses_init_only_source_and_private_mode) ... ok
+test_profile_preflight_cannot_silently_downgrade (test_prepare.DeploymentTests.test_profile_preflight_cannot_silently_downgrade) ... ok
+test_proxy_disables_payload_logs_and_buffering (test_prepare.DeploymentTests.test_proxy_disables_payload_logs_and_buffering) ... ok
+test_source_publication_requires_explicit_source_read_contract (test_prepare.DeploymentTests.test_source_publication_requires_explicit_source_read_contract) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.009s
+
+OK
+PYTHONDONTWRITEBYTECODE=1 MAS_HOST_BINARY="${CARGO_TARGET_DIR:-target}/debug/mas-host" python3 -m unittest discover -s tests/governance -v
+test_actual_closed_revision_and_restart (test_revision.GovernedRevision.test_actual_closed_revision_and_restart) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 2.160s
+
+OK
+make[1]: Leaving directory '/workspace/scratch/7e4732696542/nehemiah-integrated'

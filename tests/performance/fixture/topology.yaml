@@ -1,0 +1,4 @@
+version: mas-topology/1
+edges:
+  - [client, occupancy]
+  - [occupancy, client]

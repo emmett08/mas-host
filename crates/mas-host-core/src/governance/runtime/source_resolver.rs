@@ -10,7 +10,7 @@ fn identifier(value: &str) -> bool {
     !value.is_empty() && value.len() <= 128 && !value.chars().any(char::is_control)
 }
 
-fn read_source(
+pub(super) fn read_source(
     directory: &Path,
     session: &GovernedSession,
     actor: &str,
@@ -49,11 +49,17 @@ fn read_source(
             }
             view["source_id"] = json!(source.id());
             view["source_metadata"] = source.metadata();
-            view["lineage"] = json!(selected
-                .sources
-                .values()
-                .map(|source| source.metadata())
-                .collect::<Vec<_>>());
+            if session.referenced_lineage_enabled() {
+                view["version"] = json!("mas-governed-source-view/2");
+                view["lineage_disposition"] = json!("referenced");
+                view["lineage_reference"] = super::lineage_page::reference(session, selected)?;
+            } else {
+                view["lineage"] = json!(selected
+                    .sources
+                    .values()
+                    .map(|source| source.metadata())
+                    .collect::<Vec<_>>());
+            }
             view["host_settlement"] = json!("completed");
             view["external_execution"] = completion["external_execution"].clone();
             view["payload_disposition"] = json!("withheld");

@@ -1,0 +1,31 @@
+{
+  "version": "mas-host-deployment/1",
+  "namespace": "nehemiah",
+  "name": "investigation",
+  "profile": "trusted-local",
+  "governance_version": "mas-governed-local/2",
+  "source_publication": false,
+  "host_image": "registry.example/nehemiah-application@sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "proxy_image": "registry.example/nginx-unprivileged@sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "public_url": "https://nehemiah.example/a2a",
+  "host_binary": "/opt/nehemiah/mas-host",
+  "bundle_path": "/opt/nehemiah/application/bundle.json",
+  "configuration_secret": "investigation-governance",
+  "commitment_secret": "investigation-commitment",
+  "tls_secret": "investigation-tls",
+  "state_claim": "investigation-state",
+  "export_claim": "investigation-exports",
+  "lifecycle_claim": "investigation-lifecycle",
+  "ingress_namespace": "ingress-system",
+  "ingress_pod_labels": {"app.kubernetes.io/name": "ingress-nginx"},
+  "exports": [{"agent": "collector", "name": "Deployment assessment", "description": "Approved structured evidence only", "public": false}],
+  "credential_references": [],
+  "provider_endpoints": [],
+  "collector": {
+    "image": "registry.example/approved-cso-acquisition@sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "command": ["/opt/cso/acquire", "--output-directory", "/exports"],
+    "api_endpoint": {"cidr": "10.96.0.1/32", "port": 443},
+    "observation_namespace": "commerce",
+    "operation_id": "approved-investigation-001"
+  }
+}

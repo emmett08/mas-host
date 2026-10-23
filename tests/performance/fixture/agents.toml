@@ -1,0 +1,10 @@
+version = "mas-agents/3"
+
+[[agents]]
+name = "occupancy"
+operation = "synthetic_occupancy/1"
+[agents.implementation]
+kind = "native"
+language = "rust"
+source = "occupancy.rs"
+handler = "occupy"

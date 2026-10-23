@@ -27,6 +27,8 @@ struct LocalInspector {
     arguments: BTreeMap<String, String>,
     pins: DetectorPins,
     python_sha256: String,
+    contextual_json: bool,
+    retain_assessments: bool,
     worker_slot: Mutex<()>,
 }
 
@@ -123,7 +125,10 @@ impl GovernedInspector {
             "governed privacy configuration",
         )
         .map_err(|_| "governed-privacy-configuration-invalid")?;
-        if configuration["version"] != "mas-governed-privacy-inspector/1" {
+        let retain_assessments = configuration["version"] == "mas-governed-privacy-inspector/3";
+        let contextual_json =
+            retain_assessments || configuration["version"] == "mas-governed-privacy-inspector/2";
+        if !contextual_json && configuration["version"] != "mas-governed-privacy-inspector/1" {
             return Err("governed-privacy-configuration-version".into());
         }
         let pins = DetectorPins::from_value(&configuration["detector"])
@@ -176,6 +181,8 @@ impl GovernedInspector {
                 arguments,
                 pins,
                 python_sha256,
+                contextual_json,
+                retain_assessments,
                 worker_slot: Mutex::new(()),
             }),
         };
@@ -237,6 +244,14 @@ impl PrivacyInspector for LocalInspector {
         self.arguments["--timeout-ms"].parse().unwrap()
     }
 
+    fn contextual_json(&self) -> bool {
+        self.contextual_json
+    }
+
+    fn retain_assessments(&self) -> bool {
+        self.retain_assessments
+    }
+
     fn inspect(
         &self,
         source: &Source,
@@ -278,6 +293,8 @@ mod tests {
             arguments: BTreeMap::new(),
             pins: DetectorPins::new(&"a".repeat(64), &"b".repeat(40), &"c".repeat(40)).unwrap(),
             python_sha256: "0".repeat(64),
+            contextual_json: false,
+            retain_assessments: false,
             worker_slot: Mutex::new(()),
         };
         assert_eq!(inspector.configuration_binding(), inspector.binding);
@@ -295,6 +312,8 @@ mod tests {
             arguments: BTreeMap::new(),
             pins: DetectorPins::new(&"a".repeat(64), &"b".repeat(40), &"c".repeat(40)).unwrap(),
             python_sha256: "0".repeat(64),
+            contextual_json: false,
+            retain_assessments: false,
             worker_slot: Mutex::new(()),
         });
         let holder = Arc::clone(&inspector);

@@ -1,0 +1,66 @@
+cargo test --locked -p mas-host --test acceptance -- --ignored --nocapture
+    Finished `test` profile [unoptimized] target(s) in 0.07s
+     Running tests/acceptance.rs (target/debug/deps/acceptance-521c2fe81be949dd)
+
+running 1 test
+recovery: preserved 7 completed child steps, one protocol call, one unchanged receipt
+test code_only_apps_and_real_effect_recovery ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 28.38s
+
+PYTHONDONTWRITEBYTECODE=1 python3 adapters/acquisition/verify_host.py --host "${CARGO_TARGET_DIR:-target}/debug/mas-host" --sdk-root .
+{"current_grant_revocation": "PASS", "descriptor_digest": "56e917418fc49ddde2a662569172eb239e3c06b0fb6afc78e76e208118b99c69", "durable_logical_subscriptions": "NOT_RUN", "external_provider": "NOT_RUN", "host_sha256": "e51e5a2b6c2912136dc493cf62f5d6a5afb2013a6b60b4d637044b9072dc62a5", "independent_reader_denial": "PASS", "lost_ack_original_identity_replay": "PASS", "multi_replica_coordination": "NOT_RUN", "permitted_subscribers": 2, "physical_acquisitions": 1, "restart_identity_and_source_times": "PASS", "stale_refetch_suppression": "PASS", "status": "PASS", "subscriber_cancellation": "PASS", "version": "mas-coalesced-host-acceptance/1"}
+node --test assets/providers/cursor.test.mjs
+✔ Cursor uses the documented text-only SDK contract in a clean temporary workspace (10.828237ms)
+✔ Missing credentials fail before SDK acquisition (0.518278ms)
+✔ A failed send remains unknown and does not reveal or retry errors (4.275186ms)
+✔ Raw output and failed disposal retain separate evidence for Rust validation (1.773252ms)
+✔ Application integers and raw output reach Rust without JavaScript rounding (1.253528ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 154.932178
+cargo build --locked -p mas-host
+    Finished `dev` profile [unoptimized] target(s) in 0.07s
+python3 -m unittest discover -s tests/performance -p 'test_*.py' -v
+test_before_effect_refusal_must_have_no_source_dispatch (test_history.HistoryTests.test_before_effect_refusal_must_have_no_source_dispatch) ... ok
+test_duplicate_and_missing_result_with_equal_totals_fails (test_history.HistoryTests.test_duplicate_and_missing_result_with_equal_totals_fails) ... ok
+test_duplicate_source_execution_even_with_same_effect_id_fails (test_history.HistoryTests.test_duplicate_source_execution_even_with_same_effect_id_fails) ... ok
+test_foreign_source_or_swapped_effect_identity_fails (test_history.HistoryTests.test_foreign_source_or_swapped_effect_identity_fails) ... ok
+test_host_completion_alone_does_not_establish_application_outcome (test_history.HistoryTests.test_host_completion_alone_does_not_establish_application_outcome) ... ok
+test_lost_host_completion_preserves_external_fact_without_reexecution (test_history.HistoryTests.test_lost_host_completion_preserves_external_fact_without_reexecution) ... ok
+test_lost_reply_cannot_be_reported_as_host_completion (test_history.HistoryTests.test_lost_reply_cannot_be_reported_as_host_completion) ... ok
+test_lost_reply_without_replay_check_is_inconclusive (test_history.HistoryTests.test_lost_reply_without_replay_check_is_inconclusive) ... ok
+test_missing_source_is_inconclusive (test_history.HistoryTests.test_missing_source_is_inconclusive) ... ok
+test_status_capture_cannot_repair_missing_independent_source_history (test_history.HistoryTests.test_status_capture_cannot_repair_missing_independent_source_history) ... ok
+test_two_identified_completions_pass (test_history.HistoryTests.test_two_identified_completions_pass) ... ok
+test_unknown_host_failure_does_not_establish_fixture_refusal (test_history.HistoryTests.test_unknown_host_failure_does_not_establish_fixture_refusal) ... ok
+test_zero_width_source_interval_has_no_negative_occupancy (test_history.HistoryTests.test_zero_width_source_interval_has_no_negative_occupancy) ... ok
+test_declared_local_limits_reject_unbounded_or_nonfinite_load (test_history.PacedBoundsTests.test_declared_local_limits_reject_unbounded_or_nonfinite_load) ... ok
+test_source_ledger_is_bounded_and_malformed_events_fail (test_history.PacedBoundsTests.test_source_ledger_is_bounded_and_malformed_events_fail) ... ok
+test_aggregate_counts_do_not_hide_per_request_duplicate_or_loss (test_workload.OutcomeTests.test_aggregate_counts_do_not_hide_per_request_duplicate_or_loss) ... ok
+test_lost_response_and_known_failure_have_distinct_projections (test_workload.OutcomeTests.test_lost_response_and_known_failure_have_distinct_projections) ... ok
+test_prepared_snapshot_is_not_reported_as_definite_deferral (test_workload.OutcomeTests.test_prepared_snapshot_is_not_reported_as_definite_deferral) ... ok
+test_process_failure_does_not_imply_failed_or_rejected_work (test_workload.OutcomeTests.test_process_failure_does_not_imply_failed_or_rejected_work) ... ok
+test_quantiles_are_nearest_rank_and_missing_is_explicit (test_workload.OutcomeTests.test_quantiles_are_nearest_rank_and_missing_is_explicit) ... ok
+test_rejected_and_completed_have_different_admission_knowledge (test_workload.OutcomeTests.test_rejected_and_completed_have_different_admission_knowledge) ... ok
+test_request_identity_is_required_for_admission_evidence (test_workload.OutcomeTests.test_request_identity_is_required_for_admission_evidence) ... ok
+test_stable_empty_or_contradictory_observations_cannot_pass_completion (test_workload.OutcomeTests.test_stable_empty_or_contradictory_observations_cannot_pass_completion) ... ok
+test_zero_categories_remain_explicit (test_workload.OutcomeTests.test_zero_categories_remain_explicit) ... ok
+test_canonical_manifest_keeps_unmeasured_scenarios_unrun (test_workload.WorkloadTests.test_canonical_manifest_keeps_unmeasured_scenarios_unrun) ... ok
+test_encoded_input_size_is_exact_and_separate_from_envelope (test_workload.WorkloadTests.test_encoded_input_size_is_exact_and_separate_from_envelope) ... ok
+test_generation_preserves_prefixes_and_binds_workload_parameters (test_workload.WorkloadTests.test_generation_preserves_prefixes_and_binds_workload_parameters) ... ok
+test_invalid_load_rejected_before_materialisation (test_workload.WorkloadTests.test_invalid_load_rejected_before_materialisation) ... ok
+test_skew_is_exact_and_nonhot_tenants_stay_distinct (test_workload.WorkloadTests.test_skew_is_exact_and_nonhot_tenants_stay_distinct) ... ok
+
+----------------------------------------------------------------------
+Ran 29 tests in 0.024s
+
+OK
+mkdir -p target/workload-acceptance
+python3 tests/performance/paced.py --host target/debug/mas-host --count 4 --rate 20 --occupancy-ms 100 --concurrency 2 --fault-every 2 --fault-mode lost-completion --output target/workload-acceptance/lost-completion.json
+python3 tests/performance/paced.py --host target/debug/mas-host --count 3 --rate 2 --occupancy-ms 50 --concurrency 2 --fault-every 2 --fault-mode refuse-before-effect --output target/workload-acceptance/refusal.json

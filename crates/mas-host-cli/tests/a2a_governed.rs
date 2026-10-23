@@ -21,6 +21,8 @@ const EXTENSION: &str = "urn:mas:host-task-service:1";
 mod retained_effect;
 #[path = "a2a_governed/retained_source.rs"]
 mod retained_source;
+#[path = "a2a_governed/shared_source.rs"]
+mod shared_source;
 
 fn object(properties: Value, required: &[&str]) -> Value {
     json!({"type":"object","properties":properties,"required":required,"additionalProperties":false})
@@ -801,4 +803,33 @@ fn lost_effect_response_keeps_uncertainty_and_authorised_recovery_ids() {
     assert!(denied.1["error"].get("data").is_none());
     assert_eq!(project.calls(), 1);
     project.assert_private_absent();
+}
+
+#[test]
+fn materialised_status_rechecks_current_governed_authority_without_payloads() {
+    let project = Project::new();
+    let server = project.start();
+    let (_, accepted) = server.rpc(TOKEN, "SendMessage", project.send("available", PRIVATE));
+    let id = accepted["result"]["task"]["id"].as_str().unwrap();
+    server.completed(id);
+    let (_, view) = server.rpc(TOKEN, "GetTaskStatus", json!({"id":id}));
+    assert!(view.get("error").is_none(), "{view}");
+    assert_eq!(view["result"]["serviceState"], "completed");
+    assert!(view["result"].get("captureProfile").is_none());
+    assert!(!view.to_string().contains(PRIVATE));
+    assert!(!view.to_string().contains("approved"));
+    rejected(server.rpc(OTHER, "GetTaskStatus", json!({"id":id})));
+    project.authority(2, "pv1", false);
+    rejected(server.rpc(TOKEN, "GetTaskStatus", json!({"id":id})));
+    project.authority(3, "pv1", true);
+    let rotated = "status-rotated-alice-synthetic-token-0123456789";
+    project.authentication(rotated);
+    rejected(server.rpc(TOKEN, "GetTaskStatus", json!({"id":id})));
+    let (_, current) = server.rpc(rotated, "GetTaskStatus", json!({"id":id}));
+    assert!(current.get("error").is_none(), "{current}");
+    assert_eq!(
+        current["result"]["materialisation"]["revision"],
+        view["result"]["materialisation"]["revision"]
+    );
+    assert_eq!(project.calls(), 1);
 }

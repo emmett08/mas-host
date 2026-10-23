@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  test:
+  runtime:
     name: Native tests
     runs-on: ubuntu-24.04
     timeout-minutes: 40
@@ -45,6 +45,16 @@ jobs:
         run: make test
       - name: Native applications and effect recovery
         run: make acceptance
+      - name: Bounded synthetic workload invariants
+        run: make workload-acceptance
+      - name: Retain workload qualification evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: host-workload-invariants
+          path: target/workload-acceptance
+          if-no-files-found: warn
+          retention-days: 14
 
   formal:
     name: SPIN verification
@@ -55,6 +65,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Check host control and governed recovery with SPIN
+        timeout-minutes: 22
         run: |
           sudo apt-get update
           sudo apt-get install -y spin
@@ -68,17 +79,50 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-  # Preserve the existing required status and report failures from either job.
+  # Preserve the existing required linux status: both independent gates must pass.
   linux:
-    needs: [test, formal]
+    needs: [runtime, formal]
     if: always()
     runs-on: ubuntu-24.04
-    timeout-minutes: 2
+    timeout-minutes: 5
     steps:
-      - name: Require every verification job to pass
+      - name: Require runtime and complete formal verification
         env:
-          TEST_RESULT: ${{ needs.test.result }}
+          RUNTIME_RESULT: ${{ needs.runtime.result }}
           FORMAL_RESULT: ${{ needs.formal.result }}
         run: |
-          test "$TEST_RESULT" = success
+          test "$RUNTIME_RESULT" = success
           test "$FORMAL_RESULT" = success
+
+  shared-native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16.15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: native-fixture-password
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      MAS_TEST_POSTGRES_DSN: host=127.0.0.1 port=5432 user=postgres password=native-fixture-password dbname=postgres sslmode=disable
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Install pinned Rust
+        run: rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy
+      - name: Analyse optional shared profile
+        run: cargo clippy --locked -p mas-host --features shared-native --all-targets -- -D warnings
+      - name: Check shared preflight, deadline translation and queue decisions
+        run: |
+          cargo test --locked -p mas-host-core --features shared-native shared_native::
+          cargo test --locked -p mas-host --features shared-native --bin mas-host shared_queue::tests
+      - name: Exercise native PostgreSQL execution and paged queue traversal
+        run: cargo test --locked -p mas-host --features shared-native --test shared_native --test shared_queue -- --ignored --nocapture

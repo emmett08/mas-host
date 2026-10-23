@@ -2,9 +2,16 @@
 mod configuration;
 mod governed;
 mod http;
+mod lineage;
+mod publication;
 mod retained;
+mod retained_assessment;
 mod retained_effect;
 mod retained_source;
+#[cfg(feature = "shared-native")]
+mod shared_queue;
+mod shared_source;
+mod status;
 use configuration::Configuration;
 use governed::Caller;
 use rusqlite::{params, Connection, OptionalExtension};
@@ -61,6 +68,16 @@ impl From<String> for RpcError {
 }
 type RpcResult<T> = std::result::Result<T, RpcError>;
 
+struct RpcExtensions {
+    task: bool,
+    effect: bool,
+    source: bool,
+    shared: bool,
+    lineage: bool,
+    assessment: bool,
+    publication: bool,
+}
+
 struct Service {
     configuration: Configuration,
     bundle: Value,
@@ -110,8 +127,13 @@ impl Service {
         let mut db = Connection::open(db_path).map_err(error)?;
         db.busy_timeout(Duration::from_secs(2)).map_err(error)?;
         db.execute_batch("PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; CREATE TABLE IF NOT EXISTS metadata(singleton INTEGER PRIMARY KEY CHECK(singleton=1), fingerprint TEXT NOT NULL); CREATE TABLE IF NOT EXISTS tasks(id TEXT PRIMARY KEY,principal TEXT NOT NULL,message_id TEXT NOT NULL,content TEXT NOT NULL,agent TEXT NOT NULL,context TEXT NOT NULL,state TEXT NOT NULL,output TEXT,error TEXT,cancelled INTEGER NOT NULL DEFAULT 0,UNIQUE(principal,message_id));").map_err(error)?;
+        status::initialise(&db)?;
         if configuration.governed.is_some() {
             db.execute_batch("CREATE TABLE IF NOT EXISTS governed_tasks(id TEXT PRIMARY KEY, fingerprint TEXT NOT NULL)").map_err(error)?;
+        }
+        if configuration.source_publication {
+            db.execute_batch("CREATE TABLE IF NOT EXISTS published_source_keys(alias TEXT PRIMARY KEY,owner TEXT NOT NULL,binding_digest TEXT NOT NULL); CREATE TABLE IF NOT EXISTS published_sources(reference TEXT PRIMARY KEY,owner TEXT NOT NULL,alias TEXT NOT NULL UNIQUE,body TEXT NOT NULL);")
+                .map_err(error)?;
         }
         let binary = std::fs::read(std::env::current_exe().map_err(error)?).map_err(error)?;
         let fingerprint = digest(
@@ -159,6 +181,10 @@ impl Service {
         principal
             .current()
             .map_err(|_| RpcError(-32001, "task_not_found"))?;
+        #[cfg(feature = "shared-native")]
+        if self.configuration.shared_queue.is_some() {
+            return self.shared_task(principal, id);
+        }
         let db = self
             .db
             .lock()
@@ -301,6 +327,10 @@ impl Service {
             }) {
                 return Err(RpcError(-32005, "content_type_not_supported"));
             }
+        }
+        #[cfg(feature = "shared-native")]
+        if self.configuration.shared_queue.is_some() {
+            return self.shared_submit(principal, &message_id, &agent, &input, message);
         }
         let content = principal
             .content(params)
@@ -506,6 +536,10 @@ impl Service {
         }
     }
     fn cancel(&self, principal: &Caller, params: &Value) -> RpcResult<Value> {
+        #[cfg(feature = "shared-native")]
+        if self.configuration.shared_queue.is_some() {
+            return self.shared_cancel(principal, params);
+        }
         principal
             .current()
             .map_err(|_| RpcError(-32001, "task_not_found"))?;
@@ -546,14 +580,22 @@ impl Service {
             "cancellation_intent_recorded_poll_original_task",
         ))
     }
+    #[allow(clippy::too_many_arguments)]
     fn rpc(
         self: &Arc<Self>,
         principal: &Caller,
         request: &Value,
-        extension: bool,
-        effect_extension: bool,
-        source_extension: bool,
+        extensions: RpcExtensions,
     ) -> Value {
+        let RpcExtensions {
+            task: extension,
+            effect: effect_extension,
+            source: source_extension,
+            shared: shared_extension,
+            lineage: lineage_extension,
+            assessment: assessment_extension,
+            publication: publication_extension,
+        } = extensions;
         let id = if principal.session.is_some() && !governed::rpc_id_allowed(&request["id"]) {
             Value::Null
         } else {
@@ -561,7 +603,20 @@ impl Service {
         };
         let result = (|| -> RpcResult<Value> {
             principal.current().map_err(|_| {
-                if self.configuration.source_reads_supported()
+                if self.configuration.source_publication
+                    && request["method"] == "PublishRetainedSource"
+                {
+                    shared_source::unavailable()
+                } else if self.configuration.lineage_reads_supported()
+                    && (request["method"] == "GetRetainedSourceLineage"
+                        || request["method"] == "GetSharedSourceLineage")
+                {
+                    retained_source::unavailable()
+                } else if self.configuration.shared_reads_supported()
+                    && request["method"] == "GetSharedSource"
+                {
+                    shared_source::unavailable()
+                } else if self.configuration.source_reads_supported()
                     && request["method"] == "GetRetainedSource"
                 {
                     retained_source::unavailable()
@@ -599,6 +654,7 @@ impl Service {
                     }
                     self.task(principal, &text(params, "id")?)
                 }
+                "GetTaskStatus" => self.task_status(principal, params),
                 "CancelTask" => self.cancel(principal, params),
                 "GetRetainedEffect" if self.configuration.governed.is_some() => {
                     if !effect_extension {
@@ -606,11 +662,53 @@ impl Service {
                     }
                     self.retained_effect(principal, params)
                 }
+                "GetRetainedAssessment" if self.configuration.governed.is_some() => {
+                    if !assessment_extension {
+                        return Err(RpcError(-32008, "required_effect_extension_missing"));
+                    }
+                    self.retained_assessment(principal, params)
+                }
+                "AdjudicateAssessment" if self.configuration.governed.is_some() => {
+                    if !assessment_extension {
+                        return Err(RpcError(-32008, "required_assessment_extension_missing"));
+                    }
+                    self.adjudicate_assessment(principal, params)
+                }
                 "GetRetainedSource" if self.configuration.source_reads_supported() => {
                     if !source_extension {
                         return Err(RpcError(-32008, "required_source_extension_missing"));
                     }
                     self.retained_source(principal, params)
+                }
+                "GetSharedSource" if self.configuration.shared_reads_supported() => {
+                    if !shared_extension {
+                        return Err(RpcError(-32008, "required_shared_source_extension_missing"));
+                    }
+                    self.shared_source(principal, params)
+                }
+                "PublishRetainedSource" if self.configuration.source_publication => {
+                    if !publication_extension {
+                        return Err(RpcError(
+                            -32008,
+                            "required_source_publication_extension_missing",
+                        ));
+                    }
+                    self.publish_source(principal, params)
+                }
+                "GetRetainedSourceLineage" if self.configuration.lineage_reads_supported() => {
+                    if !lineage_extension {
+                        return Err(RpcError(-32008, "required_lineage_extension_missing"));
+                    }
+                    self.retained_source_lineage(principal, params)
+                }
+                "GetSharedSourceLineage"
+                    if self.configuration.lineage_reads_supported()
+                        && self.configuration.shared_reads_supported() =>
+                {
+                    if !lineage_extension {
+                        return Err(RpcError(-32008, "required_lineage_extension_missing"));
+                    }
+                    self.shared_source_lineage(principal, params)
                 }
                 "CreateTaskPushNotificationConfig"
                 | "GetTaskPushNotificationConfig"

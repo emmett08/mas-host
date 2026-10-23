@@ -29,5 +29,10 @@ toml = { version = "=1.1.8", default-features = false, features = ["std", "parse
 yaml-rust2 = { version = "=0.13.0", default-features = false }
 num-bigint = "=0.4.8"
 
+postgres = { version = "=0.19.12", optional = true }
+
+[features]
+shared-native = ["mas-host-core/shared-native", "dep:postgres"]
+
 [dev-dependencies]
 rusqlite.workspace = true

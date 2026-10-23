@@ -16,3 +16,8 @@ sha2.workspace = true
 rusqlite.workspace = true
 libc.workspace = true
 hmac = "=0.13.0"
+aes-gcm = { version = "=0.10.3", default-features = false, features = ["aes", "alloc", "zeroize"] }
+zeroize = "=1.8.2"
+
+[features]
+shared-native = ["mas-protocol-codec/postgres-repository"]

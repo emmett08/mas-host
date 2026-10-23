@@ -112,6 +112,8 @@ struct Inspector {
     calls: AtomicUsize,
     binding: String,
     timeout_ms: u64,
+    contextual_json: bool,
+    retain_assessments: bool,
     revoke: Option<(PathBuf, Value, usize)>,
 }
 
@@ -123,6 +125,8 @@ impl Inspector {
             calls: AtomicUsize::new(0),
             binding: "d".repeat(64),
             timeout_ms: 10_000,
+            contextual_json: false,
+            retain_assessments: false,
             revoke: None,
         }
     }
@@ -147,6 +151,12 @@ impl PrivacyInspector for Inspector {
     }
     fn timeout_ms(&self) -> u64 {
         self.timeout_ms
+    }
+    fn contextual_json(&self) -> bool {
+        self.contextual_json
+    }
+    fn retain_assessments(&self) -> bool {
+        self.retain_assessments
     }
     fn inspect(
         &self,
@@ -178,6 +188,13 @@ impl PrivacyInspector for Inspector {
             5 => {
                 std::thread::sleep(std::time::Duration::from_millis(1_100));
                 Ok(self.clean(source, &self.pins, limits))
+            }
+            6 if source.content().contains("\"n\":42") => {
+                let request = self.pins.request(source, limits).unwrap();
+                let mut value = json!({"version":"mas-privacy-worker-response/1","source_id":source.id(),"source_token":request["source_token"],"input_bytes":source.content().len(),"detector":self.pins.value(),"offset_unit":"unicode-codepoints","completion":"complete","checked_ranges":[{"start":0,"end":source.content().chars().count()}],"omissions":[],"findings":[]});
+                value["findings"] = json!([{"start":source.content().find("42").unwrap(),"end":source.content().find("42").unwrap()+2,"label":"account_number"}]);
+                NeuralAssessment::from_value(&value, source, &self.pins, limits)
+                    .map_err(|_| "invalid-fixture".into())
             }
             _ => Ok(self.clean(source, &self.pins, limits)),
         }
@@ -505,4 +522,278 @@ fn inspector_configuration_and_destination_are_part_of_retained_namespace_identi
     assert!(
         Engine::open_governed(&fixture.bundle, &fixture.path, "inspection-run", alternate).is_err()
     );
+}
+
+#[test]
+fn contextual_numeric_finding_stops_projection_and_changes_namespace_contract() {
+    let fixture = Fixture::new();
+    let mut inspector = Inspector::new();
+    inspector.mode.store(6, Ordering::SeqCst);
+    inspector.contextual_json = true;
+    let session = fixture.session(Arc::new(inspector));
+    assert_eq!(
+        session
+            .project_input("worker", &json!({"n":42}))
+            .unwrap_err(),
+        "governed-inspection-prohibited-projection"
+    );
+    let ordinary = fixture.session(Arc::new(Inspector::new()));
+    assert_ne!(session.fingerprint(), ordinary.fingerprint());
+    assert_eq!(
+        ordinary.project_input("worker", &json!({"n":42})).unwrap(),
+        json!({"n":42})
+    );
+}
+
+#[test]
+fn exact_component_custody_requires_distinct_retention_and_read_permissions() {
+    let mut fixture = Fixture::new();
+    let mut inspector = Inspector::new();
+    inspector.contextual_json = true;
+    inspector.retain_assessments = true;
+    let inspector = Arc::new(inspector);
+    assert!(fixture
+        .session(inspector.clone())
+        .project_input("worker", &json!({"n":1}))
+        .is_err());
+    let rules = fixture.authority["policies"][0]["rules"]
+        .as_array_mut()
+        .unwrap();
+    let template = rules[0].clone();
+    for (operation, recipient, destination) in [
+        (
+            "retain-assessment",
+            "host-assessment-journal",
+            "host-journal",
+        ),
+        ("resolve-assessment", "principal-a", "client"),
+        ("resolve", "principal-a", "client"),
+        (
+            "adjudicate-assessment",
+            "host-assessment-journal",
+            "host-journal",
+        ),
+    ] {
+        let mut rule = template.clone();
+        rule["operation"] = json!(operation);
+        rule["recipient"] = json!(recipient);
+        rule["destination"] = json!(destination);
+        rules.push(rule);
+    }
+    fixture.write_authority(&fixture.authority);
+    let session = fixture.session(inspector.clone());
+    let engine = fixture.engine(session.clone());
+    let invocation = fixture.invocation(&engine);
+    engine
+        .inner
+        .begin_effect(
+            &invocation,
+            "assessment-target",
+            &json!({"format":"fixture/1","n":1}),
+        )
+        .unwrap();
+    engine
+        .inner
+        .complete_effect(
+            &invocation,
+            "assessment-target",
+            &json!({"n":2}),
+            &json!({"execution":"completed"}),
+        )
+        .unwrap();
+    let directory = fixture.path.join("inspection-run");
+    let view = super::resolver::read_governed_root_assessment(
+        &directory,
+        &session,
+        "worker",
+        "assessment-target",
+    )
+    .unwrap();
+    assert_eq!(view["raw_source_disposition"], "not-retained");
+    assert!(view["component_count"].as_u64().unwrap() > 0);
+    assert_eq!(
+        view["inspection"]["contract"]["version"],
+        "mas-governed-inspection/3"
+    );
+    let review = json!({"review_key":"review-1","assessment_binding":view["inspection"]["component_assessments"][0]["binding"],"verdict":"inconclusive","reason":"insufficient-evidence"});
+    let adjudication = super::adjudication::adjudicate_governed_root_assessment(
+        &directory,
+        &session,
+        "worker",
+        "assessment-target",
+        &review,
+    )
+    .unwrap();
+    assert_eq!(
+        adjudication["record"]["release_permission"],
+        "requires-fresh-policy-decision"
+    );
+    assert_eq!(
+        super::adjudication::adjudicate_governed_root_assessment(
+            &directory,
+            &session,
+            "worker",
+            "assessment-target",
+            &review
+        )
+        .unwrap(),
+        adjudication
+    );
+    let mut changed = review.clone();
+    changed["verdict"] = json!("false-positive");
+    changed["reason"] = json!("domain-context");
+    assert!(super::adjudication::adjudicate_governed_root_assessment(
+        &directory,
+        &session,
+        "worker",
+        "assessment-target",
+        &changed
+    )
+    .is_err());
+    let mut bad = view["inspection"].clone();
+    bad["component_assessments"][0]["record"]["assessment"]["completion"] = json!("failed");
+    let db = lock(&engine.inner.journal).unwrap();
+    let effect = view["effect_id"].as_str().unwrap().to_owned();
+    let mut evidence: Value = serde_json::from_str(
+        &db.query_row::<String, _, _>("SELECT evidence FROM steps WHERE id=?", [&effect], |r| {
+            r.get(0)
+        })
+        .unwrap(),
+    )
+    .unwrap();
+    evidence["inspection"] = bad;
+    db.execute(
+        "UPDATE steps SET evidence=? WHERE id=?",
+        rusqlite::params![evidence.to_string(), effect],
+    )
+    .unwrap();
+    drop(db);
+    assert!(super::resolver::read_governed_root_assessment(
+        &directory,
+        &session,
+        "worker",
+        "assessment-target"
+    )
+    .is_err());
+}
+
+#[test]
+fn retired_and_restored_assessment_custody_cannot_admit_new_reviews() {
+    let mut fixture = Fixture::new();
+    fixture.config["version"] = json!("mas-governed-local/2");
+    fixture.config["baseline_policy_refs"] = json!(["policy-a"]);
+    fixture.config["lifecycle_file"] = json!(fixture.path.join("lifecycle.sqlite"));
+    let rules = fixture.authority["policies"][0]["rules"]
+        .as_array_mut()
+        .unwrap();
+    let template = rules[0].clone();
+    for (operation, recipient, destination) in [
+        (
+            "retain-assessment",
+            "host-assessment-journal",
+            "host-journal",
+        ),
+        ("resolve", "principal-a", "client"),
+        ("resolve-assessment", "principal-a", "client"),
+        (
+            "adjudicate-assessment",
+            "host-assessment-journal",
+            "host-journal",
+        ),
+    ] {
+        let mut rule = template.clone();
+        rule["operation"] = json!(operation);
+        rule["recipient"] = json!(recipient);
+        rule["destination"] = json!(destination);
+        rules.push(rule);
+    }
+    fixture.write_authority(&fixture.authority);
+    let mut inspector = Inspector::new();
+    inspector.contextual_json = true;
+    inspector.retain_assessments = true;
+    let session = fixture.session(Arc::new(inspector));
+    let engine = fixture.engine(session.clone());
+    let invocation = fixture.invocation(&engine);
+    engine
+        .inner
+        .begin_effect(
+            &invocation,
+            "review-target",
+            &json!({"format":"fixture/1","n":1}),
+        )
+        .unwrap();
+    engine
+        .inner
+        .complete_effect(
+            &invocation,
+            "review-target",
+            &json!({"n":2}),
+            &json!({"execution":"completed"}),
+        )
+        .unwrap();
+    let directory = fixture.path.join("inspection-run");
+    let view = super::resolver::read_governed_root_assessment(
+        &directory,
+        &session,
+        "worker",
+        "review-target",
+    )
+    .unwrap();
+    let review = json!({"review_key":"review-before-retirement","assessment_binding":view["inspection"]["component_assessments"][0]["binding"],"verdict":"inconclusive","reason":"insufficient-evidence"});
+    super::adjudication::adjudicate_governed_root_assessment(
+        &directory,
+        &session,
+        "worker",
+        "review-target",
+        &review,
+    )
+    .unwrap();
+    drop(engine);
+    let backup = fs::read(directory.join("execution.sqlite")).unwrap();
+    crate::governance::govern_namespace_lifecycle(&directory, &session, "retire", None).unwrap();
+    let db = rusqlite::Connection::open(directory.join("execution.sqlite")).unwrap();
+    let remaining: i64 = db
+        .query_row(
+            "SELECT COUNT(*) FROM governed_assessment_reviews",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap();
+    assert_eq!(remaining, 0);
+    drop(db);
+    let mut later = review.clone();
+    later["review_key"] = json!("review-after-retirement");
+    assert!(super::adjudication::adjudicate_governed_root_assessment(
+        &directory,
+        &session,
+        "worker",
+        "review-target",
+        &later
+    )
+    .is_err());
+    fs::write(directory.join("execution.sqlite"), backup).unwrap();
+    assert!(super::resolver::read_governed_root_assessment(
+        &directory,
+        &session,
+        "worker",
+        "review-target"
+    )
+    .is_err());
+    assert!(super::adjudication::adjudicate_governed_root_assessment(
+        &directory,
+        &session,
+        "worker",
+        "review-target",
+        &later
+    )
+    .is_err());
+    let db = rusqlite::Connection::open(directory.join("execution.sqlite")).unwrap();
+    let restored: i64 = db
+        .query_row(
+            "SELECT COUNT(*) FROM governed_assessment_reviews",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap();
+    assert_eq!(restored, 1);
 }

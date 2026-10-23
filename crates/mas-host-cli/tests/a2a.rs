@@ -557,3 +557,61 @@ fn blocking_unknown_outcome_preserves_task_identity_and_negotiated_extension() {
         "blocking retry repeated uncertain provider work"
     );
 }
+
+#[test]
+fn bounded_status_reads_do_not_load_payloads_or_repeat_provider_work() {
+    let project = Project::new(Provider::Completed);
+    let descriptor = project.descriptor();
+    let server = project.start();
+    let accepted = server.rpc(
+        ALICE,
+        "SendMessage",
+        send("status-1", descriptor["bundle_digest"].as_str().unwrap()),
+    );
+    let id = accepted["task"]["id"].as_str().unwrap();
+    server.completed(id);
+    let before = project.calls();
+    let first = server.rpc(ALICE, "GetTaskStatus", json!({"id":id}));
+    assert_eq!(first["version"], "mas-host-task-status/1");
+    assert_eq!(first["captureProfile"], "ordinary-trusted-local-metadata/1");
+    assert_eq!(first["serviceState"], "completed");
+    assert_eq!(first["hostSettlement"], "completed");
+    assert_eq!(first["externalExecution"], "not-assessed");
+    assert_eq!(first["executionPermission"], false);
+    assert!(first.to_string().len() < 16_384);
+    assert!(!first.to_string().contains("approved"));
+    assert!(!first.to_string().contains("private-review-prompt-marker"));
+    for _ in 0..20 {
+        let next = server.rpc(ALICE, "GetTaskStatus", json!({"id":id}));
+        assert_eq!(
+            next["materialisation"]["revision"],
+            first["materialisation"]["revision"]
+        );
+        assert_eq!(
+            next["materialisation"]["updatedAtMs"],
+            first["materialisation"]["updatedAtMs"]
+        );
+    }
+    denied(server.rpc_with(BOB, "GetTaskStatus", json!({"id":id}), true));
+    denied(server.rpc_with(ALICE, "GetTaskStatus", json!({"id":id}), false));
+    denied(server.rpc_with(
+        ALICE,
+        "GetTaskStatus",
+        json!({"id":id,"includePayloads":true}),
+        true,
+    ));
+    assert_eq!(
+        project.calls(),
+        before,
+        "status reads redispatched provider"
+    );
+    drop(server);
+    let restarted = project.start();
+    let after = restarted.rpc(ALICE, "GetTaskStatus", json!({"id":id}));
+    assert_eq!(
+        after["materialisation"]["revision"],
+        first["materialisation"]["revision"]
+    );
+    assert_eq!(after["serviceState"], "completed");
+    assert_eq!(project.calls(), before);
+}

@@ -20,7 +20,7 @@
       "status": "NOT_RUN", "missing": "authenticated bounded status materialisation and reference deployment"},
     "L": {"kind": "local-compatibility", "investigations_per_second": "0.25",
       "mean_occupancy_ms": 30000, "tenants": 1, "clusters": 1,
-      "status": "NOT_RUN", "missing": "paced occupancy fixture and sustained baseline"},
+      "status": "NOT_RUN", "missing": "sustained paced baseline on an identified reference deployment"},
     "S": {"kind": "shared-growth", "tenants": 100, "clusters": 20,
       "submissions_per_second": 10, "burst_per_second": 50, "burst_ms": 60000,
       "admission_p95_target_ms": 500, "minimum_admission_fraction": "0.99",

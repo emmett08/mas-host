@@ -76,3 +76,65 @@ contention, deterministic endpoint faults, paced occupancy and the reference
 environment are measured. Later comparisons require warm-up, at least three
 interleaved baseline/candidate runs and thirty-minute sustained qualification.
 Recovery and restart qualification remain separately identified work.
+
+## Paced execution and independent history checks
+
+`tests/performance/paced.py` adds bounded offered demand, concurrent native host
+execution and a synthetic source that remains occupied for a declared interval.
+For example, this short fault experiment offers four original requests at 20/s,
+uses at most two CLI processes, and loses every second effect's completion:
+
+```sh
+python3 tests/performance/paced.py --host target/debug/mas-host \
+  --count 4 --rate 20 --occupancy-ms 100 --concurrency 2 \
+  --fault-every 2 --fault-mode lost-completion --output /tmp/p0-paced-loss.json
+```
+
+`make workload-acceptance` builds the host, runs the workload unit tests and
+executes both short fault scenarios. Its JSON reports remain under
+`target/workload-acceptance/`. These checks exercise fixture conformance and
+replay. Sustained deployment qualification uses a separately selected workload.
+
+The native fixture records its actual admitted effect identity in a separate,
+synced source ledger before returning through `ctx.effect`. A lost-completion
+fault exits the worker after the source has completed and before the host sees
+its result. The runner resumes the same original run and verifies that the
+source ledger remains unchanged. A second deterministic fault,
+`refuse-before-effect`, returns an application error before effect admission.
+Both faults exercise local host boundaries without a provider call.
+
+`history.py` compares offered identities, retained host results and source
+histories. It detects duplicate source execution, missing result identities and
+effect-identity substitution. Missing source coverage produces `INCONCLUSIVE`.
+A completed source operation with an unknown host result remains a distinct
+fact. Counterexample tests deliberately duplicate one completion and remove
+another while preserving totals, remove source events, swap effect identities
+and simulate a replay that repeats the source operation.
+
+The runner snapshots and hashes its host executable before the experiment, so
+a concurrent build cannot change the binary used by later requests. The report
+records the offered schedule, harness start and queue delays, source
+occupancy, native CLI latency, retained state bytes, replay outcomes and exact
+experiment/fixture hashes. Harness queue time describes waiting for a local
+test thread. Host admission latency and eligible service queue time remain
+unknown. The source's millisecond wall-clock intervals provide a limited
+occupancy observation. They measure neither CPU time nor shared scheduler
+assignments. Concurrent invocations use distinct run identities and local
+owners. This experiment does not exercise a shared A2A scheduler or establish
+multi-tenant isolation.
+
+Bounds are explicit: 10,000 offered requests, sixteen active CLI processes,
+30,000 ms maximum source occupancy, sixty seconds per CLI attempt and 64 KiB
+per source ledger. Parameters reject a scheduled or minimum occupancy interval
+longer than one hour. Reports retain synthetic metadata and source events. The
+trusted fixture's output and process tree retain the existing host supervision
+contract. External database, provider and reference deployment qualification
+remains separate.
+
+To exercise the L demand and occupancy parameters, use `--rate 0.25
+--occupancy-ms 30000 --concurrency 16`; a thirty-minute offered-demand interval
+requires at least 451 requests. A qualification programme still needs warm-up,
+three interleaved baseline/candidate runs, the identified reference environment,
+the full L compatibility checks and the declared hardware/cost envelope.
+The runner therefore keeps every canonical scenario `NOT_RUN`; its own
+`LOCAL_EXPERIMENT_ONLY` status records the narrower observed result.

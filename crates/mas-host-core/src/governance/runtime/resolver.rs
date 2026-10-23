@@ -158,6 +158,7 @@ pub(super) fn with_snapshot<T>(
     {
         return Err(UNAVAILABLE.into());
     }
+    super::lifecycle::check_namespace(session, &run_id, &nonce, false)?;
     let namespace_ref = session.identity_commitment(&json!([
         "mas-governed-evidence-namespace/1",
         run_id,
@@ -343,6 +344,9 @@ fn resolve(
     }
     let available = (|| -> Result<()> {
         resolver_record::validate_payload(session, actor, &view)?;
+        if let Some(components) = view["evidence"]["inspection"].get("component_assessments") {
+            session.authorize_assessment_resolution(actor, components, exposure)?;
+        }
         super::encoding::canonical(&view, 65_536)?;
         // Inspect the application descriptor, result and reported evidence.
         // Host-owned receipt metadata was validated separately; scanning its
@@ -384,4 +388,33 @@ pub fn read_governed_root_effect(
     key: &str,
 ) -> Result<Value> {
     resolve(directory, session, actor, None, key).map_err(|_| UNAVAILABLE.into())
+}
+
+/// Resolve exact retained component assessments under a distinct current grant.
+/// The reader returns governed span/category metadata without source bytes.
+pub fn read_governed_root_assessment(
+    directory: &Path,
+    session: &GovernedSession,
+    actor: &str,
+    key: &str,
+) -> Result<Value> {
+    (|| -> Result<Value> {
+        let query = json!({"version":"mas-governed-assessment-query/1","actor":actor,"key":key});
+        session.authorize_assessment_resolution(actor, &query, &exposure::Exposure::default())?;
+        let view = resolve(directory, session, actor, None, key)?;
+        if view["payload_disposition"] != "available" {
+            return Err(UNAVAILABLE.into());
+        }
+        let components = view["evidence"]["inspection"]
+            .get("component_assessments")
+            .ok_or(UNAVAILABLE)?;
+        Ok(
+            json!({"version":"mas-governed-assessment-view/1","namespace_ref":view["namespace_ref"],
+            "actor":view["actor"],"parent_invocation":view["parent_invocation"],"key":view["key"],
+            "effect_id":view["effect_id"],"assessment_disposition":"available",
+            "raw_source_disposition":"not-retained","inspection":view["evidence"]["inspection"],
+            "component_count":components.as_array().ok_or(UNAVAILABLE)?.len()}),
+        )
+    })()
+    .map_err(|_| UNAVAILABLE.into())
 }

@@ -3,7 +3,15 @@ mod a2a;
 mod build;
 mod capabilities;
 mod config;
+mod lifecycle;
 mod privacy_inspect;
+#[cfg(feature = "shared-native")]
+mod shared_connection;
+#[cfg(feature = "shared-native")]
+mod shared_native;
+#[cfg(feature = "shared-native")]
+mod shared_queue;
+mod source_quarantine;
 use serde_json::{json, Value};
 use std::{
     collections::BTreeMap,
@@ -16,16 +24,21 @@ const HELP: &str = "mas-host: native applications on the MAS protocol\n\n\
   run     --bundle FILE --agent NAME --input FILE|- [--input-format json|toml|yaml] --state DIR --run ID\n\
   inspect --state DIR --run ID\n\
   describe --bundle FILE\n\
+  govern-lifecycle --state DIR --run ID --governance FILE --tenant ID --principal ID --purpose ID --grant ID --action hold|release-hold|expire|retire [--expires-at-ms N] [--privacy-inspector FILE] [--service-state DIR]\n\
+  govern-source-quarantine --governance FILE --tenant ID --principal ID --purpose ID --grant ID --actor NAME --action initialize|list|read|adjudicate|hold|release-hold|expire|retire [--reference ID --after ID --review FILE --expires-at-ms N --privacy-inspector FILE]\n\
   check-profile --profile FILE\n\
   check-capability --declaration FILE\n\
   privacy-inspect --input FILE|- --python ABS --manifest FILE --assets DIR [--worker FILE] [--timeout-ms N] [--memory-mib N] [--include-details true|false]\n\
   serve-a2a --bundle FILE --state DIR --config FILE [--capability-policy FILE]\n\
   observe --state DIR --run ID [--include-payloads true|false]\n\
+  shared-native --authority FILE --bundle FILE --input FILE --state DIR --run ID --agent NAME [--reservation-microusd N] (feature shared-native)\n\
+  shared-drain --authority FILE --bundle FILE --state DIR --agent NAME --workflow NAME --workflow-identity SHA --turn ID [--after N --page-size N --max-pages N --max-claims N] (feature shared-native)\n\
   cancel  --state DIR --run ID\n\
   resolve --state DIR --run ID --effect ID --output FILE --evidence FILE\n\n\
 Run builds automatically when --project is supplied. Reuse --run to resume.\n\
 Packaged runs require --capability-policy FILE; project runs may add --capabilities FILE.\n\
 Pass --revision-plan FILE to run a frozen assessment/revision workflow.\n\
+Governed CLI runs add --governance FILE --tenant ID --principal ID --purpose ID --grant ID [--privacy-inspector FILE].\n\
 Input format follows the file extension; stdin defaults to JSON.\n\
 The state directory belongs to one local operator. Python agents require Python 3.11+.\n";
 
@@ -61,6 +74,79 @@ fn sdk_root(args: &BTreeMap<String, String>) -> PathBuf {
 fn execute(args: &[String]) -> Result<Value, String> {
     let command = args.first().ok_or("missing command (try --help)")?;
     match command.as_str() {
+        "govern-source-quarantine" => source_quarantine::execute(&options(
+            &args[1..],
+            &[
+                "--governance",
+                "--tenant",
+                "--principal",
+                "--purpose",
+                "--grant",
+                "--actor",
+                "--action",
+                "--reference",
+                "--after",
+                "--review",
+                "--expires-at-ms",
+                "--privacy-inspector",
+            ],
+        )?),
+        "govern-lifecycle" => {
+            let args = options(
+                &args[1..],
+                &[
+                    "--state",
+                    "--run",
+                    "--governance",
+                    "--tenant",
+                    "--principal",
+                    "--purpose",
+                    "--grant",
+                    "--action",
+                    "--expires-at-ms",
+                    "--privacy-inspector",
+                    "--service-state",
+                ],
+            )?;
+            lifecycle::execute(&args)
+        }
+        #[cfg(feature = "shared-native")]
+        "shared-drain" => {
+            let args = options(
+                &args[1..],
+                &[
+                    "--authority",
+                    "--bundle",
+                    "--state",
+                    "--agent",
+                    "--reservation-microusd",
+                    "--workflow",
+                    "--workflow-identity",
+                    "--turn",
+                    "--after",
+                    "--page-size",
+                    "--max-pages",
+                    "--max-claims",
+                ],
+            )?;
+            shared_native::drain(&args)
+        }
+        #[cfg(feature = "shared-native")]
+        "shared-native" => {
+            let args = options(
+                &args[1..],
+                &[
+                    "--authority",
+                    "--bundle",
+                    "--input",
+                    "--state",
+                    "--run",
+                    "--agent",
+                    "--reservation-microusd",
+                ],
+            )?;
+            shared_native::execute(&args)
+        }
         "privacy-inspect" => {
             let args = options(
                 &args[1..],
@@ -145,6 +231,12 @@ fn execute(args: &[String]) -> Result<Value, String> {
                     "--topology",
                     "--input-format",
                     "--revision-plan",
+                    "--governance",
+                    "--tenant",
+                    "--principal",
+                    "--purpose",
+                    "--grant",
+                    "--privacy-inspector",
                     "--capabilities",
                     "--capability-policy",
                 ],
@@ -194,7 +286,34 @@ fn execute(args: &[String]) -> Result<Value, String> {
                 }
             });
             capabilities::validate_bundle(&bundle, capability_policy.as_deref())?;
-            let engine = mas_host_core::Engine::open(&bundle, state, run)?;
+            let engine = if let Some(file) = args.get("--governance") {
+                let mut session = mas_host_core::governance::GovernedSession::from_value(
+                    &config::read_json(Path::new(file))?,
+                    require(&args, "--tenant")?,
+                    require(&args, "--principal")?,
+                    require(&args, "--purpose")?,
+                    require(&args, "--grant")?,
+                )?;
+                if let Some(file) = args.get("--privacy-inspector") {
+                    session = privacy_inspect::GovernedInspector::load(Path::new(file))?
+                        .attach(session)?;
+                }
+                mas_host_core::Engine::open_governed(&bundle, state, run, session)?
+            } else {
+                if [
+                    "--tenant",
+                    "--principal",
+                    "--purpose",
+                    "--grant",
+                    "--privacy-inspector",
+                ]
+                .iter()
+                .any(|key| args.contains_key(*key))
+                {
+                    return Err("governed identity options require --governance".into());
+                }
+                mas_host_core::Engine::open(&bundle, state, run)?
+            };
             if let Some(path) = args.get("--revision-plan") {
                 let plan = config::read_json(Path::new(path))?;
                 if plan["draft_agent"] != agent {

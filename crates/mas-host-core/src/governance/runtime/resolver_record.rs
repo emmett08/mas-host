@@ -120,8 +120,22 @@ fn validate_inspection(
             "inspected_sources",
             "boundary_bytes",
         ],
-        &[],
+        &["component_assessments", "quarantine_ref"],
     )?;
+    if let Some(reference) = receipt.get("quarantine_ref") {
+        if session.0.quarantine.is_none()
+            || !reference.as_str().is_some_and(|s| {
+                s.strip_prefix("quarantine-").is_some_and(|id| {
+                    id.len() == 64
+                        && id
+                            .bytes()
+                            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+                })
+            })
+        {
+            return Err("governed-evidence-inspection-contract".into());
+        }
+    }
     let gate = session
         .2
         .as_ref()
@@ -136,7 +150,7 @@ fn validate_inspection(
     if receipt["version"] != "mas-governed-inspection-receipt/1"
         || receipt["contract"] != gate.contract()
         || receipt["completion"] != "complete"
-        || receipt["coverage"] != "complete-within-json-text-components/1"
+        || receipt["coverage"] != gate.coverage()
         || !is_binding(&receipt["original_binding"])
         || !is_binding(&receipt["projection_binding"])
         || receipt["projection_binding"] != session.commitment(&json!([output, evidence]))?
@@ -153,6 +167,34 @@ fn validate_inspection(
             .is_none_or(|n| n > 16_384)
     {
         return Err("governed-evidence-inspection-contract".into());
+    }
+    if let Some(components) = receipt.get("component_assessments") {
+        if receipt["contract"]["version"] != "mas-governed-inspection/3" {
+            return Err("governed-assessment-contract".into());
+        }
+        let components = components
+            .as_array()
+            .filter(|items| items.len() <= 128)
+            .ok_or("governed-assessment-contract")?;
+        for component in components {
+            crate::fields(component, &["binding", "record"], &[])?;
+            let record = &component["record"];
+            crate::fields(
+                record,
+                &["index", "scope", "source_binding", "assessment"],
+                &[],
+            )?;
+            if component["binding"] != session.commitment(record)?
+                || !is_binding(&record["source_binding"])
+                || record["index"].as_u64().is_none_or(|n| n >= 128)
+                || ![json!("original"), json!("projection")].contains(&record["scope"])
+                || record["assessment"]["version"] != "mas-combined-privacy-assessment/1"
+            {
+                return Err("governed-assessment-contract".into());
+            }
+        }
+    } else if receipt["contract"]["version"] == "mas-governed-inspection/3" {
+        return Err("governed-assessment-contract".into());
     }
     Ok(())
 }

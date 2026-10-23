@@ -74,6 +74,15 @@ caching.
 | `CancelTask` | Persist cancellation intent and return `-32002` while cancellation remains unconfirmed |
 | `GetRetainedEffect` | Governed A2A2 extension: read one root-workflow effect under current resolve authority |
 | `GetRetainedSource` | Governed local/2 extension: resolve one exact retained source projection and its full ancestry |
+| `GetSharedSource` | Explicit shared-source extension: independently authorise one operator-approved retained source read |
+| `PublishRetainedSource` | Opt-in source-publication extension: publish one owned retained source selection under current authority |
+| `GetRetainedSourceLineage` | Referenced-lineage extension: resolve one owned source's exact ancestry page |
+| `GetSharedSourceLineage` | Referenced-lineage extension: independently authorise one approved source's ancestry page |
+
+See [shared source admission](governed-shared-sources.md) for operator-owned
+publication, independent reader policy and the negotiated extension.
+The opt-in [referenced-lineage contract](governed-source-lineage.md) provides
+bounded pages for larger complete closures.
 
 RPCs use `POST /a2a`, `Content-Type: application/json`, `Authorization: Bearer ...`
 and `A2A-Version: 1.0`. Task methods additionally require:
@@ -344,3 +353,35 @@ calls. These checks establish the exercised bounded adapter contract. Live model
 and interoperability with other A2A implementations require separate validation. The
 separate `mas-host-examples/examples/a2a-review` demonstration also checks an
 independently maintained, pinned official A2A SDK.
+
+## Bounded service status
+
+The host task-service extension also advertises `GetTaskStatus({"id":"task-id"})`.
+Its `mas-host-task-status/1` projection returns at most 16 KiB of service facts.
+The service materialises those facts in the same SQLite transaction as each
+submission, state transition or cancellation intent. A primary-key lookup loads
+one bounded record. It never loads application output, execution histories or
+provider diagnostics and never invokes a collector, model or external API.
+Repeated viewers reuse the materialised state while retaining independent
+current authorisation checks.
+
+The result separates `serviceState`, `hostSettlement`, `externalExecution`,
+`payloadAvailability`, `evidenceCoverage` and `applicationAssessment`.
+A completed service state establishes host settlement. Other service states
+leave settlement unestablished. External execution, application assessment,
+source-evidence freshness and evidence coverage remain explicitly unassessed.
+A retained payload requires its existing separately authorised read.
+`executionPermission` is always false.
+
+`materialisation.revision` increases with each task mutation and
+`updatedAtMs` identifies that mutation's materialisation time. `observedAtMs`
+identifies this read. An old update time can describe an unchanged completed task.
+The projection is a committed service snapshot, independently of the core's
+journal and protocol snapshots. It supplies no atomic cross-journal history.
+
+The exact task owner, export grant and governed session fingerprint constrain
+lookup. Governed version 2 additionally applies the task's complete current
+source exposure before delivery. Pending acquisition, revocation or incomplete
+source authority can withhold a status response. Responses remain `no-store`.
+The local service keeps its existing sixteen-active-task ceiling. Deployment
+latency and the 5,000-viewer target require separate workload qualification.

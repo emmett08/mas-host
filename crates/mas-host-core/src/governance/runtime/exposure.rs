@@ -4,7 +4,7 @@ use rusqlite::{params, Connection, OptionalExtension};
 use serde_json::{json, Value};
 use std::collections::{BTreeMap, BTreeSet};
 type Result<T> = std::result::Result<T, String>;
-const LIMIT: usize = 64;
+const LIMIT: usize = 256;
 type SourceRow = (
     Option<String>,
     Option<String>,
@@ -43,9 +43,29 @@ impl Exposure {
             || serde_json::to_vec(&self.sources.values().map(|s| &s.body).collect::<Vec<_>>())
                 .map_err(|_| "governed-exposure-limit")?
                 .len()
-                > 65_536
+                > 1_048_576
         {
             return Err("governed-exposure-limit".into());
+        }
+        Ok(())
+    }
+    pub(crate) fn validate_for(&self, session: &GovernedSession) -> Result<()> {
+        self.validate()?;
+        if self.sources.len() > session.source_limit()
+            || serde_json::to_vec(&self.sources.values().map(|s| &s.body).collect::<Vec<_>>())
+                .map_err(|_| "governed-exposure-limit")?
+                .len()
+                > session.lineage_byte_limit()
+        {
+            return Err("governed-exposure-limit".into());
+        }
+        let all = self.sources.keys().cloned().collect::<BTreeSet<_>>();
+        if self
+            .sources
+            .values()
+            .any(|source| !source.refs("parents").is_subset(&all))
+        {
+            return Err("governed-source-ancestor-unavailable".into());
         }
         Ok(())
     }
@@ -125,7 +145,7 @@ fn visit(
     if out.sources.contains_key(id) {
         return Ok(());
     }
-    if out.sources.len() + active.len() >= LIMIT {
+    if out.sources.len() + active.len() >= session.source_limit() {
         return Err("governed-exposure-limit".into());
     }
     active.insert(id.into());
@@ -145,7 +165,7 @@ pub(crate) fn load_source(
     let mut out = Exposure::default();
     visit(db, session, id, &mut out, &mut BTreeSet::new())?;
     out.frontier();
-    out.validate()?;
+    out.validate_for(session)?;
     Ok(out)
 }
 pub(crate) fn load_step_source(
@@ -168,6 +188,7 @@ pub(crate) fn load_step_source(
     load_source(db, session, &id)
 }
 fn manifest(session: &GovernedSession, id: &str, kind: &str, exposure: &Exposure) -> Result<Value> {
+    exposure.validate_for(session)?;
     let mut body = json!({"version":"mas-governed-exposure/1","invocation_id":id,"kind":kind,"roots":exposure.roots,"source_count":exposure.sources.len(),"pending":exposure.pending,"closure_binding":session.commitment(&json!(exposure.sources.keys().collect::<Vec<_>>()))?});
     body["seal"] = json!(session.commitment(&body)?);
     Ok(body)
@@ -211,7 +232,7 @@ fn load_manifest(
     }
     let roots = body["roots"]
         .as_array()
-        .filter(|r| r.len() <= LIMIT)
+        .filter(|r| r.len() <= session.source_limit())
         .ok_or("governed-exposure-limit")?;
     let mut out = Exposure::default();
     for root in roots {
@@ -381,6 +402,7 @@ pub(crate) fn create_source(
         )?
     };
     let out = parents.with_source(source.clone())?;
+    out.validate_for(session)?;
     db.execute(
         "INSERT INTO governed_sources VALUES(?,?)",
         params![source.id(), source.body.to_string()],

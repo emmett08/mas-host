@@ -1,0 +1,21 @@
+{
+  "version": "nehemiah-qualified-runtime-cut/1",
+  "local_commit": "d9ac1014a1f2428e3c20aa7d7ee17506a012f7ad",
+  "remote_host_commit": "0f2ab6f518ea0f00f85b76374bbb538a6985720e",
+  "remote_host_tree": "ae877bf0ce764227756faa44c6eb58148e6cec60",
+  "protocol_commit": "e1257fb7125cdc971d94e38221c5185818bb577d",
+  "host_binary_sha256": "e51e5a2b6c2912136dc493cf62f5d6a5afb2013a6b60b4d637044b9072dc62a5",
+  "binary_profile": "default features, trusted-local host; shared-native is separately qualified in PostgreSQL CI",
+  "basis": [
+    "make-test.json: compilation and tests with unchanged source before and after",
+    "native-acceptance.json: actual native workers, acquisitions and local fault fixtures with unchanged source",
+    "shared-provider-units.json: clock translation, invalid hints and strict observation validation",
+    "formal-summary.json: unchanged finite model/runner hashes, not implementation refinement"
+  ],
+  "consumer_pr": "https://github.com/emmett08/catalog-sync-operator-monograph/pull/382",
+  "limitations": [
+    "Trusted local compiler and filesystem; no remote build attestation or reproducibility claim",
+    "Paced fixture JSON retains LOCAL_EXPERIMENT_ONLY and its original provenance limitations",
+    "Production domain, deployment, external-copy deletion and shared protected qualification are separate"
+  ]
+}

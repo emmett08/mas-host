@@ -184,7 +184,22 @@ impl Inner {
         }
         let _active = Active(&self.active);
         self.set_state(&step.id, "running", None, None)?;
-        let environment = match agent.environment() {
+        let environment_result = (|| -> Result<_> {
+            if let Some(session) = &self.governance {
+                if let Some(resolved) =
+                    session.credential_environment(target, &agent.environment_names)?
+                {
+                    crate::governance::runtime::lifecycle::with_admission(
+                        &self.directory,
+                        session,
+                        || resolved.admit(&*lock(&self.journal)?, target),
+                    )?;
+                    return Ok(resolved.values);
+                }
+            }
+            agent.environment()
+        })();
+        let environment = match environment_result {
             Ok(environment) => environment,
             Err(failure) => {
                 self.known_failure(&step, &failure)?;

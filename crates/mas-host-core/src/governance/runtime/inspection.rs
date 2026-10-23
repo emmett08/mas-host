@@ -23,6 +23,16 @@ pub trait PrivacyInspector: Send + Sync {
     fn detector(&self) -> &DetectorPins;
     fn configuration_binding(&self) -> String;
     fn timeout_ms(&self) -> u64;
+    /// Opt in to exact canonical JSON context in addition to decoded strings.
+    /// This scans numeric literals and cross-field context within one boundary.
+    /// Implementations retain separate domain/conversation qualification duties.
+    fn contextual_json(&self) -> bool {
+        false
+    }
+    /// Retain bounded category/span metadata only under explicit policy.
+    fn retain_assessments(&self) -> bool {
+        false
+    }
     fn inspect(
         &self,
         source: &Source,
@@ -37,21 +47,41 @@ pub(super) struct InspectionGate {
     configuration_binding: String,
     timeout_ms: u64,
     destination: String,
+    contextual_json: bool,
+    retain_assessments: bool,
 }
 
 impl InspectionGate {
     pub(super) fn contract(&self) -> Value {
-        json!({"version":"mas-governed-inspection/1","detector":self.detector.value(),
+        json!({"version":if self.retain_assessments { "mas-governed-inspection/3" } else if self.contextual_json { "mas-governed-inspection/2" } else { "mas-governed-inspection/1" },"detector":self.detector.value(),
             "configuration_binding":self.configuration_binding,"timeout_ms":self.timeout_ms,
             "destination":self.destination,"recipient":"privacy-inspector",
-            "extraction":"json-text-components/1","max_boundary_bytes":MAX_BOUNDARY_BYTES,
+            "extraction":self.extraction(),"max_boundary_bytes":MAX_BOUNDARY_BYTES,
             "max_text_units":MAX_TEXT_UNITS,"release_mode":"structured-projection-only"})
+    }
+
+    pub(super) fn extraction(&self) -> &'static str {
+        if self.contextual_json {
+            "json-components-and-context/2"
+        } else {
+            "json-text-components/1"
+        }
+    }
+
+    pub(super) fn coverage(&self) -> &'static str {
+        if self.contextual_json {
+            "complete-within-json-components-and-context/2"
+        } else {
+            "complete-within-json-text-components/1"
+        }
     }
 
     pub(super) fn check_implementation(&self) -> Result<()> {
         if *self.inspector.detector() != self.detector
             || self.inspector.configuration_binding() != self.configuration_binding
             || self.inspector.timeout_ms() != self.timeout_ms
+            || self.inspector.contextual_json() != self.contextual_json
+            || self.inspector.retain_assessments() != self.retain_assessments
         {
             return Err("governed-inspector-identity-changed".into());
         }
@@ -82,6 +112,20 @@ fn text_units<'a>(value: &'a Value, units: &mut Vec<&'a str>) -> Result<()> {
         return Err("governed-inspection-limit".into());
     }
     Ok(())
+}
+
+fn inspection_units(value: &Value, contextual: bool) -> Result<Vec<String>> {
+    let mut borrowed = Vec::new();
+    text_units(value, &mut borrowed)?;
+    let mut units: Vec<String> = borrowed.into_iter().map(str::to_owned).collect();
+    if contextual {
+        let context = super::encoding::canonical(value, MAX_BOUNDARY_BYTES)?;
+        units.push(String::from_utf8(context).map_err(|_| "governed-inspection-source")?);
+    }
+    if units.len() > MAX_TEXT_UNITS {
+        return Err("governed-inspection-limit".into());
+    }
+    Ok(units)
 }
 
 impl GovernedSession {
@@ -163,6 +207,9 @@ impl GovernedSession {
         if self.2.is_some() {
             return Err("governed-inspector-already-configured".into());
         }
+        if self.0.quarantine.is_some() && !inspector.retain_assessments() {
+            return Err("governed-source-quarantine-requires-retained-assessments".into());
+        }
         let destination = super::super::identifier(&json!({"id":destination}), "id")
             .map_err(|_| "governed-inspector-destination")?;
         let configuration_binding = inspector.configuration_binding();
@@ -178,6 +225,8 @@ impl GovernedSession {
             return Err("governed-inspector-timeout".into());
         }
         self.2 = Some(Arc::new(InspectionGate {
+            contextual_json: inspector.contextual_json(),
+            retain_assessments: inspector.retain_assessments(),
             detector: inspector.detector().clone(),
             inspector,
             configuration_binding,
@@ -188,21 +237,53 @@ impl GovernedSession {
         Ok(self)
     }
 
-    pub(super) fn inspect_boundary(
-        &self,
-        actor: &str,
-        original: &Value,
-        projection: &Value,
-    ) -> Result<Option<Value>> {
-        self.inspect_boundary_with_exposure(actor, original, projection, &Exposure::default())
-    }
-
     pub(crate) fn inspect_boundary_with_exposure(
         &self,
         actor: &str,
         original: &Value,
         projection: &Value,
         exposure: &Exposure,
+    ) -> Result<Option<Value>> {
+        if self.0.quarantine.is_some() && self.2.is_none() {
+            return Err("governed-source-quarantine-requires-inspector".into());
+        }
+        let mut assessed = None;
+        let mut outcome = self.scan_boundary(actor, original, projection, exposure, &mut assessed);
+        if self.0.quarantine.is_some() {
+            let assessment = assessed.unwrap_or_else(|| json!({"version":"mas-governed-inspection-failure/1",
+                "completion":"unavailable","reason":outcome.as_ref().err().map(String::as_str).unwrap_or("governed-inspection-unavailable"),
+                "contract":self.2.as_ref().map(|gate|gate.contract())}));
+            // This separate payload owner also handles rejected ingress, which
+            // has no task/journal yet. Failure to honour custody fails closed.
+            if let Some(reference) =
+                self.retain_quarantine(actor, original, projection, &assessment, exposure)?
+            {
+                if let Ok(Some(receipt)) = &mut outcome {
+                    receipt["quarantine_ref"] = json!(reference);
+                }
+            }
+        }
+        outcome
+    }
+
+    /// Retrieval rechecks inspection without acquiring another raw copy.
+    pub(super) fn inspect_disclosure_with_exposure(
+        &self,
+        actor: &str,
+        original: &Value,
+        projection: &Value,
+        exposure: &Exposure,
+    ) -> Result<Option<Value>> {
+        self.scan_boundary(actor, original, projection, exposure, &mut None)
+    }
+
+    fn scan_boundary(
+        &self,
+        actor: &str,
+        original: &Value,
+        projection: &Value,
+        exposure: &Exposure,
+        assessed: &mut Option<Value>,
     ) -> Result<Option<Value>> {
         let Some(gate) = &self.2 else {
             return Ok(None);
@@ -215,11 +296,13 @@ impl GovernedSession {
         gate.check_implementation()?;
         let combined = json!([original, projection]);
         let bytes = super::encoding::canonical(&combined, MAX_BOUNDARY_BYTES)?;
-        let mut originals = Vec::new();
-        text_units(original, &mut originals)?;
+        let originals = inspection_units(original, gate.contextual_json)?;
         let original_count = originals.len();
         let mut units = originals;
-        text_units(projection, &mut units)?;
+        units.extend(inspection_units(projection, gate.contextual_json)?);
+        if units.len() > MAX_TEXT_UNITS {
+            return Err("governed-inspection-limit".into());
+        }
         // Processing raw text is a separate correlated policy tuple. The
         // scanner receives no source before this fresh authority admission.
         self.authorize_exposure(
@@ -234,6 +317,7 @@ impl GovernedSession {
         let mut original_findings = 0usize;
         let mut projection_findings = 0usize;
         let mut inspected = BTreeMap::new();
+        let mut component_assessments = Vec::new();
         let limits = Limits::default();
         for (index, text) in units.iter().enumerate() {
             if started.elapsed() >= duration || crate::now_ms()? >= deadline_ms {
@@ -252,7 +336,7 @@ impl GovernedSession {
                     exposure,
                 )?;
             }
-            if let Some(count) = inspected.get(text) {
+            if let Some((count, _)) = inspected.get(text.as_str()) {
                 if index < original_count {
                     original_findings += count;
                 } else {
@@ -279,10 +363,21 @@ impl GovernedSession {
                 .map_err(|_| "governed-inspection-invalid")?;
             let assessment = CombinedAssessment::new(&source, neural, limits)
                 .map_err(|_| "governed-inspection-invalid")?;
+            if gate.retain_assessments {
+                let record = json!({"index":index,"scope":if index < original_count { "original" } else { "projection" },
+                    "source_binding":self.commitment(&json!(text))?,"assessment":assessment.metadata()});
+                component_assessments
+                    .push(json!({"binding":self.commitment(&record)?,"record":record}));
+                *assessed = Some(
+                    json!({"version":"mas-governed-inspection-failure/1","completion":"incomplete",
+                    "contract":gate.contract(),"original_binding":self.commitment(original)?,
+                    "projection_binding":self.commitment(projection)?,"component_assessments":component_assessments}),
+                );
+            }
             if assessment.completion() != Completion::Complete {
                 return Err("governed-inspection-incomplete".into());
             }
-            inspected.insert(*text, assessment.findings().len());
+            inspected.insert(text.as_str(), (assessment.findings().len(), index));
             if index < original_count {
                 original_findings += assessment.findings().len();
             } else {
@@ -305,15 +400,31 @@ impl GovernedSession {
         if started.elapsed() >= duration || crate::now_ms()? >= deadline_ms {
             return Err("governed-inspection-timeout".into());
         }
+        let mut receipt = json!({"version":"mas-governed-inspection-receipt/1",
+            "contract":gate.contract(),"original_binding":self.commitment(original)?,
+            "projection_binding":self.commitment(projection)?,"completion":"complete",
+            "coverage":gate.coverage(),
+            "original_findings_count":original_findings,"projected_findings_count":projection_findings,
+            "text_units":units.len(),"inspected_sources":inspected.len(),"boundary_bytes":bytes.len()});
+        if gate.retain_assessments {
+            let custody = json!(component_assessments);
+            super::encoding::canonical(&custody, 65_536)?;
+            self.authorize_exposure(
+                actor,
+                "retain-assessment",
+                "host-assessment-journal",
+                "host-journal",
+                &custody,
+                &custody,
+                exposure,
+            )?;
+            receipt["component_assessments"] = custody;
+        }
+        *assessed = Some(receipt.clone());
         if projection_findings != 0 {
             return Err("governed-inspection-prohibited-projection".into());
         }
-        Ok(Some(json!({"version":"mas-governed-inspection-receipt/1",
-            "contract":gate.contract(),"original_binding":self.commitment(original)?,
-            "projection_binding":self.commitment(projection)?,"completion":"complete",
-            "coverage":"complete-within-json-text-components/1",
-            "original_findings_count":original_findings,"projected_findings_count":projection_findings,
-            "text_units":units.len(),"inspected_sources":inspected.len(),"boundary_bytes":bytes.len()})))
+        Ok(Some(receipt))
     }
 }
 

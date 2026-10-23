@@ -1,12 +1,19 @@
 # Nehemiah implementation sequence
 
+The current integration and its remaining qualification boundaries are tracked
+in [Nehemiah integration and qualification](nehemiah-integration-status.md).
+The foundation account and historical validation receipts below identify their
+own source revisions.
+
 Use this sequence to distinguish the implemented slices from the acceptance work that
-still blocks the three plans updated on 22 October 2026. The original foundation starts
-from `mas-host@6508042ea86d26bb35106d919a8699d5f1a2e782`. Review repairs are published
+still blocks the three plans updated on 22 October 2026. Implementation follows
+those plans. The original foundation starts from
+`mas-host@6508042ea86d26bb35106d919a8699d5f1a2e782`. Review repairs are published
 in PR #15 at `7558168f6b05f478773207fa94d3b3988f197cda` and PR #16 at
-`f651ddac8a5afabfbb955de805b3ff59b1ecde99`. Their original validation receipts remain
-historical evidence for the source revisions they identify. Review receipts under
-`evidence/nehemiah-review/` bind the corrected files and the current plan snapshots.
+`f651ddac8a5afabfbb955de805b3ff59b1ecde99`. Their original validation receipts
+remain historical evidence for the source revisions they identify. Review
+receipts under `evidence/nehemiah-review/` bind the corrected files and the
+current plan snapshots.
 
 | Plan increment | Implemented scope | Remaining acceptance work |
 |---|---|---|
@@ -18,9 +25,13 @@ historical evidence for the source revisions they identify. Review receipts unde
 | N2 detector mediation | Optional operator-pinned local inspection at structured ingress, invocation, effect arguments, result/evidence retention and retained payload delivery, with exact-source coverage, current processing authority and version-bound receipts | Cross-field/conversational inspection, numeric identifiers, arbitrary text qualification and remaining acquisition/inference/revision paths |
 | N2/E3 retained-effect reader | Current-authority, read-only resolution of an exact retained effect, with separate metadata/payload checks and no execution recovery | Broader source/assessment access and shared-reader qualification |
 | E2/E3 structured acquisition | Opt-in version 2 baseline/source-policy association, durable pending acquisition, host-owned ancestry/exposure and authorised retained projection reads through existing journals | Exact assessment custody, source-byte adjudication, protected revision, larger closure and shared-subscriber qualification |
-| N3 first response slice | Trusted native safe-case intent and separately admitted notification through existing effects, with a bounded memory fixture, HTTPS incident-submission adapter and authorised retained case-status projection | Exact component-assessment/source-byte resolution, adjudication, durable queue, timed retry/escalation, provider reconciliation and endpoint/deployment qualification |
-| Independent P9a | Connection-profile consumption is published in [CSO PR #381](https://github.com/emmett08/catalog-sync-operator-monograph/pull/381), stacked on PR #379, at `65de861aa7c71fae3eaf4dcea825b66e7ebe4d1b` | Consumer merge and the separately selected PR #380 integration, followed by broader dynamic credential/privacy qualification |
-| E4/E5 and N4/N5 | Required capabilities stay explicit and unsupported paths reject | Deletion/expiry/restore, worker isolation, consumer and measured deployment qualification |
+| N3 first response slice | Trusted native safe-case intent and separately admitted notification through existing effects; bounded memory fixture, HTTPS incident-submission adapter and authorised retained case-status projection | Exact component-assessment/source-byte resolution, adjudication, durable queue, timed retry/escalation, provider reconciliation and endpoint/deployment qualification |
+| Independent P9a | Connection-profile consumption is published in [CSO PR #381](https://github.com/emmett08/catalog-sync-operator-monograph/pull/381), stacked on PR #379, at `65de861aa7c71fae3eaf4dcea825b66e7ebe4d1b` | Consumer merge and the separately selected PR #380 integration; broader dynamic credential/privacy qualification |
+| E2 protected structured revision | Exact controller record schemas, current retention gates, inherited complete exposure and metadata-only audit delivery through the existing controller | Domain-specific full revision-round and unstructured qualification |
+| E2 credential lifecycle | Current scoped reference resolution before launch; durable monotone credential epochs and keyed value bindings | Administrative recovery after user-grant expiry and confinement of already running workers |
+| E3 shared retained-source readers | Explicit operator source exports and independent authenticated subscriber grants; original complete source restrictions remain conjunctive | Continuous subscription/cancellation, shared linearised admission and larger source closures |
+| E4 namespace lifecycle | Independent tombstones, holds, monotone access expiry, restore denial and stopped-namespace local payload purge | Individual-object lifecycle, automatic purge, all external copies and physical-erasure qualification |
+| E5 and N4/N5 deployment | Concrete hardened placement renderer, least-privilege collector and qualification commands; managed profile remains gated | Live images/CNI/volumes, hostile-worker isolation, consumer and measured deployment qualification |
 
 The first governed path is a single-owner trusted-local implementation. Its schemas
 allow closed objects, enumerated strings, bounded integers/arrays, booleans and null.
@@ -174,7 +185,10 @@ notifications, provider calls, deployments or manual workflow dispatches form
 part of local validation.
 
 See [capability packaging](capabilities.md), [governed local usage](governed-local.md),
-[detector mediation](governed-privacy.md), [contract preflight](nehemiah-governance.md),
-[local detector usage](privacy-detector.md), [retained effect
-reading](governed-evidence-reader.md) and [workload usage](workload-baseline.md) for
-executable entry points.
+[detector mediation](governed-privacy.md),
+[contract preflight](nehemiah-governance.md), [local detector usage](privacy-detector.md)
+[retained effect reading](governed-evidence-reader.md),
+[namespace lifecycle and credentials](governed-lifecycle.md),
+[structured revision](governed-revision.md),
+[shared source reading](governed-shared-sources.md) and
+[workload usage](workload-baseline.md) for executable entry points.
