@@ -14,10 +14,15 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  linux:
+  test:
+    name: Native tests
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     env:
+      # Keep full debug information in sidecars to reduce executable hashing.
+      # Debug assertions, overflow checks and optimisation retain their defaults.
+      CARGO_PROFILE_DEV_SPLIT_DEBUGINFO: unpacked
+      CARGO_PROFILE_TEST_SPLIT_DEBUGINFO: unpacked
       RUST_TEST_THREADS: '2'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -40,6 +45,15 @@ jobs:
         run: make test
       - name: Native applications and effect recovery
         run: make acceptance
+
+  formal:
+    name: SPIN verification
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Check host control and governed recovery with SPIN
         run: |
           sudo apt-get update
@@ -53,3 +67,18 @@ jobs:
           path: formal/evidence
           if-no-files-found: warn
           retention-days: 14
+
+  # Preserve the existing required status and report failures from either job.
+  linux:
+    needs: [test, formal]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Require every verification job to pass
+        env:
+          TEST_RESULT: ${{ needs.test.result }}
+          FORMAL_RESULT: ${{ needs.formal.result }}
+        run: |
+          test "$TEST_RESULT" = success
+          test "$FORMAL_RESULT" = success
